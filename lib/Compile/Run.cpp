@@ -167,12 +167,13 @@ Result<AST, std::string> CompileJob::Run(void) const {
       err << "Unable to create compiler invocation from command: "
           << argv.Join();
       return err.str();
-    } else {
-      err << "Unable to create compiler invocation from command due to error: "
-          << diag->error;
-      return err.str();
     }
-  } else if (!diag->error.empty()) {
+    err << "Unable to create compiler invocation from command due to error: "
+        << diag->error;
+    return err.str();
+  }
+
+  if (!diag->error.empty()) {
     err << "Unable to create compiler invocation from command due to error: "
         << diag->error;
     return err.str();
@@ -286,10 +287,11 @@ Result<AST, std::string> CompileJob::Run(void) const {
   if (input_files.empty()) {
     err << "No input file in compilation command: " << argv.Join();
     return err.str();
+  }
 
   // There should only be one input files, as we're dealing with `-cc1`
   // commands, not frontend commands.
-  } else if (1u < input_files.size()) {
+  if (1u < input_files.size()) {
     err << "Too many input files in compilation command: " << argv.Join();
     return err.str();
   }
@@ -452,13 +454,13 @@ Result<AST, std::string> CompileJob::Run(void) const {
       err << "A clang diagnostic or uncompilable error was produced when trying"
           << " to get an AST: " << argv.Join();
       return err.str();
-
-    } else {
-      err << "A clang diagnostic or uncompilable error was produced when trying"
-          << " to get an AST due to error: " << diag->error;
-      return err.str();
     }
-  } else if (!diag->error.empty()) {
+    err << "A clang diagnostic or uncompilable error was produced when trying"
+        << " to get an AST due to error: " << diag->error;
+    return err.str();
+  }
+
+  if (!diag->error.empty()) {
     err << "A clang diagnostic was produced when trying"
         << " to get an AST due to error: " << diag->error;
     return err.str();

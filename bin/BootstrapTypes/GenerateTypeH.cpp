@@ -49,6 +49,9 @@ void GenerateTypeH(void) {
       << "    }\n\n";
 
   os
+      << "namespace clang {\n"
+      << "class QualType;\n"
+      << "}\n"
       << "namespace pasta {\n"
       << "class TypeBuilder;\n\n"
       << "class TypeVisitor {\n"
@@ -95,6 +98,7 @@ void GenerateTypeH(void) {
       << "  }\n\n"
       << " public:\n"
       << "  PASTA_DECLARE_DEFAULT_CONSTRUCTORS(Type)\n"
+      << "  clang::QualType RawQualType(void) const noexcept;\n\n"
       << "  inline const clang::Type *RawType(void) const noexcept {\n"
       << "    return u.Type;\n"
       << "  }\n"

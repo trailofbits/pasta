@@ -32,6 +32,9 @@
       return u.base; \
     }
 
+namespace clang {
+class QualType;
+}
 namespace pasta {
 class TypeBuilder;
 
@@ -196,6 +199,8 @@ class Type {
 
  public:
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(Type)
+  clang::QualType RawQualType(void) const noexcept;
+
   inline const clang::Type *RawType(void) const noexcept {
     return u.Type;
   }

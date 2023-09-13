@@ -382,18 +382,18 @@ static std::filesystem::path FindRealSystemRoot(
       if (range.first == range.second) {
         done = true;
         break;
+      }
 
-      } else if (has_part) {
+      if (has_part) {
         if (part != *(range.first)) {
           done = true;
         }
-        ++range.first;
-
       } else {
         part = *(range.first);
         has_part = true;
-        ++range.first;
       }
+
+      ++range.first;
     }
 
     if (!done) {
@@ -493,9 +493,8 @@ Compiler::CreateHostCompiler(class FileManager file_manager,
       name, lang, version_info, version_info_fake_sysroot);
   if (maybe_compiler.Succeeded()) {
     return maybe_compiler.TakeValue();
-  } else {
-    return maybe_compiler.TakeError();
   }
+  return maybe_compiler.TakeError();
 }
 
 // Create a compiler from a version string.

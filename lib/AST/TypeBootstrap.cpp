@@ -8,9 +8,7 @@
 
 namespace pasta {
 
-Type::Type(
-    std::shared_ptr<ASTImpl> ast_,
-    const ::clang::Type *type_)
+Type::Type(std::shared_ptr<ASTImpl> ast_, const ::clang::Type *type_)
     : Type(std::move(ast_), type_, static_cast<TypeKind>(0u)) {}
 
 std::string_view Type::KindName(void) const noexcept {

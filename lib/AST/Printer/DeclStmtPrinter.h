@@ -127,11 +127,13 @@ class Printer {
 
   inline void MarkNamedDeclName(TokenPrinterContext &ctx,
                                 const clang::NamedDecl *D) {
-    if (tokens.ast) {
-      if (auto name_tok = tokens.ast->RawTokenAt(D->getLocation());
-          name_tok && name_tok->Kind() == clang::tok::identifier) {
-        ctx.MarkLocation(*name_tok);
-      }
+    if (!tokens.ast) {
+      return;
+    }
+    
+    auto name_tok = tokens.ast->RawTokenAt(D->getLocation());
+    if (name_tok && name_tok->Kind() == clang::tok::identifier) {
+      ctx.MarkLocation(*name_tok);
     }
   }
 
@@ -228,7 +230,7 @@ class DeclPrinter final : public clang::DeclVisitor<DeclPrinter>,
   void VisitOMPCapturedExprDecl(clang::OMPCapturedExprDecl *D);
   void VisitTemplateTypeParmDecl(const clang::TemplateTypeParmDecl *TTP);
   void VisitNonTypeTemplateParmDecl(const clang::NonTypeTemplateParmDecl *NTTP);
-//   void VisitHLSLBufferDecl(clang::HLSLBufferDecl *D);
+  void VisitHLSLBufferDecl(clang::HLSLBufferDecl *D);
   void printTemplateParameters(const clang::TemplateParameterList *Params,
                                bool OmitTemplateKW = false);
   void printTemplateArguments(llvm::ArrayRef<clang::TemplateArgument> Args,

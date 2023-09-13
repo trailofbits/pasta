@@ -400,16 +400,13 @@ class PrintedTokenRange {
 
   // More typical APIs when we've got PASTA ASTs.
   static PrintedTokenRange Create(
-      const Decl &decl_, const PrintingPolicy &pp_=PrintingPolicy(),
-      bool maintain_provenance=true);
+      const Decl &decl_, const PrintingPolicy &pp_=PrintingPolicy());
 
   static PrintedTokenRange Create(
-      const Stmt &stmt_, const PrintingPolicy &pp_=PrintingPolicy(),
-      bool maintain_provenance=true);
+      const Stmt &stmt_, const PrintingPolicy &pp_=PrintingPolicy());
 
   static PrintedTokenRange Create(
-      const Type &type_, const PrintingPolicy &pp_=PrintingPolicy(),
-      bool maintain_provenance=true);
+      const Type &type_, const PrintingPolicy &pp_=PrintingPolicy());
 
   // Create a new printed token range by concatenating two printed token ranges
   // together.
@@ -432,18 +429,10 @@ class PrintedTokenRange {
   // The only token contexts in an adopted range are AST contexts. The only
   // tokens in a printed token range are file tokens and complete macro
   // expansion tokens.
-  //
-  // The `maintain_provenance` argument determines whether or not the printed
-  // tokens will be able to find their original parsed tokens.
-  static PrintedTokenRange Adopt(const TokenRange &a,
-                                 bool maintain_provenance=true);
+  static PrintedTokenRange Adopt(const TokenRange &a);
 
   // Create a copy of `a`.
-  //
-  // The `maintain_provenance` argument determines whether or not the printed
-  // tokens will be able to find their original parsed tokens.
-  static PrintedTokenRange Copy(const PrintedTokenRange &a,
-                                bool maintain_provenance=true);
+  static PrintedTokenRange Copy(const PrintedTokenRange &a);
 
   // Dump token provenance information.
   void DumpProvenanceInformation(void);
@@ -494,6 +483,7 @@ class PrintedTokenRange {
   friend class AST;
   friend class ASTImpl;
   friend class DeclPrinter;
+  friend class PrintedTokenRangeImpl;
 
   PrintedTokenRange(void) = delete;
 

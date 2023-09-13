@@ -7475,7 +7475,6 @@ PASTA_DEFINE_BASE_OPERATORS(TagDecl, EnumDecl)
 PASTA_DEFINE_BASE_OPERATORS(TypeDecl, EnumDecl)
 // 0: EnumDecl::
 // 0: EnumDecl::
-
 ::pasta::EnumDecl EnumDecl::CanonicalDeclaration(void) const {
   auto &self = *const_cast<clang::EnumDecl *>(u.EnumDecl);
   decltype(auto) val = self.getCanonicalDecl();

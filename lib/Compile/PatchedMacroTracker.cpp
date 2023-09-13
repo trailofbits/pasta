@@ -250,11 +250,13 @@ MacroExpansionImpl *PatchedMacroTracker::DoPreExpansionSetup(
 static MacroTokenImpl *FirstExpansionToken(const Node &node) {
   if (std::holds_alternative<MacroTokenImpl *>(node)) {
     return std::get<MacroTokenImpl *>(node);
-  } else if (std::holds_alternative<MacroNodeImpl *>(node)) {
-    return std::get<MacroNodeImpl *>(node)->FirstExpansionToken();
-  } else {
-    return nullptr;
   }
+
+  if (std::holds_alternative<MacroNodeImpl *>(node)) {
+    return std::get<MacroNodeImpl *>(node)->FirstExpansionToken();
+  }
+
+  return nullptr;
 }
 
 static bool LastIsNotArgument(MacroExpansionImpl *exp) {
@@ -1062,66 +1064,44 @@ void ASTImpl::LinkMacroTokenContexts(void) {
   }
 }
 
-MacroKind KindFromName(llvm::StringRef ident,
-                       clang::tok::PPKeywordKind &out_kind) {
-  if (ident == "if") {
-    out_kind = clang::tok::pp_if;
-    return MacroKind::kIfDirective;
-  } else if (ident == "ifdef") {
-    out_kind = clang::tok::pp_ifdef;
-    return MacroKind::kIfDefinedDirective;
-  } else if (ident == "ifndef") {
-    out_kind = clang::tok::pp_ifndef;
-    return MacroKind::kIfNotDefinedDirective;
-  } else if (ident == "elif") {
-    out_kind = clang::tok::pp_elif;
-    return MacroKind::kElseIfDirective;
-  } else if (ident == "elifdef") {
-    out_kind = clang::tok::pp_elifdef;
-    return MacroKind::kElseIfDefinedDirective;
-  } else if (ident == "elifndef") {
-    out_kind = clang::tok::pp_elifndef;
-    return MacroKind::kElseIfNotDefinedDirective;
-  } else if (ident == "else") {
-    out_kind = clang::tok::pp_else;
-    return MacroKind::kElseDirective;
-  } else if (ident == "endif") {
-    out_kind = clang::tok::pp_endif;
-    return MacroKind::kEndIfDirective;
-  } else if (ident == "import") {
-    out_kind = clang::tok::pp_import;
-    return MacroKind::kImportDirective;
-  } else if (ident == "include") {
-    out_kind = clang::tok::pp_include;
-    return MacroKind::kIncludeDirective;
-  } else if (ident == "include_next") {
-    out_kind = clang::tok::pp_include_next;
-    return MacroKind::kIncludeNextDirective;
-  } else if (ident == "__include_macros") {
-    out_kind = clang::tok::pp___include_macros;
-    return MacroKind::kIncludeMacrosDirective;
-  } else if (ident == "define") {
-    out_kind = clang::tok::pp_define;
-    return MacroKind::kDefineDirective;
-  } else if (ident == "undef") {
-    out_kind = clang::tok::pp_undef;
-    return MacroKind::kUndefineDirective;
-  } else if (ident == "pragma") {
-    out_kind = clang::tok::pp_pragma;
-    return MacroKind::kPragmaDirective;
-  } else {
-    for (auto i = 1; i < clang::tok::NUM_PP_KEYWORDS; ++i) {
-      auto kw_kind = static_cast<clang::tok::PPKeywordKind>(i);
-      auto kw = clang::tok::getPPKeywordSpelling(kw_kind);
-      if (ident == kw) {
-        out_kind = kw_kind;
-        return MacroKind::kOtherDirective;
-      }
+#define FOR_EACH_PP_KEYWORD(m) \
+    m(if, MacroKind::kIfDirective) \
+    m(ifdef, MacroKind::kIfDefinedDirective) \
+    m(ifndef, MacroKind::kIfNotDefinedDirective) \
+    m(elif, MacroKind::kElseIfDirective) \
+    m(elifdef, MacroKind::kElseIfDefinedDirective) \
+    m(elifndef, MacroKind::kElseIfNotDefinedDirective) \
+    m(else, MacroKind::kElseDirective) \
+    m(endif, MacroKind::kEndIfDirective) \
+    m(import, MacroKind::kImportDirective) \
+    m(include, MacroKind::kIncludeDirective) \
+    m(include_next, MacroKind::kIncludeNextDirective) \
+    m(__include_macros, MacroKind::kIncludeMacrosDirective) \
+    m(define, MacroKind::kDefineDirective) \
+    m(undef, MacroKind::kUndefineDirective) \
+    m(pragma, MacroKind::kPragmaDirective)
+
+#define KIND_FROM_NAME(kw, pasta_kind) \
+    if (ident == #kw) { \
+      out_kind = clang::tok::pp_ ## kw; \
+      return pasta_kind; \
     }
 
-    out_kind = clang::tok::pp_not_keyword;
-    return MacroKind::kToken;
+MacroKind KindFromName(llvm::StringRef ident,
+                       clang::tok::PPKeywordKind &out_kind) {
+  FOR_EACH_PP_KEYWORD(KIND_FROM_NAME)
+
+  for (auto i = 1; i < clang::tok::NUM_PP_KEYWORDS; ++i) {
+    auto kw_kind = static_cast<clang::tok::PPKeywordKind>(i);
+    auto kw = clang::tok::getPPKeywordSpelling(kw_kind);
+    if (ident == kw) {
+      out_kind = kw_kind;
+      return MacroKind::kOtherDirective;
+    }
   }
+
+  out_kind = clang::tok::pp_not_keyword;
+  return MacroKind::kToken;
 }
 
 struct BoolRAII {

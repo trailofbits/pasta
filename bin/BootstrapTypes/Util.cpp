@@ -109,6 +109,9 @@ std::string Capitalize(llvm::StringRef name) {
   return name.substr(0, 1).upper() + name.substr(1).str();
 }
 
+static const llvm::StringRef kLoc = "Loc";
+static const llvm::StringRef kSourceRange = "SourceRange";
+
 static std::string CxxNameImpl(llvm::StringRef name) {
 
   // Disable these.
@@ -146,11 +149,11 @@ static std::string CxxNameImpl(llvm::StringRef name) {
   } else if (name.startswith("set") && !name.startswith("sets")) {
     return "";
 
-  } else if (name.endswith("Loc")) {
-    return CxxNameImpl(name.substr(0, name.size() - 3).str()) + "Token";
+  } else if (name.endswith(kLoc)) {
+    return CxxNameImpl(name.substr(0, name.size() - kLoc.size()).str()) + "Token";
 
-  } else if (name.endswith("SourceRange") && 11 < name.size()) {
-    return CxxNameImpl(name.substr(0, name.size() - 11).str()) + "Tokens";
+  } else if (name.endswith(kSourceRange) && kSourceRange.size() < name.size()) {
+    return CxxNameImpl(name.substr(0, name.size() - kSourceRange.size()).str()) + "Tokens";
 
   } else if (auto name_it = kCxxMethodRenames.find(name.str());
              name_it != kCxxMethodRenames.end()) {

@@ -132,6 +132,13 @@ class PrintedTokenRangeImpl {
   inline PrintedTokenRangeImpl(clang::ASTContext &ast_context_)
       : ast_context(ast_context_) {}
 
+  inline PrintedTokenRangeImpl(const PrintedTokenRangeImpl &that)
+      : ast_context(that.ast_context),
+        ast(that.ast),
+        tokens(that.tokens),
+        data(that.data),
+        contexts(that.contexts) {}
+
   ~PrintedTokenRangeImpl(void);
 
   template <typename T>
@@ -144,12 +151,23 @@ class PrintedTokenRangeImpl {
   void MarkLocation(PrintedTokenImpl &, const TokenImpl &tok);
   void MarkLocation(size_t tok_index, const TokenImpl &tok);
   void MarkLocation(size_t tok_index, const clang::SourceLocation &loc);
-//  void PopContext(void);
 
   // Try to align parsed tokens with printed tokens. See `AlignTokens.cpp`.
   std::optional<std::string> AlignTokens(
       PrintedTokenRangeImpl &printed_range,
       TokenContextIndex decl_context_id);
+
+  // If any token context index is invalid, then set it to `index`.
+  void FixupInvalidTokenContexts(TokenContextIndex index);
+
+  void AddTrailingEOF(void);
+
+  inline static PrintedTokenRange ToPrintedTokenRange(
+      std::shared_ptr<PrintedTokenRangeImpl> self) {
+    PrintedTokenImpl *first_tok = self->tokens.data();
+    PrintedTokenImpl *after_last_tok = &(first_tok[self->tokens.size() - 1u]);
+    return PrintedTokenRange(std::move(self), first_tok, after_last_tok);
+  }
 };
 
 class PrintingPolicyAdaptor final {
@@ -194,6 +212,24 @@ class PrintingPolicyAdaptor final {
   
   bool ShouldPrintSpecialization(clang::FunctionTemplateDecl *,
                                  clang::FunctionDecl *) const;
+};
+
+class PrintingPolicyAdaptorRAII {
+ private:
+  PrintingPolicyAdaptor *&ppa_ptr;
+
+ public:
+
+  inline PrintingPolicyAdaptorRAII(
+      const std::shared_ptr<PrintedTokenRangeImpl> &range,
+      PrintingPolicyAdaptor &ppa)
+      : ppa_ptr(range->ppa) {
+    ppa_ptr = &ppa;
+  }
+
+  inline ~PrintingPolicyAdaptorRAII(void) {
+    ppa_ptr = nullptr;
+  }
 };
 
 struct no_alias_tag {};
@@ -241,9 +277,8 @@ const TokenContextIndex PrintedTokenRangeImpl::CreateContext(
   if (!data) {
     if (tokenizer->prev_printer_context) {
       return tokenizer->prev_printer_context->context_index;
-    } else {
-      return kInvalidTokenContextIndex;
     }
+    return kInvalidTokenContextIndex;
   }
 
   auto dedup = !std::is_same_v<T, char> && !std::is_base_of_v<clang::Type, T>;

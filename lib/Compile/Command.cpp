@@ -172,10 +172,10 @@ CompileCommand::CreateFromArguments(const ArgumentVector &argv,
                                     std::filesystem::path working_dir) {
   if (!argv.Size()) {
     return kErrCompileCommandTooShort;
-  } else {
-    return CompileCommand(
-        std::make_shared<CompileCommandImpl>(argv, std::move(working_dir)));
   }
+
+  return CompileCommand(
+      std::make_shared<CompileCommandImpl>(argv, std::move(working_dir)));
 }
 
 // Return an argument vector associated with this compilation command.

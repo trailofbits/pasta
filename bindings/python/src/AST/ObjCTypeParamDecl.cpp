@@ -10,17 +10,15 @@
 #include <pasta/AST/Stmt.h>
 #include <pasta/AST/Type.h>
 
-#include <nanobind/nanobind.h>
-#include <nanobind/stl/optional.h>
-#include <nanobind/stl/vector.h>
+#include "../Bindings.h"
 
 namespace pasta {
 namespace nb = nanobind;
 
 void RegisterObjCTypeParamDecl(nb::module_ &m) {
   nb::class_<ObjCTypeParamDecl, TypedefNameDecl>(m, "ObjCTypeParamDecl")
-    .def("__hash__", [](const ObjCTypeParamDecl& decl) { return (intptr_t)decl.RawDecl(); })
-    .def("__eq__", [](const Decl& a, const Decl& b) { return a.RawDecl() == b.RawDecl(); })
+    .def("__hash__", [](const ObjCTypeParamDecl &decl) { return (intptr_t)decl.RawDecl(); })
+    .def("__eq__", [](const Decl &a, const Decl &b) { return a.RawDecl() == b.RawDecl(); })
     .def_prop_ro("colon_token", &ObjCTypeParamDecl::ColonToken)
     .def_prop_ro("index", &ObjCTypeParamDecl::Index)
     .def_prop_ro("variance", &ObjCTypeParamDecl::Variance)

@@ -10,17 +10,15 @@
 #include <pasta/AST/Stmt.h>
 #include <pasta/AST/Type.h>
 
-#include <nanobind/nanobind.h>
-#include <nanobind/stl/optional.h>
-#include <nanobind/stl/vector.h>
+#include "../Bindings.h"
 
 namespace pasta {
 namespace nb = nanobind;
 
 void RegisterObjCObjectType(nb::module_ &m) {
   nb::class_<ObjCObjectType, Type>(m, "ObjCObjectType")
-    .def("__hash__", [](const ObjCObjectType& type) { return (intptr_t)type.RawType(); })
-    .def("__eq__", [](const Type& a, const Type& b) { return a.RawType() == b.RawType(); })
+    .def("__hash__", [](const ObjCObjectType &type) { return (intptr_t)type.RawType(); })
+    .def("__eq__", [](const Type &a, const Type &b) { return a.RawType() == b.RawType(); })
     .def_prop_ro("desugar", &ObjCObjectType::Desugar)
     .def_prop_ro("base_type", &ObjCObjectType::BaseType)
     .def_prop_ro("interface", &ObjCObjectType::Interface)
@@ -41,6 +39,6 @@ void RegisterObjCObjectType(nb::module_ &m) {
     .def_prop_ro("is_sugared", &ObjCObjectType::IsSugared)
     .def_prop_ro("is_unspecialized", &ObjCObjectType::IsUnspecialized)
     .def_prop_ro("is_unspecialized_as_written", &ObjCObjectType::IsUnspecializedAsWritten)
-    .def("strip_obj_c_kind_of_type_and_qualifiers", &ObjCObjectType::StripObjCKindOfTypeAndQualifiers);
+    .def_prop_ro("strip_obj_c_kind_of_type_and_qualifiers", &ObjCObjectType::StripObjCKindOfTypeAndQualifiers);
 }
 } // namespace pasta

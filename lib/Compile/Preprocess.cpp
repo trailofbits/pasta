@@ -173,11 +173,8 @@ void PreprocessCode(ASTImpl &impl, clang::CompilerInstance &ci,
       assert(impl.preprocessed_code.back() == '\n');
       impl.preprocessed_code.pop_back();
 
-      // NOTE(pag): The `prev_tok.Location()` isn't really sensibly comparable
-      //            to `tok_loc` because of how `PatchedMacroTracker`s
-      //            `FixupDerivedLocations` method overloads too many meanings
-      //            into `TokenImpl::opaque_source_loc`.
-      assert(prev_tok.Kind() == clang::tok::unknown);
+      assert(prev_tok.Kind() == tok.getKind());
+      assert(prev_tok.Location() == tok_loc);
       assert(tok_data == prev_tok.Data(impl));
 
       // We want to convert the intermediate macro expansion token into a

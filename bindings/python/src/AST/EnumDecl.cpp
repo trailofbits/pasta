@@ -10,18 +10,15 @@
 #include <pasta/AST/Stmt.h>
 #include <pasta/AST/Type.h>
 
-#include <nanobind/nanobind.h>
-#include <nanobind/stl/optional.h>
-#include <nanobind/stl/vector.h>
+#include "../Bindings.h"
 
 namespace pasta {
 namespace nb = nanobind;
 
 void RegisterEnumDecl(nb::module_ &m) {
   nb::class_<EnumDecl, TagDecl>(m, "EnumDecl")
-    .def("__hash__", [](const EnumDecl& decl) { return (intptr_t)decl.RawDecl(); })
-    .def("__eq__", [](const Decl& a, const Decl& b) { return a.RawDecl() == b.RawDecl(); })
-    .def_prop_ro("enumerators", &EnumDecl::Enumerators)
+    .def("__hash__", [](const EnumDecl &decl) { return (intptr_t)decl.RawDecl(); })
+    .def("__eq__", [](const Decl &a, const Decl &b) { return a.RawDecl() == b.RawDecl(); })
     .def_prop_ro("canonical_declaration", &EnumDecl::CanonicalDeclaration)
     .def_prop_ro("definition", &EnumDecl::Definition)
     .def_prop_ro("instantiated_from_member_enum", &EnumDecl::InstantiatedFromMemberEnum)

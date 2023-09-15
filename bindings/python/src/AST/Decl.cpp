@@ -10,17 +10,17 @@
 #include <pasta/AST/Stmt.h>
 #include <pasta/AST/Type.h>
 
-#include <nanobind/nanobind.h>
-#include <nanobind/stl/optional.h>
-#include <nanobind/stl/vector.h>
+#include "../Bindings.h"
 
 namespace pasta {
 namespace nb = nanobind;
 
 void RegisterDecl(nb::module_ &m) {
   nb::class_<Decl>(m, "Decl")
-    .def("__hash__", [](const Decl& decl) { return (intptr_t)decl.RawDecl(); })
-    .def("__eq__", [](const Decl& a, const Decl& b) { return a.RawDecl() == b.RawDecl(); })
+    .def("__hash__", [](const Decl &decl) { return (intptr_t)decl.RawDecl(); })
+    .def("__eq__", [](const Decl &a, const Decl &b) { return a.RawDecl() == b.RawDecl(); })
+    .def_prop_ro("kind", &Decl::Kind)
+    .def_prop_ro("kind_name", &Decl::KindName)
     .def_prop_ro("attributes", &Decl::Attributes)
     .def_prop_ro("access", &Decl::Access)
     .def_prop_ro("as_function", &Decl::AsFunction)

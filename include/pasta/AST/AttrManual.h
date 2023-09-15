@@ -16,6 +16,7 @@ class AttributeCommonInfo;
 namespace pasta {
 
 class Attr;
+class TokenContext;
 
 enum class AttributeSyntax : unsigned int {
   GNU,

@@ -10,17 +10,15 @@
 #include <pasta/AST/Stmt.h>
 #include <pasta/AST/Type.h>
 
-#include <nanobind/nanobind.h>
-#include <nanobind/stl/optional.h>
-#include <nanobind/stl/vector.h>
+#include "../Bindings.h"
 
 namespace pasta {
 namespace nb = nanobind;
 
 void RegisterDeclaratorDecl(nb::module_ &m) {
   nb::class_<DeclaratorDecl, ValueDecl>(m, "DeclaratorDecl")
-    .def("__hash__", [](const DeclaratorDecl& decl) { return (intptr_t)decl.RawDecl(); })
-    .def("__eq__", [](const Decl& a, const Decl& b) { return a.RawDecl() == b.RawDecl(); })
+    .def("__hash__", [](const DeclaratorDecl &decl) { return (intptr_t)decl.RawDecl(); })
+    .def("__eq__", [](const Decl &a, const Decl &b) { return a.RawDecl() == b.RawDecl(); })
     .def_prop_ro("begin_token", &DeclaratorDecl::BeginToken)
     .def_prop_ro("first_inner_token", &DeclaratorDecl::FirstInnerToken)
     .def_prop_ro("num_template_parameter_lists", &DeclaratorDecl::NumTemplateParameterLists)

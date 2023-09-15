@@ -139,8 +139,8 @@ MacroTokenImpl *MacroTokenImpl::Clone(ASTImpl &ast,
   clone->token_offset = static_cast<uint32_t>(new_offset);
   assert(clone->token_offset == new_offset);
   clone->parent = new_parent;
-  clone->kind_flags.kind = kind_flags.kind;
-  clone->kind_flags.is_ignored_comma = kind_flags.is_ignored_comma;
+  clone->kind = kind;
+  clone->is_ignored_comma = is_ignored_comma;
 
   // Associate the clone node's token offset with the macro definition.
   if (ast_tok.is_macro_name) {
@@ -432,9 +432,8 @@ const Node *MacroNodeImpl::FirstToken(void) const {
 const Node *MacroSubstitutionImpl::FirstToken(void) const {
   if (auto tok = FirstTokenImpl(use_nodes)) {
     return tok;
-  } else {
-    return FirstTokenImpl(nodes);
   }
+  return FirstTokenImpl(nodes);
 }
 
 const Node *MacroNodeImpl::LastToken(void) const {
@@ -444,9 +443,8 @@ const Node *MacroNodeImpl::LastToken(void) const {
 const Node *MacroSubstitutionImpl::LastToken(void) const {
   if (auto tok = LastTokenImpl(use_nodes)) {
     return tok;
-  } else {
-    return LastTokenImpl(nodes);
   }
+  return LastTokenImpl(nodes);
 }
 
 MacroTokenImpl *MacroNodeImpl::FirstUseToken(void) const {
@@ -456,9 +454,8 @@ MacroTokenImpl *MacroNodeImpl::FirstUseToken(void) const {
 MacroTokenImpl *MacroSubstitutionImpl::FirstUseToken(void) const {
   if (!use_nodes.empty()) {
     return FirstUseTokenImpl(use_nodes);
-  } else {
-    return FirstUseTokenImpl(nodes);  // An in-progress node.
   }
+  return FirstUseTokenImpl(nodes);  // An in-progress node.
 }
 
 
@@ -469,9 +466,8 @@ MacroTokenImpl *MacroNodeImpl::FirstExpansionToken(void) const {
 MacroTokenImpl *MacroSubstitutionImpl::FirstExpansionToken(void) const {
   if (!nodes.empty()) {
     return FirstExpansionTokenImpl(nodes);
-  } else {
-    return FirstExpansionTokenImpl(use_nodes);
   }
+  return FirstExpansionTokenImpl(use_nodes);
 }
 
 Macro::~Macro(void) {}
@@ -480,15 +476,17 @@ MacroKind Macro::Kind(void) const noexcept {
   Node node = *reinterpret_cast<const Node *>(impl);
   if (std::holds_alternative<MacroTokenImpl *>(node)) {
     return MacroKind::kToken;
-  } else if (std::holds_alternative<MacroNodeImpl *>(node)) {
-    return std::get<MacroNodeImpl *>(node)->kind;
-  } else {
-    assert(false);
-    DEBUG( std::cerr << "Bad macro kind on main file: "
-                 << ast->main_source_file.Path().generic_string() << '\n'; )
-    abort();
-    __builtin_unreachable();
   }
+
+  if (std::holds_alternative<MacroNodeImpl *>(node)) {
+    return std::get<MacroNodeImpl *>(node)->kind;
+  }
+
+  assert(false);
+  DEBUG( std::cerr << "Bad macro kind on main file: "
+                   << ast->main_source_file.Path().generic_string() << '\n'; )
+  abort();
+  __builtin_unreachable();
 }
 
 namespace {
@@ -517,16 +515,18 @@ const void *Macro::RawMacro(void) const noexcept {
   Node node = *reinterpret_cast<const Node *>(impl);
   if (std::holds_alternative<MacroTokenImpl *>(node)) {
     return &(ast->tokens[std::get<MacroTokenImpl *>(node)->token_offset]);
-  } else if (std::holds_alternative<MacroNodeImpl *>(node)) {
+  }
+
+  if (std::holds_alternative<MacroNodeImpl *>(node)) {
     auto ret = std::get<MacroNodeImpl *>(node);
     assert(ret != nullptr);
     return ret;
-  } else {
-    assert(false);
-    DEBUG( std::cerr << "Bad macro kind on main file: "
-                 << ast->main_source_file.Path().generic_string() << '\n'; )
-    return nullptr;
   }
+
+  assert(false);
+  DEBUG( std::cerr << "Bad macro kind on main file: "
+                   << ast->main_source_file.Path().generic_string() << '\n'; )
+  return nullptr;
 }
 
 // Return the macro node containing this node.
@@ -563,10 +563,10 @@ MacroRange Macro::Children(void) const noexcept {
     if (sub_impl) {
       const auto first = sub_impl->use_nodes.data();
       return MacroRange(ast, first, &(first[sub_impl->use_nodes.size()]));
-    } else {
-      const auto first = impl->nodes.data();
-      return MacroRange(ast, first, &(first[impl->nodes.size()]));
     }
+
+    const auto first = impl->nodes.data();
+    return MacroRange(ast, first, &(first[impl->nodes.size()]));
   }
   return MacroRange(ast);
 }
@@ -575,15 +575,18 @@ std::optional<MacroToken> Macro::BeginToken(void) const noexcept {
   Node node = *reinterpret_cast<const Node *>(impl);
   if (std::holds_alternative<MacroTokenImpl *>(node)) {
     return reinterpret_cast<const MacroToken &>(*this);
-  } else if (std::holds_alternative<MacroNodeImpl *>(node)) {
+  }
+
+  if (std::holds_alternative<MacroNodeImpl *>(node)) {
     if (const Node *tok = std::get<MacroNodeImpl *>(node)->FirstToken()) {
       return MacroToken(ast, tok);
     }
-  } else {
-    assert(false);
-    DEBUG( std::cerr << "Bad macro kind on main file: "
-                 << ast->main_source_file.Path().generic_string() << '\n'; )
+    return std::nullopt;
   }
+
+  assert(false);
+  DEBUG( std::cerr << "Bad macro kind on main file: "
+                   << ast->main_source_file.Path().generic_string() << '\n'; )
   return std::nullopt;
 }
 
@@ -591,15 +594,18 @@ std::optional<MacroToken> Macro::EndToken(void) const noexcept {
   Node node = *reinterpret_cast<const Node *>(impl);
   if (std::holds_alternative<MacroTokenImpl *>(node)) {
     return reinterpret_cast<const MacroToken &>(*this);
-  } else if (std::holds_alternative<MacroNodeImpl *>(node)) {
+  }
+
+  if (std::holds_alternative<MacroNodeImpl *>(node)) {
     if (const Node *tok = std::get<MacroNodeImpl *>(node)->LastToken()) {
       return MacroToken(ast, tok);
     }
-  } else {
-    assert(false);
-    DEBUG( std::cerr << "Bad macro kind on main file: "
-                 << ast->main_source_file.Path().generic_string() << '\n'; )
+    return std::nullopt;
   }
+
+  assert(false);
+  DEBUG( std::cerr << "Bad macro kind on main file: "
+                   << ast->main_source_file.Path().generic_string() << '\n'; )
   return std::nullopt;
 }
 
@@ -696,9 +702,8 @@ MacroParameter::VariadicDots(void) const noexcept {
   MacroParameterImpl *param_impl = dynamic_cast<MacroParameterImpl *>(node_impl);
   if (param_impl->is_variadic) {
     return MacroToken(ast, &(param_impl->nodes.back()));
-  } else {
-    return std::nullopt;
   }
+  return std::nullopt;
 }
 
 // The name of the macro parameter, if any.
@@ -708,9 +713,8 @@ std::optional<MacroToken> MacroParameter::Name(void) const noexcept {
   MacroParameterImpl *param_impl = dynamic_cast<MacroParameterImpl *>(node_impl);
   if (param_impl->has_name) {
     return MacroToken(ast, &(param_impl->nodes.front()));
-  } else {
-    return std::nullopt;
   }
+  return std::nullopt;
 }
 
 unsigned MacroParameter::Index(void) const noexcept {
@@ -724,9 +728,8 @@ std::optional<DefineMacroDirective>
 DefineMacroDirective::From(const Macro &node) {
   if (node.Kind() == MacroKind::kDefineDirective) {
     return reinterpret_cast<const DefineMacroDirective &>(node);
-  } else {
-    return std::nullopt;
   }
+  return std::nullopt;
 }
 
 std::optional<MacroToken> DefineMacroDirective::Name(void) const noexcept {
@@ -735,10 +738,9 @@ std::optional<MacroToken> DefineMacroDirective::Name(void) const noexcept {
   MacroDirectiveImpl *dir_impl = dynamic_cast<MacroDirectiveImpl *>(node_impl);
   if (std::holds_alternative<MacroTokenImpl *>(dir_impl->macro_name)) {
     return MacroToken(ast, &(dir_impl->macro_name));
-  } else {
-    assert(std::holds_alternative<std::monostate>(dir_impl->macro_name));
-    return std::nullopt;
   }
+  assert(std::holds_alternative<std::monostate>(dir_impl->macro_name));
+  return std::nullopt;
 }
 
 // Number of explicit, i.e. not variadic, parameters.
@@ -750,10 +752,9 @@ unsigned DefineMacroDirective::NumExplicitParameters(void) const noexcept {
 
     // NOTE(pag): Clang includes the variadic parameter in `getNumParams()`.
     return dir_impl->defined_macro->getNumParams() - 1u;
-  } else {
-    assert(false);
-    return 0u;
   }
+  assert(false);
+  return 0u;
 }
 
 // Is this a function-like macro? If so, then it could take zero-or-more
@@ -764,10 +765,9 @@ bool DefineMacroDirective::IsFunctionLike(void) const noexcept {
   MacroDirectiveImpl *dir_impl = dynamic_cast<MacroDirectiveImpl *>(node_impl);
   if (dir_impl->defined_macro) {
     return dir_impl->defined_macro->isFunctionLike();
-  } else {
-    assert(false);
-    return 0u;
   }
+  assert(false);
+  return 0u;
 }
 
 // Does this definition accept a variable number of arguments?
@@ -777,10 +777,9 @@ bool DefineMacroDirective::IsVariadic(void) const noexcept {
   MacroDirectiveImpl *dir_impl = dynamic_cast<MacroDirectiveImpl *>(node_impl);
   if (dir_impl->defined_macro) {
     return dir_impl->defined_macro->isVariadic();
-  } else {
-    assert(false);
-    return false;
   }
+  assert(false);
+  return false;
 }
 
 // Uses of this macro.
@@ -792,9 +791,8 @@ MacroRange DefineMacroDirective::Uses(void) const noexcept {
     const auto first = dir_impl->macro_uses.data();
     return MacroRange(
         ast, first, &(first[dir_impl->macro_uses.size()]));
-  } else {
-    return MacroRange(ast);
   }
+  return MacroRange(ast);
 }
 
 // Body of the defined macro.
@@ -810,9 +808,8 @@ MacroRange DefineMacroDirective::Body(void) const noexcept {
       return MacroRange(ast);
     }
     return MacroRange(ast, &(first[body_offset]), &(first[num_nodes]));
-  } else {
-    return MacroRange(ast);
   }
+  return MacroRange(ast);
 }
 
 // Parameters of this macro definition.
@@ -824,9 +821,8 @@ MacroRange DefineMacroDirective::Parameters(void) const noexcept {
     const auto first = dir_impl->parameters.data();
     return MacroRange(
         ast, first, &(first[dir_impl->parameters.size()]));
-  } else {
-    return MacroRange(ast);
   }
+  return MacroRange(ast);
 }
 
 std::optional<IncludeLikeMacroDirective>
@@ -905,9 +901,8 @@ MacroRange MacroSubstitution::ReplacementChildren(void) const noexcept {
     const auto first = sub_impl->nodes.data();
     return MacroRange(
         ast, first, &(first[sub_impl->nodes.size()]));
-  } else {
-    return MacroRange(ast);
   }
+  return MacroRange(ast);
 }
 
 // Higher-order function for getting the left/right corner of a substitution
@@ -957,108 +952,14 @@ std::optional<Token> MacroSubstitution::LastFullySubstitutedToken(void) const no
   return last_tok;
 }
 
-
-// Returns the Stmt in the AST that was parsed from the tokens this macro
-// substitution expanded to, if any.
-std::optional<Stmt> MacroSubstitution::CoveredStmt(void) const noexcept {
-  // Get the first and last tokens of the entire substitution.
-  const auto first_tok = FirstFullySubstitutedToken();
-  const auto last_tok = LastFullySubstitutedToken();
-
-  // Check that the substitution actually expands to at least one token.
-  if (!(first_tok && last_tok)) {
-    return std::nullopt;
-  }
-
-  // This determines whether or not to use the semicolon heuristic.
-  const bool last_tok_is_semicolon = last_tok->Kind() == TokenKind::kSemi;
-
-  // Walk up the tokens' context tree until we find a Stmt whose first and last
-  // tokens are the first and last fully expanded tokens. Start at the first
-  // token's context, and ascend the AST until we reach a context that aligns
-  // perfectly with the first and last tokens.
-  for (auto first_tok_ctx = first_tok->Context(); first_tok_ctx;
-       first_tok_ctx = first_tok_ctx->Parent()) {
-
-    if (const auto first_tok_stmt = Stmt::From(*first_tok_ctx)) {
-      const auto first_tok_stmt_begin_tok = first_tok_stmt->BeginToken();
-      const auto first_tok_stmt_end_tok = first_tok_stmt->EndToken();
-      const auto next_non_macro_tok =
-        first_tok_stmt_end_tok.NextFinalExpansionOrFileToken();
-
-      if (*first_tok == first_tok_stmt_begin_tok &&
-          // Either the Stmt completely aligns...
-          ((*last_tok == first_tok_stmt_end_tok) ||
-           // ...or we use a heuristic to find Stmts that align with expansions
-           // that include a trailing semicolon. Check if the token just beyond
-           // the end of the context that the first token belongs to is a
-           // semicolon, and is the same token that the expansion ends with.
-           (last_tok_is_semicolon &&
-            next_non_macro_tok &&
-            *next_non_macro_tok == last_tok))) {
-        return first_tok_stmt;
-      }
-    }
-  }
-
-  return std::nullopt;
-}
-
-// Returns the Decl in the AST that was parsed from the tokens this macro
-// substitution expanded to, if any.
-std::optional<Decl> MacroSubstitution::CoveredDecl(void) const noexcept {
-  // Get the first and last tokens of the entire substitution.
-  const auto first_tok = FirstFullySubstitutedToken();
-  const auto last_tok = LastFullySubstitutedToken();
-
-  // Check that the substitution actually expands to at least one token.
-  if (!(first_tok && last_tok)) {
-    return std::nullopt;
-  }
-
-  // This determines whether or not to use the semicolon heuristic.
-  const bool last_tok_is_semicolon = last_tok->Kind() == TokenKind::kSemi;
-
-  // Walk up the tokens' context tree until we find a Decl whose first and last
-  // tokens are the first and last fully expanded tokens. Start at the first
-  // token's context, and ascend the AST until we reach a context that aligns
-  // perfectly with the first and last tokens.
-  for (auto first_tok_ctx = first_tok->Context(); first_tok_ctx;
-       first_tok_ctx = first_tok_ctx->Parent()) {
-
-    if (const auto first_tok_decl = Decl::From(*first_tok_ctx)) {
-      const auto first_tok_decl_begin_tok = first_tok_decl->BeginToken();
-      const auto first_tok_decl_end_tok = first_tok_decl->EndToken();
-      const auto next_non_macro_tok =
-        first_tok_decl_end_tok.NextFinalExpansionOrFileToken();
-
-      if (*first_tok == first_tok_decl_begin_tok &&
-          // Either the Decl completely aligns...
-          ((*last_tok == first_tok_decl_end_tok) ||
-           // ...or we use a heuristic to find Decl that align with expansions
-           // that include a trailing semicolon. Check if the token just beyond
-           // the end of the context that the first token belongs to is a
-           // semicolon, and is the same token that the expansion ends with.
-           (last_tok_is_semicolon &&
-            next_non_macro_tok &&
-            *next_non_macro_tok == last_tok))) {
-        return first_tok_decl;
-      }
-    }
-  }
-
-  return std::nullopt;
-}
-
 std::optional<MacroToken> MacroSubstitution::NameOrOperator(void) const noexcept {
   auto node = *reinterpret_cast<const Node *>(impl);
   auto *node_impl = std::get<MacroNodeImpl *>(node);
   auto *sub_impl = dynamic_cast<MacroSubstitutionImpl *>(node_impl);
   if (std::holds_alternative<MacroTokenImpl *>(sub_impl->name)) {
     return MacroToken(ast, &sub_impl->name);
-  } else {
-    return std::nullopt;
   }
+  return std::nullopt;
 }
 
 // Walks the given Stmt's subtree and returns the first of its subtrees that
@@ -1106,8 +1007,9 @@ MacroExpansion::AlignedParameterSubstitutions(
   // Map each argument to the Stmts it substitutions align with
   for (auto &child : IntermediateChildren()) {
     if (auto sub = MacroParameterSubstitution::From(child)) {
-      if (auto aligned_stmt = AlignedStmtInSubtree(*sub, stmt))
+      if (auto aligned_stmt = AlignedStmtInSubtree(*sub, stmt)) {
         param_to_uses[sub->Parameter()].push_back(*aligned_stmt);
+      }
     }
   }
 
@@ -1195,8 +1097,10 @@ MacroRange MacroExpansion::IntermediateChildren(void) const noexcept {
     const auto first = exp_impl->body.data();
     return MacroRange(ast, first, &(first[exp_impl->body.size()]));
 
-  } else if (exp_impl->definition_impl &&
-             !exp_impl->definition_impl->nodes.empty()) {
+  }
+
+  if (exp_impl->definition_impl &&
+      !exp_impl->definition_impl->nodes.empty()) {
     const auto first = exp_impl->definition_impl->nodes.data();
     const auto num_nodes = exp_impl->definition_impl->nodes.size();
     const auto body_offset = exp_impl->definition_impl->body_offset;
@@ -1222,9 +1126,8 @@ std::optional<DefineMacroDirective> MacroExpansion::Definition(void) const noexc
   MacroExpansionImpl *exp_impl = dynamic_cast<MacroExpansionImpl *>(node_impl);
   if (std::holds_alternative<MacroNodeImpl *>(exp_impl->definition)) {
     return DefineMacroDirective(ast, &(exp_impl->definition));
-  } else {
-    return std::nullopt;
   }
+  return std::nullopt;
 }
 
 // Returns the list of arguments in the expansion if this was a use of a
@@ -1343,9 +1246,8 @@ std::optional<Macro> MacroRange::At(size_t index) const noexcept {
   auto end = reinterpret_cast<const Node *>(after_last);
   if (auto it = &(begin[index]); it < end) {
     return Macro(ast, it);
-  } else {
-    return std::nullopt;
   }
+  return std::nullopt;
 }
 
 // Unsafe indexed access into the token range.

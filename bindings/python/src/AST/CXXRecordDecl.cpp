@@ -10,17 +10,21 @@
 #include <pasta/AST/Stmt.h>
 #include <pasta/AST/Type.h>
 
-#include <nanobind/nanobind.h>
-#include <nanobind/stl/optional.h>
-#include <nanobind/stl/vector.h>
+#include "../Bindings.h"
 
 namespace pasta {
 namespace nb = nanobind;
 
 void RegisterCXXRecordDecl(nb::module_ &m) {
   nb::class_<CXXRecordDecl, RecordDecl>(m, "CXXRecordDecl")
-    .def("__hash__", [](const CXXRecordDecl& decl) { return (intptr_t)decl.RawDecl(); })
-    .def("__eq__", [](const Decl& a, const Decl& b) { return a.RawDecl() == b.RawDecl(); })
+    .def("__hash__", [](const CXXRecordDecl &decl) { return (intptr_t)decl.RawDecl(); })
+    .def("__eq__", [](const Decl &a, const Decl &b) { return a.RawDecl() == b.RawDecl(); })
+    .def_prop_ro("size_without_virtual_bases", &CXXRecordDecl::SizeWithoutVirtualBases)
+    .def_prop_ro("primary_base", &CXXRecordDecl::PrimaryBase)
+    .def_prop_ro("has_own_virtual_function_table_pointer", &CXXRecordDecl::HasOwnVirtualFunctionTablePointer)
+    .def_prop_ro("has_extendable_virtual_function_table_pointer", &CXXRecordDecl::HasExtendableVirtualFunctionTablePointer)
+    .def_prop_ro("has_virtual_base_table_pointer", &CXXRecordDecl::HasVirtualBaseTablePointer)
+    .def_prop_ro("has_own_virtual_base_table_pointer", &CXXRecordDecl::HasOwnVirtualBaseTablePointer)
     .def_prop_ro("allow_const_default_initializer", &CXXRecordDecl::AllowConstDefaultInitializer)
     .def_prop_ro("bases", &CXXRecordDecl::Bases)
     .def_prop_ro("calculate_inheritance_model", &CXXRecordDecl::CalculateInheritanceModel)
@@ -49,7 +53,6 @@ void RegisterCXXRecordDecl(nb::module_ &m) {
     .def_prop_ro("ms_inheritance_model", &CXXRecordDecl::MSInheritanceModel)
     .def_prop_ro("ms_vtor_disp_mode", &CXXRecordDecl::MSVtorDispMode)
     .def_prop_ro("most_recent_declaration", &CXXRecordDecl::MostRecentDeclaration)
-    .def_prop_ro("most_recent_non_injected_declaration", &CXXRecordDecl::MostRecentNonInjectedDeclaration)
     .def_prop_ro("num_bases", &CXXRecordDecl::NumBases)
     .def_prop_ro("num_virtual_bases", &CXXRecordDecl::NumVirtualBases)
     .def_prop_ro("odr_hash", &CXXRecordDecl::ODRHash)

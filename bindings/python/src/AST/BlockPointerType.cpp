@@ -10,17 +10,15 @@
 #include <pasta/AST/Stmt.h>
 #include <pasta/AST/Type.h>
 
-#include <nanobind/nanobind.h>
-#include <nanobind/stl/optional.h>
-#include <nanobind/stl/vector.h>
+#include "../Bindings.h"
 
 namespace pasta {
 namespace nb = nanobind;
 
 void RegisterBlockPointerType(nb::module_ &m) {
   nb::class_<BlockPointerType, Type>(m, "BlockPointerType")
-    .def("__hash__", [](const BlockPointerType& type) { return (intptr_t)type.RawType(); })
-    .def("__eq__", [](const Type& a, const Type& b) { return a.RawType() == b.RawType(); })
+    .def("__hash__", [](const BlockPointerType &type) { return (intptr_t)type.RawType(); })
+    .def("__eq__", [](const Type &a, const Type &b) { return a.RawType() == b.RawType(); })
     .def_prop_ro("desugar", &BlockPointerType::Desugar)
     .def_prop_ro("pointee_type", &BlockPointerType::PointeeType)
     .def_prop_ro("is_sugared", &BlockPointerType::IsSugared);

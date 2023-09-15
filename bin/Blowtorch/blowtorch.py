@@ -107,6 +107,15 @@ def _compile(cmd: CompileCommandItem):
             continue
         elif not isinstance(elem, (Attr, Decl, Type, Stmt)) or elem in inspected:
             continue
+
+        if isinstance(elem, Decl):
+            try:
+                dc = DeclContext.cast(elem)
+                for member in inspect.getmembers(dc):
+                    q.append(member[1])
+            except:
+                pass
+
         inspected.add(elem)
         try:
             for member in inspect.getmembers(elem):

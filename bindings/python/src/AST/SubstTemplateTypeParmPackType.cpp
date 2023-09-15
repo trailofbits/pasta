@@ -10,17 +10,15 @@
 #include <pasta/AST/Stmt.h>
 #include <pasta/AST/Type.h>
 
-#include <nanobind/nanobind.h>
-#include <nanobind/stl/optional.h>
-#include <nanobind/stl/vector.h>
+#include "../Bindings.h"
 
 namespace pasta {
 namespace nb = nanobind;
 
 void RegisterSubstTemplateTypeParmPackType(nb::module_ &m) {
   nb::class_<SubstTemplateTypeParmPackType, Type>(m, "SubstTemplateTypeParmPackType")
-    .def("__hash__", [](const SubstTemplateTypeParmPackType& type) { return (intptr_t)type.RawType(); })
-    .def("__eq__", [](const Type& a, const Type& b) { return a.RawType() == b.RawType(); })
+    .def("__hash__", [](const SubstTemplateTypeParmPackType &type) { return (intptr_t)type.RawType(); })
+    .def("__eq__", [](const Type &a, const Type &b) { return a.RawType() == b.RawType(); })
     .def_prop_ro("desugar", &SubstTemplateTypeParmPackType::Desugar)
     .def_prop_ro("associated_declaration", &SubstTemplateTypeParmPackType::AssociatedDeclaration)
     .def_prop_ro("final", &SubstTemplateTypeParmPackType::Final)

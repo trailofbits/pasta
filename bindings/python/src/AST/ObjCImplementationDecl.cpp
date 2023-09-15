@@ -10,17 +10,15 @@
 #include <pasta/AST/Stmt.h>
 #include <pasta/AST/Type.h>
 
-#include <nanobind/nanobind.h>
-#include <nanobind/stl/optional.h>
-#include <nanobind/stl/vector.h>
+#include "../Bindings.h"
 
 namespace pasta {
 namespace nb = nanobind;
 
 void RegisterObjCImplementationDecl(nb::module_ &m) {
   nb::class_<ObjCImplementationDecl, ObjCImplDecl>(m, "ObjCImplementationDecl")
-    .def("__hash__", [](const ObjCImplementationDecl& decl) { return (intptr_t)decl.RawDecl(); })
-    .def("__eq__", [](const Decl& a, const Decl& b) { return a.RawDecl() == b.RawDecl(); })
+    .def("__hash__", [](const ObjCImplementationDecl &decl) { return (intptr_t)decl.RawDecl(); })
+    .def("__eq__", [](const Decl &a, const Decl &b) { return a.RawDecl() == b.RawDecl(); })
     .def_prop_ro("instance_variable_l_brace_token", &ObjCImplementationDecl::InstanceVariableLBraceToken)
     .def_prop_ro("instance_variable_r_brace_token", &ObjCImplementationDecl::InstanceVariableRBraceToken)
     .def_prop_ro("name", &ObjCImplementationDecl::Name)

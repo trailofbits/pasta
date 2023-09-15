@@ -10,17 +10,15 @@
 #include <pasta/AST/Stmt.h>
 #include <pasta/AST/Type.h>
 
-#include <nanobind/nanobind.h>
-#include <nanobind/stl/optional.h>
-#include <nanobind/stl/vector.h>
+#include "../Bindings.h"
 
 namespace pasta {
 namespace nb = nanobind;
 
 void RegisterBTFDeclTagAttr(nb::module_ &m) {
   nb::class_<BTFDeclTagAttr, InheritableAttr>(m, "BTFDeclTagAttr")
-    .def("__hash__", [](const BTFDeclTagAttr& attr) { return (intptr_t)attr.RawAttr(); })
-    .def("__eq__", [](const Attr& a, const Attr& b) { return a.RawAttr() == b.RawAttr(); })
+    .def("__hash__", [](const BTFDeclTagAttr &attr) { return (intptr_t)attr.RawAttr(); })
+    .def("__eq__", [](const Attr &a, const Attr &b) { return a.RawAttr() == b.RawAttr(); })
     .def_prop_ro("btf_decl_tag", &BTFDeclTagAttr::BTFDeclTag)
     .def_prop_ro("btf_decl_tag_length", &BTFDeclTagAttr::BTFDeclTagLength)
     .def_prop_ro("spelling", &BTFDeclTagAttr::Spelling);

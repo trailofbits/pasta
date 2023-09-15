@@ -10,17 +10,15 @@
 #include <pasta/AST/Stmt.h>
 #include <pasta/AST/Type.h>
 
-#include <nanobind/nanobind.h>
-#include <nanobind/stl/optional.h>
-#include <nanobind/stl/vector.h>
+#include "../Bindings.h"
 
 namespace pasta {
 namespace nb = nanobind;
 
 void RegisterCXXMethodDecl(nb::module_ &m) {
   nb::class_<CXXMethodDecl, FunctionDecl>(m, "CXXMethodDecl")
-    .def("__hash__", [](const CXXMethodDecl& decl) { return (intptr_t)decl.RawDecl(); })
-    .def("__eq__", [](const Decl& a, const Decl& b) { return a.RawDecl() == b.RawDecl(); })
+    .def("__hash__", [](const CXXMethodDecl &decl) { return (intptr_t)decl.RawDecl(); })
+    .def("__eq__", [](const Decl &a, const Decl &b) { return a.RawDecl() == b.RawDecl(); })
     .def_prop_ro("canonical_declaration", &CXXMethodDecl::CanonicalDeclaration)
     .def_prop_ro("most_recent_declaration", &CXXMethodDecl::MostRecentDeclaration)
     .def_prop_ro("parent", &CXXMethodDecl::Parent)

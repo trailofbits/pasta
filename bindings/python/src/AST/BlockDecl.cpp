@@ -10,17 +10,15 @@
 #include <pasta/AST/Stmt.h>
 #include <pasta/AST/Type.h>
 
-#include <nanobind/nanobind.h>
-#include <nanobind/stl/optional.h>
-#include <nanobind/stl/vector.h>
+#include "../Bindings.h"
 
 namespace pasta {
 namespace nb = nanobind;
 
 void RegisterBlockDecl(nb::module_ &m) {
   nb::class_<BlockDecl, Decl>(m, "BlockDecl")
-    .def("__hash__", [](const BlockDecl& decl) { return (intptr_t)decl.RawDecl(); })
-    .def("__eq__", [](const Decl& a, const Decl& b) { return a.RawDecl() == b.RawDecl(); })
+    .def("__hash__", [](const BlockDecl &decl) { return (intptr_t)decl.RawDecl(); })
+    .def("__eq__", [](const Decl &a, const Decl &b) { return a.RawDecl() == b.RawDecl(); })
     .def_prop_ro("block_missing_return_type", &BlockDecl::BlockMissingReturnType)
     .def_prop_ro("can_avoid_copy_to_heap", &BlockDecl::CanAvoidCopyToHeap)
     .def_prop_ro("captures_cxx_this", &BlockDecl::CapturesCXXThis)

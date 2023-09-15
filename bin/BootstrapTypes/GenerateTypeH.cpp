@@ -49,6 +49,9 @@ void GenerateTypeH(void) {
       << "    }\n\n";
 
   os
+      << "namespace clang {\n"
+      << "class QualType;\n"
+      << "}\n"
       << "namespace pasta {\n"
       << "class TypeBuilder;\n\n"
       << "class TypeVisitor {\n"
@@ -67,6 +70,8 @@ void GenerateTypeH(void) {
       << "// Wraps a type, including its qualifiers.\n"
       << "class Type {\n"
       << " protected:\n"
+      << "  friend class AST;\n"
+      << "  friend class ASTImpl;\n"
       << "  friend class TypeBuilder;\n"
       << "  friend class PrintedTokenRange;\n\n"
       << "  friend class TokenContext;\n"
@@ -93,6 +98,7 @@ void GenerateTypeH(void) {
       << "  }\n\n"
       << " public:\n"
       << "  PASTA_DECLARE_DEFAULT_CONSTRUCTORS(Type)\n"
+      << "  clang::QualType RawQualType(void) const noexcept;\n\n"
       << "  inline const clang::Type *RawType(void) const noexcept {\n"
       << "    return u.Type;\n"
       << "  }\n"
@@ -136,6 +142,8 @@ void GenerateTypeH(void) {
       << "  inline Type UnqualifiedType(void) const noexcept {\n"
       << "    return Type(ast, u.Type, kind, 0);\n"
       << "  }\n\n"
+      << "  std::optional<uint64_t> SizeInBits(void) const noexcept;\n"
+      << "  std::optional<uint64_t> Alignment(void) const noexcept;\n\n"
       << "  /* Type methods */\n";
 
   DeclareCppMethods(os, type, gClassIDs[type]);
@@ -196,7 +204,6 @@ void GenerateTypeH(void) {
     DeclareCppMethods(os, name, gClassIDs[name]);
 
     if (name == "QualifiedType") {
-      os  << "\n  /* QualType methods */\n";
       DeclareCppMethods(os, qual_type, gClassIDs[qual_type]);
     }
 

@@ -31,7 +31,13 @@ static void DefineCppMethod0(std::ostream &os, const std::string &class_name,
     }
   }
 
-  const std::string meth_name = CxxName(meth_name_ref);
+  // These can crash in hard ways to guard against.
+  if (meth_name_ref == "getMostRecentNonInjectedDecl" ||
+      meth_name_ref == "getBestDynamicClassTypeExpr") {
+    return;
+  }
+
+  const std::string meth_name = CxxName(class_name, meth_name_ref);
   if (meth_name.empty() || meth_name == "Clone") { \
     os << "// 0: " << class_name << "::" << meth_name << "\n";
     return;
@@ -57,10 +63,26 @@ static void DefineCppMethod0(std::ostream &os, const std::string &class_name,
     return;  // Manually implemented.
   }
 
+  // We'll define this one manually. It goes and finds the definition, which
+  // means that it can return enumerators that are "outside" of the enum
+  // decl itself.
+  if (class_name == "EnumDecl" && meth_name_ref == "enumerators") {
+    return;
+  }
+
   if (class_name.find("Decl") != std::string::npos) {
     if (meth_name_ref == "getLocation" || meth_name_ref == "getSourceRange") {
       return;
     }
+  }
+
+  // We have our own, because this looks into the type and can find the "wrong"
+  // `...` as a result of type deduplication.
+  if (class_name == "FunctionDecl" &&
+      (meth_name_ref == "getEllipsisLoc" ||
+       meth_name_ref == "getParametersSourceRange" ||
+       meth_name_ref == "getReturnTypeSourceRange")) {
+    return;
   }
 
   std::string rt_str = rt_ref.str();
@@ -91,9 +113,7 @@ static void DefineCppMethod0(std::ostream &os, const std::string &class_name,
 
   const auto is_qual_type = class_name == "QualifiedType";
   if (is_qual_type) {
-    os << "  auto &ast_ctx = ast->ci->getASTContext();\n"
-       << "  clang::QualType fast_qtype(u.Type, qualifiers & clang::Qualifiers::FastMask);\n"
-       << "  auto self = ast_ctx.getQualifiedType(fast_qtype, clang::Qualifiers::fromOpaqueValue(qualifiers));\n";
+    os << "  auto self = RawQualType();\n";
   } else {
     os << "  auto &self = *const_cast<clang::" << class_name << " *>(u." << class_name << ");\n";
   }
@@ -145,7 +165,7 @@ static void DefineCppMethod1(std::ostream &os, const std::string &class_name,
                              llvm::StringRef rt_ref, llvm::StringRef p0_ref,
                              std::ostream &os_py) {
   const auto is_qual_type = class_name == "QualifiedType";
-  const auto meth_name = CxxName(meth_name_ref); \
+  const auto meth_name = CxxName(class_name, meth_name_ref); \
   if (meth_name.empty() || meth_name == "Clone") {
     os << "// 1: " << class_name << "::" << meth_name << "\n";
     return;
@@ -172,9 +192,7 @@ static void DefineCppMethod1(std::ostream &os, const std::string &class_name,
     }
     os << " " << class_name << "::" << meth_name << "(void) const {\n";
     if (is_qual_type) {
-      os << "  auto &ast_ctx = ast->ci->getASTContext();\n"
-         << "  clang::QualType fast_qtype(u.Type, qualifiers & clang::Qualifiers::FastMask);\n"
-         << "  auto self = ast_ctx.getQualifiedType(fast_qtype, clang::Qualifiers::fromOpaqueValue(qualifiers));\n";
+      os << "  auto self = RawQualType();\n";
     } else {
       os << "  auto &self = *(u." << class_name << ");\n";
     }
@@ -225,9 +243,7 @@ static void DefineCppMethod1(std::ostream &os, const std::string &class_name,
     }
     os << " " << class_name << "::" << meth_name << "(bool b) const {\n";
     if (is_qual_type) {
-      os << "  auto &ast_ctx = ast->ci->getASTContext();\n"
-         << "  clang::QualType fast_qtype(u.Type, qualifiers & clang::Qualifiers::FastMask);\n"
-         << "  auto self = ast_ctx.getQualifiedType(fast_qtype, clang::Qualifiers::fromOpaqueValue(qualifiers));\n";
+      os << "  auto self = RawQualType();\n";
     } else {
       os << "  auto &self = *(u." << class_name << ");\n";
     }
@@ -280,13 +296,14 @@ static void DefineCppMethod1(std::ostream &os, const std::string &class_name,
     os << "// 1: " << class_name << "::" << meth_name << "\n";
     return;
   }
-  os_py << "\n    .def(\"" << CapitalCaseToSnakeCase(meth_name) << "\", &" << class_name << "::" << meth_name << ")";
+  os_py << "\n    .def_prop_ro(\"" << CapitalCaseToSnakeCase(meth_name) << "\", &" << class_name << "::" << meth_name << ")";
 }
 
 static void DefineIterators(std::ostream &os, const std::string &class_name) {
   for (const IteratorSpec &iterator : gIterators[class_name]) {
     auto &rt_type = gRetTypeMap[iterator.elem_type];
     auto &rt_val = gRetTypeToValMap[iterator.elem_type];
+
     os << "std::vector<" << rt_type << "> " << class_name << "::"
        << iterator.cxx_method << "(void) const {\n"
        << "  std::vector<" << rt_type << "> ret;\n";
@@ -357,7 +374,7 @@ static void DefineIterators(std::ostream &os, const std::string &class_name) {
     [[gnu::noinline]] \
     static void DefineCppMethod_ ## id ## _ ## meth_id( \
         std::ostream &os, const std::string &class_name, std::ostream &os_py) { \
-      if (const auto meth_name = CxxName(PASTA_STR(meth)); \
+      if (const auto meth_name = CxxName(class_name, PASTA_STR(meth)); \
           !meth_name.empty()) { \
         os << "// 2: " << meth_name << "\n"; \
       } \
@@ -367,7 +384,7 @@ static void DefineIterators(std::ostream &os, const std::string &class_name) {
     [[gnu::noinline]] \
     static void DefineCppMethod_ ## id ## _ ## meth_id( \
         std::ostream &os, const std::string &class_name, std::ostream &os_py) { \
-      if (const auto meth_name = CxxName(PASTA_STR(meth)); \
+      if (const auto meth_name = CxxName(class_name, PASTA_STR(meth)); \
           !meth_name.empty()) { \
         os << "// 3: " << class_name << "::" << meth_name << "\n"; \
       } \
@@ -377,7 +394,7 @@ static void DefineIterators(std::ostream &os, const std::string &class_name) {
     [[gnu::noinline]] \
     static void DefineCppMethod_ ## id ## _ ## meth_id( \
         std::ostream &os, const std::string &class_name, std::ostream &os_py) { \
-      if (const auto meth_name = CxxName(PASTA_STR(meth)); \
+      if (const auto meth_name = CxxName(class_name, PASTA_STR(meth)); \
           !meth_name.empty()) { \
         os << "// 4: " << class_name << "::" << meth_name << "\n"; \
       } \
@@ -387,7 +404,7 @@ static void DefineIterators(std::ostream &os, const std::string &class_name) {
     [[gnu::noinline]] \
     static void DefineCppMethod_ ## id ## _ ## meth_id( \
         std::ostream &os, const std::string &class_name, std::ostream &os_py) { \
-      if (const auto meth_name = CxxName(PASTA_STR(meth)); \
+      if (const auto meth_name = CxxName(class_name, PASTA_STR(meth)); \
           !meth_name.empty()) { \
         os << "// 5: " << class_name << "::" << meth_name << "\n"; \
       } \
@@ -397,7 +414,7 @@ static void DefineIterators(std::ostream &os, const std::string &class_name) {
     [[gnu::noinline]] \
     static void DefineCppMethod_ ## id ## _ ## meth_id( \
         std::ostream &os, const std::string &class_name, std::ostream &os_py) { \
-      if (const auto meth_name = CxxName(PASTA_STR(meth)); \
+      if (const auto meth_name = CxxName(class_name, PASTA_STR(meth)); \
           !meth_name.empty()) { \
         os << "// 6: " << class_name << "::" << meth_name << "\n"; \
       } \

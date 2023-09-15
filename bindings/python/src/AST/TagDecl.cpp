@@ -10,17 +10,15 @@
 #include <pasta/AST/Stmt.h>
 #include <pasta/AST/Type.h>
 
-#include <nanobind/nanobind.h>
-#include <nanobind/stl/optional.h>
-#include <nanobind/stl/vector.h>
+#include "../Bindings.h"
 
 namespace pasta {
 namespace nb = nanobind;
 
 void RegisterTagDecl(nb::module_ &m) {
   nb::class_<TagDecl, TypeDecl>(m, "TagDecl")
-    .def("__hash__", [](const TagDecl& decl) { return (intptr_t)decl.RawDecl(); })
-    .def("__eq__", [](const Decl& a, const Decl& b) { return a.RawDecl() == b.RawDecl(); })
+    .def("__hash__", [](const TagDecl &decl) { return (intptr_t)decl.RawDecl(); })
+    .def("__eq__", [](const Decl &a, const Decl &b) { return a.RawDecl() == b.RawDecl(); })
     .def_prop_ro("brace_range", &TagDecl::BraceRange)
     .def_prop_ro("canonical_declaration", &TagDecl::CanonicalDeclaration)
     .def_prop_ro("definition", &TagDecl::Definition)

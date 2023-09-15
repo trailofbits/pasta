@@ -250,11 +250,13 @@ MacroExpansionImpl *PatchedMacroTracker::DoPreExpansionSetup(
 static MacroTokenImpl *FirstExpansionToken(const Node &node) {
   if (std::holds_alternative<MacroTokenImpl *>(node)) {
     return std::get<MacroTokenImpl *>(node);
-  } else if (std::holds_alternative<MacroNodeImpl *>(node)) {
-    return std::get<MacroNodeImpl *>(node)->FirstExpansionToken();
-  } else {
-    return nullptr;
   }
+
+  if (std::holds_alternative<MacroNodeImpl *>(node)) {
+    return std::get<MacroNodeImpl *>(node)->FirstExpansionToken();
+  }
+
+  return nullptr;
 }
 
 static bool LastIsNotArgument(MacroExpansionImpl *exp) {
@@ -277,8 +279,8 @@ static bool HasArgumentSeparator(MacroExpansionImpl *exp) {
 
   // TODO(pag): Probably want last expansion token.
   if (auto sep = FirstExpansionToken(exp->nodes.back())) {
-    return sep->kind_flags.kind == pasta::TokenKind::kComma ||
-           sep->kind_flags.kind == pasta::TokenKind::kLParenthesis;
+    return sep->kind == pasta::TokenKind::kComma ||
+           sep->kind == pasta::TokenKind::kLParenthesis;
   }
 
   return false;
@@ -327,8 +329,7 @@ static void TryWrapLastNodeInArgument(
     auto last_tok = std::get<MacroTokenImpl *>(pre_exp->nodes.back());
     if (last_tok != pre_exp->ident &&
         last_tok != pre_exp->l_paren &&
-        (last_tok->kind_flags.kind != TokenKind::kComma ||
-         last_tok->kind_flags.is_ignored_comma)) {
+        (last_tok->kind != TokenKind::kComma || last_tok->is_ignored_comma)) {
       assert(false);  // Probably not needed?
       D( std::cerr << indent << "^ Adding missing argument for token\n"; )
       InjectArgument(ast, nodes, arguments, pre_exp);
@@ -356,9 +357,9 @@ static int ParenCount(MacroNodeImpl *arg) {
       paren_count += ParenCount(std::get<MacroNodeImpl *>(node));
     } else if (std::holds_alternative<MacroTokenImpl *>(node)){
       MacroTokenImpl *tok = std::get<MacroTokenImpl *>(node);
-      if (tok->kind_flags.kind == TokenKind::kLParenthesis) {
+      if (tok->kind == TokenKind::kLParenthesis) {
         ++paren_count;
-      } else if (tok->kind_flags.kind == TokenKind::kRParenthesis) {
+      } else if (tok->kind == TokenKind::kRParenthesis) {
         --paren_count;
       }
     }
@@ -611,7 +612,9 @@ std::optional<clang::Token> PatchedMacroTracker::FindDirectiveHash(
 
       // TODO(pag): Make this avoid `#`s inside of block comments, e.g.
       //            # blah /* # hahahah */ ...
-      if (file_data[file_offset] == '#') {
+      if (file_data[file_offset] == '#' ||
+          (file_data[file_offset] == '%' &&
+           file_data[file_offset + 1u] == ':')) {
         hash_loc = directive_loc.getLocWithOffset(loc_offset);
         break;
       }
@@ -905,25 +908,8 @@ void PatchedMacroTracker::DoToken(const clang::Token &tok_, uintptr_t data) {
   tok_node->token_offset = static_cast<uint32_t>(tok_index);
   assert(tok_node->token_offset == tok_index);
   tok_node->parent = parent_node;
-
-  // Clear out the kind, so that it looks `unknown` from the perspective of
-  // `ASTImpl::AlignTokens`. We add it back in later after token alignment
-  // via `ASTImpl::LinkMacroTokenContexts`.
-  tok_node->kind_flags.kind = static_cast<TokenKind>(added_tok.Kind());
-  tok_node->kind_flags.is_ignored_comma =
-      tok.getFlag(clang::Token::IgnoredComma);
-  added_tok.kind = 0;
-
-//  if (auto param_it = param_toks.find(added_tok.opaque_source_loc);
-//      param_it != param_toks.end()) {
-//    assert(!!param_it->second.first);
-//    assert(param_it->second.second <= param_it->second.first->num_arg_toks_seen);
-//    D( std::cerr << indent << "* Token " << tok_data << " is "
-//                 << param_it->second.second
-//                 << "/" << param_it->second.first->argument_toks.size()
-//                 << " argument token of parameter.\n"; )
-//    param_it->second.first->num_arg_toks_seen++;
-//  }
+  tok_node->kind = static_cast<TokenKind>(added_tok.Kind());
+  tok_node->is_ignored_comma = tok.getFlag(clang::Token::IgnoredComma);
 
   // Reparent the last concatenation into the parent, and add the token as
   // the substituion of the last concatenation.
@@ -946,15 +932,14 @@ void PatchedMacroTracker::DoToken(const clang::Token &tok_, uintptr_t data) {
 
   if (tok_.is(clang::tok::identifier) ||
       clang::tok::getKeywordSpelling(tok.getKind())) {
-    if (clang::IdentifierInfo *ii = tok.getIdentifierInfo()) {
-      if (ii->hasMacroDefinition()) {
-        clang::MacroDefinition def = pp.getMacroDefinition(ii);
-        if (clang::MacroInfo *mi = def.getMacroInfo()) {
-          if (auto dir_it = defines.find(mi); dir_it != defines.end()) {
-            added_tok.is_macro_name = 1;
-            ast->tokens_to_macro_definitions.emplace(
-                tok_index, dir_it->second);
-          }
+    if (clang::IdentifierInfo *ii = tok.getIdentifierInfo(); 
+        ii && ii->hasMacroDefinition()) {
+      clang::MacroDefinition def = pp.getMacroDefinition(ii);
+      if (clang::MacroInfo *mi = def.getMacroInfo(); mi && mi->isEnabled()) {
+        if (auto dir_it = defines.find(mi); dir_it != defines.end()) {
+          added_tok.is_macro_name = 1;
+          ast->tokens_to_macro_definitions.emplace(
+              tok_index, dir_it->second);
         }
       }
     }
@@ -972,12 +957,12 @@ void PatchedMacroTracker::DoToken(const clang::Token &tok_, uintptr_t data) {
   // of the macro call so we go and find the `ident(` of the original expansion.
   if (!expansions.empty() && parent_node == expansions.back()) {
     MacroExpansionImpl *exp = expansions.back();
-    if (tok_node->kind_flags.kind != TokenKind::kRawIdentifier &&
+    if (tok_node->kind != TokenKind::kRawIdentifier &&
         !tok_.isAnnotation() && !exp->ident && tok_.getIdentifierInfo() &&
         tok_.getIdentifierInfo()->hasMacroDefinition()) {
       exp->ident = tok_node;
       exp->name = exp->ident;
-    } else if (tok_node->kind_flags.kind == TokenKind::kLParenthesis &&
+    } else if (tok_node->kind == TokenKind::kLParenthesis &&
                exp->ident && !exp->l_paren) {
       exp->l_paren = tok_node;
     }
@@ -1053,74 +1038,53 @@ void ASTImpl::LinkMacroTokenContexts(void) {
     }
 #endif
 
+    assert(tok.context_index == kInvalidTokenContextIndex);
+    assert(static_cast<TokenKind>(tok.kind) == mt.kind);
+
     root_macro_node.token_nodes.emplace_back(&mt);
-    tok.kind = static_cast<TokenKindBase>(mt.kind_flags.kind);
-    mt.token_context = tok.context_index;
     tok.context_index = i;
     ++i;
   }
 }
 
-MacroKind KindFromName(llvm::StringRef ident,
-                       clang::tok::PPKeywordKind &out_kind) {
-  if (ident == "if") {
-    out_kind = clang::tok::pp_if;
-    return MacroKind::kIfDirective;
-  } else if (ident == "ifdef") {
-    out_kind = clang::tok::pp_ifdef;
-    return MacroKind::kIfDefinedDirective;
-  } else if (ident == "ifndef") {
-    out_kind = clang::tok::pp_ifndef;
-    return MacroKind::kIfNotDefinedDirective;
-  } else if (ident == "elif") {
-    out_kind = clang::tok::pp_elif;
-    return MacroKind::kElseIfDirective;
-  } else if (ident == "elifdef") {
-    out_kind = clang::tok::pp_elifdef;
-    return MacroKind::kElseIfDefinedDirective;
-  } else if (ident == "elifndef") {
-    out_kind = clang::tok::pp_elifndef;
-    return MacroKind::kElseIfNotDefinedDirective;
-  } else if (ident == "else") {
-    out_kind = clang::tok::pp_else;
-    return MacroKind::kElseDirective;
-  } else if (ident == "endif") {
-    out_kind = clang::tok::pp_endif;
-    return MacroKind::kEndIfDirective;
-  } else if (ident == "import") {
-    out_kind = clang::tok::pp_import;
-    return MacroKind::kImportDirective;
-  } else if (ident == "include") {
-    out_kind = clang::tok::pp_include;
-    return MacroKind::kIncludeDirective;
-  } else if (ident == "include_next") {
-    out_kind = clang::tok::pp_include_next;
-    return MacroKind::kIncludeNextDirective;
-  } else if (ident == "__include_macros") {
-    out_kind = clang::tok::pp___include_macros;
-    return MacroKind::kIncludeMacrosDirective;
-  } else if (ident == "define") {
-    out_kind = clang::tok::pp_define;
-    return MacroKind::kDefineDirective;
-  } else if (ident == "undef") {
-    out_kind = clang::tok::pp_undef;
-    return MacroKind::kUndefineDirective;
-  } else if (ident == "pragma") {
-    out_kind = clang::tok::pp_pragma;
-    return MacroKind::kPragmaDirective;
-  } else {
-    for (auto i = 1; i < clang::tok::NUM_PP_KEYWORDS; ++i) {
-      auto kw_kind = static_cast<clang::tok::PPKeywordKind>(i);
-      auto kw = clang::tok::getPPKeywordSpelling(kw_kind);
-      if (ident == kw) {
-        out_kind = kw_kind;
-        return MacroKind::kOtherDirective;
-      }
+#define FOR_EACH_PP_KEYWORD(m) \
+    m(if, MacroKind::kIfDirective) \
+    m(ifdef, MacroKind::kIfDefinedDirective) \
+    m(ifndef, MacroKind::kIfNotDefinedDirective) \
+    m(elif, MacroKind::kElseIfDirective) \
+    m(elifdef, MacroKind::kElseIfDefinedDirective) \
+    m(elifndef, MacroKind::kElseIfNotDefinedDirective) \
+    m(else, MacroKind::kElseDirective) \
+    m(endif, MacroKind::kEndIfDirective) \
+    m(import, MacroKind::kImportDirective) \
+    m(include, MacroKind::kIncludeDirective) \
+    m(include_next, MacroKind::kIncludeNextDirective) \
+    m(__include_macros, MacroKind::kIncludeMacrosDirective) \
+    m(define, MacroKind::kDefineDirective) \
+    m(undef, MacroKind::kUndefineDirective) \
+    m(pragma, MacroKind::kPragmaDirective)
+
+#define KIND_FROM_NAME(kw, pasta_kind) \
+    if (ident == #kw) { \
+      out_kind = clang::tok::pp_ ## kw; \
+      return pasta_kind; \
     }
 
-    out_kind = clang::tok::pp_not_keyword;
-    return MacroKind::kToken;
+MacroKind KindFromName(llvm::StringRef ident,
+                       clang::tok::PPKeywordKind &out_kind) {
+  FOR_EACH_PP_KEYWORD(KIND_FROM_NAME)
+
+  for (auto i = 1; i < clang::tok::NUM_PP_KEYWORDS; ++i) {
+    auto kw_kind = static_cast<clang::tok::PPKeywordKind>(i);
+    auto kw = clang::tok::getPPKeywordSpelling(kw_kind);
+    if (ident == kw) {
+      out_kind = kw_kind;
+      return MacroKind::kOtherDirective;
+    }
   }
+
+  out_kind = clang::tok::pp_not_keyword;
+  return MacroKind::kToken;
 }
 
 struct BoolRAII {
@@ -1348,10 +1312,10 @@ void PatchedMacroTracker::DoSetNamedDirective(const clang::Token &, uintptr_t) {
   }
 
   auto name_tok = std::get<MacroTokenImpl *>(directive->nodes.back());
-  if (name_tok->kind_flags.kind != TokenKind::kIdentifier &&
-      name_tok->kind_flags.kind != TokenKind::kRawIdentifier &&
-      name_tok->kind_flags.kind != TokenKind::kKeywordIf &&
-      name_tok->kind_flags.kind != TokenKind::kKeywordElse) {
+  if (name_tok->kind != TokenKind::kIdentifier &&
+      name_tok->kind != TokenKind::kRawIdentifier &&
+      name_tok->kind != TokenKind::kKeywordIf &&
+      name_tok->kind != TokenKind::kKeywordElse) {
     assert(false);
     return;
   }
@@ -1367,7 +1331,7 @@ void PatchedMacroTracker::DoSetNamedDirective(const clang::Token &, uintptr_t) {
     D( std::cerr << indent << "DirectiveName=" << data << '\n'; )
 
     // Upgrade the file token in-place.
-    name_tok->kind_flags.kind = TokenKind::kRawIdentifier;
+    name_tok->kind = TokenKind::kRawIdentifier;
     kw_name_tok.kind = static_cast<TokenKindBase>(clang::tok::raw_identifier);
     TryUpgradeFileTokenKind(*ast, kw_name_tok.Location(), kw_kind);
   }
@@ -1396,7 +1360,8 @@ void PatchedMacroTracker::DoEndNonDirective(const clang::Token &tok,
 
 static void Expand(std::ostream &os, const ASTImpl &ast,
                    Node node, const char *&sep,
-                   clang::SourceLocation &last_loc) {
+                   clang::SourceLocation &last_loc,
+                   std::vector<const pasta::TokenImpl *> &unexpanded_macros) {
   if (std::holds_alternative<MacroTokenImpl *>(node)) {
     auto tok = std::get<MacroTokenImpl *>(node);
     const TokenImpl &real_tok = ast.tokens[tok->token_offset];
@@ -1406,12 +1371,17 @@ static void Expand(std::ostream &os, const ASTImpl &ast,
       last_loc = last_loc.getLocWithOffset(static_cast<int>(data.size()));
       os << sep << data;
       sep = " ";
+
+      // Something like `#pragma clang deprecated (ATOMIC_VAR_INIT)`.
+      if (real_tok.is_macro_name) {
+        unexpanded_macros.push_back(&real_tok);
+      }
     }
 
   } else if (std::holds_alternative<MacroNodeImpl *>(node)) {
     auto sub = std::get<MacroNodeImpl *>(node);
     for (const Node &sub_node : sub->nodes) {
-      Expand(os, ast, sub_node, sep, last_loc);
+      Expand(os, ast, sub_node, sep, last_loc, unexpanded_macros);
     }
   }
 }
@@ -1448,31 +1418,50 @@ void PatchedMacroTracker::DoEndDirective(
   if (last_directive->kind == MacroKind::kPragmaDirective) {
 
     // We need to emit the pragma tokens as a line in the parsed tokens.
-    // Pragmas are important for things like adjusting structure packing
+    // Pragmas are important for things like adjusting structure packing. One
+    // thing that's tricky about doing this is that we need to expand macros
+    // within the pragmas.
     std::stringstream ss;
     const char *sep = "";
     clang::SourceLocation last_loc;
-    Expand(ss, *ast, last_directive, sep, last_loc);
+    std::vector<const pasta::TokenImpl *> unexpanded_macros;
+    Expand(ss, *ast, last_directive, sep, last_loc, unexpanded_macros);
     D( std::cerr << indent << "Got pragma: " << ss.str() << '\n'; )
 
+    std::string pragma_data = ss.str();
+    
+    // A pragma might reference a macro name which doesn't actually exist. We'll
+    // try to rewrite it into a compatible pragma.
+    if ((pragma_data.find(" deprecated ") != std::string::npos ||
+         pragma_data.find(" poison ") != std::string::npos) &&
+        !unexpanded_macros.empty()) {
+
+      std::stringstream().swap(ss);
+      ss << "# pragma clang poison";
+      for (const TokenImpl *macro_tok : unexpanded_macros) {
+        ss << ' ' << macro_tok->Data(*ast);
+      }
+
+      pragma_data = ss.str();
+      unexpanded_macros.clear();
+    }
+
+    assert(unexpanded_macros.empty());
+
     auto tok_index = static_cast<unsigned>(ast->tokens.size());
-    ast->preprocessed_code.append(ss.str());
+    ast->preprocessed_code.append(pragma_data);
     ast->preprocessed_code.push_back('\n');
     ast->num_lines += 1;
     (void) ast->tokens.emplace_back(
         last_loc.getRawEncoding(), 0u, 0u,
-        clang::tok::unknown, TokenRole::kEndOfInternalMacroEventMarker);
+        clang::tok::eod, TokenRole::kEndOfInternalMacroEventMarker);
 
     MacroTokenImpl *macro_tok = &(ast->root_macro_node.tokens.emplace_back());
     macro_tok->token_offset = static_cast<uint32_t>(tok_index);
     assert(macro_tok->token_offset == tok_index);
     macro_tok->parent = last_directive;
-
-    // Clear out the kind, so that it looks `unknown` from the perspective of
-    // `ASTImpl::AlignTokens`. We add it back in later after token alignment
-    // via `ASTImpl::LinkMacroTokenContexts`.
-    macro_tok->kind_flags.kind = static_cast<TokenKind>(clang::tok::eod);
-    macro_tok->kind_flags.is_ignored_comma = false;
+    macro_tok->kind = static_cast<TokenKind>(clang::tok::eod);
+    macro_tok->is_ignored_comma = false;
 
     // Add the token to the end of the pragma directive node.
     last_directive->nodes.push_back(macro_tok);
@@ -1753,7 +1742,7 @@ void PatchedMacroTracker::DoEndPreArgumentExpansion(
 
   // Go get the `r_paren` at the end of the expansion nodes list.
   if (std::holds_alternative<MacroTokenImpl *>(r_paren_node) &&
-      (std::get<MacroTokenImpl *>(r_paren_node)->kind_flags.kind ==
+      (std::get<MacroTokenImpl *>(r_paren_node)->kind ==
           TokenKind::kRParenthesis)) {
     expansion->r_paren = std::get<MacroTokenImpl *>(r_paren_node);
     expansion->r_paren_index = static_cast<unsigned>(
@@ -1887,51 +1876,9 @@ void PatchedMacroTracker::DoSwitchToExpansion(
   auto &use_nodes = expansion->use_nodes;
   assert(!use_nodes.empty());
   assert(std::holds_alternative<MacroTokenImpl *>(use_nodes.back()));
-  assert(std::get<MacroTokenImpl *>(use_nodes.back())->kind_flags.kind ==
+  assert(std::get<MacroTokenImpl *>(use_nodes.back())->kind ==
          TokenKind::kRParenthesis);
 
-//  MacroTokenImpl *r_paren = nullptr;
-//  unsigned r_paren_index = 0u;
-//  const size_t num_use_nodes = expansion->use_nodes.size();
-//  int paren_count = 0;
-
-//  for (; r_paren_index < num_use_nodes; ++r_paren_index) {
-//    const Node &node = expansion->use_nodes[r_paren_index];
-//    MacroTokenImpl *tok = nullptr;
-//    if (std::holds_alternative<MacroTokenImpl *>(node)) {
-//      tok = std::get<MacroTokenImpl *>(node);
-//    } else if (std::holds_alternative<MacroNodeImpl *>(node)) {
-//      auto impl = std::get<MacroNodeImpl *>(node);
-//      auto sub_count = ParenCount(impl);
-//      if (!sub_count) {
-//        continue;
-//
-//      // TODO(pag): Probably not quite right.
-//      } else {
-//        assert(1 == sub_count);
-//        tok = impl->FirstExpansionToken();
-//      }
-//    } else {
-//      assert(false);
-//      continue;
-//    }
-//
-//    if (!tok) {
-//      continue;
-//    }
-//
-//    if (tok->kind_flags.kind == TokenKind::kLParenthesis) {
-//      ++paren_count;
-//    } else if (tok->kind_flags.kind == TokenKind::kRParenthesis) {
-//      if (!--paren_count) {
-//        r_paren = tok;
-//        break;
-//      }
-//    }
-//  }
-
-//  assert(expansion->r_paren == nullptr);
-//  assert(r_paren != nullptr);
   expansion->r_paren = std::get<MacroTokenImpl *>(use_nodes.back());
   expansion->r_paren_index = static_cast<unsigned>(use_nodes.size() - 1u);
 
@@ -2265,8 +2212,7 @@ void PatchedMacroTracker::DoBeginDelayedSubstitution(
       std::holds_alternative<MacroTokenImpl *>(expansion->nodes.back())) {
     MacroTokenImpl *ident = std::get<MacroTokenImpl *>(
         expansion->nodes.back());
-    if (ident->kind_flags.kind == TokenKind::kIdentifier ||
-        ident->kind_flags.kind == TokenKind::kRawIdentifier) {
+    if (ident->IsIdentifierLike()) {
       expansion->name = expansion->nodes.back();
     }
   }
@@ -3359,7 +3305,7 @@ void PatchedMacroTracker::MacroDefined(const clang::Token &name_tok,
       new_nodes.push_back(node);
       if (std::holds_alternative<MacroTokenImpl *>(node)) {
         MacroTokenImpl *tok = std::get<MacroTokenImpl *>(node);
-        if (tok->kind_flags.kind == TokenKind::kLParenthesis) {
+        if (tok->kind == TokenKind::kLParenthesis) {
           found_l_paren = true;
           break;
         }
@@ -3378,7 +3324,7 @@ void PatchedMacroTracker::MacroDefined(const clang::Token &name_tok,
       }
 
       MacroTokenImpl *tok = std::get<MacroTokenImpl *>(node);
-      switch (auto tk = tok->kind_flags.kind) {
+      switch (auto tk = tok->kind) {
         case TokenKind::kHash:
         case TokenKind::kHashHash:
           assert(found_r_paren);

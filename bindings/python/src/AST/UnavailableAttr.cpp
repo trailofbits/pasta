@@ -10,17 +10,15 @@
 #include <pasta/AST/Stmt.h>
 #include <pasta/AST/Type.h>
 
-#include <nanobind/nanobind.h>
-#include <nanobind/stl/optional.h>
-#include <nanobind/stl/vector.h>
+#include "../Bindings.h"
 
 namespace pasta {
 namespace nb = nanobind;
 
 void RegisterUnavailableAttr(nb::module_ &m) {
   nb::class_<UnavailableAttr, InheritableAttr>(m, "UnavailableAttr")
-    .def("__hash__", [](const UnavailableAttr& attr) { return (intptr_t)attr.RawAttr(); })
-    .def("__eq__", [](const Attr& a, const Attr& b) { return a.RawAttr() == b.RawAttr(); })
+    .def("__hash__", [](const UnavailableAttr &attr) { return (intptr_t)attr.RawAttr(); })
+    .def("__eq__", [](const Attr &a, const Attr &b) { return a.RawAttr() == b.RawAttr(); })
     .def_prop_ro("implicit_reason", &UnavailableAttr::ImplicitReason)
     .def_prop_ro("message", &UnavailableAttr::Message)
     .def_prop_ro("message_length", &UnavailableAttr::MessageLength)

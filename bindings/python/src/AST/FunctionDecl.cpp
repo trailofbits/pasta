@@ -10,17 +10,15 @@
 #include <pasta/AST/Stmt.h>
 #include <pasta/AST/Type.h>
 
-#include <nanobind/nanobind.h>
-#include <nanobind/stl/optional.h>
-#include <nanobind/stl/vector.h>
+#include "../Bindings.h"
 
 namespace pasta {
 namespace nb = nanobind;
 
 void RegisterFunctionDecl(nb::module_ &m) {
   nb::class_<FunctionDecl, DeclaratorDecl>(m, "FunctionDecl")
-    .def("__hash__", [](const FunctionDecl& decl) { return (intptr_t)decl.RawDecl(); })
-    .def("__eq__", [](const Decl& a, const Decl& b) { return a.RawDecl() == b.RawDecl(); })
+    .def("__hash__", [](const FunctionDecl &decl) { return (intptr_t)decl.RawDecl(); })
+    .def("__eq__", [](const Decl &a, const Decl &b) { return a.RawDecl() == b.RawDecl(); })
     .def_prop_ro("friend_constraint_refers_to_enclosing_template", &FunctionDecl::FriendConstraintRefersToEnclosingTemplate)
     .def_prop_ro("uses_fp_intrin", &FunctionDecl::UsesFPIntrin)
     .def_prop_ro("does_declaration_force_externally_visible_definition", &FunctionDecl::DoesDeclarationForceExternallyVisibleDefinition)
@@ -33,8 +31,7 @@ void RegisterFunctionDecl(nb::module_ &m) {
     .def_prop_ro("default_token", &FunctionDecl::DefaultToken)
     .def_prop_ro("definition", &FunctionDecl::Definition)
     .def_prop_ro("described_function_template", &FunctionDecl::DescribedFunctionTemplate)
-    .def_prop_ro("ellipsis_token", &FunctionDecl::EllipsisToken)
-    .def_prop_ro("exception_spec_source_range", &FunctionDecl::ExceptionSpecSourceRange)
+    .def_prop_ro("exception_spec_tokens", &FunctionDecl::ExceptionSpecTokens)
     .def_prop_ro("exception_spec_type", &FunctionDecl::ExceptionSpecType)
     .def_prop_ro("instantiated_from_declaration", &FunctionDecl::InstantiatedFromDeclaration)
     .def_prop_ro("instantiated_from_member_function", &FunctionDecl::InstantiatedFromMemberFunction)
@@ -45,11 +42,9 @@ void RegisterFunctionDecl(nb::module_ &m) {
     .def_prop_ro("num_parameters", &FunctionDecl::NumParameters)
     .def_prop_ro("odr_hash", &FunctionDecl::ODRHash)
     .def_prop_ro("overloaded_operator", &FunctionDecl::OverloadedOperator)
-    .def_prop_ro("parameters_source_range", &FunctionDecl::ParametersSourceRange)
     .def_prop_ro("point_of_instantiation", &FunctionDecl::PointOfInstantiation)
     .def_prop_ro("primary_template", &FunctionDecl::PrimaryTemplate)
     .def_prop_ro("return_type", &FunctionDecl::ReturnType)
-    .def_prop_ro("return_type_source_range", &FunctionDecl::ReturnTypeSourceRange)
     .def_prop_ro("storage_class", &FunctionDecl::StorageClass)
     .def_prop_ro("template_instantiation_pattern", &FunctionDecl::TemplateInstantiationPattern)
     .def_prop_ro("template_specialization_kind", &FunctionDecl::TemplateSpecializationKind)

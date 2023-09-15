@@ -27,6 +27,7 @@ const std::unordered_set<std::string> kConcreteStmts{
 };
 
 const std::unordered_set<std::string> kConcreteTypes{
+  "QualifiedType",  // Our custom one to mirror `clang::QualType`.
 #define TYPE(d, base) DECL_STR3(d) "Type",
 #define ABSTRACT_TYPE(...)
 #include TARGET_CLANG_HEADER(clang/AST/TypeNodes.inc)
@@ -108,6 +109,9 @@ std::string Capitalize(llvm::StringRef name) {
   return name.substr(0, 1).upper() + name.substr(1).str();
 }
 
+static const llvm::StringRef kLoc = "Loc";
+static const llvm::StringRef kSourceRange = "SourceRange";
+
 static std::string CxxNameImpl(llvm::StringRef name) {
 
   // Disable these.
@@ -145,8 +149,11 @@ static std::string CxxNameImpl(llvm::StringRef name) {
   } else if (name.startswith("set") && !name.startswith("sets")) {
     return "";
 
-  } else if (name.endswith("Loc")) {
-    return CxxNameImpl(name.substr(0, name.size() - 3).str()) + "Token";
+  } else if (name.endswith(kLoc)) {
+    return CxxNameImpl(name.substr(0, name.size() - kLoc.size()).str()) + "Token";
+
+  } else if (name.endswith(kSourceRange) && kSourceRange.size() < name.size()) {
+    return CxxNameImpl(name.substr(0, name.size() - kSourceRange.size()).str()) + "Tokens";
 
   } else if (auto name_it = kCxxMethodRenames.find(name.str());
              name_it != kCxxMethodRenames.end()) {
@@ -249,6 +256,39 @@ std::string CxxName(llvm::StringRef name_) {
     return name.substr(0, name.size() - sizeof("Info") + 1);
   }
   return name;
+}
+
+std::string CxxName(llvm::StringRef cls_name, llvm::StringRef meth_name) {
+  auto ret = CxxName(meth_name);
+  if (ret != "Kind") {
+    return ret;
+  }
+
+  if (cls_name == "BuiltinType") {
+    return CxxName("BuiltinKind");
+  
+  } else if (cls_name == "CharacterLiteral") {
+    return CxxName("LiteralKind");
+  
+  } else if (cls_name == "StringLiteral") {
+    return CxxName("LiteralKind");
+  
+  } else if (cls_name == "SwiftAsyncAttr") {
+    return CxxName("AttrKind");
+  
+  } else if (cls_name == "TypeOfExprType") {
+    return CxxName("TypeKind");
+  
+  } else if (cls_name == "TypeOfType") {
+    return CxxName("TypeKind");
+  
+  } else if (cls_name == "UnaryExprOrTypeTraitExpr") {
+    return CxxName("KeywordKind");
+  
+  } else {
+    assert(false);
+    return ret;
+  }
 }
 
 std::string CapitalCaseToSnakeCase(llvm::StringRef name) {

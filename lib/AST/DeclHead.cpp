@@ -9,10 +9,12 @@
 #pragma clang diagnostic ignored "-Wimplicit-int-conversion"
 #pragma clang diagnostic ignored "-Wsign-conversion"
 #pragma clang diagnostic ignored "-Wshorten-64-to-32"
+#include <clang/AST/Attr.h>
 #include <clang/AST/DeclCXX.h>
 #include <clang/AST/DeclObjC.h>
 #include <clang/AST/DeclTemplate.h>
 #include <clang/AST/Attr.h>
+#include <clang/AST/RecordLayout.h>
 #pragma clang diagnostic pop
 
 #include "AST.h"
@@ -33,23 +35,27 @@ static ::pasta::DeclCategory ClassifyDecl(const clang::Decl *decl) {
       clang::isa<clang::NamespaceAliasDecl>(decl) ||
       clang::isa<clang::UsingDirectiveDecl>(decl)) {
     return ::pasta::DeclCategory::kNamespace;
+  }
 
-  } else if (clang::isa<clang::ConceptDecl>(decl)) {
+  if (clang::isa<clang::ConceptDecl>(decl)) {
     return ::pasta::DeclCategory::kConcept;
 
-  } else if (auto tpl_decl = clang::dyn_cast<clang::TemplateDecl>(decl)) {
+  }
+
+  if (auto tpl_decl = clang::dyn_cast<clang::TemplateDecl>(decl)) {
     if (clang::isa<clang::TemplateTemplateParmDecl>(decl)) {
       return ::pasta::DeclCategory::kTemplateTypeParameter;
-
-    } else {
-      return ClassifyDecl(tpl_decl->getTemplatedDecl());
     }
+    return ClassifyDecl(tpl_decl->getTemplatedDecl());
+  }
 
-  } else if (clang::isa<clang::TypeDecl>(decl)) {
+  if (clang::isa<clang::TypeDecl>(decl)) {
     if (clang::isa<clang::TagDecl>(decl)) {
       if (clang::isa<clang::EnumDecl>(decl)) {
         return ::pasta::DeclCategory::kEnumeration;
-      } else if (auto record_decl = clang::dyn_cast<clang::RecordDecl>(decl)) {
+      }
+
+      if (auto record_decl = clang::dyn_cast<clang::RecordDecl>(decl)) {
         switch (record_decl->getTagKind()) {
           case clang::TTK_Struct:
             return ::pasta::DeclCategory::kStructure;
@@ -62,35 +68,40 @@ static ::pasta::DeclCategory ClassifyDecl(const clang::Decl *decl) {
           case clang::TTK_Enum:
             return ::pasta::DeclCategory::kEnumeration;
         }
-      } else {
-        assert(false);
-        return ::pasta::DeclCategory::kStructure;
       }
-    } else if (clang::isa<clang::TemplateTypeParmDecl>(decl)) {
-      return ::pasta::DeclCategory::kTemplateTypeParameter;
-
-    } else if (clang::isa<clang::TypedefNameDecl>(decl)) {
-      return ::pasta::DeclCategory::kTypeAlias;
-
-    } else if (clang::isa<clang::UnresolvedUsingTypenameDecl>(decl)) {
-      return ::pasta::DeclCategory::kTypeAlias;
-
-    } else {
       assert(false);
+      return ::pasta::DeclCategory::kStructure;
+    }
+
+    if (clang::isa<clang::TemplateTypeParmDecl>(decl)) {
+      return ::pasta::DeclCategory::kTemplateTypeParameter;
+    }
+
+    if (clang::isa<clang::TypedefNameDecl>(decl)) {
       return ::pasta::DeclCategory::kTypeAlias;
     }
 
-  } else if (auto method_decl_objc = clang::dyn_cast<clang::ObjCMethodDecl>(decl)) {
+    if (clang::isa<clang::UnresolvedUsingTypenameDecl>(decl)) {
+      return ::pasta::DeclCategory::kTypeAlias;
+    }
+
+    assert(false);
+    return ::pasta::DeclCategory::kTypeAlias;
+
+  }
+
+  if (auto method_decl_objc = clang::dyn_cast<clang::ObjCMethodDecl>(decl)) {
     if (method_decl_objc->isInstanceMethod()) {
       return ::pasta::DeclCategory::kInstanceMethod;
-    } else {
-      return ::pasta::DeclCategory::kClassMethod;
-    }
+    }  
+    return ::pasta::DeclCategory::kClassMethod;
+  }
 
-  } else if (clang::isa<clang::LabelDecl>(decl)) {
+  if (clang::isa<clang::LabelDecl>(decl)) {
     return ::pasta::DeclCategory::kLabel;
+  }
 
-  } else if (auto using_decl = clang::dyn_cast<clang::UsingDecl>(decl)) {
+  if (auto using_decl = clang::dyn_cast<clang::UsingDecl>(decl)) {
     auto ret = ::pasta::DeclCategory::kUnknown;
     for (auto shadow : using_decl->shadows()) {
       if (auto used_decl = shadow->getTargetDecl()) {
@@ -102,52 +113,58 @@ static ::pasta::DeclCategory ClassifyDecl(const clang::Decl *decl) {
         }
       }
     }
-
     return ::pasta::DeclCategory::kUnknown;
+  }
 
-  } else if (auto using_pack = clang::dyn_cast<clang::UsingPackDecl>(decl)) {
+  if (auto using_pack = clang::dyn_cast<clang::UsingPackDecl>(decl)) {
     for (auto used_decl : using_pack->expansions()) {
       return ClassifyDecl(used_decl);
     }
+    return ::pasta::DeclCategory::kUnknown;
+  }
 
-    goto done;
-
-  } else if (auto using_shadow = clang::dyn_cast<clang::UsingShadowDecl>(decl)) {
+  if (auto using_shadow = clang::dyn_cast<clang::UsingShadowDecl>(decl)) {
     if (auto used_decl = using_shadow->getTargetDecl()) {
       if (used_decl != decl) {
         return ClassifyDecl(used_decl);
       }
     }
-    goto done;
+    return ::pasta::DeclCategory::kUnknown;
+  }
 
-  } else if (clang::isa<clang::ValueDecl>(decl)) {
+  if (clang::isa<clang::ValueDecl>(decl)) {
     if (clang::isa<clang::BindingDecl>(decl)) {
       return ::pasta::DeclCategory::kLocalVariable;
+    }
 
-    } else if (clang::isa<clang::EnumConstantDecl>(decl)) {
+    if (clang::isa<clang::EnumConstantDecl>(decl)) {
       return ::pasta::DeclCategory::kEnumerator;
+    }
 
-    } else if (clang::isa<clang::IndirectFieldDecl>(decl)) {
+    if (clang::isa<clang::IndirectFieldDecl>(decl)) {
       return ::pasta::DeclCategory::kInstanceMember;
+    }
 
-    } else if (clang::isa<clang::FieldDecl>(decl)) {
+    if (clang::isa<clang::FieldDecl>(decl)) {
       return ::pasta::DeclCategory::kInstanceMember;
+    }
 
-    } else if (clang::isa<clang::FunctionDecl>(decl)) {
+    if (clang::isa<clang::FunctionDecl>(decl)) {
       if (auto method_decl_cxx = clang::dyn_cast<clang::CXXMethodDecl>(decl)) {
         if (method_decl_cxx->isInstance()) {
           return ::pasta::DeclCategory::kInstanceMethod;
-        } else {
-          return ::pasta::DeclCategory::kClassMethod;
         }
-      } else {
-        return ::pasta::DeclCategory::kFunction;
+        return ::pasta::DeclCategory::kClassMethod;
       }
-    } else if (auto var_decl = clang::dyn_cast<clang::VarDecl>(decl)) {
+      return ::pasta::DeclCategory::kFunction;
+    }
+
+    if (auto var_decl = clang::dyn_cast<clang::VarDecl>(decl)) {
       if (clang::isa<clang::ParmVarDecl>(decl)) {
         return ::pasta::DeclCategory::kParameterVariable;
+      }
 
-      } else if (auto iparam = clang::dyn_cast<clang::ImplicitParamDecl>(decl)) {
+      if (auto iparam = clang::dyn_cast<clang::ImplicitParamDecl>(decl)) {
         switch (iparam->getParameterKind()) {
           case clang::ImplicitParamDecl::ObjCSelf:
           case clang::ImplicitParamDecl::CXXThis:
@@ -160,51 +177,66 @@ static ::pasta::DeclCategory ClassifyDecl(const clang::Decl *decl) {
       if (var_decl->isLocalVarDecl()) {
         if (var_decl->hasGlobalStorage()) {
           return ::pasta::DeclCategory::kGlobalVariable;
-        } else {
-          return ::pasta::DeclCategory::kLocalVariable;
         }
-      } else {
-        auto dc = var_decl->getDeclContext();
-        if (dc->isFileContext() || dc->isExternCContext() ||
-            dc->isNamespace() || dc->isExternCXXContext()) {
-          return ::pasta::DeclCategory::kGlobalVariable;
-
-        } else if (dc->isRecord()) {
-          return ::pasta::DeclCategory::kClassMember;
-        }
+        return ::pasta::DeclCategory::kLocalVariable;
       }
-    } else if (clang::isa<clang::NonTypeTemplateParmDecl>(decl)) {
+
+      auto dc = var_decl->getDeclContext();
+      if (dc->isFileContext() || dc->isExternCContext() ||
+          dc->isNamespace() || dc->isExternCXXContext()) {
+        return ::pasta::DeclCategory::kGlobalVariable;
+      }
+
+      if (dc->isRecord()) {
+        return ::pasta::DeclCategory::kClassMember;
+      }
+      return ::pasta::DeclCategory::kUnknown;
+
+    }
+
+    if (clang::isa<clang::NonTypeTemplateParmDecl>(decl)) {
       return ::pasta::DeclCategory::kTemplateValueParameter;
-    } else if (clang::isa<clang::TemplateTypeParmDecl>(decl)) {
+    }
+
+    if (clang::isa<clang::TemplateTypeParmDecl>(decl)) {
       return ::pasta::DeclCategory::kTemplateTypeParameter;
-    } else if (clang::isa<clang::TemplateTemplateParmDecl>(decl)) {
+    }
+
+    if (clang::isa<clang::TemplateTemplateParmDecl>(decl)) {
       return ::pasta::DeclCategory::kTemplateTypeParameter;
     }
   }
 
-done:
   return ::pasta::DeclCategory::kUnknown;
+}
+
+static bool IsImplicitImpl(clang::Decl *decl) {
+  if (decl->isImplicit()) {
+    return true;
+  }
+
+  auto dc_decl = clang::dyn_cast_or_null<clang::Decl>(
+      decl->getLexicalDeclContext());
+  if (!dc_decl || dc_decl == decl ||
+      llvm::isa<clang::TranslationUnitDecl>(dc_decl)) {
+    return false;
+  }
+
+  return IsImplicitImpl(dc_decl);
+}
+
+static const clang::ASTRecordLayout *GetRecordLayout(const clang::RecordDecl *decl) {
+  auto def = decl->getDefinition();
+  if (def && !def->isInvalidDecl() && def->isCompleteDefinition()) {
+    return &(def->getASTContext().getASTRecordLayout(def));
+  }
+  return nullptr;
 }
 
 }  // namespace
 
 ::pasta::DeclCategory Decl::Category(void) const noexcept {
   return ClassifyDecl(u.Decl);
-}
-
-static bool IsImplicitImpl(clang::Decl *decl) {
-  if (decl->isImplicit()) {
-    return true;
-  } else {
-    auto dc_decl = clang::dyn_cast_or_null<clang::Decl>(
-        decl->getLexicalDeclContext());
-    if (!dc_decl || dc_decl == decl ||
-        llvm::isa<clang::TranslationUnitDecl>(dc_decl)) {
-      return false;
-    } else {
-      return IsImplicitImpl(dc_decl);
-    }
-  }
 }
 
 // Manually implemented to handle things like field declarations inside of
@@ -220,9 +252,8 @@ bool Decl::IsImplicit(void) const {
   auto end = ast->RawTokenAt(range.getEnd());
   if (begin && end && begin <= end) {
     return pasta::TokenRange(ast, begin, &(end[1]));
-  } else {
-    return pasta::TokenRange(ast);
   }
+  return pasta::TokenRange(ast);
 }
 
 // Token of the the base type name. Doesn't include the qualifiers.
@@ -240,9 +271,8 @@ bool CXXBaseSpecifier::IsVirtual(void) const noexcept {
 TagTypeKind CXXBaseSpecifier::BaseKind(void) const noexcept {
   if (spec->isBaseOfClass()) {
     return TagTypeKind::kClass;
-  } else {
-    return TagTypeKind::kStruct;
   }
+  return TagTypeKind::kStruct;
 }
 
 // Is this specifier a pack expansion?
@@ -260,9 +290,8 @@ bool CXXBaseSpecifier::ConstructorsAreInherited(void) const noexcept {
 std::optional<Token> CXXBaseSpecifier::EllipsisToken(void) const noexcept {
   if (auto tok = ast->RawTokenAt(spec->getEllipsisLoc())) {
     return Token(ast, tok);
-  } else {
-    return std::nullopt;
   }
+  return std::nullopt;
 }
 
 // Returns the access specifier for this base specifier.
@@ -328,35 +357,31 @@ bool TemplateArgument::IsPackExpansion(void) const noexcept {
 std::optional<ValueDecl> TemplateArgument::AsDeclaration(void) const noexcept {
   if (Kind() == TemplateArgumentKind::kDeclaration) {
     return DeclBuilder::Create<pasta::ValueDecl>(ast, arg->getAsDecl());
-  } else {
-    return std::nullopt;
   }
+  return std::nullopt;
 }
 
 // Retrieve the type for a type template argument.
 std::optional<Type> TemplateArgument::AsType(void) const noexcept {
   if (Kind() == TemplateArgumentKind::kType) {
     return TypeBuilder::Build(ast, arg->getAsType());
-  } else {
-    return std::nullopt;
   }
+  return std::nullopt;
 }
 
 std::optional<Type>
 TemplateArgument::ParameterTypeForDeclaration(void) const noexcept {
   if (Kind() == TemplateArgumentKind::kDeclaration) {
     return TypeBuilder::Build(ast, arg->getParamTypeForDecl());
-  } else {
-    return std::nullopt;
   }
+  return std::nullopt;
 }
 
 std::optional<Type> TemplateArgument::NullPointerType(void) const noexcept {
   if (Kind() == TemplateArgumentKind::kNullPointer) {
     return TypeBuilder::Build(ast, arg->getNullPtrType());
-  } else {
-    return std::nullopt;
   }
+  return std::nullopt;
 }
 
 // Total number of parameters.
@@ -395,9 +420,8 @@ std::optional<::pasta::Expr>
 TemplateParameterList::RequiresClause(void) const noexcept {
   if (auto expr = params->getRequiresClause()) {
     return StmtBuilder::Create<::pasta::Expr>(ast, expr);
-  } else {
-    return std::nullopt;
   }
+  return std::nullopt;
 }
 
 ::pasta::Token TemplateParameterList::TemplateKeywordToken(void) const noexcept {
@@ -421,6 +445,128 @@ TemplateParameterList::Parameters(void) const noexcept {
   std::vector<::pasta::NamedDecl> ret;
   for (clang::NamedDecl *param : *params) {
     ret.emplace_back(DeclBuilder::Create<pasta::NamedDecl>(ast, param));
+  }
+  return ret;
+}
+
+std::optional<uint64_t> RecordDecl::Size(void) const noexcept {
+  if (auto layout = GetRecordLayout(u.RecordDecl)) {
+    return layout->getSize().getQuantity();
+  }
+  return std::nullopt;
+}
+
+std::optional<uint64_t> RecordDecl::Alignment(void) const noexcept {
+  if (auto layout = GetRecordLayout(u.RecordDecl)) {
+    return layout->getAlignment().getQuantity();
+  }
+  return std::nullopt;
+}
+
+std::optional<uint64_t> RecordDecl::SizeWithoutTrailingPadding(void) const noexcept {
+  if (auto layout = GetRecordLayout(u.RecordDecl)) {
+    return layout->getDataSize().getQuantity();
+  }
+  return std::nullopt;
+}
+
+std::optional<uint64_t> CXXRecordDecl::SizeWithoutVirtualBases(void) const noexcept {
+  if (auto layout = GetRecordLayout(u.RecordDecl)) {
+    return layout->getNonVirtualSize().getQuantity();
+  }
+  return std::nullopt;
+}
+
+std::optional<CXXRecordDecl> CXXRecordDecl::PrimaryBase(void) const noexcept {
+  auto layout = GetRecordLayout(u.RecordDecl);
+  if (!layout) {
+    return std::nullopt;
+  }
+
+  const clang::CXXRecordDecl *base = layout->getPrimaryBase();
+  if (!base) {
+    return std::nullopt;
+  }
+
+  return DeclBuilder::Create<pasta::CXXRecordDecl>(ast, base);
+}
+
+std::optional<bool> CXXRecordDecl::HasOwnVirtualFunctionTablePointer(void) const noexcept {
+  if (auto layout = GetRecordLayout(u.RecordDecl)) {
+    return layout->hasOwnVFPtr();
+  }
+  return std::nullopt;
+}
+
+std::optional<bool> CXXRecordDecl::HasExtendableVirtualFunctionTablePointer(void) const noexcept {
+  if (auto layout = GetRecordLayout(u.RecordDecl)) {
+    return layout->hasExtendableVFPtr();
+  }
+  return std::nullopt;
+}
+
+std::optional<bool> CXXRecordDecl::HasVirtualBaseTablePointer(void) const noexcept {
+  if (auto layout = GetRecordLayout(u.RecordDecl)) {
+    return layout->hasVBPtr();
+  }
+  return std::nullopt;
+}
+
+std::optional<bool> CXXRecordDecl::HasOwnVirtualBaseTablePointer(void) const noexcept {
+  if (auto layout = GetRecordLayout(u.RecordDecl)) {
+    return layout->hasOwnVBPtr();
+  }
+  return std::nullopt;
+}
+
+std::optional<uint64_t> FieldDecl::OffsetInBits(void) const noexcept {
+  if (auto layout = GetRecordLayout(u.FieldDecl->getParent())) {
+    return layout->getFieldOffset(u.FieldDecl->getFieldIndex());
+  }
+  return std::nullopt;
+}
+
+// Clang deduplicates function types, and stores the ellipsis in those types.
+// that results in the wrong ellipsis location. `ASTImpl::DeclBounds` will run
+// the `DeclBoundsFinder` on the function, and try to discover key locations
+// in the "prorotype" of the function, updating `ASTImpl::func_proto`. Then,
+// we can try to find the true ellipsis token.
+::pasta::Token FunctionDecl::EllipsisToken(void) const {
+  auto &self = *const_cast<clang::FunctionDecl *>(u.FunctionDecl);
+  if (self.getEllipsisLoc().isValid()) {
+    auto [begin_tok, end_tok] = ast->DeclBounds(&self);
+    if (auto it = ast->func_proto.find(&self); it != ast->func_proto.end()) {
+      assert(begin_tok < it->second.ellipsis);
+      assert(it->second.ellipsis < end_tok);
+      (void) begin_tok;
+      return ::pasta::Token(ast, it->second.ellipsis);
+    }
+  }
+  return ::pasta::Token(ast);
+}
+
+::pasta::TokenRange FunctionDecl::ParametersTokens(void) const {
+  auto &self = *const_cast<clang::FunctionDecl *>(u.FunctionDecl);
+  (void) ast->DeclBounds(&self);
+  if (auto it = ast->func_proto.find(&self); it != ast->func_proto.end()) {
+    ASTImpl::FunctionProto &proto = it->second;
+    return ::pasta::TokenRange(ast, proto.l_paren, proto.r_paren);
+  }
+  return ::pasta::TokenRange(ast);
+}
+
+std::vector<::pasta::EnumConstantDecl> EnumDecl::Enumerators(void) const {
+  auto &self = *const_cast<clang::EnumDecl *>(u.EnumDecl);
+  std::vector<::pasta::EnumConstantDecl> ret;
+  if (auto def = self.getDefinition(); !def || &self != def) {
+    return ret;
+  }
+
+  decltype(auto) val = self.enumerators();
+  for (auto decl_ptr : val) {
+    if (decl_ptr) {
+      ret.emplace_back(DeclBuilder::Create<::pasta::EnumConstantDecl>(ast, decl_ptr));
+    }
   }
   return ret;
 }

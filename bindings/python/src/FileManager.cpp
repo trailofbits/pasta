@@ -4,10 +4,7 @@
 
 #include <pasta/Util/FileManager.h>
 
-#include <nanobind/stl/shared_ptr.h>
-#include <nanobind/stl/string.h>
-
-#include "bindings.h"
+#include "Bindings.h"
 
 namespace pasta {
 

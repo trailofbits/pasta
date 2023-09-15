@@ -10,17 +10,15 @@
 #include <pasta/AST/Stmt.h>
 #include <pasta/AST/Type.h>
 
-#include <nanobind/nanobind.h>
-#include <nanobind/stl/optional.h>
-#include <nanobind/stl/vector.h>
+#include "../Bindings.h"
 
 namespace pasta {
 namespace nb = nanobind;
 
 void RegisterMatrixType(nb::module_ &m) {
   nb::class_<MatrixType, Type>(m, "MatrixType")
-    .def("__hash__", [](const MatrixType& type) { return (intptr_t)type.RawType(); })
-    .def("__eq__", [](const Type& a, const Type& b) { return a.RawType() == b.RawType(); })
+    .def("__hash__", [](const MatrixType &type) { return (intptr_t)type.RawType(); })
+    .def("__eq__", [](const Type &a, const Type &b) { return a.RawType() == b.RawType(); })
     .def_prop_ro("desugar", &MatrixType::Desugar)
     .def_prop_ro("element_type", &MatrixType::ElementType)
     .def_prop_ro("is_sugared", &MatrixType::IsSugared);

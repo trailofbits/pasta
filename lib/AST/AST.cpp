@@ -80,13 +80,20 @@ void ASTImpl::AppendBackupToken(const clang::Token &tok, size_t offset_,
       tok.getKind(), role_);
 }
 
-// Return the AST containing a declaration.
 AST AST::From(const Decl &decl) {
   return AST(decl.ast);
 }
 
 AST AST::From(const Stmt &stmt) {
   return AST(stmt.ast);
+}
+
+AST AST::From(const Macro &macro) {
+  return AST(macro.ast);
+}
+
+AST AST::From(const Type &type) {
+  return AST(type.ast);
 }
 
 AST::~AST(void) {}
@@ -136,12 +143,9 @@ std::optional<FileToken> ASTImpl::FileTokenAt(clang::SourceLocation loc) {
     if (file_it == id_to_file.end()) {
       return std::nullopt;
     }
-
     return file_it->second.TokenAtOffset(file_offset);
-
-  } else {
-    return std::nullopt;
   }
+  return std::nullopt;
 }
 
 // Try to return the token at the specified location.
@@ -154,11 +158,19 @@ TokenImpl *ASTImpl::RawTokenAt(clang::SourceLocation loc) {
   // as that implies they are from the original parse of source, and not from
   // the parse of the pre-processed source.
   if (loc.isMacroID()) {
+    assert(false);
     return nullptr;
   }
 
   bool invalid = false;
   auto &sm = ci->getSourceManager();
+
+#ifndef NDEBUG
+  const auto [file_id, file_offset] = sm.getDecomposedLoc(loc);
+  assert(file_id == sm.getMainFileID());
+  assert(file_offset < preprocessed_code.size());
+#endif
+
   const auto line = sm.getSpellingLineNumber(loc, &invalid);
   if (!line || invalid || static_cast<size_t>(line) > tokens.size()) {
     return nullptr;
@@ -172,9 +184,8 @@ Token ASTImpl::TokenAt(clang::SourceLocation loc) {
   auto self = shared_from_this();
   if (auto tok = RawTokenAt(loc)) {
     return Token(std::move(self), tok);
-  } else {
-    return Token(std::move(self));
   }
+  return Token(std::move(self));
 }
 
 // Try to return the token at the specified location.
@@ -184,9 +195,8 @@ Token ASTImpl::TokenAt(const TokenImpl *tok) {
   auto end = &(begin[tokens.size()]);
   if (begin <= tok && tok < end) {
     return Token(std::move(self), tok);
-  } else {
-    return Token(std::move(self));
   }
+  return Token(std::move(self));
 }
 
 // Try to return the token range from the specified source range.
@@ -198,16 +208,19 @@ TokenRange ASTImpl::TokenRangeFrom(clang::SourceRange range) {
   if (begin && end) {
     if (begin.impl <= end.impl) {
       return TokenRange(std::move(self), begin.impl, &(end.impl[1]));
-    } else {
-      return TokenRange(std::move(self), end.impl, &(begin.impl[1]));
     }
-  } else if (begin) {
-    return TokenRange(std::move(self), begin.impl, &(begin.impl[1]));
-  } else if (end) {
-    return TokenRange(std::move(self), end.impl, &(end.impl[1]));
-  } else {
-    return TokenRange(std::move(self));
+    return TokenRange(std::move(self), end.impl, &(begin.impl[1]));
   }
+
+  if (begin) {
+    return TokenRange(std::move(self), begin.impl, &(begin.impl[1]));
+  }
+
+  if (end) {
+    return TokenRange(std::move(self), end.impl, &(end.impl[1]));
+  }
+
+  return TokenRange(std::move(self));
 }
 
 // Return a reference to the underlying Clang AST context. This is needed for
@@ -277,11 +290,6 @@ std::optional<Decl> Decl::From(const TokenContext &context) {
   }
 
   auto ast = reinterpret_cast<ASTImpl *>(const_cast<void *>(first_context.data));
-  if (&(ast->contexts) != &contexts) {
-    assert(false);
-    return std::nullopt;
-  }
-
   return DeclBuilder::Create<Decl, clang::Decl>(
       ast->shared_from_this(),
       reinterpret_cast<const clang::Decl *>(context.Data()));
@@ -305,11 +313,6 @@ std::optional<Stmt> Stmt::From(const TokenContext &context) {
   }
 
   auto ast = reinterpret_cast<ASTImpl *>(const_cast<void *>(first_context.data));
-  if (&(ast->contexts) != &contexts) {
-    assert(false);
-    return std::nullopt;
-  }
-
   return StmtBuilder::Create<Stmt, clang::Stmt>(
       ast->shared_from_this(),
       reinterpret_cast<const clang::Stmt *>(context.Data()));
@@ -333,11 +336,6 @@ std::optional<Type> Type::From(const TokenContext &context) {
   }
 
   auto ast = reinterpret_cast<ASTImpl *>(const_cast<void *>(first_context.data));
-  if (&(ast->contexts) != &contexts) {
-    assert(false);
-    return std::nullopt;
-  }
-
   return TypeBuilder::Create<Type, clang::Type>(
       ast->shared_from_this(),
       reinterpret_cast<const clang::Type *>(context.Data()));
@@ -361,11 +359,6 @@ std::optional<Attr> Attr::From(const TokenContext &context) {
   }
 
   auto ast = reinterpret_cast<ASTImpl *>(const_cast<void *>(first_context.data));
-  if (&(ast->contexts) != &contexts) {
-    assert(false);
-    return std::nullopt;
-  }
-
   return AttrBuilder::Create<Attr, clang::Attr>(
       ast->shared_from_this(),
       reinterpret_cast<const clang::Attr *>(context.Data()));
@@ -389,11 +382,6 @@ std::optional<Designator> Designator::From(const TokenContext &context) {
   }
 
   auto ast = reinterpret_cast<ASTImpl *>(const_cast<void *>(first_context.data));
-  if (&(ast->contexts) != &contexts) {
-    assert(false);
-    return std::nullopt;
-  }
-
   return Designator(ast->shared_from_this(), context.Data());
 }
 
@@ -416,11 +404,6 @@ std::optional<CXXBaseSpecifier> CXXBaseSpecifier::From(
   }
 
   auto ast = reinterpret_cast<ASTImpl *>(const_cast<void *>(first_context.data));
-  if (&(ast->contexts) != &contexts) {
-    assert(false);
-    return std::nullopt;
-  }
-
   return CXXBaseSpecifier(
       ast->shared_from_this(),
       reinterpret_cast<const clang::CXXBaseSpecifier *>(context.Data()));
@@ -445,11 +428,6 @@ std::optional<TemplateArgument> TemplateArgument::From(
   }
 
   auto ast = reinterpret_cast<ASTImpl *>(const_cast<void *>(first_context.data));
-  if (&(ast->contexts) != &contexts) {
-    assert(false);
-    return std::nullopt;
-  }
-
   return TemplateArgument(
       ast->shared_from_this(),
       reinterpret_cast<const clang::TemplateArgument *>(context.Data()));
@@ -474,11 +452,6 @@ std::optional<TemplateParameterList> TemplateParameterList::From(
   }
 
   auto ast = reinterpret_cast<ASTImpl *>(const_cast<void *>(first_context.data));
-  if (&(ast->contexts) != &contexts) {
-    assert(false);
-    return std::nullopt;
-  }
-
   return TemplateParameterList(
       ast->shared_from_this(),
       reinterpret_cast<const clang::TemplateParameterList *>(context.Data()));

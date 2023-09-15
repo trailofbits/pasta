@@ -97,9 +97,8 @@ LLVMFile::getBuffer(const llvm::Twine &name, int64_t file_size,
     auto ret = llvm::MemoryBuffer::getMemBuffer(
         data.TakeValue(), name.str(), false);
     return ret;
-  } else {
-    return data.TakeError();
   }
+  return data.TakeError();
 }
 
 /// Closes the file.
@@ -115,10 +114,8 @@ std::error_code LLVMDirectoryIterator::increment(void) {
     this->CurrentEntry = llvm::vfs::directory_entry(
         stat.full_path.generic_string(), ToLLVM(stat.type));
     return {};
-
-  } else {
-    return kErrOutOfRange;
   }
+  return kErrOutOfRange;
 }
 
 LLVMFileSystem::~LLVMFileSystem(void) {}
@@ -130,9 +127,8 @@ LLVMFileSystem::status(const llvm::Twine &path) {
   auto stat = file_system.Stat(std::move(fs_path));
   if (stat.Succeeded()) {
     return ToLLVM(stat.TakeValue());
-  } else {
-    return stat.TakeError();
   }
+  return stat.TakeError();
 }
 
 // Get an `LLVMFile` object for the file at `path`, if one exists.
@@ -148,12 +144,10 @@ LLVMFileSystem::openFileForRead(const llvm::Twine &path) {
     auto file = file_manager.OpenFile(std::move(stat));
     if (file.Succeeded()) {
       return std::unique_ptr<llvm::vfs::File>(new LLVMFile(file.TakeValue()));
-    } else {
-      return file.TakeError();
     }
-  } else {
-    return maybe_stat.TakeError();
+    return file.TakeError();
   }
+  return maybe_stat.TakeError();
 }
 
 // Get a `directory_iterator` for `path`.
@@ -172,10 +166,9 @@ LLVMFileSystem::dir_begin(const llvm::Twine &path, std::error_code &ec) {
     }
     return llvm::vfs::directory_iterator(
         std::make_shared<LLVMDirectoryIterator>(std::move(path_stats)));
-  } else {
-    ec = paths.TakeError();
-    return llvm::vfs::directory_iterator();
   }
+  ec = paths.TakeError();
+  return llvm::vfs::directory_iterator();
 }
 
 // Set the current working directory to `path`.
@@ -203,9 +196,8 @@ std::error_code LLVMFileSystem::getRealPath(
     output.reserve(data.size());
     output.insert(output.end(), data.begin(), data.end());
     return {};
-  } else {
-    return maybe_stat.TakeError();
   }
+  return maybe_stat.TakeError();
 }
 
 // Is the file mounted on a local filesystem?

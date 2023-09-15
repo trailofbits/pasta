@@ -2763,7 +2763,7 @@ enum DeclObjCDeclQualifier ObjCMethodDecl::ObjCDeclQualifier(void) const {
   return TypeBuilder::Build(ast, val);
 }
 
-::pasta::TokenRange ObjCMethodDecl::ReturnTypeSourceRange(void) const {
+::pasta::TokenRange ObjCMethodDecl::ReturnTypeTokens(void) const {
   auto &self = *const_cast<clang::ObjCMethodDecl *>(u.ObjCMethodDecl);
   decltype(auto) val = self.getReturnTypeSourceRange();
   return ast->TokenRangeFrom(val);
@@ -4636,13 +4636,7 @@ std::optional<::pasta::FunctionTemplateDecl> FunctionDecl::DescribedFunctionTemp
   }
 }
 
-::pasta::Token FunctionDecl::EllipsisToken(void) const {
-  auto &self = *const_cast<clang::FunctionDecl *>(u.FunctionDecl);
-  decltype(auto) val = self.getEllipsisLoc();
-  return ast->TokenAt(val);
-}
-
-::pasta::TokenRange FunctionDecl::ExceptionSpecSourceRange(void) const {
+::pasta::TokenRange FunctionDecl::ExceptionSpecTokens(void) const {
   auto &self = *const_cast<clang::FunctionDecl *>(u.FunctionDecl);
   decltype(auto) val = self.getExceptionSpecSourceRange();
   return ast->TokenRangeFrom(val);
@@ -4729,12 +4723,6 @@ enum OverloadedOperatorKind FunctionDecl::OverloadedOperator(void) const {
 }
 
 // 1: FunctionDecl::ParameterDeclaration
-::pasta::TokenRange FunctionDecl::ParametersSourceRange(void) const {
-  auto &self = *const_cast<clang::FunctionDecl *>(u.FunctionDecl);
-  decltype(auto) val = self.getParametersSourceRange();
-  return ast->TokenRangeFrom(val);
-}
-
 ::pasta::Token FunctionDecl::PointOfInstantiation(void) const {
   auto &self = *const_cast<clang::FunctionDecl *>(u.FunctionDecl);
   decltype(auto) val = self.getPointOfInstantiation();
@@ -4757,12 +4745,6 @@ std::optional<::pasta::FunctionTemplateDecl> FunctionDecl::PrimaryTemplate(void)
   decltype(auto) val = self.getReturnType();
   assert(!val.isNull());
   return TypeBuilder::Build(ast, val);
-}
-
-::pasta::TokenRange FunctionDecl::ReturnTypeSourceRange(void) const {
-  auto &self = *const_cast<clang::FunctionDecl *>(u.FunctionDecl);
-  decltype(auto) val = self.getReturnTypeSourceRange();
-  return ast->TokenRangeFrom(val);
 }
 
 enum StorageClass FunctionDecl::StorageClass(void) const {
@@ -7493,18 +7475,6 @@ PASTA_DEFINE_BASE_OPERATORS(TagDecl, EnumDecl)
 PASTA_DEFINE_BASE_OPERATORS(TypeDecl, EnumDecl)
 // 0: EnumDecl::
 // 0: EnumDecl::
-std::vector<::pasta::EnumConstantDecl> EnumDecl::Enumerators(void) const {
-  auto &self = *const_cast<clang::EnumDecl *>(u.EnumDecl);
-  decltype(auto) val = self.enumerators();
-  std::vector<::pasta::EnumConstantDecl> ret;
-  for (auto decl_ptr : val) {
-    if (decl_ptr) {
-      ret.emplace_back(DeclBuilder::Create<::pasta::EnumConstantDecl>(ast, decl_ptr));
-    }
-  }
-  return ret;
-}
-
 ::pasta::EnumDecl EnumDecl::CanonicalDeclaration(void) const {
   auto &self = *const_cast<clang::EnumDecl *>(u.EnumDecl);
   decltype(auto) val = self.getCanonicalDecl();
@@ -8761,17 +8731,6 @@ enum MSVtorDispMode CXXRecordDecl::MSVtorDispMode(void) const {
     return DeclBuilder::Create<::pasta::CXXRecordDecl>(ast, val);
   }
   throw std::runtime_error("CXXRecordDecl::MostRecentDeclaration can return nullptr!");
-}
-
-std::optional<::pasta::CXXRecordDecl> CXXRecordDecl::MostRecentNonInjectedDeclaration(void) const {
-  auto &self = *const_cast<clang::CXXRecordDecl *>(u.CXXRecordDecl);
-  decltype(auto) val = self.getMostRecentNonInjectedDecl();
-  if (!val) {
-    return std::nullopt;
-  }
-  if (val) {
-    return DeclBuilder::Create<::pasta::CXXRecordDecl>(ast, val);
-  }
 }
 
 std::optional<uint32_t> CXXRecordDecl::NumBases(void) const {

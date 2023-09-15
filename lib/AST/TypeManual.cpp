@@ -26,9 +26,36 @@ namespace {
 
 #define EXC_PTR reinterpret_cast<const clang::FunctionProtoType::ExceptionSpecInfo *>(data.get())
 
-std::shared_ptr<void> GetExcSpec(const clang::FunctionProtoType *type) {
+static std::shared_ptr<void> GetExcSpec(const clang::FunctionProtoType *type) {
   return std::make_shared<clang::FunctionProtoType::ExceptionSpecInfo>(
       type->getExceptionSpecInfo());
+}
+
+static bool IsSizedType(clang::QualType self) {
+  if (self.isNull()) {
+    return false;
+  }
+
+  clang::NamedDecl *nd = nullptr;
+  auto tp = self.getTypePtr();
+  if (tp->isIncompleteType(&nd) || tp->isDependentType()) {
+    return false;
+  }
+
+  if (auto bt = clang::dyn_cast<clang::BuiltinType>(tp)) {
+    switch (bt->getKind()) {
+      default:
+        return true;
+#define BUILTIN_TYPE(...)
+#define PLACEHOLDER_TYPE(kind, ty) case clang::BuiltinType::kind: return false;
+#include <clang/AST/BuiltinTypes.def>
+    }
+  } else if (auto dt = clang::dyn_cast<clang::DeducedType>(tp)) {
+    if (dt->getDeducedType().isNull()) {
+      return false;
+    }
+  }
+  return true;
 }
 
 }  // namespace
@@ -36,14 +63,13 @@ std::shared_ptr<void> GetExcSpec(const clang::FunctionProtoType *type) {
 ::pasta::TypeKind Type::Kind(void) const {
   if (qualifiers) {
     return TypeKind::kQualified;
-  } else {
-#ifndef NDEBUG
-    auto &self = *const_cast<clang::Type *>(u.Type);
-    decltype(auto) val = self.getTypeClass();
-    assert(kind == static_cast<enum ::pasta::TypeKind>(val));
-#endif
-    return kind;
   }
+#ifndef NDEBUG
+  auto &self = *const_cast<clang::Type *>(u.Type);
+  decltype(auto) val = self.getTypeClass();
+  assert(kind == static_cast<enum ::pasta::TypeKind>(val));
+#endif
+  return kind;
 }
 
 std::string_view Type::KindName(void) const {
@@ -55,11 +81,21 @@ std::string_view Type::KindName(void) const {
   decltype(auto) val = self.getTypeClassName();
   if (val) {
     return std::string_view(val);
-  } else {
-    return std::string_view();
   }
+
   assert(false && "Type::KindName can return nullptr!");
-  __builtin_unreachable();
+  return std::string_view();
+}
+
+clang::QualType Type::RawQualType(void) const noexcept {
+  if (!ast || !u.Type) {
+    assert(false);
+    return {};
+  }
+
+  auto &ast_ctx = ast->ci->getASTContext();
+  clang::QualType fast_qtype(u.Type, qualifiers & clang::Qualifiers::FastMask);
+  return ast_ctx.getQualifiedType(fast_qtype, clang::Qualifiers::fromOpaqueValue(qualifiers));
 }
 
 ::pasta::Type Type::DesugaredType(void) const noexcept {
@@ -80,12 +116,35 @@ std::string_view Type::KindName(void) const {
   return TypeBuilder::Build(ast, val);
 }
 
+std::optional<uint64_t> Type::SizeInBits(void) const noexcept {
+  auto self = RawQualType();
+  if (!IsSizedType(self)) {
+    return std::nullopt;
+  }
+
+  auto &ast_ctx = ast->ci->getASTContext();
+  return ast_ctx.getTypeSize(self);
+}
+
+std::optional<uint64_t> Type::Alignment(void) const noexcept {
+  auto self = RawQualType();
+  if (!IsSizedType(self)) {
+    return std::nullopt;
+  }
+
+  auto &ast_ctx = ast->ci->getASTContext();
+  if (auto ret = ast_ctx.getTypeAlignIfKnown(self)) {
+    return ret / 8u;
+  }
+
+  return std::nullopt;
+}
+
 ExceptionSpecification::~ExceptionSpecification(void) {}
 
 ExceptionSpecification::ExceptionSpecification(const FunctionProtoType &type)
     : data(GetExcSpec(type.RawType())),
       ast(type.ast) {}
-
 
 // Return the kind of this exception specification.
 ExceptionSpecificationType ExceptionSpecification::Kind(void) const {
@@ -106,9 +165,8 @@ std::vector<Type> ExceptionSpecification::Exceptions(void) const {
 std::optional<Expr> ExceptionSpecification::NoExceptExpression(void) const {
   if (const clang::Expr *expr = EXC_PTR->NoexceptExpr) {
     return StmtBuilder::Create<::pasta::Expr>(ast, expr);
-  } else {
-    return std::nullopt;
   }
+  return std::nullopt;
 }
 
 // If this is an unevaluated or uninstantiated `noexcept` then this is the
@@ -116,9 +174,8 @@ std::optional<Expr> ExceptionSpecification::NoExceptExpression(void) const {
 std::optional<FunctionDecl> ExceptionSpecification::SourceFunction(void) {
   if (const clang::FunctionDecl *decl = EXC_PTR->SourceDecl) {
     return DeclBuilder::Create<::pasta::FunctionDecl>(ast, decl);
-  } else {
-    return std::nullopt;
   }
+  return std::nullopt;
 }
 
 // If this is an unevaluated or uninstantiated `noexcept` then this is the
@@ -126,9 +183,8 @@ std::optional<FunctionDecl> ExceptionSpecification::SourceFunction(void) {
 std::optional<FunctionDecl> ExceptionSpecification::SourceTemplate(void) {
   if (const clang::FunctionDecl *decl = EXC_PTR->SourceTemplate) {
     return DeclBuilder::Create<::pasta::FunctionDecl>(ast, decl);
-  } else {
-    return std::nullopt;
   }
+  return std::nullopt;
 }
 
 }  // namespace pasta

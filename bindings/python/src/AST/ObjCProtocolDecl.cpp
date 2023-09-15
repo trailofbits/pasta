@@ -10,17 +10,15 @@
 #include <pasta/AST/Stmt.h>
 #include <pasta/AST/Type.h>
 
-#include <nanobind/nanobind.h>
-#include <nanobind/stl/optional.h>
-#include <nanobind/stl/vector.h>
+#include "../Bindings.h"
 
 namespace pasta {
 namespace nb = nanobind;
 
 void RegisterObjCProtocolDecl(nb::module_ &m) {
   nb::class_<ObjCProtocolDecl, ObjCContainerDecl>(m, "ObjCProtocolDecl")
-    .def("__hash__", [](const ObjCProtocolDecl& decl) { return (intptr_t)decl.RawDecl(); })
-    .def("__eq__", [](const Decl& a, const Decl& b) { return a.RawDecl() == b.RawDecl(); })
+    .def("__hash__", [](const ObjCProtocolDecl &decl) { return (intptr_t)decl.RawDecl(); })
+    .def("__eq__", [](const Decl &a, const Decl &b) { return a.RawDecl() == b.RawDecl(); })
     .def_prop_ro("canonical_declaration", &ObjCProtocolDecl::CanonicalDeclaration)
     .def_prop_ro("definition", &ObjCProtocolDecl::Definition)
     .def_prop_ro("obj_c_runtime_name_as_string", &ObjCProtocolDecl::ObjCRuntimeNameAsString)

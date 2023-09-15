@@ -8,9 +8,7 @@
 
 namespace pasta {
 
-Decl::Decl(
-    std::shared_ptr<ASTImpl> ast_,
-    const ::clang::Decl *decl_)
+Decl::Decl(std::shared_ptr<ASTImpl> ast_, const ::clang::Decl *decl_)
     : Decl(std::move(ast_), decl_, static_cast<DeclKind>(0u)) {}
 
 std::string_view Decl::KindName(void) const noexcept {

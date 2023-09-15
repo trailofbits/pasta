@@ -10,17 +10,15 @@
 #include <pasta/AST/Stmt.h>
 #include <pasta/AST/Type.h>
 
-#include <nanobind/nanobind.h>
-#include <nanobind/stl/optional.h>
-#include <nanobind/stl/vector.h>
+#include "../Bindings.h"
 
 namespace pasta {
 namespace nb = nanobind;
 
 void RegisterMemberPointerType(nb::module_ &m) {
   nb::class_<MemberPointerType, Type>(m, "MemberPointerType")
-    .def("__hash__", [](const MemberPointerType& type) { return (intptr_t)type.RawType(); })
-    .def("__eq__", [](const Type& a, const Type& b) { return a.RawType() == b.RawType(); })
+    .def("__hash__", [](const MemberPointerType &type) { return (intptr_t)type.RawType(); })
+    .def("__eq__", [](const Type &a, const Type &b) { return a.RawType() == b.RawType(); })
     .def_prop_ro("desugar", &MemberPointerType::Desugar)
     .def_prop_ro("class", &MemberPointerType::Class)
     .def_prop_ro("most_recent_cxx_record_declaration", &MemberPointerType::MostRecentCXXRecordDeclaration)

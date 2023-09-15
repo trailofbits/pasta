@@ -14,7 +14,7 @@ extern void DefineCppMethods(std::ostream &os, const std::string &class_name,
                              uint32_t class_id, std::ostream &os_py);
 
 // Generate `lib/AST/Type.cpp`.
-void GenerateTypeCpp(std::ostream& py_cmake, std::ostream& py_ast) {
+void GenerateTypeCpp(std::ostream &py_cmake, std::ostream &py_ast) {
   std::ofstream os(kASTTypeCpp);
 
   os
@@ -122,9 +122,7 @@ void GenerateTypeCpp(std::ostream& py_cmake, std::ostream& py_ast) {
 #include <pasta/AST/Stmt.h>
 #include <pasta/AST/Type.h>
 
-#include <nanobind/nanobind.h>
-#include <nanobind/stl/optional.h>
-#include <nanobind/stl/vector.h>
+#include "../Bindings.h"
 
 namespace pasta {
 namespace nb = nanobind;
@@ -159,8 +157,18 @@ void Register)" << name << "(nb::module_ &m) {\n"
       os_py << ", " << base_class;
     }
     os_py << ">(m, \"" << name << "\")"
-          << "\n    .def(\"__hash__\", [](const " << name << "& type) { return (intptr_t)type.RawType(); })"
-          << "\n    .def(\"__eq__\", [](const Type& a, const Type& b) { return a.RawType() == b.RawType(); })";
+          << "\n    .def(\"__hash__\", [](const " << name << " &type) { return (intptr_t)type.RawType(); })"
+          << "\n    .def(\"__eq__\", [](const Type &a, const Type &b) { return a.RawType() == b.RawType(); })";
+
+    if (name == "Type") {
+      os_py
+          << "\n    .def_prop_ro(\"kind\", &Type::Kind)"
+          << "\n    .def_prop_ro(\"kind_name\", &Type::KindName)"
+          << "\n    .def_prop_ro(\"size_in_bits\", &Type::SizeInBits)"
+          << "\n    .def_prop_ro(\"alignment\", &Type::Alignment)"
+          << "\n    .def_prop_ro(\"is_qualified\", &Type::IsQualified)"
+          << "\n    .def_prop_ro(\"unqualified_type\", &Type::UnqualifiedType)";
+    }
 
     for (const auto &derived_class : gTransitiveDerivedClasses[name]) {
       os << "PASTA_DEFINE_DERIVED_OPERATORS("

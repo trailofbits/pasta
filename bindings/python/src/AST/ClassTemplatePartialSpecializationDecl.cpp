@@ -10,17 +10,15 @@
 #include <pasta/AST/Stmt.h>
 #include <pasta/AST/Type.h>
 
-#include <nanobind/nanobind.h>
-#include <nanobind/stl/optional.h>
-#include <nanobind/stl/vector.h>
+#include "../Bindings.h"
 
 namespace pasta {
 namespace nb = nanobind;
 
 void RegisterClassTemplatePartialSpecializationDecl(nb::module_ &m) {
   nb::class_<ClassTemplatePartialSpecializationDecl, ClassTemplateSpecializationDecl>(m, "ClassTemplatePartialSpecializationDecl")
-    .def("__hash__", [](const ClassTemplatePartialSpecializationDecl& decl) { return (intptr_t)decl.RawDecl(); })
-    .def("__eq__", [](const Decl& a, const Decl& b) { return a.RawDecl() == b.RawDecl(); })
+    .def("__hash__", [](const ClassTemplatePartialSpecializationDecl &decl) { return (intptr_t)decl.RawDecl(); })
+    .def("__eq__", [](const Decl &a, const Decl &b) { return a.RawDecl() == b.RawDecl(); })
     .def_prop_ro("injected_specialization_type", &ClassTemplatePartialSpecializationDecl::InjectedSpecializationType)
     .def_prop_ro("instantiated_from_member", &ClassTemplatePartialSpecializationDecl::InstantiatedFromMember)
     .def_prop_ro("instantiated_from_member_template", &ClassTemplatePartialSpecializationDecl::InstantiatedFromMemberTemplate)

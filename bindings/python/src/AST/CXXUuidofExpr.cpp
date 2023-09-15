@@ -10,9 +10,7 @@
 #include <pasta/AST/Stmt.h>
 #include <pasta/AST/Type.h>
 
-#include <nanobind/nanobind.h>
-#include <nanobind/stl/optional.h>
-#include <nanobind/stl/vector.h>
+#include "../Bindings.h"
 
 namespace pasta {
 namespace nb = nanobind;
@@ -27,7 +25,7 @@ void RegisterCXXUuidofExpr(nb::module_ &m) {
     .def_prop_ro("expression_operand", &CXXUuidofExpr::ExpressionOperand)
     .def_prop_ro("guid_declaration", &CXXUuidofExpr::GuidDeclaration)
     .def_prop_ro("tokens", &CXXUuidofExpr::Tokens)
-    .def("type_operand", &CXXUuidofExpr::TypeOperand)
+    .def_prop_ro("type_operand", &CXXUuidofExpr::TypeOperand)
     .def_prop_ro("type_operand_source_info", &CXXUuidofExpr::TypeOperandSourceInfo)
     .def_prop_ro("is_type_operand", &CXXUuidofExpr::IsTypeOperand);
 }

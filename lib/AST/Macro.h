@@ -61,28 +61,32 @@ class MacroNodeImpl {
 #endif
 };
 
-struct TokenKindAndFlags {
-  TokenKind kind;
-  bool is_ignored_comma;
-};
-
 class MacroTokenImpl final {
  public:
   Node parent;
 
-  // Offset of `TokenImpl` in `ASTImpl::tokens`.
+  // Offset of `TokenImpl` in `ASTImpl::tokens`. We don't use a pointer as
+  // `ASTImpl::tokens` is a vector, so the pointers aren't stable as it is
+  // extended.
   uint32_t token_offset;
 
-  union {
-    // The actual context of this token.
-    uint32_t token_context{0};
-
-    // The actual kind of this token.
-    TokenKindAndFlags kind_flags;
-  };
+  // Copy of `TokenImpl::kind`. We often need to do checks on kinds to find
+  // various things, e.g. find the identifier for a macro name in a `#define`,
+  // or find balanced parentheses.
+  TokenKind kind;
+  
+  // Keeps track of whether or not this is a comma, but it is ignored from
+  // the perspective of separating macro arguments.
+  bool is_ignored_comma;
 
   // Clone this token into the AST.
   MacroTokenImpl *Clone(ASTImpl &ast, MacroNodeImpl *parent) const;
+
+  // Is `kind` identifier like?
+  inline bool IsIdentifierLike(void) const noexcept {
+    return kind == TokenKind::kIdentifier ||
+           kind == TokenKind::kRawIdentifier;
+  }
 };
 
 class MacroDirectiveImpl final : public MacroNodeImpl {

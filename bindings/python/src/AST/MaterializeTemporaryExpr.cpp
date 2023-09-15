@@ -10,9 +10,7 @@
 #include <pasta/AST/Stmt.h>
 #include <pasta/AST/Type.h>
 
-#include <nanobind/nanobind.h>
-#include <nanobind/stl/optional.h>
-#include <nanobind/stl/vector.h>
+#include "../Bindings.h"
 
 namespace pasta {
 namespace nb = nanobind;
@@ -30,6 +28,6 @@ void RegisterMaterializeTemporaryExpr(nb::module_ &m) {
     .def_prop_ro("storage_duration", &MaterializeTemporaryExpr::StorageDuration)
     .def_prop_ro("sub_expression", &MaterializeTemporaryExpr::SubExpression)
     .def_prop_ro("is_bound_to_lvalue_reference", &MaterializeTemporaryExpr::IsBoundToLvalueReference)
-    .def("is_usable_in_constant_expressions", &MaterializeTemporaryExpr::IsUsableInConstantExpressions);
+    .def_prop_ro("is_usable_in_constant_expressions", &MaterializeTemporaryExpr::IsUsableInConstantExpressions);
 }
 } // namespace pasta

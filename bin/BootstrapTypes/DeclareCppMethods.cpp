@@ -124,8 +124,14 @@ static void DeclareCppMethod0(std::ostream &os, const std::string &class_name,
     }
   }
 
+  // These can crash in hard ways to guard against.
+  if (meth_name_ref == "getMostRecentNonInjectedDecl" ||
+      meth_name_ref == "getBestDynamicClassTypeExpr") {
+    return;
+  }
+
   CollectGetNumMethod(class_name, rt);
-  if (const auto meth_name = CxxName(meth_name_ref);
+  if (const auto meth_name = CxxName(class_name, meth_name_ref);
       !meth_name.empty() && meth_name != "Clone") {
 
     // NOTE(pag): We leave `Decl::isImplicit` here even though it's excluded
@@ -140,6 +146,13 @@ static void DeclareCppMethod0(std::ostream &os, const std::string &class_name,
     if (class_name == "Attr" &&
         (meth_name_ref == "getKind" ||
          meth_name_ref == "getAttributeSpellingListIndex")) {
+      return;
+    }
+
+    // We don't want these because clang is a bit dumb about source locations
+    // embedded in types.
+    if (class_name == "FunctionDecl" &&
+        (meth_name_ref == "getReturnTypeSourceRange")) {
       return;
     }
 
@@ -171,7 +184,7 @@ static void DeclareCppMethod1(
     const char *meth, const char *rt, const char *p0) {
   meth_name_ref = meth;
   CollectGetNthMethod(class_name, p0, rt);
-  if (const auto meth_name = CxxName(meth_name_ref);
+  if (const auto meth_name = CxxName(class_name, meth_name_ref);
       !meth_name.empty() && meth_name != "Clone") {
     const auto null_key = std::make_pair(class_name, meth_name);
     const auto can_ret_null = kCanReturnNullptr.count(null_key) ||
@@ -219,7 +232,7 @@ static void ProcessIterators(std::ostream &os, const std::string &class_name) {
       }
 
       std::string plural_name = getter_method.str() + "s";
-      std::string name = CxxName(plural_name);  // `CxxName` will chop off the `get`.
+      std::string name = CxxName(class_name, plural_name);  // `CxxName` will chop off the `get`.
       if (name.empty() || name == "s" || name == "S") {
         os << "  // !!! " << count << " " << counter_method.str()
            << " " << getter_method.str() << " (bad CxxName)\n";
@@ -252,7 +265,7 @@ static void ProcessIterators(std::ostream &os, const std::string &class_name) {
         continue;
       }
 
-      std::string name = CxxName(list_method);  // `CxxName` will chop off the `get`.
+      std::string name = CxxName(class_name, list_method);  // `CxxName` will chop off the `get`.
       if (name.empty()) {
         os << "  // !!! " << count << " " << counter_method.str()
            << " " << list_method.str() << " (bad CxxName)\n";
@@ -298,7 +311,7 @@ static void ProcessIterators(std::ostream &os, const std::string &class_name) {
     [[gnu::noinline]] \
     static void DeclareCppMethod_ ## id ## _ ## meth_id ( \
       std::ostream &os, const std::string &class_name) { \
-      if (const auto meth_name = CxxName(PASTA_STR(meth)); \
+      if (const auto meth_name = CxxName(class_name, PASTA_STR(meth)); \
           !meth_name.empty()) { \
         os << "  // " << meth_name << ": " << PASTA_STR(rt) << "\n"; \
       } \
@@ -308,7 +321,7 @@ static void ProcessIterators(std::ostream &os, const std::string &class_name) {
     [[gnu::noinline]] \
     static void DeclareCppMethod_ ## id ## _ ## meth_id ( \
       std::ostream &os, const std::string &class_name) { \
-      if (const auto meth_name = CxxName(PASTA_STR(meth)); \
+      if (const auto meth_name = CxxName(class_name, PASTA_STR(meth)); \
           !meth_name.empty()) { \
         os << "  // " << meth_name << ": " << PASTA_STR(rt) << "\n"; \
       } \
@@ -318,7 +331,7 @@ static void ProcessIterators(std::ostream &os, const std::string &class_name) {
     [[gnu::noinline]] \
     static void DeclareCppMethod_ ## id ## _ ## meth_id ( \
       std::ostream &os, const std::string &class_name) { \
-      if (const auto meth_name = CxxName(PASTA_STR(meth)); \
+      if (const auto meth_name = CxxName(class_name, PASTA_STR(meth)); \
           !meth_name.empty()) { \
         os << "  // " << meth_name << ": " << PASTA_STR(rt) << "\n"; \
       } \
@@ -328,7 +341,7 @@ static void ProcessIterators(std::ostream &os, const std::string &class_name) {
     [[gnu::noinline]] \
     static void DeclareCppMethod_ ## id ## _ ## meth_id ( \
       std::ostream &os, const std::string &class_name) { \
-      if (const auto meth_name = CxxName(PASTA_STR(meth)); \
+      if (const auto meth_name = CxxName(class_name, PASTA_STR(meth)); \
           !meth_name.empty()) { \
         os << "  // " << meth_name << ": " << PASTA_STR(rt) << "\n"; \
       } \
@@ -338,7 +351,7 @@ static void ProcessIterators(std::ostream &os, const std::string &class_name) {
     [[gnu::noinline]] \
     static void DeclareCppMethod_ ## id ## _ ## meth_id ( \
       std::ostream &os, const std::string &class_name) { \
-      if (const auto meth_name = CxxName(PASTA_STR(meth)); \
+      if (const auto meth_name = CxxName(class_name, PASTA_STR(meth)); \
           !meth_name.empty()) { \
         os << "  // " << meth_name << ": " << PASTA_STR(rt) << "\n"; \
       } \

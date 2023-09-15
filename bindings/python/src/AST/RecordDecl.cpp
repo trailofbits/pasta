@@ -10,17 +10,18 @@
 #include <pasta/AST/Stmt.h>
 #include <pasta/AST/Type.h>
 
-#include <nanobind/nanobind.h>
-#include <nanobind/stl/optional.h>
-#include <nanobind/stl/vector.h>
+#include "../Bindings.h"
 
 namespace pasta {
 namespace nb = nanobind;
 
 void RegisterRecordDecl(nb::module_ &m) {
   nb::class_<RecordDecl, TagDecl>(m, "RecordDecl")
-    .def("__hash__", [](const RecordDecl& decl) { return (intptr_t)decl.RawDecl(); })
-    .def("__eq__", [](const Decl& a, const Decl& b) { return a.RawDecl() == b.RawDecl(); })
+    .def("__hash__", [](const RecordDecl &decl) { return (intptr_t)decl.RawDecl(); })
+    .def("__eq__", [](const Decl &a, const Decl &b) { return a.RawDecl() == b.RawDecl(); })
+    .def_prop_ro("size", &RecordDecl::Size)
+    .def_prop_ro("alignment", &RecordDecl::Alignment)
+    .def_prop_ro("size_without_trailing_padding", &RecordDecl::SizeWithoutTrailingPadding)
     .def_prop_ro("can_pass_in_registers", &RecordDecl::CanPassInRegisters)
     .def_prop_ro("fields", &RecordDecl::Fields)
     .def_prop_ro("first_named_data_member", &RecordDecl::FirstNamedDataMember)
@@ -39,7 +40,7 @@ void RegisterRecordDecl(nb::module_ &m) {
     .def_prop_ro("is_captured_record", &RecordDecl::IsCapturedRecord)
     .def_prop_ro("is_injected_class_name", &RecordDecl::IsInjectedClassName)
     .def_prop_ro("is_lambda", &RecordDecl::IsLambda)
-    .def("is_ms_struct", &RecordDecl::IsMsStruct)
+    .def_prop_ro("is_ms_struct", &RecordDecl::IsMsStruct)
     .def_prop_ro("is_non_trivial_to_primitive_copy", &RecordDecl::IsNonTrivialToPrimitiveCopy)
     .def_prop_ro("is_non_trivial_to_primitive_default_initialize", &RecordDecl::IsNonTrivialToPrimitiveDefaultInitialize)
     .def_prop_ro("is_non_trivial_to_primitive_destroy", &RecordDecl::IsNonTrivialToPrimitiveDestroy)

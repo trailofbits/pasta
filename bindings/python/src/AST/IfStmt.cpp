@@ -10,9 +10,7 @@
 #include <pasta/AST/Stmt.h>
 #include <pasta/AST/Type.h>
 
-#include <nanobind/nanobind.h>
-#include <nanobind/stl/optional.h>
-#include <nanobind/stl/vector.h>
+#include "../Bindings.h"
 
 namespace pasta {
 namespace nb = nanobind;
@@ -32,7 +30,7 @@ void RegisterIfStmt(nb::module_ &m) {
     .def_prop_ro("if_token", &IfStmt::IfToken)
     .def_prop_ro("initializer", &IfStmt::Initializer)
     .def_prop_ro("l_paren_token", &IfStmt::LParenToken)
-    .def("nondiscarded_case", &IfStmt::NondiscardedCase)
+    .def_prop_ro("nondiscarded_case", &IfStmt::NondiscardedCase)
     .def_prop_ro("r_paren_token", &IfStmt::RParenToken)
     .def_prop_ro("statement_kind", &IfStmt::StatementKind)
     .def_prop_ro("then", &IfStmt::Then)

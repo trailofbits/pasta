@@ -10,17 +10,15 @@
 #include <pasta/AST/Stmt.h>
 #include <pasta/AST/Type.h>
 
-#include <nanobind/nanobind.h>
-#include <nanobind/stl/optional.h>
-#include <nanobind/stl/vector.h>
+#include "../Bindings.h"
 
 namespace pasta {
 namespace nb = nanobind;
 
 void RegisterInitSegAttr(nb::module_ &m) {
   nb::class_<InitSegAttr, Attr>(m, "InitSegAttr")
-    .def("__hash__", [](const InitSegAttr& attr) { return (intptr_t)attr.RawAttr(); })
-    .def("__eq__", [](const Attr& a, const Attr& b) { return a.RawAttr() == b.RawAttr(); })
+    .def("__hash__", [](const InitSegAttr &attr) { return (intptr_t)attr.RawAttr(); })
+    .def("__eq__", [](const Attr &a, const Attr &b) { return a.RawAttr() == b.RawAttr(); })
     .def_prop_ro("section", &InitSegAttr::Section)
     .def_prop_ro("section_length", &InitSegAttr::SectionLength)
     .def_prop_ro("spelling", &InitSegAttr::Spelling);

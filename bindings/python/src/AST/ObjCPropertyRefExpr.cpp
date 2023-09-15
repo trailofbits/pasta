@@ -10,9 +10,7 @@
 #include <pasta/AST/Stmt.h>
 #include <pasta/AST/Type.h>
 
-#include <nanobind/nanobind.h>
-#include <nanobind/stl/optional.h>
-#include <nanobind/stl/vector.h>
+#include "../Bindings.h"
 
 namespace pasta {
 namespace nb = nanobind;
@@ -31,7 +29,7 @@ void RegisterObjCPropertyRefExpr(nb::module_ &m) {
     .def_prop_ro("implicit_property_setter", &ObjCPropertyRefExpr::ImplicitPropertySetter)
     .def_prop_ro("token", &ObjCPropertyRefExpr::Token)
     .def_prop_ro("receiver_token", &ObjCPropertyRefExpr::ReceiverToken)
-    .def("receiver_type", &ObjCPropertyRefExpr::ReceiverType)
+    .def_prop_ro("receiver_type", &ObjCPropertyRefExpr::ReceiverType)
     .def_prop_ro("super_receiver_type", &ObjCPropertyRefExpr::SuperReceiverType)
     .def_prop_ro("is_class_receiver", &ObjCPropertyRefExpr::IsClassReceiver)
     .def_prop_ro("is_explicit_property", &ObjCPropertyRefExpr::IsExplicitProperty)

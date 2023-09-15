@@ -734,12 +734,12 @@ Compiler::CreateJobsForCommand(const CompileCommand &command) const {
       err << "Unable to build compilation for frontend command: "
           << new_args.Join();
       return err.str();
-
-    } else {
-      err << "Unable to build compilation due to error: "
-          << diag->error;
-      return err.str();
     }
+
+    err << "Unable to build compilation due to error: "
+        << diag->error;
+    return err.str();
+
   } else if (!diag->error.empty()) {
     err << "Built compilation for frontend command but got diagnostic: "
         << diag->error;
@@ -754,12 +754,13 @@ Compiler::CreateJobsForCommand(const CompileCommand &command) const {
 
     if (!job_args.size()) {
       continue;
-
+    }
+    
     // We've got the arguments to pass down to a compiler invocation.
-    } else if (!strcmp(job_args[0], "-cc1")) {
+    if (!strcmp(job_args[0], "-cc1")) {
       cc1_jobs.push_back(job_args);
 
-    // Probably a linking job.
+    // Probably a linking job, assembly job, or preprocessing only job.
     } else {
 
     }
@@ -794,14 +795,6 @@ Compiler::CreateJobsForCommand(const CompileCommand &command) const {
       return ss.str();
     };
 
-//    std::cerr << "%%% InstalledDir = " << driver.InstalledDir << '\n';
-//    std::cerr << "%%% ClangExecutable = " << driver.ClangExecutable << '\n';
-//    std::cerr << "%%% ResourceDir = " << driver.ResourceDir << '\n';
-//    std::cerr << "%%% SysRoot = " << driver.SysRoot << '\n';
-//    std::cerr << "%%% Dir = " << driver.Dir << '\n';
-//    std::cerr << "%%% TargetTriple = " << driver.getTargetTriple() << '\n';
-//    std::cerr << "%%% " << job_args_to_string() << '\n';
-
     // NOTE(pag): `CreateFromArgs` below requires that we not pass in a
     //            `-cc1` command.
     llvm::ArrayRef<const char *> new_job_args(job_args);
@@ -820,13 +813,14 @@ Compiler::CreateJobsForCommand(const CompileCommand &command) const {
         err << "Unable to build compilation jobs for cc1 command: "
             << job_args_to_string();
         return err.str();
-
-      } else {
-        err << "Unable to build compilation jobs for cc1 command due to error: "
-            << diag->error;
-        return err.str();
       }
-    } else if (!diag->error.empty()) {
+
+      err << "Unable to build compilation jobs for cc1 command due to error: "
+          << diag->error;
+      return err.str();
+    }
+
+    if (!diag->error.empty()) {
       err << "Built compiler invocation for cc1 command but got diagnostic: "
           << diag->error;
       return err.str();
@@ -899,14 +893,11 @@ Compiler::CreateJobsForCommand(const CompileCommand &command) const {
     }
 
     auto job_args_str = ss.str();
-
-//    std::cerr << "JOB: " << job_args_str << "\n\n";
-
     if (last_job_args_str == job_args_str) {
       continue;  // Duplicate.
-    } else {
-      last_job_args_str = std::move(job_args_str);
     }
+
+    last_job_args_str = std::move(job_args_str);
 
     CompileJob job(std::make_shared<CompileJobImpl>(
         new_argv, impl->file_manager, working_dir_path,

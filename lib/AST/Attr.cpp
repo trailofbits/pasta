@@ -52,6 +52,1520 @@
 
 namespace pasta {
 
+AttrVisitor::~AttrVisitor(void) {}
+
+void AttrVisitor::Accept(const Attr &attr) {
+  switch (attr.Kind()) {
+#define PASTA_VISIT_ATTR(name) \
+    case AttrKind::k ## name: \
+      Visit ## name ## Attr(reinterpret_cast<const name ## Attr &>(attr)); \
+      break;
+
+    PASTA_FOR_EACH_ATTR_KIND(PASTA_VISIT_ATTR)
+#undef PASTA_VISIT_ATTR
+  }
+}
+
+void AttrVisitor::VisitAttr(const Attr &attr) {
+  (void) attr;
+}
+
+void AttrVisitor::VisitBuiltinAliasAttr(const BuiltinAliasAttr &attr) {
+  VisitAttr(attr);
+}
+
+void AttrVisitor::VisitCalledOnceAttr(const CalledOnceAttr &attr) {
+  VisitAttr(attr);
+}
+
+void AttrVisitor::VisitIFuncAttr(const IFuncAttr &attr) {
+  VisitAttr(attr);
+}
+
+void AttrVisitor::VisitInheritableAttr(const InheritableAttr &attr) {
+  VisitAttr(attr);
+}
+
+void AttrVisitor::VisitInheritableParamAttr(const InheritableParamAttr &attr) {
+  VisitInheritableAttr(attr);
+}
+
+void AttrVisitor::VisitInitPriorityAttr(const InitPriorityAttr &attr) {
+  VisitInheritableAttr(attr);
+}
+
+void AttrVisitor::VisitInitSegAttr(const InitSegAttr &attr) {
+  VisitAttr(attr);
+}
+
+void AttrVisitor::VisitIntelOclBiccAttr(const IntelOclBiccAttr &attr) {
+  VisitInheritableAttr(attr);
+}
+
+void AttrVisitor::VisitInternalLinkageAttr(const InternalLinkageAttr &attr) {
+  VisitInheritableAttr(attr);
+}
+
+void AttrVisitor::VisitLTOVisibilityPublicAttr(const LTOVisibilityPublicAttr &attr) {
+  VisitInheritableAttr(attr);
+}
+
+void AttrVisitor::VisitLayoutVersionAttr(const LayoutVersionAttr &attr) {
+  VisitInheritableAttr(attr);
+}
+
+void AttrVisitor::VisitLeafAttr(const LeafAttr &attr) {
+  VisitInheritableAttr(attr);
+}
+
+void AttrVisitor::VisitLifetimeBoundAttr(const LifetimeBoundAttr &attr) {
+  VisitInheritableAttr(attr);
+}
+
+void AttrVisitor::VisitLoaderUninitializedAttr(const LoaderUninitializedAttr &attr) {
+  VisitAttr(attr);
+}
+
+void AttrVisitor::VisitLockReturnedAttr(const LockReturnedAttr &attr) {
+  VisitInheritableAttr(attr);
+}
+
+void AttrVisitor::VisitLocksExcludedAttr(const LocksExcludedAttr &attr) {
+  VisitInheritableAttr(attr);
+}
+
+void AttrVisitor::VisitLoopHintAttr(const LoopHintAttr &attr) {
+  VisitAttr(attr);
+}
+
+void AttrVisitor::VisitM68kInterruptAttr(const M68kInterruptAttr &attr) {
+  VisitInheritableAttr(attr);
+}
+
+void AttrVisitor::VisitMIGServerRoutineAttr(const MIGServerRoutineAttr &attr) {
+  VisitInheritableAttr(attr);
+}
+
+void AttrVisitor::VisitMSABIAttr(const MSABIAttr &attr) {
+  VisitInheritableAttr(attr);
+}
+
+void AttrVisitor::VisitMSAllocatorAttr(const MSAllocatorAttr &attr) {
+  VisitInheritableAttr(attr);
+}
+
+void AttrVisitor::VisitMSInheritanceAttr(const MSInheritanceAttr &attr) {
+  VisitInheritableAttr(attr);
+}
+
+void AttrVisitor::VisitMSNoVTableAttr(const MSNoVTableAttr &attr) {
+  VisitInheritableAttr(attr);
+}
+
+void AttrVisitor::VisitMSP430InterruptAttr(const MSP430InterruptAttr &attr) {
+  VisitInheritableAttr(attr);
+}
+
+void AttrVisitor::VisitMSStructAttr(const MSStructAttr &attr) {
+  VisitInheritableAttr(attr);
+}
+
+void AttrVisitor::VisitMSVtorDispAttr(const MSVtorDispAttr &attr) {
+  VisitInheritableAttr(attr);
+}
+
+void AttrVisitor::VisitMaxFieldAlignmentAttr(const MaxFieldAlignmentAttr &attr) {
+  VisitInheritableAttr(attr);
+}
+
+void AttrVisitor::VisitMayAliasAttr(const MayAliasAttr &attr) {
+  VisitInheritableAttr(attr);
+}
+
+void AttrVisitor::VisitMaybeUndefAttr(const MaybeUndefAttr &attr) {
+  VisitInheritableAttr(attr);
+}
+
+void AttrVisitor::VisitMicroMipsAttr(const MicroMipsAttr &attr) {
+  VisitInheritableAttr(attr);
+}
+
+void AttrVisitor::VisitMinSizeAttr(const MinSizeAttr &attr) {
+  VisitInheritableAttr(attr);
+}
+
+void AttrVisitor::VisitMinVectorWidthAttr(const MinVectorWidthAttr &attr) {
+  VisitInheritableAttr(attr);
+}
+
+void AttrVisitor::VisitMips16Attr(const Mips16Attr &attr) {
+  VisitInheritableAttr(attr);
+}
+
+void AttrVisitor::VisitMipsInterruptAttr(const MipsInterruptAttr &attr) {
+  VisitInheritableAttr(attr);
+}
+
+void AttrVisitor::VisitMipsLongCallAttr(const MipsLongCallAttr &attr) {
+  VisitInheritableAttr(attr);
+}
+
+void AttrVisitor::VisitMipsShortCallAttr(const MipsShortCallAttr &attr) {
+  VisitInheritableAttr(attr);
+}
+
+void AttrVisitor::VisitModeAttr(const ModeAttr &attr) {
+  VisitAttr(attr);
+}
+
+void AttrVisitor::VisitNSConsumedAttr(const NSConsumedAttr &attr) {
+  VisitInheritableParamAttr(attr);
+}
+
+void AttrVisitor::VisitNSConsumesSelfAttr(const NSConsumesSelfAttr &attr) {
+  VisitInheritableAttr(attr);
+}
+
+void AttrVisitor::VisitNSErrorDomainAttr(const NSErrorDomainAttr &attr) {
+  VisitInheritableAttr(attr);
+}
+
+void AttrVisitor::VisitNSReturnsAutoreleasedAttr(const NSReturnsAutoreleasedAttr &attr) {
+  VisitInheritableAttr(attr);
+}
+
+void AttrVisitor::VisitNSReturnsNotRetainedAttr(const NSReturnsNotRetainedAttr &attr) {
+  VisitInheritableAttr(attr);
+}
+
+void AttrVisitor::VisitNSReturnsRetainedAttr(const NSReturnsRetainedAttr &attr) {
+  VisitInheritableAttr(attr);
+}
+
+void AttrVisitor::VisitNakedAttr(const NakedAttr &attr) {
+  VisitInheritableAttr(attr);
+}
+
+void AttrVisitor::VisitNoAliasAttr(const NoAliasAttr &attr) {
+  VisitInheritableAttr(attr);
+}
+
+void AttrVisitor::VisitNoBuiltinAttr(const NoBuiltinAttr &attr) {
+  VisitAttr(attr);
+}
+
+void AttrVisitor::VisitNoCommonAttr(const NoCommonAttr &attr) {
+  VisitInheritableAttr(attr);
+}
+
+void AttrVisitor::VisitNoDebugAttr(const NoDebugAttr &attr) {
+  VisitInheritableAttr(attr);
+}
+
+void AttrVisitor::VisitNoDestroyAttr(const NoDestroyAttr &attr) {
+  VisitInheritableAttr(attr);
+}
+
+void AttrVisitor::VisitNoDuplicateAttr(const NoDuplicateAttr &attr) {
+  VisitInheritableAttr(attr);
+}
+
+void AttrVisitor::VisitNoEscapeAttr(const NoEscapeAttr &attr) {
+  VisitAttr(attr);
+}
+
+void AttrVisitor::VisitNoInstrumentFunctionAttr(const NoInstrumentFunctionAttr &attr) {
+  VisitInheritableAttr(attr);
+}
+
+void AttrVisitor::VisitNoMicroMipsAttr(const NoMicroMipsAttr &attr) {
+  VisitInheritableAttr(attr);
+}
+
+void AttrVisitor::VisitNoMips16Attr(const NoMips16Attr &attr) {
+  VisitInheritableAttr(attr);
+}
+
+void AttrVisitor::VisitNoProfileFunctionAttr(const NoProfileFunctionAttr &attr) {
+  VisitInheritableAttr(attr);
+}
+
+void AttrVisitor::VisitNoRandomizeLayoutAttr(const NoRandomizeLayoutAttr &attr) {
+  VisitInheritableAttr(attr);
+}
+
+void AttrVisitor::VisitNoReturnAttr(const NoReturnAttr &attr) {
+  VisitInheritableAttr(attr);
+}
+
+void AttrVisitor::VisitNoSanitizeAttr(const NoSanitizeAttr &attr) {
+  VisitInheritableAttr(attr);
+}
+
+void AttrVisitor::VisitNoSpeculativeLoadHardeningAttr(const NoSpeculativeLoadHardeningAttr &attr) {
+  VisitInheritableAttr(attr);
+}
+
+void AttrVisitor::VisitNoSplitStackAttr(const NoSplitStackAttr &attr) {
+  VisitInheritableAttr(attr);
+}
+
+void AttrVisitor::VisitNoStackProtectorAttr(const NoStackProtectorAttr &attr) {
+  VisitInheritableAttr(attr);
+}
+
+void AttrVisitor::VisitNoThreadSafetyAnalysisAttr(const NoThreadSafetyAnalysisAttr &attr) {
+  VisitInheritableAttr(attr);
+}
+
+void AttrVisitor::VisitNoThrowAttr(const NoThrowAttr &attr) {
+  VisitInheritableAttr(attr);
+}
+
+void AttrVisitor::VisitNoUniqueAddressAttr(const NoUniqueAddressAttr &attr) {
+  VisitInheritableAttr(attr);
+}
+
+void AttrVisitor::VisitNoUwtableAttr(const NoUwtableAttr &attr) {
+  VisitInheritableAttr(attr);
+}
+
+void AttrVisitor::VisitNonNullAttr(const NonNullAttr &attr) {
+  VisitInheritableParamAttr(attr);
+}
+
+void AttrVisitor::VisitNotTailCalledAttr(const NotTailCalledAttr &attr) {
+  VisitInheritableAttr(attr);
+}
+
+void AttrVisitor::VisitOMPAllocateDeclAttr(const OMPAllocateDeclAttr &attr) {
+  VisitInheritableAttr(attr);
+}
+
+void AttrVisitor::VisitOMPCaptureKindAttr(const OMPCaptureKindAttr &attr) {
+  VisitAttr(attr);
+}
+
+void AttrVisitor::VisitOMPCaptureNoInitAttr(const OMPCaptureNoInitAttr &attr) {
+  VisitInheritableAttr(attr);
+}
+
+void AttrVisitor::VisitOMPDeclareSimdDeclAttr(const OMPDeclareSimdDeclAttr &attr) {
+  VisitAttr(attr);
+}
+
+void AttrVisitor::VisitOMPDeclareTargetDeclAttr(const OMPDeclareTargetDeclAttr &attr) {
+  VisitInheritableAttr(attr);
+}
+
+void AttrVisitor::VisitOMPDeclareVariantAttr(const OMPDeclareVariantAttr &attr) {
+  VisitInheritableAttr(attr);
+}
+
+void AttrVisitor::VisitOMPReferencedVarAttr(const OMPReferencedVarAttr &attr) {
+  VisitAttr(attr);
+}
+
+void AttrVisitor::VisitOMPThreadPrivateDeclAttr(const OMPThreadPrivateDeclAttr &attr) {
+  VisitInheritableAttr(attr);
+}
+
+void AttrVisitor::VisitOSConsumedAttr(const OSConsumedAttr &attr) {
+  VisitInheritableParamAttr(attr);
+}
+
+void AttrVisitor::VisitOSConsumesThisAttr(const OSConsumesThisAttr &attr) {
+  VisitInheritableAttr(attr);
+}
+
+void AttrVisitor::VisitOSReturnsNotRetainedAttr(const OSReturnsNotRetainedAttr &attr) {
+  VisitInheritableAttr(attr);
+}
+
+void AttrVisitor::VisitOSReturnsRetainedAttr(const OSReturnsRetainedAttr &attr) {
+  VisitInheritableAttr(attr);
+}
+
+void AttrVisitor::VisitOSReturnsRetainedOnNonZeroAttr(const OSReturnsRetainedOnNonZeroAttr &attr) {
+  VisitInheritableAttr(attr);
+}
+
+void AttrVisitor::VisitOSReturnsRetainedOnZeroAttr(const OSReturnsRetainedOnZeroAttr &attr) {
+  VisitInheritableAttr(attr);
+}
+
+void AttrVisitor::VisitObjCBoxableAttr(const ObjCBoxableAttr &attr) {
+  VisitAttr(attr);
+}
+
+void AttrVisitor::VisitObjCBridgeAttr(const ObjCBridgeAttr &attr) {
+  VisitInheritableAttr(attr);
+}
+
+void AttrVisitor::VisitObjCBridgeMutableAttr(const ObjCBridgeMutableAttr &attr) {
+  VisitInheritableAttr(attr);
+}
+
+void AttrVisitor::VisitObjCBridgeRelatedAttr(const ObjCBridgeRelatedAttr &attr) {
+  VisitInheritableAttr(attr);
+}
+
+void AttrVisitor::VisitObjCClassStubAttr(const ObjCClassStubAttr &attr) {
+  VisitAttr(attr);
+}
+
+void AttrVisitor::VisitObjCDesignatedInitializerAttr(const ObjCDesignatedInitializerAttr &attr) {
+  VisitAttr(attr);
+}
+
+void AttrVisitor::VisitObjCDirectAttr(const ObjCDirectAttr &attr) {
+  VisitAttr(attr);
+}
+
+void AttrVisitor::VisitObjCDirectMembersAttr(const ObjCDirectMembersAttr &attr) {
+  VisitAttr(attr);
+}
+
+void AttrVisitor::VisitObjCExceptionAttr(const ObjCExceptionAttr &attr) {
+  VisitInheritableAttr(attr);
+}
+
+void AttrVisitor::VisitObjCExplicitProtocolImplAttr(const ObjCExplicitProtocolImplAttr &attr) {
+  VisitInheritableAttr(attr);
+}
+
+void AttrVisitor::VisitObjCExternallyRetainedAttr(const ObjCExternallyRetainedAttr &attr) {
+  VisitInheritableAttr(attr);
+}
+
+void AttrVisitor::VisitObjCIndependentClassAttr(const ObjCIndependentClassAttr &attr) {
+  VisitInheritableAttr(attr);
+}
+
+void AttrVisitor::VisitObjCMethodFamilyAttr(const ObjCMethodFamilyAttr &attr) {
+  VisitInheritableAttr(attr);
+}
+
+void AttrVisitor::VisitObjCNSObjectAttr(const ObjCNSObjectAttr &attr) {
+  VisitInheritableAttr(attr);
+}
+
+void AttrVisitor::VisitObjCNonLazyClassAttr(const ObjCNonLazyClassAttr &attr) {
+  VisitAttr(attr);
+}
+
+void AttrVisitor::VisitObjCNonRuntimeProtocolAttr(const ObjCNonRuntimeProtocolAttr &attr) {
+  VisitAttr(attr);
+}
+
+void AttrVisitor::VisitObjCOwnershipAttr(const ObjCOwnershipAttr &attr) {
+  VisitInheritableAttr(attr);
+}
+
+void AttrVisitor::VisitObjCPreciseLifetimeAttr(const ObjCPreciseLifetimeAttr &attr) {
+  VisitInheritableAttr(attr);
+}
+
+void AttrVisitor::VisitObjCRequiresPropertyDefsAttr(const ObjCRequiresPropertyDefsAttr &attr) {
+  VisitInheritableAttr(attr);
+}
+
+void AttrVisitor::VisitObjCRequiresSuperAttr(const ObjCRequiresSuperAttr &attr) {
+  VisitInheritableAttr(attr);
+}
+
+void AttrVisitor::VisitObjCReturnsInnerPointerAttr(const ObjCReturnsInnerPointerAttr &attr) {
+  VisitInheritableAttr(attr);
+}
+
+void AttrVisitor::VisitObjCRootClassAttr(const ObjCRootClassAttr &attr) {
+  VisitInheritableAttr(attr);
+}
+
+void AttrVisitor::VisitObjCRuntimeNameAttr(const ObjCRuntimeNameAttr &attr) {
+  VisitAttr(attr);
+}
+
+void AttrVisitor::VisitObjCRuntimeVisibleAttr(const ObjCRuntimeVisibleAttr &attr) {
+  VisitAttr(attr);
+}
+
+void AttrVisitor::VisitObjCSubclassingRestrictedAttr(const ObjCSubclassingRestrictedAttr &attr) {
+  VisitInheritableAttr(attr);
+}
+
+void AttrVisitor::VisitOpenCLAccessAttr(const OpenCLAccessAttr &attr) {
+  VisitAttr(attr);
+}
+
+void AttrVisitor::VisitOpenCLIntelReqdSubGroupSizeAttr(const OpenCLIntelReqdSubGroupSizeAttr &attr) {
+  VisitInheritableAttr(attr);
+}
+
+void AttrVisitor::VisitOpenCLKernelAttr(const OpenCLKernelAttr &attr) {
+  VisitInheritableAttr(attr);
+}
+
+void AttrVisitor::VisitOptimizeNoneAttr(const OptimizeNoneAttr &attr) {
+  VisitInheritableAttr(attr);
+}
+
+void AttrVisitor::VisitOverloadableAttr(const OverloadableAttr &attr) {
+  VisitAttr(attr);
+}
+
+void AttrVisitor::VisitOverrideAttr(const OverrideAttr &attr) {
+  VisitInheritableAttr(attr);
+}
+
+void AttrVisitor::VisitOwnerAttr(const OwnerAttr &attr) {
+  VisitInheritableAttr(attr);
+}
+
+void AttrVisitor::VisitOwnershipAttr(const OwnershipAttr &attr) {
+  VisitInheritableAttr(attr);
+}
+
+void AttrVisitor::VisitPackedAttr(const PackedAttr &attr) {
+  VisitInheritableAttr(attr);
+}
+
+void AttrVisitor::VisitParamTypestateAttr(const ParamTypestateAttr &attr) {
+  VisitInheritableAttr(attr);
+}
+
+void AttrVisitor::VisitParameterABIAttr(const ParameterABIAttr &attr) {
+  VisitInheritableParamAttr(attr);
+}
+
+void AttrVisitor::VisitPascalAttr(const PascalAttr &attr) {
+  VisitInheritableAttr(attr);
+}
+
+void AttrVisitor::VisitPassObjectSizeAttr(const PassObjectSizeAttr &attr) {
+  VisitInheritableParamAttr(attr);
+}
+
+void AttrVisitor::VisitPatchableFunctionEntryAttr(const PatchableFunctionEntryAttr &attr) {
+  VisitInheritableAttr(attr);
+}
+
+void AttrVisitor::VisitPcsAttr(const PcsAttr &attr) {
+  VisitInheritableAttr(attr);
+}
+
+void AttrVisitor::VisitPointerAttr(const PointerAttr &attr) {
+  VisitInheritableAttr(attr);
+}
+
+void AttrVisitor::VisitPragmaClangBSSSectionAttr(const PragmaClangBSSSectionAttr &attr) {
+  VisitInheritableAttr(attr);
+}
+
+void AttrVisitor::VisitPragmaClangDataSectionAttr(const PragmaClangDataSectionAttr &attr) {
+  VisitInheritableAttr(attr);
+}
+
+void AttrVisitor::VisitPragmaClangRelroSectionAttr(const PragmaClangRelroSectionAttr &attr) {
+  VisitInheritableAttr(attr);
+}
+
+void AttrVisitor::VisitPragmaClangRodataSectionAttr(const PragmaClangRodataSectionAttr &attr) {
+  VisitInheritableAttr(attr);
+}
+
+void AttrVisitor::VisitPragmaClangTextSectionAttr(const PragmaClangTextSectionAttr &attr) {
+  VisitInheritableAttr(attr);
+}
+
+void AttrVisitor::VisitPreferredNameAttr(const PreferredNameAttr &attr) {
+  VisitInheritableAttr(attr);
+}
+
+void AttrVisitor::VisitPreserveAllAttr(const PreserveAllAttr &attr) {
+  VisitInheritableAttr(attr);
+}
+
+void AttrVisitor::VisitPreserveMostAttr(const PreserveMostAttr &attr) {
+  VisitInheritableAttr(attr);
+}
+
+void AttrVisitor::VisitPtGuardedByAttr(const PtGuardedByAttr &attr) {
+  VisitInheritableAttr(attr);
+}
+
+void AttrVisitor::VisitPtGuardedVarAttr(const PtGuardedVarAttr &attr) {
+  VisitInheritableAttr(attr);
+}
+
+void AttrVisitor::VisitPureAttr(const PureAttr &attr) {
+  VisitInheritableAttr(attr);
+}
+
+void AttrVisitor::VisitRISCVInterruptAttr(const RISCVInterruptAttr &attr) {
+  VisitInheritableAttr(attr);
+}
+
+void AttrVisitor::VisitRandomizeLayoutAttr(const RandomizeLayoutAttr &attr) {
+  VisitInheritableAttr(attr);
+}
+
+void AttrVisitor::VisitReadOnlyPlacementAttr(const ReadOnlyPlacementAttr &attr) {
+  VisitInheritableAttr(attr);
+}
+
+void AttrVisitor::VisitRegCallAttr(const RegCallAttr &attr) {
+  VisitInheritableAttr(attr);
+}
+
+void AttrVisitor::VisitReinitializesAttr(const ReinitializesAttr &attr) {
+  VisitInheritableAttr(attr);
+}
+
+void AttrVisitor::VisitReleaseCapabilityAttr(const ReleaseCapabilityAttr &attr) {
+  VisitInheritableAttr(attr);
+}
+
+void AttrVisitor::VisitReleaseHandleAttr(const ReleaseHandleAttr &attr) {
+  VisitInheritableParamAttr(attr);
+}
+
+void AttrVisitor::VisitRenderScriptKernelAttr(const RenderScriptKernelAttr &attr) {
+  VisitAttr(attr);
+}
+
+void AttrVisitor::VisitReqdWorkGroupSizeAttr(const ReqdWorkGroupSizeAttr &attr) {
+  VisitInheritableAttr(attr);
+}
+
+void AttrVisitor::VisitRequiresCapabilityAttr(const RequiresCapabilityAttr &attr) {
+  VisitInheritableAttr(attr);
+}
+
+void AttrVisitor::VisitRestrictAttr(const RestrictAttr &attr) {
+  VisitInheritableAttr(attr);
+}
+
+void AttrVisitor::VisitRetainAttr(const RetainAttr &attr) {
+  VisitInheritableAttr(attr);
+}
+
+void AttrVisitor::VisitReturnTypestateAttr(const ReturnTypestateAttr &attr) {
+  VisitInheritableAttr(attr);
+}
+
+void AttrVisitor::VisitReturnsNonNullAttr(const ReturnsNonNullAttr &attr) {
+  VisitInheritableAttr(attr);
+}
+
+void AttrVisitor::VisitReturnsTwiceAttr(const ReturnsTwiceAttr &attr) {
+  VisitInheritableAttr(attr);
+}
+
+void AttrVisitor::VisitSYCLKernelAttr(const SYCLKernelAttr &attr) {
+  VisitInheritableAttr(attr);
+}
+
+void AttrVisitor::VisitSYCLSpecialClassAttr(const SYCLSpecialClassAttr &attr) {
+  VisitInheritableAttr(attr);
+}
+
+void AttrVisitor::VisitScopedLockableAttr(const ScopedLockableAttr &attr) {
+  VisitInheritableAttr(attr);
+}
+
+void AttrVisitor::VisitSectionAttr(const SectionAttr &attr) {
+  VisitInheritableAttr(attr);
+}
+
+void AttrVisitor::VisitSelectAnyAttr(const SelectAnyAttr &attr) {
+  VisitInheritableAttr(attr);
+}
+
+void AttrVisitor::VisitSentinelAttr(const SentinelAttr &attr) {
+  VisitInheritableAttr(attr);
+}
+
+void AttrVisitor::VisitSetTypestateAttr(const SetTypestateAttr &attr) {
+  VisitInheritableAttr(attr);
+}
+
+void AttrVisitor::VisitSharedTrylockFunctionAttr(const SharedTrylockFunctionAttr &attr) {
+  VisitInheritableAttr(attr);
+}
+
+void AttrVisitor::VisitSpeculativeLoadHardeningAttr(const SpeculativeLoadHardeningAttr &attr) {
+  VisitInheritableAttr(attr);
+}
+
+void AttrVisitor::VisitStandaloneDebugAttr(const StandaloneDebugAttr &attr) {
+  VisitInheritableAttr(attr);
+}
+
+void AttrVisitor::VisitStdCallAttr(const StdCallAttr &attr) {
+  VisitInheritableAttr(attr);
+}
+
+void AttrVisitor::VisitStmtAttr(const StmtAttr &attr) {
+  VisitAttr(attr);
+}
+
+void AttrVisitor::VisitStrictFPAttr(const StrictFPAttr &attr) {
+  VisitInheritableAttr(attr);
+}
+
+void AttrVisitor::VisitStrictGuardStackCheckAttr(const StrictGuardStackCheckAttr &attr) {
+  VisitInheritableAttr(attr);
+}
+
+void AttrVisitor::VisitSuppressAttr(const SuppressAttr &attr) {
+  VisitStmtAttr(attr);
+}
+
+void AttrVisitor::VisitSwiftAsyncAttr(const SwiftAsyncAttr &attr) {
+  VisitInheritableAttr(attr);
+}
+
+void AttrVisitor::VisitSwiftAsyncCallAttr(const SwiftAsyncCallAttr &attr) {
+  VisitInheritableAttr(attr);
+}
+
+void AttrVisitor::VisitSwiftAsyncContextAttr(const SwiftAsyncContextAttr &attr) {
+  VisitParameterABIAttr(attr);
+}
+
+void AttrVisitor::VisitSwiftAsyncErrorAttr(const SwiftAsyncErrorAttr &attr) {
+  VisitInheritableAttr(attr);
+}
+
+void AttrVisitor::VisitSwiftAsyncNameAttr(const SwiftAsyncNameAttr &attr) {
+  VisitInheritableAttr(attr);
+}
+
+void AttrVisitor::VisitSwiftAttrAttr(const SwiftAttrAttr &attr) {
+  VisitInheritableAttr(attr);
+}
+
+void AttrVisitor::VisitSwiftBridgeAttr(const SwiftBridgeAttr &attr) {
+  VisitInheritableAttr(attr);
+}
+
+void AttrVisitor::VisitSwiftBridgedTypedefAttr(const SwiftBridgedTypedefAttr &attr) {
+  VisitInheritableAttr(attr);
+}
+
+void AttrVisitor::VisitSwiftCallAttr(const SwiftCallAttr &attr) {
+  VisitInheritableAttr(attr);
+}
+
+void AttrVisitor::VisitSwiftContextAttr(const SwiftContextAttr &attr) {
+  VisitParameterABIAttr(attr);
+}
+
+void AttrVisitor::VisitSwiftErrorAttr(const SwiftErrorAttr &attr) {
+  VisitInheritableAttr(attr);
+}
+
+void AttrVisitor::VisitSwiftErrorResultAttr(const SwiftErrorResultAttr &attr) {
+  VisitParameterABIAttr(attr);
+}
+
+void AttrVisitor::VisitSwiftIndirectResultAttr(const SwiftIndirectResultAttr &attr) {
+  VisitParameterABIAttr(attr);
+}
+
+void AttrVisitor::VisitSwiftNameAttr(const SwiftNameAttr &attr) {
+  VisitInheritableAttr(attr);
+}
+
+void AttrVisitor::VisitSwiftNewTypeAttr(const SwiftNewTypeAttr &attr) {
+  VisitInheritableAttr(attr);
+}
+
+void AttrVisitor::VisitSwiftObjCMembersAttr(const SwiftObjCMembersAttr &attr) {
+  VisitAttr(attr);
+}
+
+void AttrVisitor::VisitSwiftPrivateAttr(const SwiftPrivateAttr &attr) {
+  VisitInheritableAttr(attr);
+}
+
+void AttrVisitor::VisitSysVABIAttr(const SysVABIAttr &attr) {
+  VisitInheritableAttr(attr);
+}
+
+void AttrVisitor::VisitTLSModelAttr(const TLSModelAttr &attr) {
+  VisitInheritableAttr(attr);
+}
+
+void AttrVisitor::VisitTargetAttr(const TargetAttr &attr) {
+  VisitInheritableAttr(attr);
+}
+
+void AttrVisitor::VisitTargetClonesAttr(const TargetClonesAttr &attr) {
+  VisitInheritableAttr(attr);
+}
+
+void AttrVisitor::VisitTargetVersionAttr(const TargetVersionAttr &attr) {
+  VisitInheritableAttr(attr);
+}
+
+void AttrVisitor::VisitTestTypestateAttr(const TestTypestateAttr &attr) {
+  VisitInheritableAttr(attr);
+}
+
+void AttrVisitor::VisitThisCallAttr(const ThisCallAttr &attr) {
+  VisitInheritableAttr(attr);
+}
+
+void AttrVisitor::VisitThreadAttr(const ThreadAttr &attr) {
+  VisitAttr(attr);
+}
+
+void AttrVisitor::VisitTransparentUnionAttr(const TransparentUnionAttr &attr) {
+  VisitInheritableAttr(attr);
+}
+
+void AttrVisitor::VisitTrivialABIAttr(const TrivialABIAttr &attr) {
+  VisitInheritableAttr(attr);
+}
+
+void AttrVisitor::VisitTryAcquireCapabilityAttr(const TryAcquireCapabilityAttr &attr) {
+  VisitInheritableAttr(attr);
+}
+
+void AttrVisitor::VisitTypeAttr(const TypeAttr &attr) {
+  VisitAttr(attr);
+}
+
+void AttrVisitor::VisitTypeNonNullAttr(const TypeNonNullAttr &attr) {
+  VisitTypeAttr(attr);
+}
+
+void AttrVisitor::VisitTypeNullUnspecifiedAttr(const TypeNullUnspecifiedAttr &attr) {
+  VisitTypeAttr(attr);
+}
+
+void AttrVisitor::VisitTypeNullableAttr(const TypeNullableAttr &attr) {
+  VisitTypeAttr(attr);
+}
+
+void AttrVisitor::VisitTypeNullableResultAttr(const TypeNullableResultAttr &attr) {
+  VisitTypeAttr(attr);
+}
+
+void AttrVisitor::VisitTypeTagForDatatypeAttr(const TypeTagForDatatypeAttr &attr) {
+  VisitInheritableAttr(attr);
+}
+
+void AttrVisitor::VisitTypeVisibilityAttr(const TypeVisibilityAttr &attr) {
+  VisitInheritableAttr(attr);
+}
+
+void AttrVisitor::VisitUPtrAttr(const UPtrAttr &attr) {
+  VisitTypeAttr(attr);
+}
+
+void AttrVisitor::VisitUnavailableAttr(const UnavailableAttr &attr) {
+  VisitInheritableAttr(attr);
+}
+
+void AttrVisitor::VisitUninitializedAttr(const UninitializedAttr &attr) {
+  VisitInheritableAttr(attr);
+}
+
+void AttrVisitor::VisitUnlikelyAttr(const UnlikelyAttr &attr) {
+  VisitStmtAttr(attr);
+}
+
+void AttrVisitor::VisitUnusedAttr(const UnusedAttr &attr) {
+  VisitInheritableAttr(attr);
+}
+
+void AttrVisitor::VisitUseHandleAttr(const UseHandleAttr &attr) {
+  VisitInheritableParamAttr(attr);
+}
+
+void AttrVisitor::VisitUsedAttr(const UsedAttr &attr) {
+  VisitInheritableAttr(attr);
+}
+
+void AttrVisitor::VisitUsingIfExistsAttr(const UsingIfExistsAttr &attr) {
+  VisitInheritableAttr(attr);
+}
+
+void AttrVisitor::VisitUuidAttr(const UuidAttr &attr) {
+  VisitInheritableAttr(attr);
+}
+
+void AttrVisitor::VisitVecReturnAttr(const VecReturnAttr &attr) {
+  VisitInheritableAttr(attr);
+}
+
+void AttrVisitor::VisitVecTypeHintAttr(const VecTypeHintAttr &attr) {
+  VisitInheritableAttr(attr);
+}
+
+void AttrVisitor::VisitVectorCallAttr(const VectorCallAttr &attr) {
+  VisitInheritableAttr(attr);
+}
+
+void AttrVisitor::VisitVisibilityAttr(const VisibilityAttr &attr) {
+  VisitInheritableAttr(attr);
+}
+
+void AttrVisitor::VisitWarnUnusedAttr(const WarnUnusedAttr &attr) {
+  VisitInheritableAttr(attr);
+}
+
+void AttrVisitor::VisitWarnUnusedResultAttr(const WarnUnusedResultAttr &attr) {
+  VisitInheritableAttr(attr);
+}
+
+void AttrVisitor::VisitWeakAttr(const WeakAttr &attr) {
+  VisitInheritableAttr(attr);
+}
+
+void AttrVisitor::VisitWeakImportAttr(const WeakImportAttr &attr) {
+  VisitInheritableAttr(attr);
+}
+
+void AttrVisitor::VisitWeakRefAttr(const WeakRefAttr &attr) {
+  VisitInheritableAttr(attr);
+}
+
+void AttrVisitor::VisitWebAssemblyExportNameAttr(const WebAssemblyExportNameAttr &attr) {
+  VisitInheritableAttr(attr);
+}
+
+void AttrVisitor::VisitWebAssemblyImportModuleAttr(const WebAssemblyImportModuleAttr &attr) {
+  VisitInheritableAttr(attr);
+}
+
+void AttrVisitor::VisitWebAssemblyImportNameAttr(const WebAssemblyImportNameAttr &attr) {
+  VisitInheritableAttr(attr);
+}
+
+void AttrVisitor::VisitWorkGroupSizeHintAttr(const WorkGroupSizeHintAttr &attr) {
+  VisitInheritableAttr(attr);
+}
+
+void AttrVisitor::VisitX86ForceAlignArgPointerAttr(const X86ForceAlignArgPointerAttr &attr) {
+  VisitInheritableAttr(attr);
+}
+
+void AttrVisitor::VisitXRayInstrumentAttr(const XRayInstrumentAttr &attr) {
+  VisitInheritableAttr(attr);
+}
+
+void AttrVisitor::VisitXRayLogArgsAttr(const XRayLogArgsAttr &attr) {
+  VisitInheritableAttr(attr);
+}
+
+void AttrVisitor::VisitZeroCallUsedRegsAttr(const ZeroCallUsedRegsAttr &attr) {
+  VisitInheritableAttr(attr);
+}
+
+void AttrVisitor::VisitAArch64SVEPcsAttr(const AArch64SVEPcsAttr &attr) {
+  VisitInheritableAttr(attr);
+}
+
+void AttrVisitor::VisitAArch64VectorPcsAttr(const AArch64VectorPcsAttr &attr) {
+  VisitInheritableAttr(attr);
+}
+
+void AttrVisitor::VisitAMDGPUFlatWorkGroupSizeAttr(const AMDGPUFlatWorkGroupSizeAttr &attr) {
+  VisitInheritableAttr(attr);
+}
+
+void AttrVisitor::VisitAMDGPUKernelCallAttr(const AMDGPUKernelCallAttr &attr) {
+  VisitInheritableAttr(attr);
+}
+
+void AttrVisitor::VisitAMDGPUNumSGPRAttr(const AMDGPUNumSGPRAttr &attr) {
+  VisitInheritableAttr(attr);
+}
+
+void AttrVisitor::VisitAMDGPUNumVGPRAttr(const AMDGPUNumVGPRAttr &attr) {
+  VisitInheritableAttr(attr);
+}
+
+void AttrVisitor::VisitAMDGPUWavesPerEUAttr(const AMDGPUWavesPerEUAttr &attr) {
+  VisitInheritableAttr(attr);
+}
+
+void AttrVisitor::VisitARMInterruptAttr(const ARMInterruptAttr &attr) {
+  VisitInheritableAttr(attr);
+}
+
+void AttrVisitor::VisitAVRInterruptAttr(const AVRInterruptAttr &attr) {
+  VisitInheritableAttr(attr);
+}
+
+void AttrVisitor::VisitAVRSignalAttr(const AVRSignalAttr &attr) {
+  VisitInheritableAttr(attr);
+}
+
+void AttrVisitor::VisitAbiTagAttr(const AbiTagAttr &attr) {
+  VisitAttr(attr);
+}
+
+void AttrVisitor::VisitAcquireCapabilityAttr(const AcquireCapabilityAttr &attr) {
+  VisitInheritableAttr(attr);
+}
+
+void AttrVisitor::VisitAcquireHandleAttr(const AcquireHandleAttr &attr) {
+  VisitInheritableAttr(attr);
+}
+
+void AttrVisitor::VisitAcquiredAfterAttr(const AcquiredAfterAttr &attr) {
+  VisitInheritableAttr(attr);
+}
+
+void AttrVisitor::VisitAcquiredBeforeAttr(const AcquiredBeforeAttr &attr) {
+  VisitInheritableAttr(attr);
+}
+
+void AttrVisitor::VisitAddressSpaceAttr(const AddressSpaceAttr &attr) {
+  VisitTypeAttr(attr);
+}
+
+void AttrVisitor::VisitAliasAttr(const AliasAttr &attr) {
+  VisitAttr(attr);
+}
+
+void AttrVisitor::VisitAlignMac68kAttr(const AlignMac68kAttr &attr) {
+  VisitInheritableAttr(attr);
+}
+
+void AttrVisitor::VisitAlignNaturalAttr(const AlignNaturalAttr &attr) {
+  VisitInheritableAttr(attr);
+}
+
+void AttrVisitor::VisitAlignValueAttr(const AlignValueAttr &attr) {
+  VisitAttr(attr);
+}
+
+void AttrVisitor::VisitAlignedAttr(const AlignedAttr &attr) {
+  VisitInheritableAttr(attr);
+}
+
+void AttrVisitor::VisitAllocAlignAttr(const AllocAlignAttr &attr) {
+  VisitInheritableAttr(attr);
+}
+
+void AttrVisitor::VisitAllocSizeAttr(const AllocSizeAttr &attr) {
+  VisitInheritableAttr(attr);
+}
+
+void AttrVisitor::VisitAlwaysDestroyAttr(const AlwaysDestroyAttr &attr) {
+  VisitInheritableAttr(attr);
+}
+
+void AttrVisitor::VisitAnalyzerNoReturnAttr(const AnalyzerNoReturnAttr &attr) {
+  VisitInheritableAttr(attr);
+}
+
+void AttrVisitor::VisitAnnotateAttr(const AnnotateAttr &attr) {
+  VisitInheritableParamAttr(attr);
+}
+
+void AttrVisitor::VisitAnnotateTypeAttr(const AnnotateTypeAttr &attr) {
+  VisitTypeAttr(attr);
+}
+
+void AttrVisitor::VisitAnyX86InterruptAttr(const AnyX86InterruptAttr &attr) {
+  VisitInheritableAttr(attr);
+}
+
+void AttrVisitor::VisitAnyX86NoCallerSavedRegistersAttr(const AnyX86NoCallerSavedRegistersAttr &attr) {
+  VisitInheritableAttr(attr);
+}
+
+void AttrVisitor::VisitAnyX86NoCfCheckAttr(const AnyX86NoCfCheckAttr &attr) {
+  VisitInheritableAttr(attr);
+}
+
+void AttrVisitor::VisitArcWeakrefUnavailableAttr(const ArcWeakrefUnavailableAttr &attr) {
+  VisitInheritableAttr(attr);
+}
+
+void AttrVisitor::VisitArgumentWithTypeTagAttr(const ArgumentWithTypeTagAttr &attr) {
+  VisitInheritableAttr(attr);
+}
+
+void AttrVisitor::VisitArmBuiltinAliasAttr(const ArmBuiltinAliasAttr &attr) {
+  VisitInheritableAttr(attr);
+}
+
+void AttrVisitor::VisitArmMveStrictPolymorphismAttr(const ArmMveStrictPolymorphismAttr &attr) {
+  VisitTypeAttr(attr);
+}
+
+void AttrVisitor::VisitArtificialAttr(const ArtificialAttr &attr) {
+  VisitInheritableAttr(attr);
+}
+
+void AttrVisitor::VisitAsmLabelAttr(const AsmLabelAttr &attr) {
+  VisitInheritableAttr(attr);
+}
+
+void AttrVisitor::VisitAssertCapabilityAttr(const AssertCapabilityAttr &attr) {
+  VisitInheritableAttr(attr);
+}
+
+void AttrVisitor::VisitAssertExclusiveLockAttr(const AssertExclusiveLockAttr &attr) {
+  VisitInheritableAttr(attr);
+}
+
+void AttrVisitor::VisitAssertSharedLockAttr(const AssertSharedLockAttr &attr) {
+  VisitInheritableAttr(attr);
+}
+
+void AttrVisitor::VisitAssumeAlignedAttr(const AssumeAlignedAttr &attr) {
+  VisitInheritableAttr(attr);
+}
+
+void AttrVisitor::VisitAssumptionAttr(const AssumptionAttr &attr) {
+  VisitInheritableAttr(attr);
+}
+
+void AttrVisitor::VisitAvailabilityAttr(const AvailabilityAttr &attr) {
+  VisitInheritableAttr(attr);
+}
+
+void AttrVisitor::VisitBPFPreserveAccessIndexAttr(const BPFPreserveAccessIndexAttr &attr) {
+  VisitInheritableAttr(attr);
+}
+
+void AttrVisitor::VisitBTFDeclTagAttr(const BTFDeclTagAttr &attr) {
+  VisitInheritableAttr(attr);
+}
+
+void AttrVisitor::VisitBTFTypeTagAttr(const BTFTypeTagAttr &attr) {
+  VisitTypeAttr(attr);
+}
+
+void AttrVisitor::VisitBlocksAttr(const BlocksAttr &attr) {
+  VisitInheritableAttr(attr);
+}
+
+void AttrVisitor::VisitBuiltinAttr(const BuiltinAttr &attr) {
+  VisitInheritableAttr(attr);
+}
+
+void AttrVisitor::VisitC11NoReturnAttr(const C11NoReturnAttr &attr) {
+  VisitInheritableAttr(attr);
+}
+
+void AttrVisitor::VisitCDeclAttr(const CDeclAttr &attr) {
+  VisitInheritableAttr(attr);
+}
+
+void AttrVisitor::VisitCFAuditedTransferAttr(const CFAuditedTransferAttr &attr) {
+  VisitInheritableAttr(attr);
+}
+
+void AttrVisitor::VisitCFConsumedAttr(const CFConsumedAttr &attr) {
+  VisitInheritableParamAttr(attr);
+}
+
+void AttrVisitor::VisitCFGuardAttr(const CFGuardAttr &attr) {
+  VisitInheritableAttr(attr);
+}
+
+void AttrVisitor::VisitCFICanonicalJumpTableAttr(const CFICanonicalJumpTableAttr &attr) {
+  VisitInheritableAttr(attr);
+}
+
+void AttrVisitor::VisitCFReturnsNotRetainedAttr(const CFReturnsNotRetainedAttr &attr) {
+  VisitInheritableAttr(attr);
+}
+
+void AttrVisitor::VisitCFReturnsRetainedAttr(const CFReturnsRetainedAttr &attr) {
+  VisitInheritableAttr(attr);
+}
+
+void AttrVisitor::VisitCFUnknownTransferAttr(const CFUnknownTransferAttr &attr) {
+  VisitInheritableAttr(attr);
+}
+
+void AttrVisitor::VisitCPUDispatchAttr(const CPUDispatchAttr &attr) {
+  VisitInheritableAttr(attr);
+}
+
+void AttrVisitor::VisitCPUSpecificAttr(const CPUSpecificAttr &attr) {
+  VisitInheritableAttr(attr);
+}
+
+void AttrVisitor::VisitCUDAConstantAttr(const CUDAConstantAttr &attr) {
+  VisitInheritableAttr(attr);
+}
+
+void AttrVisitor::VisitCUDADeviceAttr(const CUDADeviceAttr &attr) {
+  VisitInheritableAttr(attr);
+}
+
+void AttrVisitor::VisitCUDADeviceBuiltinSurfaceTypeAttr(const CUDADeviceBuiltinSurfaceTypeAttr &attr) {
+  VisitInheritableAttr(attr);
+}
+
+void AttrVisitor::VisitCUDADeviceBuiltinTextureTypeAttr(const CUDADeviceBuiltinTextureTypeAttr &attr) {
+  VisitInheritableAttr(attr);
+}
+
+void AttrVisitor::VisitCUDAGlobalAttr(const CUDAGlobalAttr &attr) {
+  VisitInheritableAttr(attr);
+}
+
+void AttrVisitor::VisitCUDAHostAttr(const CUDAHostAttr &attr) {
+  VisitInheritableAttr(attr);
+}
+
+void AttrVisitor::VisitCUDAInvalidTargetAttr(const CUDAInvalidTargetAttr &attr) {
+  VisitInheritableAttr(attr);
+}
+
+void AttrVisitor::VisitCUDALaunchBoundsAttr(const CUDALaunchBoundsAttr &attr) {
+  VisitInheritableAttr(attr);
+}
+
+void AttrVisitor::VisitCUDASharedAttr(const CUDASharedAttr &attr) {
+  VisitInheritableAttr(attr);
+}
+
+void AttrVisitor::VisitCXX11NoReturnAttr(const CXX11NoReturnAttr &attr) {
+  VisitInheritableAttr(attr);
+}
+
+void AttrVisitor::VisitCallableWhenAttr(const CallableWhenAttr &attr) {
+  VisitInheritableAttr(attr);
+}
+
+void AttrVisitor::VisitCallbackAttr(const CallbackAttr &attr) {
+  VisitInheritableAttr(attr);
+}
+
+void AttrVisitor::VisitCapabilityAttr(const CapabilityAttr &attr) {
+  VisitInheritableAttr(attr);
+}
+
+void AttrVisitor::VisitCapturedRecordAttr(const CapturedRecordAttr &attr) {
+  VisitInheritableAttr(attr);
+}
+
+void AttrVisitor::VisitCarriesDependencyAttr(const CarriesDependencyAttr &attr) {
+  VisitInheritableParamAttr(attr);
+}
+
+void AttrVisitor::VisitCleanupAttr(const CleanupAttr &attr) {
+  VisitInheritableAttr(attr);
+}
+
+void AttrVisitor::VisitCmseNSCallAttr(const CmseNSCallAttr &attr) {
+  VisitTypeAttr(attr);
+}
+
+void AttrVisitor::VisitCmseNSEntryAttr(const CmseNSEntryAttr &attr) {
+  VisitInheritableAttr(attr);
+}
+
+void AttrVisitor::VisitCodeSegAttr(const CodeSegAttr &attr) {
+  VisitInheritableAttr(attr);
+}
+
+void AttrVisitor::VisitColdAttr(const ColdAttr &attr) {
+  VisitInheritableAttr(attr);
+}
+
+void AttrVisitor::VisitCommonAttr(const CommonAttr &attr) {
+  VisitInheritableAttr(attr);
+}
+
+void AttrVisitor::VisitConstAttr(const ConstAttr &attr) {
+  VisitInheritableAttr(attr);
+}
+
+void AttrVisitor::VisitConstInitAttr(const ConstInitAttr &attr) {
+  VisitInheritableAttr(attr);
+}
+
+void AttrVisitor::VisitConstructorAttr(const ConstructorAttr &attr) {
+  VisitInheritableAttr(attr);
+}
+
+void AttrVisitor::VisitConsumableAttr(const ConsumableAttr &attr) {
+  VisitInheritableAttr(attr);
+}
+
+void AttrVisitor::VisitConsumableAutoCastAttr(const ConsumableAutoCastAttr &attr) {
+  VisitInheritableAttr(attr);
+}
+
+void AttrVisitor::VisitConsumableSetOnReadAttr(const ConsumableSetOnReadAttr &attr) {
+  VisitInheritableAttr(attr);
+}
+
+void AttrVisitor::VisitConvergentAttr(const ConvergentAttr &attr) {
+  VisitInheritableAttr(attr);
+}
+
+void AttrVisitor::VisitDLLExportAttr(const DLLExportAttr &attr) {
+  VisitInheritableAttr(attr);
+}
+
+void AttrVisitor::VisitDLLExportStaticLocalAttr(const DLLExportStaticLocalAttr &attr) {
+  VisitInheritableAttr(attr);
+}
+
+void AttrVisitor::VisitDLLImportAttr(const DLLImportAttr &attr) {
+  VisitInheritableAttr(attr);
+}
+
+void AttrVisitor::VisitDLLImportStaticLocalAttr(const DLLImportStaticLocalAttr &attr) {
+  VisitInheritableAttr(attr);
+}
+
+void AttrVisitor::VisitDeclOrStmtAttr(const DeclOrStmtAttr &attr) {
+  VisitInheritableAttr(attr);
+}
+
+void AttrVisitor::VisitDeprecatedAttr(const DeprecatedAttr &attr) {
+  VisitInheritableAttr(attr);
+}
+
+void AttrVisitor::VisitDestructorAttr(const DestructorAttr &attr) {
+  VisitInheritableAttr(attr);
+}
+
+void AttrVisitor::VisitDiagnoseAsBuiltinAttr(const DiagnoseAsBuiltinAttr &attr) {
+  VisitInheritableAttr(attr);
+}
+
+void AttrVisitor::VisitDiagnoseIfAttr(const DiagnoseIfAttr &attr) {
+  VisitInheritableAttr(attr);
+}
+
+void AttrVisitor::VisitDisableSanitizerInstrumentationAttr(const DisableSanitizerInstrumentationAttr &attr) {
+  VisitInheritableAttr(attr);
+}
+
+void AttrVisitor::VisitDisableTailCallsAttr(const DisableTailCallsAttr &attr) {
+  VisitInheritableAttr(attr);
+}
+
+void AttrVisitor::VisitEmptyBasesAttr(const EmptyBasesAttr &attr) {
+  VisitInheritableAttr(attr);
+}
+
+void AttrVisitor::VisitEnableIfAttr(const EnableIfAttr &attr) {
+  VisitInheritableAttr(attr);
+}
+
+void AttrVisitor::VisitEnforceTCBAttr(const EnforceTCBAttr &attr) {
+  VisitInheritableAttr(attr);
+}
+
+void AttrVisitor::VisitEnforceTCBLeafAttr(const EnforceTCBLeafAttr &attr) {
+  VisitInheritableAttr(attr);
+}
+
+void AttrVisitor::VisitEnumExtensibilityAttr(const EnumExtensibilityAttr &attr) {
+  VisitInheritableAttr(attr);
+}
+
+void AttrVisitor::VisitErrorAttr(const ErrorAttr &attr) {
+  VisitInheritableAttr(attr);
+}
+
+void AttrVisitor::VisitExcludeFromExplicitInstantiationAttr(const ExcludeFromExplicitInstantiationAttr &attr) {
+  VisitInheritableAttr(attr);
+}
+
+void AttrVisitor::VisitExclusiveTrylockFunctionAttr(const ExclusiveTrylockFunctionAttr &attr) {
+  VisitInheritableAttr(attr);
+}
+
+void AttrVisitor::VisitExternalSourceSymbolAttr(const ExternalSourceSymbolAttr &attr) {
+  VisitInheritableAttr(attr);
+}
+
+void AttrVisitor::VisitFallThroughAttr(const FallThroughAttr &attr) {
+  VisitStmtAttr(attr);
+}
+
+void AttrVisitor::VisitFastCallAttr(const FastCallAttr &attr) {
+  VisitInheritableAttr(attr);
+}
+
+void AttrVisitor::VisitFinalAttr(const FinalAttr &attr) {
+  VisitInheritableAttr(attr);
+}
+
+void AttrVisitor::VisitFlagEnumAttr(const FlagEnumAttr &attr) {
+  VisitInheritableAttr(attr);
+}
+
+void AttrVisitor::VisitFlattenAttr(const FlattenAttr &attr) {
+  VisitInheritableAttr(attr);
+}
+
+void AttrVisitor::VisitFormatArgAttr(const FormatArgAttr &attr) {
+  VisitInheritableAttr(attr);
+}
+
+void AttrVisitor::VisitFormatAttr(const FormatAttr &attr) {
+  VisitInheritableAttr(attr);
+}
+
+void AttrVisitor::VisitFunctionReturnThunksAttr(const FunctionReturnThunksAttr &attr) {
+  VisitInheritableAttr(attr);
+}
+
+void AttrVisitor::VisitGNUInlineAttr(const GNUInlineAttr &attr) {
+  VisitInheritableAttr(attr);
+}
+
+void AttrVisitor::VisitGuardedByAttr(const GuardedByAttr &attr) {
+  VisitInheritableAttr(attr);
+}
+
+void AttrVisitor::VisitGuardedVarAttr(const GuardedVarAttr &attr) {
+  VisitInheritableAttr(attr);
+}
+
+void AttrVisitor::VisitHIPManagedAttr(const HIPManagedAttr &attr) {
+  VisitInheritableAttr(attr);
+}
+
+void AttrVisitor::VisitHLSLAnnotationAttr(const HLSLAnnotationAttr &attr) {
+  VisitInheritableAttr(attr);
+}
+
+void AttrVisitor::VisitHLSLGroupSharedAddressSpaceAttr(const HLSLGroupSharedAddressSpaceAttr &attr) {
+  VisitTypeAttr(attr);
+}
+
+void AttrVisitor::VisitHLSLNumThreadsAttr(const HLSLNumThreadsAttr &attr) {
+  VisitInheritableAttr(attr);
+}
+
+void AttrVisitor::VisitHLSLResourceAttr(const HLSLResourceAttr &attr) {
+  VisitInheritableAttr(attr);
+}
+
+void AttrVisitor::VisitHLSLResourceBindingAttr(const HLSLResourceBindingAttr &attr) {
+  VisitInheritableAttr(attr);
+}
+
+void AttrVisitor::VisitHLSLSV_DispatchThreadIDAttr(const HLSLSV_DispatchThreadIDAttr &attr) {
+  VisitHLSLAnnotationAttr(attr);
+}
+
+void AttrVisitor::VisitHLSLSV_GroupIndexAttr(const HLSLSV_GroupIndexAttr &attr) {
+  VisitHLSLAnnotationAttr(attr);
+}
+
+void AttrVisitor::VisitHLSLShaderAttr(const HLSLShaderAttr &attr) {
+  VisitInheritableAttr(attr);
+}
+
+void AttrVisitor::VisitHotAttr(const HotAttr &attr) {
+  VisitInheritableAttr(attr);
+}
+
+void AttrVisitor::VisitIBActionAttr(const IBActionAttr &attr) {
+  VisitInheritableAttr(attr);
+}
+
+void AttrVisitor::VisitIBOutletAttr(const IBOutletAttr &attr) {
+  VisitInheritableAttr(attr);
+}
+
+void AttrVisitor::VisitIBOutletCollectionAttr(const IBOutletCollectionAttr &attr) {
+  VisitInheritableAttr(attr);
+}
+
+void AttrVisitor::VisitLikelyAttr(const LikelyAttr &attr) {
+  VisitStmtAttr(attr);
+}
+
+void AttrVisitor::VisitMustTailAttr(const MustTailAttr &attr) {
+  VisitStmtAttr(attr);
+}
+
+void AttrVisitor::VisitNoDerefAttr(const NoDerefAttr &attr) {
+  VisitTypeAttr(attr);
+}
+
+void AttrVisitor::VisitNoInlineAttr(const NoInlineAttr &attr) {
+  VisitDeclOrStmtAttr(attr);
+}
+
+void AttrVisitor::VisitNoMergeAttr(const NoMergeAttr &attr) {
+  VisitDeclOrStmtAttr(attr);
+}
+
+void AttrVisitor::VisitObjCGCAttr(const ObjCGCAttr &attr) {
+  VisitTypeAttr(attr);
+}
+
+void AttrVisitor::VisitObjCInertUnsafeUnretainedAttr(const ObjCInertUnsafeUnretainedAttr &attr) {
+  VisitTypeAttr(attr);
+}
+
+void AttrVisitor::VisitObjCKindOfAttr(const ObjCKindOfAttr &attr) {
+  VisitTypeAttr(attr);
+}
+
+void AttrVisitor::VisitOpenCLConstantAddressSpaceAttr(const OpenCLConstantAddressSpaceAttr &attr) {
+  VisitTypeAttr(attr);
+}
+
+void AttrVisitor::VisitOpenCLGenericAddressSpaceAttr(const OpenCLGenericAddressSpaceAttr &attr) {
+  VisitTypeAttr(attr);
+}
+
+void AttrVisitor::VisitOpenCLGlobalAddressSpaceAttr(const OpenCLGlobalAddressSpaceAttr &attr) {
+  VisitTypeAttr(attr);
+}
+
+void AttrVisitor::VisitOpenCLGlobalDeviceAddressSpaceAttr(const OpenCLGlobalDeviceAddressSpaceAttr &attr) {
+  VisitTypeAttr(attr);
+}
+
+void AttrVisitor::VisitOpenCLGlobalHostAddressSpaceAttr(const OpenCLGlobalHostAddressSpaceAttr &attr) {
+  VisitTypeAttr(attr);
+}
+
+void AttrVisitor::VisitOpenCLLocalAddressSpaceAttr(const OpenCLLocalAddressSpaceAttr &attr) {
+  VisitTypeAttr(attr);
+}
+
+void AttrVisitor::VisitOpenCLPrivateAddressSpaceAttr(const OpenCLPrivateAddressSpaceAttr &attr) {
+  VisitTypeAttr(attr);
+}
+
+void AttrVisitor::VisitOpenCLUnrollHintAttr(const OpenCLUnrollHintAttr &attr) {
+  VisitStmtAttr(attr);
+}
+
+void AttrVisitor::VisitPtr32Attr(const Ptr32Attr &attr) {
+  VisitTypeAttr(attr);
+}
+
+void AttrVisitor::VisitPtr64Attr(const Ptr64Attr &attr) {
+  VisitTypeAttr(attr);
+}
+
+void AttrVisitor::VisitSPtrAttr(const SPtrAttr &attr) {
+  VisitTypeAttr(attr);
+}
+
+void AttrVisitor::VisitAlwaysInlineAttr(const AlwaysInlineAttr &attr) {
+  VisitDeclOrStmtAttr(attr);
+}
+
 namespace {
 // Return the PASTA `AttrKind` for a Clang `Attr`.
 static AttrKind KindOfAttr(const clang::Attr *attr) {
@@ -4623,7 +6137,7 @@ PASTA_DEFINE_BASE_OPERATORS(Attr, SwiftAsyncAttr)
 PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, SwiftAsyncAttr)
 // 1: SwiftAsyncAttr::Clone
 // 0: SwiftAsyncAttr::CompletionHandlerIndex
-enum SwiftAsyncAttrKind SwiftAsyncAttr::Kind(void) const {
+enum SwiftAsyncAttrKind SwiftAsyncAttr::AttributeKind(void) const {
   auto &self = *const_cast<clang::SwiftAsyncAttr *>(u.SwiftAsyncAttr);
   decltype(auto) val = self.getKind();
   return static_cast<::pasta::SwiftAsyncAttrKind>(val);

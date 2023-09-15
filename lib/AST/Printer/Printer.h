@@ -2,6 +2,8 @@
  * Copyright (c) 2021 Trail of Bits, Inc.
  */
 
+#pragma once
+
 #include <pasta/AST/Printer.h>
 
 #pragma GCC diagnostic push
@@ -21,18 +23,32 @@
 #include "../Token.h"
 
 namespace clang {
+class ClassTemplatePartialSpecializationDecl;
+class ClassTemplateSpecializationDecl;
 class Decl;
+class FunctionDecl;
+class FunctionTemplateDecl;
 class LangOptions;
 class SourceLocation;
 class SourceManager;
 class Stmt;
 class Type;
+class TypeLoc;
+class VarTemplateDecl;
+class VarTemplatePartialSpecializationDecl;
+class VarTemplateSpecializationDecl;
+
+namespace tok {
+enum TokenKind : unsigned short;
+}  // namespace tok
 }  // namespace clang
 namespace pasta {
 
 class ASTImpl;
 class raw_string_ostream;
+class PrintingPolicyAdaptor;
 
+// TODO(pag): Make `PrintedTokenImpl` independent of `TokenImpl`.
 class PrintedTokenImpl : public TokenImpl {
  public:
 
@@ -43,10 +59,10 @@ class PrintedTokenImpl : public TokenImpl {
   //            it relies on O(n^2) algorithms, and so to minimize `n`, we want
   //            to be able to say "we've matched this thing to something" so
   //            that we don't need to repeatedly check it.
-  bool matched_in_align;
+  bool matched_in_align{false};
 
-  uint8_t num_leading_new_lines;
-  uint16_t num_leading_spaces;
+  uint8_t num_leading_new_lines{0};
+  uint16_t num_leading_spaces{0};
 
   inline PrintedTokenImpl(TokenDataOffset data_offset_, uint32_t data_len_,
                           TokenContextIndex token_context_index_,
@@ -85,13 +101,21 @@ class PrintedTokenRangeImpl {
 
   // All allocated token contexts live here. The `TokenImpl::context_index` of
   // a `PrintedTokenImpl` points into `contexts`.
+  //
+  // NOTE(pag): The first context in this list holds a raw data pointer to the
+  //            `ASTImpl` containing `contexts` (if this is derived from an AST).
+  //            This is so that we can get the `Decl`s, `Stmt`s, and `Type`s
+  //            referenced by a token context. This is safe because a
+  //            `TokenContext` has a shared pointer to a vector of contexts
+  //            (this vector), where that shared pointer aliases the `ASTImpl`s
+  //            lifetime.
   std::vector<TokenContextImpl> contexts;
 
   // Maps something, e.g. a `clang::Decl *`, `clang::Stmt *`, `clang::Type *`,
   // etc. to the "owning" context for that thing. There can be multiple open
   // contexts for a given thing; the first one is always the owning one, and
   // the rest are aliasing ones.
-  std::unordered_map<const void *, unsigned> data_to_index;
+  std::unordered_map<const void *, TokenContextIndex> data_to_index;
 
   // Maps types to type locations.
   std::unordered_map<const clang::Type *, clang::TypeLoc> type_to_type_loc;
@@ -101,8 +125,20 @@ class PrintedTokenRangeImpl {
   // when we recursively print different AST entities.
   TokenPrinterContext *curr_printer_context{nullptr};
 
+  // Adapts a printing policy, taken from the user, or applies a "default"
+  // policy. The policy focuses primarily on how to handle templates and their
+  // specializations/instantiations.
+  PrintingPolicyAdaptor *ppa{nullptr};
+
   inline PrintedTokenRangeImpl(clang::ASTContext &ast_context_)
       : ast_context(ast_context_) {}
+
+  inline PrintedTokenRangeImpl(const PrintedTokenRangeImpl &that)
+      : ast_context(that.ast_context),
+        ast(that.ast),
+        tokens(that.tokens),
+        data(that.data),
+        contexts(that.contexts) {}
 
   ~PrintedTokenRangeImpl(void);
 
@@ -113,9 +149,88 @@ class PrintedTokenRangeImpl {
   const TokenContextIndex CreateAlias(
       TokenPrinterContext *tokenizer, TokenContextIndex aliasee);
 
+  void MarkLocation(PrintedTokenImpl &, const TokenImpl &tok);
   void MarkLocation(size_t tok_index, const TokenImpl &tok);
   void MarkLocation(size_t tok_index, const clang::SourceLocation &loc);
-//  void PopContext(void);
+
+  // Try to align parsed tokens with printed tokens. See `AlignTokens.cpp`.
+  std::optional<std::string> AlignTokens(
+      PrintedTokenRangeImpl &printed_range,
+      TokenContextIndex decl_context_id);
+
+  // If any token context index is invalid, then set it to `index`.
+  void FixupInvalidTokenContexts(TokenContextIndex index);
+
+  void AddTrailingEOF(void);
+
+  inline static PrintedTokenRange ToPrintedTokenRange(
+      std::shared_ptr<PrintedTokenRangeImpl> self) {
+    PrintedTokenImpl *first_tok = self->tokens.data();
+    PrintedTokenImpl *after_last_tok = &(first_tok[self->tokens.size() - 1u]);
+    return PrintedTokenRange(std::move(self), first_tok, after_last_tok);
+  }
+};
+
+class PrintingPolicyAdaptor final {
+ private:
+  std::shared_ptr<ASTImpl> ast;
+  const PrintingPolicy *pp{nullptr};
+  clang::Decl *decl_to_print{nullptr};
+
+ public:
+  inline PrintingPolicyAdaptor(clang::Decl *decl_to_print_=nullptr)
+      : decl_to_print(decl_to_print_) {}
+
+  inline PrintingPolicyAdaptor(const std::shared_ptr<ASTImpl> &ast_,
+                               const PrintingPolicy &pp_,
+                               clang::Decl *decl_to_print_=nullptr)
+      : ast(ast_),
+        pp(&pp_),
+        decl_to_print(decl_to_print_) {}
+
+  bool ShouldPrintInheritedAttributes(void) const;
+  bool ShouldPrintImplicitAttributes(void) const;
+
+  bool ShouldPrintConstantExpressionsInTypes(void) const;
+  bool ShouldPrintOriginalTypeOfAdjustedType(void) const;
+  bool ShouldPrintOriginalTypeOfDecayedType(void) const;
+
+  bool ShouldPrintTemplate(clang::TemplateDecl *) const;
+
+  bool ShouldPrintTemplate(
+      clang::ClassTemplatePartialSpecializationDecl *) const;
+
+  bool ShouldPrintTemplate(
+      clang::VarTemplatePartialSpecializationDecl *) const;
+  
+  bool ShouldPrintSpecialization(
+      clang::ClassTemplateDecl *,
+      clang::ClassTemplateSpecializationDecl *) const;
+  
+  bool ShouldPrintSpecialization(
+      clang::VarTemplateDecl *,
+      clang::VarTemplateSpecializationDecl *) const;
+  
+  bool ShouldPrintSpecialization(clang::FunctionTemplateDecl *,
+                                 clang::FunctionDecl *) const;
+};
+
+class PrintingPolicyAdaptorRAII {
+ private:
+  PrintingPolicyAdaptor *&ppa_ptr;
+
+ public:
+
+  inline PrintingPolicyAdaptorRAII(
+      const std::shared_ptr<PrintedTokenRangeImpl> &range,
+      PrintingPolicyAdaptor &ppa)
+      : ppa_ptr(range->ppa) {
+    ppa_ptr = &ppa;
+  }
+
+  inline ~PrintingPolicyAdaptorRAII(void) {
+    ppa_ptr = nullptr;
+  }
 };
 
 struct no_alias_tag {};
@@ -163,9 +278,8 @@ const TokenContextIndex PrintedTokenRangeImpl::CreateContext(
   if (!data) {
     if (tokenizer->prev_printer_context) {
       return tokenizer->prev_printer_context->context_index;
-    } else {
-      return kInvalidTokenContextIndex;
     }
+    return kInvalidTokenContextIndex;
   }
 
   auto dedup = !std::is_same_v<T, char> && !std::is_base_of_v<clang::Type, T>;

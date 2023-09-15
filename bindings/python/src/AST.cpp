@@ -1,15 +1,20 @@
+/*
+ * Copyright (c) 2023 Trail of Bits, Inc.
+ */
+
 #include <pasta/AST/AST.h>
 #include <pasta/AST/Token.h>
+#include <pasta/AST/Printer.h>
 
-#include "bindings.h"
+#include "Bindings.h"
 
 namespace pasta {
 
 namespace nb = nanobind;
 void RegisterAST(nb::module_ &m) {
   nb::class_<AST>(m, "AST")
-    .def_static("from", nb::overload_cast<const Token&>(&AST::From))
-    .def_static("from", nb::overload_cast<const Decl&>(&AST::From))
+    .def_static("cast", nb::overload_cast<const Token&>(&AST::From))
+    .def_static("cast", nb::overload_cast<const Decl&>(&AST::From))
     .def_prop_ro("preprocessed_code", &AST::PreprocessedCode)
     .def_prop_ro("tokens", &AST::Tokens)
     .def_prop_ro("macros", &AST::Macros)

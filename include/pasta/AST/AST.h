@@ -32,6 +32,7 @@ class Attr;
 class CompileJob;
 class Compiler;
 class Decl;
+class Macro;
 class Stmt;
 class Token;
 class TokenContext;
@@ -51,6 +52,12 @@ class AST {
 
   // Return the AST containing a Stmt.
   static AST From(const Stmt &stmt);
+
+  // Return the AST containing a Macro.
+  static AST From(const Macro &macro);
+
+  // Return the AST containing a Type.
+  static AST From(const Type &type);
 
   ~AST(void);
   AST(const AST &);

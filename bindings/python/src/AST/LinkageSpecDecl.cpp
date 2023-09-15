@@ -10,17 +10,15 @@
 #include <pasta/AST/Stmt.h>
 #include <pasta/AST/Type.h>
 
-#include <nanobind/nanobind.h>
-#include <nanobind/stl/optional.h>
-#include <nanobind/stl/vector.h>
+#include "../Bindings.h"
 
 namespace pasta {
 namespace nb = nanobind;
 
 void RegisterLinkageSpecDecl(nb::module_ &m) {
   nb::class_<LinkageSpecDecl, Decl>(m, "LinkageSpecDecl")
-    .def("__hash__", [](const LinkageSpecDecl& decl) { return (intptr_t)decl.RawDecl(); })
-    .def("__eq__", [](const Decl& a, const Decl& b) { return a.RawDecl() == b.RawDecl(); })
+    .def("__hash__", [](const LinkageSpecDecl &decl) { return (intptr_t)decl.RawDecl(); })
+    .def("__eq__", [](const Decl &a, const Decl &b) { return a.RawDecl() == b.RawDecl(); })
     .def_prop_ro("end_token", &LinkageSpecDecl::EndToken)
     .def_prop_ro("extern_token", &LinkageSpecDecl::ExternToken)
     .def_prop_ro("language", &LinkageSpecDecl::Language)

@@ -30,7 +30,7 @@
 #include "Token.h"
 #include "Util.h"
 
-#define PASTA_DEBUG_ALIGN 0
+#define PASTA_DEBUG_ALIGN 1
 #define TK(...)
 
 namespace pasta {
@@ -125,16 +125,22 @@ static bool MergeToken(PrintedTokenImpl *parsed, PrintedTokenImpl *printed,
     force = true;
   }
 
-  if (parsed->derived_index == printed->derived_index) {
+  auto locs_match = TokenLocationsMatch(parsed, printed);
+  if (locs_match) {
     force = true;
   }
 
-  if (!printed->matched_in_align && force) {
+  if (force && parsed->context_index != printed->context_index) {
+    parsed->context_index = printed->context_index;
+    changed = true;
+  }
+
+  if (force && !printed->matched_in_align) {
     printed->matched_in_align = true;
     changed = true;
   }
 
-  return TokenLocationsMatch(parsed, printed);
+  return locs_match;
 }
 
 enum class RegionKind {
@@ -461,6 +467,10 @@ struct Bounds {
       : begin(range.tokens.data()),
         end(&(begin[range.tokens.size() - 1u])) {}
 
+  inline explicit Bounds(PrintedTokenImpl *begin_, PrintedTokenImpl *end_)
+      : begin(begin_),
+        end(end_) {}
+
   inline bool Empty(void) const noexcept {
     return begin == end;
   }
@@ -536,6 +546,8 @@ class Matcher {
                       bool &changed);
   bool MatchRegions(Region *parsed, Region *printed,
                     bool &changed);
+
+  bool HashBasedMatch(Bounds parsed, Bounds printed, bool &changed);
 
   bool MergeAround(PrintedTokenImpl *parsed, PrintedTokenImpl *printed,
                    bool &changed);
@@ -622,14 +634,17 @@ SequenceRegion *Matcher::BuildRegions(
     // then we want to use that identifier as part of our matching criteria.
     if (last_balanced &&
         (clang::tok::isAnyIdentifier(tok_kind) ||
-         clang::tok::getKeywordSpelling(tok_kind) != nullptr)) {
+         clang::tok::getKeywordSpelling(tok_kind))) {
       last_balanced->leading_ident = &tok;
 
+      // Make it possible for us to later skip over a balanced region given
+      // the leading identifier.
       PrintedTokenImpl *after_balanced = &(last_balanced->end[1u]);
       if (after_balanced < after_last) {
         skip_balanced.emplace(&tok, after_balanced);
       }
     }
+
     last_balanced = nullptr;
 
     switch (tok_kind) {
@@ -797,14 +812,17 @@ static uint64_t Hash(clang::tok::TokenKind kind, std::string_view view) {
       clang::tok::getKeywordSpelling(kind)) {
     return static_cast<uint64_t>(kind);
   }
-  return kHasher(HashableData(view));
+  if (auto new_view = HashableData(view); !new_view.empty()) {
+    view = new_view;
+  }
+  return kHasher(view);
 }
 
 bool Matcher::DataEquals(PrintedTokenImpl *parsed, PrintedTokenImpl *printed) {
   auto parsed_data = parsed->Data(parsed_range);
   auto printed_data = printed->Data(printed_range);
-  if (clang::tok::getKeywordSpelling(parsed->Kind())) {
-    return HashableData(parsed_data) == HashableData(printed_data);
+  if (auto parsed_kw = clang::tok::getKeywordSpelling(parsed->Kind())) {
+    return parsed_kw == clang::tok::getKeywordSpelling(printed->Kind());
   }
   return parsed_data == printed_data;
 }
@@ -982,12 +1000,19 @@ bool Matcher::MatchTokenByKindOrData(PrintedTokenImpl *parsed,
     return kinds_equal;
   }
 
-  if (kinds_equal) {
-    if (clang::tok::getKeywordSpelling(parsed_kind) ||
-        !clang::tok::isAnyIdentifier(parsed_kind)) {
+  if (!kinds_equal) {
+
+    // If the keyword kinds match, then it doesn't matter if the data doesn't
+    // match. E.g. `__attribute`, `__attribute__`, etc.
+    if (clang::tok::getKeywordSpelling(parsed_kind)) {
       return true;
     }
-    return DataEquals(parsed, printed);
+
+    // If it's not a keyword or an identifier, then it's probably punctuation.
+    // Treat this as a trivial match.
+    if (!clang::tok::isAnyIdentifier(parsed_kind)) {
+      return true;
+    }
   }
 
   return DataEquals(parsed, printed);
@@ -1235,18 +1260,7 @@ bool Matcher::MatchSequence(SequenceRegion *parsed, SequenceRegion *printed,
   return true;
 }
 
-bool Matcher::MatchStatement(StatementRegion *parsed, StatementRegion *printed,
-                             bool &changed) {
-
-  if (parsed->matched_with && parsed->matched_with != printed) {
-    return false;
-  }
-
-  const auto parsed_begin = parsed->begin;
-  auto parsed_end = parsed->end;
-
-  const auto printed_begin = printed->begin;
-  auto printed_end = printed->end;
+bool Matcher::HashBasedMatch(Bounds parsed, Bounds printed, bool &changed) {
 
   std::unordered_map<uint64_t, std::vector<PrintedTokenImpl *>> parsed_toks;
   std::unordered_map<uint64_t, std::vector<PrintedTokenImpl *>> printed_toks;
@@ -1255,15 +1269,15 @@ bool Matcher::MatchStatement(StatementRegion *parsed, StatementRegion *printed,
   // This can have really bad time complexity when the two statements contain
   // tons of literal/punctuation values, which happens with giant arrays.
 
-  for (PrintedTokenImpl *it = parsed_begin; it <= parsed_end; ++it) {
-    if (it->context_index == kInvalidTokenContextIndex) {
-      parsed_toks[Hash(it->Kind(), it->Data(parsed_range))].emplace_back(it);
+  for (PrintedTokenImpl &it : parsed.Range()) {
+    if (it.derived_index == kInvalidDerivedTokenIndex) {
+      parsed_toks[Hash(it.Kind(), it.Data(parsed_range))].emplace_back(&it);
     }
   }
 
-  for (PrintedTokenImpl *it = printed_begin; it <= printed_end; ++it) {
-    if (!it->matched_in_align) {
-      printed_toks[Hash(it->Kind(), it->Data(printed_range))].emplace_back(it);
+  for (PrintedTokenImpl &it : printed.Range()) {
+    if (!it.matched_in_align) {
+      printed_toks[Hash(it.Kind(), it.Data(printed_range))].emplace_back(&it);
     }
   }
 
@@ -1288,12 +1302,11 @@ bool Matcher::MatchStatement(StatementRegion *parsed, StatementRegion *printed,
           continue;
         }
 
-        if (parsed_tok->context_index == printed_tok->context_index) {
+        if (TokenLocationsMatch(parsed_tok, printed_tok)) {
           matched = true;
 
-        } else if (TokenLocationsMatch(parsed_tok, printed_tok) ||
-                   (!TokenHasLocationAndContext(printed_tok) &&
-                    MatchTokenByKindOrData(parsed_tok, printed_tok))) {
+        } else if (!TokenHasLocationAndContext(printed_tok) &&
+                   MatchTokenByKindOrData(parsed_tok, printed_tok)) {
 
           if (!MergeToken(parsed_tok, printed_tok, changed)) {
             continue;
@@ -1313,6 +1326,21 @@ bool Matcher::MatchStatement(StatementRegion *parsed, StatementRegion *printed,
       }
     }
   }
+
+  return matched;
+}
+
+bool Matcher::MatchStatement(StatementRegion *parsed, StatementRegion *printed,
+                             bool &changed) {
+
+  if (parsed->matched_with && parsed->matched_with != printed) {
+    return false;
+  }
+
+  auto matched = HashBasedMatch(
+      Bounds(parsed->begin, &(parsed->end[1])),
+      Bounds(printed->begin, &(printed->end[1])),
+      changed);
 
   if (matched) {
     if (!parsed->common_context) {
@@ -1714,6 +1742,7 @@ std::optional<std::string> PrintedTokenRangeImpl::AlignTokens(
   for (size_t i = 0u; i < max_iters && join_based_region_merge(); ++i) {}
 
   matcher.MergeSameSizedHoles();
+  matcher.HashBasedMatch(parsed_bounds, printed_bounds, changed);
   matcher.FixContexts(parsed_tree, root_context);
 
 #if PASTA_DEBUG_ALIGN

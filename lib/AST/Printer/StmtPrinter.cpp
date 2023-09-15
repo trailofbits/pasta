@@ -494,6 +494,8 @@ void StmtPrinter::VisitGCCAsmStmt(clang::GCCAsmStmt *Node) {
   for (unsigned i = 0, e = Node->getNumLabels(); i != e; ++i) {
     if (i != 0)
       OS << ", ";
+
+    TokenPrinterContext label_ctx(OS, Node->getLabelExpr(i), tokens);
     OS << Node->getLabelName(i);
   }
 

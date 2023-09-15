@@ -23,6 +23,7 @@
 #include <optional>
 #include <span>
 #include <sstream>
+#include <set>
 
 #include "Builder.h"
 #include "Printer/Printer.h"
@@ -140,6 +141,11 @@ static bool MergeToken(PrintedTokenImpl *parsed, PrintedTokenImpl *printed,
     changed = true;
   }
 
+  if (force && !parsed->matched_in_align) {
+    parsed->matched_in_align = true;
+    changed = true;
+  }
+
   return locs_match;
 }
 
@@ -154,10 +160,8 @@ struct Region {
   // Some context that is shared across all things in this region.
   const TokenContextImpl *common_context{nullptr};
 
-  // If we match this region with another, then we commit to that match and
-  // record it here. If this is a parsed region, then this points at a printed
-  // region. If it's a printed region, then this points at a parsed region.
-  Region *matched_with{nullptr};
+  // Keep track of whether or not this region has ever been matched.
+  bool has_been_matched{false};
 
   virtual ~Region(void) = default;
   virtual RegionKind Kind(void) const noexcept = 0;
@@ -174,6 +178,23 @@ struct Region {
   virtual const TokenContextImpl *CommonContext(
       const PrintedTokenRangeImpl &range,
       const TokenContextImpl *parent_context) = 0;
+
+  static void MarkAsMatched(Region *parsed, Region *printed, bool &changed) {
+    if (!parsed->has_been_matched) {
+      parsed->has_been_matched = true;
+      changed = true;
+    }
+
+    if (!printed->has_been_matched) {
+      printed->has_been_matched = true;
+      changed = true;
+    }
+
+    if (!parsed->common_context) {
+      parsed->common_context = printed->common_context;
+      changed = true;
+    }
+  }
 };
 
 struct StatementRegion final : public Region {
@@ -495,13 +516,17 @@ struct Bounds {
 };
 
 class Matcher {
- private:
+ public:
   ASTImpl &ast;
   PrintedTokenRangeImpl &parsed_range;
   PrintedTokenRangeImpl &printed_range;
   
   const Bounds parsed_bounds;
   const Bounds printed_bounds;
+
+  // Tracks if we've done recursive matching on two regions.
+  using MatchKey = std::pair<Region *, Region *>;
+  std::set<MatchKey> matched_with;
 
   std::vector<std::unique_ptr<Region>> parsed_regions;
   std::vector<std::unique_ptr<Region>> printed_regions;
@@ -514,7 +539,6 @@ class Matcher {
   // `__attribute__` tokens when doing forward matching.
   std::unordered_map<PrintedTokenImpl *, PrintedTokenImpl *> skip_balanced;
 
- public:
   inline explicit Matcher(ASTImpl &ast_,
                           PrintedTokenRangeImpl &parsed_range_,
                           PrintedTokenRangeImpl &printed_range_)
@@ -531,17 +555,16 @@ class Matcher {
       std::stringstream &err, PrintedTokenImpl *first,
       PrintedTokenImpl *after_last, const char *list_kind);
 
-  bool DataEquals(PrintedTokenImpl *parsed, PrintedTokenImpl *printed);
   bool MatchToken(PrintedTokenImpl *parsed, PrintedTokenImpl *printed);
   bool MatchTokenByKindOrData(PrintedTokenImpl *parsed,
                               PrintedTokenImpl *printed);
   bool MatchBalanced(BalancedRegion *parsed, BalancedRegion *printed,
                      bool &changed);
-  bool MatchProduct(std::vector<Region *> &parsed_regions,
-                    std::vector<Region *> &printed_regions,
+  bool MatchProduct(std::vector<Region *> parsed_regions,
+                    std::vector<Region *> printed_regions,
                     bool &changed);
   bool MatchSequence(SequenceRegion *parsed, SequenceRegion *printed,
-                     bool &changed);
+                     bool should_match, bool &changed);
   bool MatchStatement(StatementRegion *parsed, StatementRegion *printed,
                       bool &changed);
   bool MatchRegions(Region *parsed, Region *printed,
@@ -818,15 +841,6 @@ static uint64_t Hash(clang::tok::TokenKind kind, std::string_view view) {
   return kHasher(view);
 }
 
-bool Matcher::DataEquals(PrintedTokenImpl *parsed, PrintedTokenImpl *printed) {
-  auto parsed_data = parsed->Data(parsed_range);
-  auto printed_data = printed->Data(printed_range);
-  if (auto parsed_kw = clang::tok::getKeywordSpelling(parsed->Kind())) {
-    return parsed_kw == clang::tok::getKeywordSpelling(printed->Kind());
-  }
-  return parsed_data == printed_data;
-}
-
 static bool IsAttributeLikeKeword(clang::tok::TokenKind tk) {
   switch (tk) {
     case clang::tok::kw___attribute:
@@ -995,34 +1009,17 @@ bool Matcher::MatchToken(PrintedTokenImpl *parsed, PrintedTokenImpl *printed) {
 bool Matcher::MatchTokenByKindOrData(PrintedTokenImpl *parsed,
                                      PrintedTokenImpl *printed) {
   const auto parsed_kind = parsed->Kind();
-  const auto kinds_equal = parsed_kind == printed->Kind();
-  if (clang::tok::isLiteral(parsed_kind)) {
-    return kinds_equal;
+  if (clang::tok::isLiteral(parsed_kind) ||
+      clang::tok::getKeywordSpelling(parsed_kind) ||
+      !clang::tok::isAnyIdentifier(parsed_kind)) {
+    return parsed_kind == printed->Kind();
   }
 
-  if (!kinds_equal) {
-
-    // If the keyword kinds match, then it doesn't matter if the data doesn't
-    // match. E.g. `__attribute`, `__attribute__`, etc.
-    if (clang::tok::getKeywordSpelling(parsed_kind)) {
-      return true;
-    }
-
-    // If it's not a keyword or an identifier, then it's probably punctuation.
-    // Treat this as a trivial match.
-    if (!clang::tok::isAnyIdentifier(parsed_kind)) {
-      return true;
-    }
-  }
-
-  return DataEquals(parsed, printed);
+  return parsed->Data(parsed_range) == printed->Data(printed_range);
 }
 
 bool Matcher::MatchBalanced(BalancedRegion *parsed, BalancedRegion *printed,
                             bool &changed) {
-  if (parsed->matched_with == printed) {
-    return true;
-  }
 
   if (parsed->begin->Kind() != printed->begin->Kind()) {
     return false;
@@ -1082,66 +1079,45 @@ bool Matcher::MatchBalanced(BalancedRegion *parsed, BalancedRegion *printed,
     begin_loc_matches = true;
   }
 
-  if (parsed->matched_with) {
+  if (!begin_loc_matches || !end_loc_matches) {
     return false;
   }
 
-  auto did_recurse = false;
-  if (!begin_loc_matches && !end_loc_matches) {
-    if (parsed->predecessor && printed->predecessor &&
-        parsed->predecessor->matched_with == printed->predecessor) {
-
-      if (parsed->statements && printed->statements &&
-          MatchSequence(parsed->statements, printed->statements, changed)) {
-        did_recurse = true;
-      } else {
-        return false;
-      }
-    } else {
-      return false;
-    }
-  }
-
-  if (!parsed->common_context) {
-    parsed->common_context = printed->common_context;
-  }
-
-  // We've already matched.
-  if (parsed->matched_with == printed) {
+  // We've previously matched these before, don't do any recursive processing.
+  if (!matched_with.emplace(parsed, printed).second) {
     return true;
   }
 
-  if (!parsed->matched_with || !printed->matched_with) {
-    changed = true;
+  changed = true;  // Made a new match.
+
+  Region::MarkAsMatched(parsed, printed, changed);
+
+  MergeToken(parsed->begin, printed_begin, changed, true);
+  MergeAround(parsed->begin, printed_begin, changed);
+
+  MergeToken(parsed->end, printed_end, changed, true);
+  MergeAround(parsed->end, printed_end, changed);
+
+  // Attribute printing can end up printing identifiers differently, e.g.
+  // `macos` vs. `macosx` in availability attributes, which are problematic
+  // for matching, but then have things like the `availability` identifier
+  // be easy for matching. We want to make it more likely that we'll match
+  // things.
+  if (parsed->leading_ident &&
+      IsAttributeLikeKeword(parsed->leading_ident->Kind())) {
+    HashBasedMatch(Bounds(&(parsed->begin[1]), parsed->end),
+                   Bounds(&(printed->begin[1]), printed->end),
+                   changed);
   }
 
-  auto local_changed_begin = false;
-  auto local_changed_end = false;
-  parsed->matched_with = printed;
-  MergeToken(parsed->begin, printed_begin, local_changed_begin, true);
-  MergeToken(parsed->end, printed_end, local_changed_end, true);
-
-  // Commit to this match.
-  if (!printed->matched_with) {
-    printed->matched_with = parsed;
+  // If we have statements, then commit to them too. This will benefit from
+  // the above hash-based matching.
+  if (parsed->statements && printed->statements) {
+    MatchSequence(parsed->statements, printed->statements,
+                  true  /* should_match */, changed);
   }
 
-  if (local_changed_begin) {
-    changed = true;
-    MergeAround(parsed->begin, printed_begin, changed);
-  }
-
-  if (local_changed_end) {
-    changed = true;
-    MergeAround(parsed->end, printed_end, changed);
-  }
-
-  // If we have statements, then commit to them too.
-  if (!did_recurse && parsed->statements && printed->statements) {
-    (void) MatchSequence(parsed->statements, printed->statements, changed);
-  }
-
-  return parsed->matched_with == printed;
+  return true;
 }
 
 template <typename T>
@@ -1156,33 +1132,24 @@ static std::vector<Region *> FilterRegionsInto(
   return filtered;
 }
 
-bool Matcher::MatchProduct(std::vector<Region *> &parsed_regions,
-                           std::vector<Region *> &printed_regions,
+bool Matcher::MatchProduct(std::vector<Region *> parsed_regions,
+                           std::vector<Region *> printed_regions,
                            bool &changed) {
   bool matched = false;
   for (Region *&parsed_sub : parsed_regions) {
     if (!parsed_sub) {
       continue;
     }
+
     for (Region *&printed_sub : printed_regions) {
-      if (printed_sub &&
-          parsed_sub->matched_with != printed_sub &&
-          MatchRegions(parsed_sub, printed_sub, changed)) {
+      if (!printed_sub) {
+        continue;
+      }
 
-        if (!parsed_sub->common_context) {
-          parsed_sub->common_context = printed_sub->common_context;
-        }
-
-        if (!parsed_sub->matched_with) {
-          changed = true;
-          parsed_sub->matched_with = printed_sub;
-        }
-
-        if (!printed_sub->matched_with) {
-          changed = true;
-          printed_sub->matched_with = parsed_sub;
-        }
-
+      if (MatchRegions(parsed_sub, printed_sub, changed)) {
+        assert(parsed_sub->common_context != nullptr);
+        assert(parsed_sub->has_been_matched);
+        assert(printed_sub->has_been_matched);
         parsed_sub = nullptr;
         printed_sub = nullptr;
         matched = true;
@@ -1194,15 +1161,14 @@ bool Matcher::MatchProduct(std::vector<Region *> &parsed_regions,
 }
 
 // NOTE(pag): The elements in a sequence are already in reverse order.
+//
+// `should_match` communicates a higher-level belief that these two sequences
+// should actually match. Usually, this comes from `MatchBalanced`. That is,
+// if we've matched the `{` and `}` of a `CompoundStmt`, then we expect the
+// statements within to match. Same goes for parameter lists in a
+// `FunctionDecl`, for example.
 bool Matcher::MatchSequence(SequenceRegion *parsed, SequenceRegion *printed,
-                            bool &changed) {
-  if (parsed->matched_with == printed) {
-    return true;
-  }
-
-  if (parsed->matched_with) {
-    return false;
-  }
+                            bool should_match, bool &changed) {
 
   if (parsed->regions.empty() != printed->regions.empty()) {
     return false;  // One is empty, the other isn't.
@@ -1212,50 +1178,50 @@ bool Matcher::MatchSequence(SequenceRegion *parsed, SequenceRegion *printed,
     return true;  // Both are empty.
   }
 
-  auto matched = false;
-
-  {
-    auto parsed_regions = FilterRegionsInto<StatementRegion>(parsed->regions);
-    auto printed_regions = FilterRegionsInto<StatementRegion>(printed->regions);
-    if (MatchProduct(parsed_regions, printed_regions, changed)) {
-      matched = true;
+  if (should_match) {
+    if (!matched_with.emplace(parsed, printed).second) {
+      return true;
     }
-  }
-  {
-    auto parsed_regions = FilterRegionsInto<SequenceRegion>(parsed->regions);
-    auto printed_regions = FilterRegionsInto<SequenceRegion>(printed->regions);
-    if (MatchProduct(parsed_regions, printed_regions, changed)) {
-      matched = true;
-    }
-  }
-  {
-    auto parsed_regions = FilterRegionsInto<BalancedRegion>(parsed->regions);
-    auto printed_regions = FilterRegionsInto<BalancedRegion>(printed->regions);
-    if (MatchProduct(parsed_regions, printed_regions, changed)) {
-      matched = true;
-    }
+  } else if (matched_with.count(MatchKey(parsed, printed))) {
+    return true;
   }
 
-  // Allow ourselves to locally fail on this run, but benefit from a prior
-  // matching.
-  if (!matched) {
+  // First, try to match nested balanced/statement regions. These are much
+  // easier to match with one-another.
+  auto matched_balanced = MatchProduct(
+      FilterRegionsInto<BalancedRegion>(parsed->regions),
+      FilterRegionsInto<BalancedRegion>(printed->regions),
+      changed);
+
+  auto matched_stmts = MatchProduct(
+      FilterRegionsInto<StatementRegion>(parsed->regions),
+      FilterRegionsInto<StatementRegion>(printed->regions),
+      changed);
+
+  // If we matched balanced or statements, and regardless of if we are trying
+  // to force things, then go try to match sequences.
+  if (matched_balanced || matched_stmts) {
+    MatchProduct(
+        FilterRegionsInto<SequenceRegion>(parsed->regions),
+        FilterRegionsInto<SequenceRegion>(printed->regions),
+        changed);
+
+  // If we failed to match on balanced and statements, but the caller context
+  // is telling us that we should match, then go and try to match those too.
+  } else if (should_match) {
+    MatchProduct(
+        FilterRegionsInto<SequenceRegion>(parsed->regions),
+        FilterRegionsInto<SequenceRegion>(printed->regions),
+        changed);
+  
+  // The caller didn't give us a strong hint, and we didn't match balanced or
+  // statements, so don't go aggressive into sequences.
+  } else {
     return false;
   }
 
-  if (!parsed->common_context) {
-    changed = true;
-    parsed->common_context = printed->common_context;
-  }
-
-  if (!parsed->matched_with || !printed->matched_with) {
-    changed = true;
-  }
-
-  parsed->matched_with = printed;
-
-  if (!printed->matched_with) {
-    printed->matched_with = parsed;
-  }
+  matched_with.emplace(parsed, printed);
+  Region::MarkAsMatched(parsed, printed, changed);
 
   return true;
 }
@@ -1270,7 +1236,7 @@ bool Matcher::HashBasedMatch(Bounds parsed, Bounds printed, bool &changed) {
   // tons of literal/punctuation values, which happens with giant arrays.
 
   for (PrintedTokenImpl &it : parsed.Range()) {
-    if (it.derived_index == kInvalidDerivedTokenIndex) {
+    if (!it.matched_in_align) {
       parsed_toks[Hash(it.Kind(), it.Data(parsed_range))].emplace_back(&it);
     }
   }
@@ -1302,23 +1268,18 @@ bool Matcher::HashBasedMatch(Bounds parsed, Bounds printed, bool &changed) {
           continue;
         }
 
-        if (TokenLocationsMatch(parsed_tok, printed_tok)) {
-          matched = true;
-
-        } else if (!TokenHasLocationAndContext(printed_tok) &&
-                   MatchTokenByKindOrData(parsed_tok, printed_tok)) {
-
-          if (!MergeToken(parsed_tok, printed_tok, changed)) {
-            continue;
-          }
-
+        if (MatchToken(parsed_tok, printed_tok)) {
+          MergeToken(parsed_tok, printed_tok, changed, true);
           MergeAround(parsed_tok, printed_tok, changed);
 
           matched = true;
           printed_tok = nullptr;
 
           // Try to reduce scope of O(n^2) problems.
-          std::swap(matching_printed[i], matching_printed[start]);
+          if (i > start) {
+            assert(matching_printed[start] != nullptr);
+            std::swap(printed_tok, matching_printed[start]); 
+          }
           ++start;
 
           break;
@@ -1333,36 +1294,29 @@ bool Matcher::HashBasedMatch(Bounds parsed, Bounds printed, bool &changed) {
 bool Matcher::MatchStatement(StatementRegion *parsed, StatementRegion *printed,
                              bool &changed) {
 
-  if (parsed->matched_with && parsed->matched_with != printed) {
+  if (parsed->end->Kind() != printed->end->Kind()) {
     return false;
+  }
+
+  bool force = TokenLocationsMatch(parsed->end, printed->end);
+  if (force && !matched_with.emplace(parsed, printed).second) {
+    return true;  // Already matched.
   }
 
   auto matched = HashBasedMatch(
       Bounds(parsed->begin, &(parsed->end[1])),
       Bounds(printed->begin, &(printed->end[1])),
-      changed);
+      changed) || force;
 
-  if (matched) {
-    if (!parsed->common_context) {
-      parsed->common_context = printed->common_context;
-    }
-
-    if (!parsed->matched_with || !printed->matched_with) {
-      changed = true;
-    }
-
-    if (parsed->matched_with != printed) {
-      parsed->matched_with = printed;
-    }
-
-    if (!printed->matched_with) {
-      printed->matched_with = parsed;
-    }
+  if (!matched) {
+    return false;
   }
+
+  Region::MarkAsMatched(parsed, printed, changed);
 
   // Allow ourselves to locally fail on this run, but benefit from a prior
   // matching.
-  return parsed->matched_with == printed;
+  return true;
 }
 
 bool Matcher::MatchRegions(Region *parsed, Region *printed,
@@ -1371,17 +1325,18 @@ bool Matcher::MatchRegions(Region *parsed, Region *printed,
     return false;
   }
 
-  if (parsed->matched_with) {
-    return parsed->matched_with == printed;
+  const auto kind = parsed->Kind();
+  if (kind != printed->Kind()) {
+    return false;
+  }
+
+  if (parsed->has_been_matched && printed->has_been_matched &&
+      matched_with.count(MatchKey(parsed, printed))) {
+    return true;
   }
 
   if (parsed->common_context && printed->common_context &&
       parsed->common_context != printed->common_context) {
-    return false;
-  }
-
-  const auto kind = parsed->Kind();
-  if (kind != printed->Kind()) {
     return false;
   }
 
@@ -1391,7 +1346,8 @@ bool Matcher::MatchRegions(Region *parsed, Region *printed,
                            dynamic_cast<BalancedRegion *>(printed), changed);
     case RegionKind::kSequence:
       return MatchSequence(dynamic_cast<SequenceRegion *>(parsed),
-                           dynamic_cast<SequenceRegion *>(printed), changed);
+                           dynamic_cast<SequenceRegion *>(printed),
+                           false, changed);
     case RegionKind::kStatement:
       return MatchStatement(dynamic_cast<StatementRegion *>(parsed),
                             dynamic_cast<StatementRegion *>(printed), changed);
@@ -1517,7 +1473,7 @@ void Matcher::MergeSameSizedHoles(void) {
 }
 
 static bool HasNotBeenMatched(Region *r) {
-  return !r->matched_with;
+  return !r->has_been_matched;
 }
 
 void Matcher::InitParsedLocationsMap(void) {
@@ -1717,11 +1673,12 @@ std::optional<std::string> PrintedTokenRangeImpl::AlignTokens(
     return changed;
   };
 
-  parsed_tree->matched_with = printed_tree;
-  printed_tree->matched_with = parsed_tree;
+  matcher.matched_with.emplace(parsed_tree, printed_tree);
+  bool changed = false;
+  Region::MarkAsMatched(parsed_tree, printed_tree, changed);
 
   auto max_iters = (parsed_regions.size() / 2) + 1u;
-  bool changed = join_based_region_merge();
+  changed = join_based_region_merge();
 
   // Try to see if we can make matching progress right from the beginning. This
   // can help with leading tokens, e.g. `extern`.
@@ -1765,8 +1722,9 @@ std::optional<std::string> PrintedTokenRangeImpl::AlignTokens(
   for (PrintedTokenImpl &tok : printed_bounds.Range()) {
     std::cerr
         << (i++) << '\t'
-        << '\t' << std::hex << tok.derived_index << std::dec
-        << '\t' << std::hex << tok.context_index << std::dec
+        << tok.matched_in_align
+        << '\t' << tok.derived_index << std::dec
+        << '\t' << tok.context_index << std::dec
         << '\t' << clang::tok::getTokenName(tok.Kind())
         << '\t' << tok.Data(printed_range) << '\n';
   }
@@ -1775,8 +1733,9 @@ std::optional<std::string> PrintedTokenRangeImpl::AlignTokens(
   for (PrintedTokenImpl &tok : parsed_bounds.Range()) {
     std::cerr
         << (i++) << '\t'
-        << '\t' << std::hex << tok.derived_index << std::dec
-        << '\t' << std::hex << tok.context_index << std::dec
+        << tok.matched_in_align
+        << '\t' << tok.derived_index << std::dec
+        << '\t' << tok.context_index << std::dec
         << '\t' << clang::tok::getTokenName(tok.Kind())
         << '\t' << tok.Data(*this) << '\n';
   }

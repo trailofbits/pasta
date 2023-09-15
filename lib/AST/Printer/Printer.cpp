@@ -540,6 +540,14 @@ TokenPrinterContext::TokenPrinterContext(const TokenPrinterContext &that_)
   tokens.curr_printer_context = this;
 }
 
+static clang::tok::TokenKind RewriteTokenKind(llvm::StringRef data) {
+#define KEYWORD(X,Y) if (data == #X) return clang::tok::kw_ ## X;
+#define ALIAS(str, X, mask) if (data == str) return clang::tok::kw_ ## X;
+#include <clang/Basic/TokenKinds.def>
+
+  return clang::tok::identifier;
+}
+
 void TokenPrinterContext::Tokenize(void) {
   const clang::LangOptions &lo = tokens.ast_context.getLangOpts();
 
@@ -586,10 +594,13 @@ void TokenPrinterContext::Tokenize(void) {
 
     // Try to identify keywords where possible.
     if (tokens.ast && tok.is(clang::tok::raw_identifier)) {
-      clang::Token saved_tok = tok;
       tokens.ast->orig_source_pp->LookUpIdentifierInfo(tok);
-      if (!clang::tok::getKeywordSpelling(tok.getKind())) {
-        tok = saved_tok;
+      if (tok.is(clang::tok::identifier)) {
+        if (auto ii = tok.getIdentifierInfo()) {
+          if (ii->hasMacroDefinition()) {
+            tok.setKind(RewriteTokenKind(ii->getName()));
+          }
+        }
       }
     }
 

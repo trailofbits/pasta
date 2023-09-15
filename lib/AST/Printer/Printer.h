@@ -48,6 +48,7 @@ class ASTImpl;
 class raw_string_ostream;
 class PrintingPolicyAdaptor;
 
+// TODO(pag): Make `PrintedTokenImpl` independent of `TokenImpl`.
 class PrintedTokenImpl : public TokenImpl {
  public:
 

@@ -551,39 +551,27 @@ const char *Token::KindName(void) const noexcept {
 }
 
 // Return the context of this token, or `nullptr`.
+//
+// TODO(pag): Eventually migrate this to `PrintedTokenImpl`.
 const TokenContextImpl *TokenImpl::Context(
     const ASTImpl &ast,
     const std::vector<TokenContextImpl> &contexts) const noexcept {
 
-  TokenContextIndex ci = context_index;
-  switch (Role()) {
-    case TokenRole::kInitialMacroUseToken:
-    case TokenRole::kIntermediateMacroExpansionToken:
-    case TokenRole::kFinalMacroExpansionToken:
-    case TokenRole::kEndOfInternalMacroEventMarker:
-      if (ci == kInvalidTokenContextIndex) {
-        return nullptr;
-      }
-      if (ci >= ast.root_macro_node.token_nodes.size()) {
-        assert(false);
-        return nullptr;
-      }
-      ci = ast.root_macro_node.tokens[ci].token_context;
-      break;
-    default:
-      break;
-  }
-
-  if (ci == kInvalidTokenContextIndex) {
-    return nullptr;
-  }
-
-  if (ci >= contexts.size()) {
+  if (Role() != TokenRole::kFileToken) {
     assert(false);
     return nullptr;
   }
 
-  return &(contexts[ci]);
+  if (context_index == kInvalidTokenContextIndex) {
+    return nullptr;
+  }
+
+  if (context_index >= contexts.size()) {
+    assert(false);
+    return nullptr;
+  }
+
+  return &(contexts[context_index]);
 }
 
 std::string_view TokenImpl::Data(const ASTImpl &ast) const noexcept {
@@ -609,18 +597,18 @@ std::string_view TokenImpl::Data(
 
 // Return the data associated with this token.
 std::string_view Token::Data(void) const {
-  if (!impl) {
-    return {};
+  if (ast && impl) {
+    return impl->Data(*ast);
   }
-  return impl->Data(*ast);
+  return {};
 }
 
 // Index of this token in the AST's token list.
 uint64_t Token::Index(void) const {
-  if (impl) {
+  if (ast && impl) {
     return static_cast<uint64_t>(impl - ast->tokens.data());
   }
-  return std::numeric_limits<uint64_t>::max();
+  return kInvalidDerivedTokenIndex;
 }
 
 // Returns the first final expansion or file token in the AST after this token.

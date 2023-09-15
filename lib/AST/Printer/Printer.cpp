@@ -112,7 +112,7 @@ static void TryLocateAttribute(const clang::Attr *A,
     // We've found all the openers that we expected to find. Now go and see if
     // we can match the actual attribute (e.g. `nonnull` above).
     if (num_found_openers >= expected_num_openers) {
-      if (!tok.opaque_source_loc &&
+      if (tok.derived_index == kInvalidDerivedTokenIndex &&
           (kind == clang::tok::identifier ||
            kind == clang::tok::raw_identifier)) {
         llvm::StringRef data(tok.Data(tokens));
@@ -422,7 +422,12 @@ void PrintedTokenRangeImpl::FixupInvalidTokenContexts(TokenContextIndex index) {
 void PrintedTokenRangeImpl::AddTrailingEOF(void) {
   if (tokens.empty() || tokens.back().Kind() != clang::tok::eof) {
     tokens.emplace_back(
-        0u, 0u, kInvalidTokenContextIndex, 0u, 0u, clang::tok::eof);
+        0u  /* data_offset */,
+        0u  /* data_len */,
+        kInvalidTokenContextIndex,
+        0u  /* num_leading_new_lines */,
+        0u  /* num_leading_spaces */,
+        clang::tok::eof);
   }
 }
 
@@ -633,7 +638,6 @@ void TokenPrinterContext::Tokenize(void) {
 
 void PrintedTokenRangeImpl::MarkLocation(PrintedTokenImpl &printed,
                                          const TokenImpl &parsed) {
-  printed.opaque_source_loc = parsed.opaque_source_loc;
   printed.derived_index =
       static_cast<DerivedTokenIndex>(&parsed - ast->tokens.data());
 }
@@ -849,9 +853,7 @@ PrintedTokenRange PrintedTokenRange::Adopt(const TokenRange &a) {
     num_leading_spaces = 1u;
 
     new_tok.role = static_cast<TokenKindBase>(TokenRole::kFileToken);
-    new_tok.opaque_source_loc = tok.impl->opaque_source_loc;
     new_tok.derived_index = static_cast<DerivedTokenIndex>(tok.Index());
-
     new_impl->data.insert(new_impl->data.end(), data.begin(), data.end());
     new_impl->data.push_back('\0');
   }

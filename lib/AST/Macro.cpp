@@ -139,8 +139,8 @@ MacroTokenImpl *MacroTokenImpl::Clone(ASTImpl &ast,
   clone->token_offset = static_cast<uint32_t>(new_offset);
   assert(clone->token_offset == new_offset);
   clone->parent = new_parent;
-  clone->kind_flags.kind = kind_flags.kind;
-  clone->kind_flags.is_ignored_comma = kind_flags.is_ignored_comma;
+  clone->kind = kind;
+  clone->is_ignored_comma = is_ignored_comma;
 
   // Associate the clone node's token offset with the macro definition.
   if (ast_tok.is_macro_name) {

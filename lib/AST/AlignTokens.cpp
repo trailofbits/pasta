@@ -37,39 +37,21 @@ namespace pasta {
 namespace {
 
 static bool TokenHasLocationAndContext(const PrintedTokenImpl *impl) {
-  return impl->opaque_source_loc != TokenImpl::kInvalidSourceLocation &&
+  return impl->derived_index != kInvalidDerivedTokenIndex &&
          impl->context_index != kInvalidTokenContextIndex;
 }
 
 static bool TokenLocationsMatch(const PrintedTokenImpl *parsed,
                                 const PrintedTokenImpl *printed) {
-  if (parsed->opaque_source_loc == TokenImpl::kInvalidSourceLocation) {
+  if (parsed->derived_index == kInvalidDerivedTokenIndex) {
     return false;
   }
 
-  if (printed->opaque_source_loc == TokenImpl::kInvalidSourceLocation) {
+  if (printed->derived_index == kInvalidDerivedTokenIndex) {
     return false;
   }
 
-  return parsed->opaque_source_loc == printed->opaque_source_loc;
-}
-
-static bool TokenCanBeAssignedContext(const TokenImpl *token) {
-  switch (token->Kind()) {
-    case clang::tok::unknown:
-    case clang::tok::eod:
-    case clang::tok::eof:
-    case clang::tok::code_completion:
-    case clang::tok::comment:
-      return false;
-    default:
-      if (token->IsParsed()) {
-        return token->data_len != 0;
-      }
-
-      // Probably a printed token.
-      return token->Role() == TokenRole::kInvalid;
-  }
+  return parsed->derived_index == printed->derived_index;
 }
 
 static const TokenContextImpl *ContextFromToken(
@@ -130,77 +112,29 @@ static const TokenContextImpl *CommonContext(const PrintedTokenRangeImpl &range,
 static bool MergeToken(PrintedTokenImpl *parsed, PrintedTokenImpl *printed,
                        bool &changed, bool force=false) {
 
-  // `printed` tokens will always have a valid token context index, even if it's
-  // just `0`, which is the AST context, whereas `parsed` is initialized with
-  // `kInvalidTokenContextIndex`.
-  if (parsed->context_index == printed->context_index) {
-    if (printed->opaque_source_loc == TokenImpl::kInvalidSourceLocation) {
-      printed->opaque_source_loc = parsed->opaque_source_loc;
-      printed->derived_index = parsed->derived_index;
-      changed = true;
-
-    } else {
-      return TokenLocationsMatch(parsed, printed);
-    }
-  }
-
-  assert(printed->context_index != kInvalidTokenContextIndex);
-
-  if (force) {
-    if (!printed->matched_in_align) {
-      printed->matched_in_align = true;
-      changed = true;
-    }
-
-    if (printed->opaque_source_loc == TokenImpl::kInvalidSourceLocation) {
-      printed->opaque_source_loc = parsed->opaque_source_loc;
-      printed->derived_index = parsed->derived_index;
-      parsed->context_index = printed->context_index;
-      changed = true;
-    }
-
-    if (parsed->context_index == kInvalidTokenContextIndex) {
-      parsed->context_index = printed->context_index;
-      changed = true;
-    }
-
-    return true;
-  }
-
-  if (TokenImpl::kInvalidSourceLocation == printed->opaque_source_loc) {
-
+  if (parsed->context_index == kInvalidTokenContextIndex) {
     parsed->context_index = printed->context_index;
-    printed->opaque_source_loc = parsed->opaque_source_loc;
+    changed = true;
+    force = true;
+  }
+
+  if (printed->derived_index == kInvalidDerivedTokenIndex &&
+      parsed->derived_index != kInvalidDerivedTokenIndex) {
     printed->derived_index = parsed->derived_index;
-
-    if (!printed->matched_in_align) {
-      printed->matched_in_align = true;
-      changed = true;
-    }
-
-    return true;
+    changed = true;
+    force = true;
   }
 
-  if (TokenImpl::kInvalidSourceLocation == parsed->opaque_source_loc) {
-    assert(false);
-    return false;
+  if (parsed->derived_index == printed->derived_index) {
+    force = true;
   }
 
-  if (parsed->opaque_source_loc == printed->opaque_source_loc) {
-
-    parsed->context_index = printed->context_index;
-    printed->derived_index = parsed->derived_index;
-
-    if (!printed->matched_in_align) {
-      printed->matched_in_align = true;
-      changed = true;
-    }
-
-    return true;
+  if (!printed->matched_in_align && force) {
+    printed->matched_in_align = true;
+    changed = true;
   }
-  
-  // Different locations.
-  return false;
+
+  return TokenLocationsMatch(parsed, printed);
 }
 
 enum class RegionKind {
@@ -247,7 +181,7 @@ struct StatementRegion final : public Region {
 
   PrintedTokenImpl *FirstParsedToken(void) const final {
     for (auto it = begin; it <= end; ++it) {
-      if (TokenHasLocationAndContext(it) && TokenCanBeAssignedContext(it)) {
+      if (TokenHasLocationAndContext(it)) {
         return it;
       }
     }
@@ -256,7 +190,7 @@ struct StatementRegion final : public Region {
 
   PrintedTokenImpl *LastParsedToken(void) const final {
     for (auto it = end; it >= begin; --it) {
-      if (TokenHasLocationAndContext(it) && TokenCanBeAssignedContext(it)) {
+      if (TokenHasLocationAndContext(it)) {
         return it;
       }
     }
@@ -294,9 +228,6 @@ struct StatementRegion final : public Region {
        << std::dec << "------\n";
 
     for (PrintedTokenImpl *it = begin; it <= end; ++it) {
-      if (!TokenCanBeAssignedContext(it)) {
-        continue;
-      }
       if (it->Kind() == clang::tok::string_literal ||
           it->Kind() == clang::tok::wide_string_literal) {
         os << indent << "<str>";
@@ -304,8 +235,8 @@ struct StatementRegion final : public Region {
         os << indent << it->Data(data_range);
       }
       TK( os << " " << clang::tok::getTokenName(it->Kind()); )
-      if (it->opaque_source_loc != TokenImpl::kInvalidSourceLocation) {
-        os << " l:" << std::hex << it->opaque_source_loc << std::dec;
+      if (it->derived_index != kInvalidDerivedTokenIndex) {
+        os << " d:" << std::hex << it->derived_index << std::dec;
       }
       if (it->context_index != kInvalidTokenContextIndex) {
         os << " c:" << std::hex << it->context_index << std::dec;
@@ -500,8 +431,8 @@ struct BalancedRegion final : public Region {
        << std::dec << "------\n";
     os << indent << begin->Data(data_range) << " " << clang::tok::getTokenName(begin->Kind());
 
-    if (begin->opaque_source_loc != TokenImpl::kInvalidSourceLocation) {
-      os << " l:" << std::hex << begin->opaque_source_loc << std::dec;
+    if (begin->derived_index != kInvalidDerivedTokenIndex) {
+      os << " d:" << std::hex << begin->derived_index << std::dec;
     }
     if (begin->context_index != kInvalidTokenContextIndex) {
       os << " c:" << std::hex << begin->context_index << std::dec;
@@ -511,8 +442,8 @@ struct BalancedRegion final : public Region {
       statements->Print(os, indent + "  ", data_range, context_range);
     }
     os << indent << end->Data(data_range) << " " << clang::tok::getTokenName(end->Kind());
-    if (end->opaque_source_loc != TokenImpl::kInvalidSourceLocation) {
-      os << " l:" << std::hex << end->opaque_source_loc << std::dec;
+    if (end->derived_index != kInvalidDerivedTokenIndex) {
+      os << " l:" << std::hex << end->derived_index << std::dec;
     }
     if (end->context_index != kInvalidTokenContextIndex) {
       os << " c:" << std::hex << end->context_index << std::dec;
@@ -566,7 +497,7 @@ class Matcher {
   std::vector<std::unique_ptr<Region>> printed_regions;
 
   // Maps parsed locations to parsed tokens.
-  std::unordered_map<OpaqueSourceLoc, PrintedTokenImpl *> loc_to_toks;
+  std::unordered_map<DerivedTokenIndex, PrintedTokenImpl *> loc_to_toks;
 
   // Maps identifiers or keywords that precede a balanced region to the
   // token just after the balanced region. This is used to jump over
@@ -684,14 +615,6 @@ SequenceRegion *Matcher::BuildRegions(
     (void) prev_it;
 
     PrintedTokenImpl &tok = *it;
-
-    // This is a macro expansion token; ignore it.
-    if (!TokenCanBeAssignedContext(&tok)) {
-      if (!unused_end) {
-        unused_end = &tok;
-      }
-      continue;  // Skip.
-    }
 
     const clang::tok::TokenKind tok_kind = tok.Kind();
 
@@ -925,18 +848,7 @@ bool Matcher::MergeForward(PrintedTokenImpl *parsed, PrintedTokenImpl *printed,
          printed_bounds.StrictlyContains(printed)) {
 
     auto skip = false;
-
-    if (!TokenCanBeAssignedContext(parsed)) {
-      parsed = next_tok(parsed);
-      skip = true;
-    }
-
-    if (!TokenCanBeAssignedContext(printed)) {
-      printed = next_tok(printed);
-      skip = true;
-    }
-
-    if (!skip && !MatchToken(parsed, printed)) {
+    if (!MatchToken(parsed, printed)) {
 
       // Try to skip over `__attribute__` sections when matching.
       const auto parsed_kind = parsed->Kind();
@@ -1023,18 +935,6 @@ bool Matcher::MergeBackward(PrintedTokenImpl *parsed, PrintedTokenImpl *printed,
   const auto first_printed = printed_bounds.begin;
   while (parsed >= first_parsed && printed >= first_printed &&
          num_skips <= 16u) {
-    if (!TokenCanBeAssignedContext(parsed)) {
-      ++num_skips;
-      --parsed;
-      continue;
-    }
-
-    if (!TokenCanBeAssignedContext(printed)) {
-      ++num_skips;
-      --printed;
-      continue;
-    }
-
     if (!MatchToken(parsed, printed)) {
       break;
     }
@@ -1356,14 +1256,13 @@ bool Matcher::MatchStatement(StatementRegion *parsed, StatementRegion *printed,
   // tons of literal/punctuation values, which happens with giant arrays.
 
   for (PrintedTokenImpl *it = parsed_begin; it <= parsed_end; ++it) {
-    if (TokenCanBeAssignedContext(it) &&
-        it->context_index == kInvalidTokenContextIndex) {
+    if (it->context_index == kInvalidTokenContextIndex) {
       parsed_toks[Hash(it->Kind(), it->Data(parsed_range))].emplace_back(it);
     }
   }
 
   for (PrintedTokenImpl *it = printed_begin; it <= printed_end; ++it) {
-    if (TokenCanBeAssignedContext(it) && !it->matched_in_align) {
+    if (!it->matched_in_align) {
       printed_toks[Hash(it->Kind(), it->Data(printed_range))].emplace_back(it);
     }
   }
@@ -1502,7 +1401,7 @@ void Matcher::FixStatementRegionContexts(
 
   // Assign the top context on the stack to any token lacking the context.
   for (auto tok = stmt->begin; tok <= stmt->end; ++tok) {
-    if (!TokenHasLocationAndContext(tok) && TokenCanBeAssignedContext(tok)) {
+    if (!TokenHasLocationAndContext(tok)) {
       tok->context_index = common_context_index;
     }
   }
@@ -1542,7 +1441,7 @@ void Matcher::MergeSameSizedHoles(void) {
   for (PrintedTokenImpl &tok_ref : printed_bounds.Range()) {
     auto tok = &tok_ref;
 
-    if (tok->opaque_source_loc == TokenImpl::kInvalidSourceLocation) {
+    if (tok->derived_index == kInvalidDerivedTokenIndex) {
       continue;
     }
 
@@ -1550,7 +1449,7 @@ void Matcher::MergeSameSizedHoles(void) {
     const auto next_tok = &(tok[1]);
     auto end_of_hole = next_tok;
     for (; end_of_hole < printed_bounds.end; ++end_of_hole) {
-      if (end_of_hole->opaque_source_loc != TokenImpl::kInvalidSourceLocation) {
+      if (end_of_hole->derived_index != kInvalidDerivedTokenIndex) {
         break;
       }
     }
@@ -1561,8 +1460,8 @@ void Matcher::MergeSameSizedHoles(void) {
     }
 
     // Convert our printed token hole bounds into parsed token hole bounds.
-    auto parsed_it = loc_to_toks.find(tok->opaque_source_loc);
-    auto parsed_end_it = loc_to_toks.find(end_of_hole->opaque_source_loc);
+    auto parsed_it = loc_to_toks.find(tok->derived_index);
+    auto parsed_end_it = loc_to_toks.find(end_of_hole->derived_index);
     if (parsed_it == loc_to_toks.end() || parsed_end_it == loc_to_toks.end()) {
       continue;
     }
@@ -1595,13 +1494,11 @@ static bool HasNotBeenMatched(Region *r) {
 
 void Matcher::InitParsedLocationsMap(void) {
   for (PrintedTokenImpl &tok : parsed_bounds.Range()) {
-    if (TokenCanBeAssignedContext(&tok)) {
-      loc_to_toks.emplace(tok.opaque_source_loc, &tok);
-    }
+    loc_to_toks.emplace(tok.derived_index, &tok);
   }
 
   // This shouldn't remove anything, but just in case.
-  loc_to_toks.erase(TokenImpl::kInvalidSourceLocation);
+  loc_to_toks.erase(kInvalidDerivedTokenIndex);
 }
 
 void Matcher::JoinOnLocations(void) {
@@ -1611,11 +1508,11 @@ void Matcher::JoinOnLocations(void) {
   bool changed = false;
   for (PrintedTokenImpl &printed : printed_bounds.Range()) {
 
-    if (printed.opaque_source_loc == TokenImpl::kInvalidSourceLocation) {
+    if (printed.derived_index == kInvalidDerivedTokenIndex) {
       continue;
     }
 
-    auto loc_it = loc_to_toks.find(printed.opaque_source_loc);
+    auto loc_it = loc_to_toks.find(printed.derived_index);
     if (loc_it == loc_to_toks.end()) {
       continue;
     }
@@ -1715,23 +1612,23 @@ std::optional<std::string> PrintedTokenRangeImpl::AlignTokens(
   std::vector<BalancedRegion *> printed_balanced;
   std::vector<StatementRegion *> printed_statements;
 
-  std::unordered_multimap<OpaqueSourceLoc, BalancedRegion *> loc_to_balanced;
-  std::unordered_multimap<OpaqueSourceLoc, StatementRegion *> loc_to_statement;
+  std::unordered_multimap<DerivedTokenIndex, BalancedRegion *> loc_to_balanced;
+  std::unordered_multimap<DerivedTokenIndex, StatementRegion *> loc_to_statement;
 
   for (const auto &region : parsed_regions) {
     if (auto bal = dynamic_cast<BalancedRegion *>(region.get())) {
       parsed_balanced.push_back(bal);
-      loc_to_balanced.emplace(bal->begin->opaque_source_loc, bal);
-      loc_to_balanced.emplace(bal->end->opaque_source_loc, bal);
+      loc_to_balanced.emplace(bal->begin->derived_index, bal);
+      loc_to_balanced.emplace(bal->end->derived_index, bal);
 
     } else if (auto stmt = dynamic_cast<StatementRegion *>(region.get())) {
       parsed_statements.push_back(stmt);
-      loc_to_statement.emplace(stmt->end->opaque_source_loc, stmt);
+      loc_to_statement.emplace(stmt->end->derived_index, stmt);
     }
   }
 
-  loc_to_balanced.erase(TokenImpl::kInvalidSourceLocation);
-  loc_to_statement.erase(TokenImpl::kInvalidSourceLocation);
+  loc_to_balanced.erase(kInvalidDerivedTokenIndex);
+  loc_to_statement.erase(kInvalidDerivedTokenIndex);
 
   for (const auto &region : printed_regions) {
     if (auto bal = dynamic_cast<BalancedRegion *>(region.get())) {
@@ -1744,7 +1641,7 @@ std::optional<std::string> PrintedTokenRangeImpl::AlignTokens(
   auto join_balanced = [&] (bool &changed, BalancedRegion *region,
                             const PrintedTokenImpl *begin_end) {
     auto [bb_it, bb_end] =
-        loc_to_balanced.equal_range(begin_end->opaque_source_loc);
+        loc_to_balanced.equal_range(begin_end->derived_index);
     for (; bb_it != bb_end; ++bb_it) {
       matcher.MatchBalanced(bb_it->second, region, changed);
     }
@@ -1783,7 +1680,7 @@ std::optional<std::string> PrintedTokenRangeImpl::AlignTokens(
 
     for (StatementRegion *region : printed_statements) {
       auto [bb_it, bb_end] =
-          loc_to_statement.equal_range(region->end->opaque_source_loc);
+          loc_to_statement.equal_range(region->end->derived_index);
       for (; bb_it != bb_end; ++bb_it) {
         matcher.MatchStatement(bb_it->second, region, changed);
       }
@@ -1836,27 +1733,23 @@ std::optional<std::string> PrintedTokenRangeImpl::AlignTokens(
   printed_os.flush();
 
   auto i = 0u;
-  for (PrintedTokenImpl *tok : printed_bounds.Range()) {
+  for (PrintedTokenImpl &tok : printed_bounds.Range()) {
     std::cerr
         << (i++) << '\t'
-        << '\t' << std::hex << tok->opaque_source_loc << std::dec
-        << '\t' << std::hex << tok->context_index << std::dec
-        << '\t' << clang::tok::getTokenName(tok->Kind())
-        << '\t' << tok->Data(printed_range) << '\n';
+        << '\t' << std::hex << tok.derived_index << std::dec
+        << '\t' << std::hex << tok.context_index << std::dec
+        << '\t' << clang::tok::getTokenName(tok.Kind())
+        << '\t' << tok.Data(printed_range) << '\n';
   }
   std::cerr << "---------------------------------\n";
   i = 0u;
-  for (PrintedTokenImpl *tok : parsed_bounds.Range()) {
-    if (!TokenCanBeAssignedContext(tok)) {
-      ++i;
-      continue;
-    }
+  for (PrintedTokenImpl &tok : parsed_bounds.Range()) {
     std::cerr
         << (i++) << '\t'
-        << '\t' << std::hex << tok->opaque_source_loc << std::dec
-        << '\t' << std::hex << tok->context_index << std::dec
-        << '\t' << clang::tok::getTokenName(tok->Kind())
-        << '\t' << tok->Data(*this) << '\n';
+        << '\t' << std::hex << tok.derived_index << std::dec
+        << '\t' << std::hex << tok.context_index << std::dec
+        << '\t' << clang::tok::getTokenName(tok.Kind())
+        << '\t' << tok.Data(*this) << '\n';
   }
 
 #endif
@@ -1900,40 +1793,16 @@ std::optional<std::string> PrintedTokenRange::Align(PrintedTokenRange &a,
   // Top-level context should be the AST.
   a.impl->contexts = b.impl->contexts;
 
-  const auto first_ast_tok = a.impl->ast->tokens.data();
-
-  // Make sure that `TokenImpl::opaque_source_loc` and
-  // `TokenImpl::derived_index` agree.
-  auto fixup_tok = [=] (const auto &ast, auto &tok) {
-    tok.matched_in_align = false;
-    
-    if (tok.opaque_source_loc == TokenImpl::kInvalidSourceLocation) {
-      assert(tok.derived_index == kInvalidDerivedTokenIndex);
-      tok.derived_index = kInvalidDerivedTokenIndex;
-      return;
+  auto reset_matches = [] (auto &tokens) {
+    for (auto &tok : tokens) {
+      tok.matched_in_align = false;
     }
-
-    auto parsed_tok = ast->RawTokenAt(tok.Location());
-    if (!parsed_tok) {
-      assert(false);
-      tok.opaque_source_loc = TokenImpl::kInvalidSourceLocation;
-      tok.derived_index = kInvalidDerivedTokenIndex;
-      return;
-    }
-
-    auto parsed_tok_index = static_cast<DerivedTokenIndex>(
-        parsed_tok - first_ast_tok);
-
-    assert(tok.derived_index == kInvalidDerivedTokenIndex ||
-           tok.derived_index == parsed_tok_index);
-
-    tok.derived_index = parsed_tok_index;
   };
 
   // Reset the tokens that have the locations.
   for (auto &tok : a.impl->tokens) {
     tok.context_index = kInvalidTokenContextIndex;
-    fixup_tok(a.impl->ast, tok);
+    tok.matched_in_align = false;
 
     if (tok.derived_index == kInvalidDerivedTokenIndex &&
         tok.Kind() != clang::tok::eof) {
@@ -1942,9 +1811,8 @@ std::optional<std::string> PrintedTokenRange::Align(PrintedTokenRange &a,
   }
 
   // Reset the tokens that have the contexts.
-  for (auto &tok : b.impl->tokens) {
-    tok.matched_in_align = false;
-  }
+
+  reset_matches(b.impl->tokens);
 
   auto error = a.impl->AlignTokens(*(b.impl), kASTTokenContextIndex);
   if (error) {
@@ -1966,13 +1834,8 @@ std::optional<std::string> PrintedTokenRange::Align(PrintedTokenRange &a,
   context_map.assign(b.impl->contexts.size(), kInvalidTokenContextIndex);
   data_to_context.emplace(a.impl->ast.get(), kASTTokenContextIndex);
 
-  for (auto &tok : a.impl->tokens) {
-    tok.matched_in_align = false;
-  }
-
-  for (auto &tok : b.impl->tokens) {
-    fixup_tok(b.impl->ast, tok);
-  }
+  reset_matches(a.impl->tokens);
+  reset_matches(b.impl->tokens);
 
   return std::nullopt;
 }

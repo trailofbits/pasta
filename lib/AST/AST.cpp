@@ -158,11 +158,19 @@ TokenImpl *ASTImpl::RawTokenAt(clang::SourceLocation loc) {
   // as that implies they are from the original parse of source, and not from
   // the parse of the pre-processed source.
   if (loc.isMacroID()) {
+    assert(false);
     return nullptr;
   }
 
   bool invalid = false;
   auto &sm = ci->getSourceManager();
+
+#ifndef NDEBUG
+  const auto [file_id, file_offset] = sm.getDecomposedLoc(loc);
+  assert(file_id == sm.getMainFileID());
+  assert(file_offset < preprocessed_code.size());
+#endif
+
   const auto line = sm.getSpellingLineNumber(loc, &invalid);
   if (!line || invalid || static_cast<size_t>(line) > tokens.size()) {
     return nullptr;

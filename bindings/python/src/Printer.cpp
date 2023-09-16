@@ -26,12 +26,40 @@ void RegisterPrinter(nb::module_ &m) {
     .value("AST", TokenContextKind::kAST);
 
   nb::class_<TokenContext>(m, "TokenContext")
+    .def("__hash__", [](const TokenContext& c) { return c.Hash(); })
+    .def("__eq__", [](const TokenContext& a, const TokenContext& b) { return a == b;})
     .def_prop_ro("index", &TokenContext::Index)
     .def_prop_ro("kind", &TokenContext::Kind)
     .def_prop_ro("parent", &TokenContext::Parent)
     .def_prop_ro("aliasee", &TokenContext::Aliasee)
-    .def("__hash__", [](const TokenContext& c) { return c.Hash(); })
-    .def("__eq__", [](const TokenContext& a, const TokenContext& b) { return a == b;});
+    .def_prop_ro("as_declaration",
+        [] (const TokenContext &context) {
+          return Decl::From(context);
+        })
+    .def_prop_ro("as_statement",
+        [] (const TokenContext &context) {
+          return Stmt::From(context);
+        })
+    .def_prop_ro("as_type",
+        [] (const TokenContext &context) {
+          return Type::From(context);
+        })
+    .def_prop_ro("as_designator",
+        [] (const TokenContext &context) {
+          return Designator::From(context);
+        })
+    .def_prop_ro("as_cxx_base_specifier",
+        [] (const TokenContext &context) {
+          return CXXBaseSpecifier::From(context);
+        })
+    .def_prop_ro("as_template_parameter_list",
+        [] (const TokenContext &context) {
+          return TemplateParameterList::From(context);
+        })
+    .def_prop_ro("as_template_argument",
+        [] (const TokenContext &context) {
+          return TemplateArgument::From(context);
+        });
 
   nb::class_<PrintedToken>(m, "PrintedToken")
     .def("__hash__", [](const PrintedToken &tok) { return reinterpret_cast<intptr_t>(tok.RawToken()); })

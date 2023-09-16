@@ -351,7 +351,7 @@ void Register)" << name << "(nb::module_ &m) {\n"
     }
 
     os_py << ">(m, \"" << name << "\")"
-          << "\n    .def(\"__hash__\", [](const " << name << " &decl) { return (intptr_t)decl.RawDecl(); })"
+          << "\n    .def(\"__hash__\", [](const " << name << " &decl) { return reinterpret_cast<intptr_t>(decl.RawDecl()); })"
           << "\n    .def(\"__eq__\", [](const Decl &a, const Decl &b) { return a.RawDecl() == b.RawDecl(); })";
 
     if (name == "Decl") {

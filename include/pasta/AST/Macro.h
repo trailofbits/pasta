@@ -306,6 +306,8 @@ class MacroParameter final : public Macro {
   unsigned Index(void) const noexcept;
 };
 
+static_assert(sizeof(MacroParameter) == sizeof(Macro));
+
 // A macro definition directive.
 class DefineMacroDirective final : public MacroDirective {
  protected:
@@ -340,8 +342,6 @@ class DefineMacroDirective final : public MacroDirective {
   // Parameters of this macro definition.
   MacroRange Parameters(void) const noexcept;
 };
-
-static_assert(sizeof(MacroParameter) == sizeof(Macro));
 
 static_assert(sizeof(DefineMacroDirective) == sizeof(Macro));
 
@@ -438,8 +438,7 @@ class MacroExpansion final : public MacroSubstitution {
 
   // The body of the macro, prior to expansion. If anything interesting
   // had to happen in the body, e.g. parameter substitution, token pasting,
-  // then that will
-  // be present here.
+  // then that will be present here.
   MacroRange IntermediateChildren(void) const noexcept;
 
   static MacroExpansion Containing(const MacroArgument &) noexcept;
@@ -460,12 +459,12 @@ class MacroExpansion final : public MacroSubstitution {
   std::optional<MacroExpansion> ArgumentPreExpansion(void) const noexcept;
 
   // Maps each of the macro's parameters to a vector of Stmts that their
-  // substitutions align with in the given statement
+  // substitutions align with in the given statement.
   std::map<MacroParameter, std::vector<pasta::Stmt>>
   AlignedParameterSubstitutions(const pasta::Stmt &stmt) const noexcept;
 
   // Maps each of the macro's parameters to the number of times it is used in
-  // the expansion
+  // the expansion.
   std::map<MacroParameter, unsigned>
   ParameterUseCounts(void) const noexcept;
 };

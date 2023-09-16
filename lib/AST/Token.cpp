@@ -160,15 +160,15 @@ static bool ReadRawTokenData(clang::SourceManager &source_manager,
 } // namespace
 
 std::vector<pasta::TokenRole> TokenRoles = std::vector({
-  #define ROLE(role) TokenRole::k##role ,
-  ROLES
-  #undef ROLE
+#define ROLE(role) TokenRole::k##role ,
+  PASTA_FOR_EACH_TOKEN_ROLE(ROLE)
+#undef ROLE
 });
 
 std::string TokenRoleName(const TokenRole role) {
   const static std::string TokenRoleNames[] = {
 #define ROLE(role) #role,
-  ROLES
+  PASTA_FOR_EACH_TOKEN_ROLE(ROLE)
 #undef ROLE
   };
   return TokenRoleNames[static_cast<size_t>(role)];
@@ -730,6 +730,11 @@ std::optional<Token> TokenRange::At(size_t index) const noexcept {
 // Unsafe indexed access into the token range.
 Token TokenRange::operator[](size_t index) const {
   return Token(ast, &(first[index]));
+}
+
+// Returns `true` if this range contains a specific token.
+bool TokenRange::Contains(const Token &tok) const noexcept {
+  return ast == tok.ast && first <= tok.impl && tok.impl < after_last;
 }
 
 std::vector<MacroSubstitution>

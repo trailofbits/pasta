@@ -37,23 +37,23 @@ class TokenImpl;
 class TokenRange;
 
 // X-macro for repeated operations on TokenRole values
-#define ROLES \
-  ROLE(Invalid) \
-  ROLE(BeginOfFileMarker) \
-  ROLE(FileToken) \
-  ROLE(EndOfFileMarker) \
-  ROLE(BeginOfMacroExpansionMarker) \
-  ROLE(InitialMacroUseToken) \
-  ROLE(IntermediateMacroExpansionToken) \
-  ROLE(FinalMacroExpansionToken) \
-  ROLE(EndOfMacroExpansionMarker) \
-  ROLE(EndOfInternalMacroEventMarker) \
+#define PASTA_FOR_EACH_TOKEN_ROLE(m) \
+    m(Invalid) \
+    m(BeginOfFileMarker) \
+    m(FileToken) \
+    m(EndOfFileMarker) \
+    m(BeginOfMacroExpansionMarker) \
+    m(InitialMacroUseToken) \
+    m(IntermediateMacroExpansionToken) \
+    m(FinalMacroExpansionToken) \
+    m(EndOfMacroExpansionMarker) \
+    m(EndOfInternalMacroEventMarker) \
 
 enum class TokenKind : unsigned short;
 enum class TokenRole : unsigned char {
-  #define ROLE(role) k ## role ,
-  ROLES
-  #undef ROLE
+#define PASTA_DEFINE_ROLE_ENUMERATOR(role) k ## role ,
+  PASTA_FOR_EACH_TOKEN_ROLE(PASTA_DEFINE_ROLE_ENUMERATOR)
+#undef PASTA_DEFINE_ROLE_ENUMERATOR
 };
 
 // Vector of all token roles for iteration.
@@ -307,9 +307,7 @@ class TokenRange {
   Token operator[](size_t index) const;
 
   // Returns `true` if this range contains a specific token.
-  inline bool Contains(const Token &tok) const noexcept {
-    return ast == tok.ast && first <= tok.impl && tok.impl < after_last;
-  }
+  bool Contains(const Token &tok) const noexcept;
 
   // Returns the list of macros that align with this token range, in the order
   // of most-nested to least. The optional heuristic determines whether or not

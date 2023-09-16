@@ -67,7 +67,7 @@ int main(int argc, char *argv[]) {
         for (auto i = 0u, max_i = tok.NumLeadingNewLines(); i < max_i; ++i) {
           std::cerr << '\n';
         }
-        for (auto i = 0u, max_i = tok.NumleadingSpaces(); i < max_i; ++i) {
+        for (auto i = 0u, max_i = tok.NumLeadingSpaces(); i < max_i; ++i) {
           std::cerr << ' ';
         }
         std::cerr << tok.Data();

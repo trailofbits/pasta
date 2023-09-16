@@ -47,6 +47,7 @@ void RegisterCompileJob(nanobind::module_ &);
 void RegisterCompiler(nanobind::module_ &);
 void RegisterToken(nanobind::module_ &);
 void RegisterMacro(nanobind::module_ &);
+void RegisterPrinter(nanobind::module_ &);
 void RegisterAST(nanobind::module_ &);
 
 const std::type_info *TypeInfoFromKind(DeclKind kind);

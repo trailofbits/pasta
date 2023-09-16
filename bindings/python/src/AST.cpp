@@ -21,15 +21,6 @@ void RegisterAST(nb::module_ &m) {
     .def_prop_ro("translation_unit", &AST::TranslationUnit)
     .def_prop_ro("main_file", &AST::MainFile)
     .def_prop_ro("parsed_files", &AST::ParsedFiles);
-  
-  nb::class_<TokenContext>(m, "TokenContext")
-    .def_prop_ro("index", &TokenContext::Index)
-    .def_prop_ro("kind_name", &TokenContext::KindName)
-    .def_prop_ro("kind", &TokenContext::Kind)
-    .def_prop_ro("parent", &TokenContext::Parent)
-    .def_prop_ro("aliasee", &TokenContext::Aliasee)
-    .def("__hash__", [](const TokenContext& c) { return c.Hash(); })
-    .def("__eq__", [](const TokenContext& a, const TokenContext& b) { return a == b;});
 
   nb::class_<CXXBaseSpecifier>(m, "CXXBaseSpecifier");
   nb::class_<TemplateParameterList>(m, "TemplateParameterList");

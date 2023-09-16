@@ -896,6 +896,7 @@ void TypePrinter::printVariableArray(const clang::VariableArrayType *T,
     IdentFn();
     TokenPrinterContext jump_up_stack(ctx);
     OS << '[';
+    ctx.MarkLocation(T->getLBracketLoc());
     if (T->getIndexTypeQualifiers().hasQualifiers()) {
       AppendTypeQualList(OS, T->getIndexTypeCVRQualifiers(),
                          Policy.Restrict);
@@ -914,6 +915,7 @@ void TypePrinter::printVariableArray(const clang::VariableArrayType *T,
     }
 
     OS << ']';
+    ctx.MarkLocation(T->getRBracketLoc());
   };
 
   IncludeStrongLifetimeRAII Strong(Policy);

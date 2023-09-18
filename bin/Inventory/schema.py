@@ -163,6 +163,11 @@ class LLVMTwineSchema(StringLikeSchema):
   pass
 
 
+class LLVMTripleSchema(StringLikeSchema):
+  """Corresponds to an `llvm::Triple`."""
+  pass
+
+
 class ParameterizedSchema(Schema, ABC):
   """Corresponds to a parameterized schema, e.g. `type<T>` in C++."""
   element_type: Schema
@@ -229,17 +234,17 @@ class GapGeneratorSchema(ParameterizedSchema):
   pass
 
 
-class ClangAPInt(Schema):
+class ClangAPIntSchema(Schema):
   """Corresponds to a `clang::APInt`."""
   pass
 
 
-class ClangAPSInt(Schema):
+class ClangAPSIntSchema(Schema):
   """Corresponds to a `clang::APSInt`."""
   pass
 
 
-class ClangAPFloat(Schema):
+class ClangAPFloatSchema(Schema):
   """Corresponds to a `clang::APFloat`."""
   pass
 
@@ -398,7 +403,7 @@ class AliasSchema(NamedSchema):
     self.base_type = base_type
 
   def __str__(self) -> str:
-    return f"Alias[{self.name},{self.base_type}]"
+    return f"Alias[{self.name}, {self.base_type}]"
 
   def dump(self, indent: str):
     print(f"{indent}ALIAS {self.name}")

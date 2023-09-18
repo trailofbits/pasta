@@ -64,7 +64,6 @@ def qualified_name(decl: NamedDecl) -> str:
 
 
 def _relative_location(tok: Token) -> str:
-  assert tok.role == TokenRole.FILE_TOKEN
   path: pathlib.Path = File.containing(tok.file_location).path
   parts: List[str] = []
 
@@ -79,7 +78,7 @@ def _relative_location(tok: Token) -> str:
 def decl_location(decl: Decl) -> str:
   """Find the relative path of the include file containing `decl`."""
   for tok in decl.tokens:
-    if tok.role == TokenRole.FILE_TOKEN:
+    if tok.role in (TokenRole.FILE_TOKEN, TokenRole.INITIAL_MACRO_USE_TOKEN):
       return _relative_location(tok)
     elif tok.role == TokenRole.FINAL_MACRO_EXPANSION_TOKEN:
       macro = tok.macro_location
@@ -123,6 +122,7 @@ class SchemaLifter:
     self.std_path_schema = StdFilesystemPathSchema()
     self.std_string_schema = StdStringSchema()
     self.std_string_view_schema = StdStringViewSchema()
+
     self.type_handlers = {
       QualifiedType: self._lift_qualified_type,
       ReferenceType: self._lift_reference_type,
@@ -136,6 +136,12 @@ class SchemaLifter:
       PointerType: self._lift_pointer_type,
       DecltypeType: self._lift_decltype_type,
       SubstTemplateTypeParmType: self._lift_substituted_type,
+      UsingType: self._lift_using_type,
+      AdjustedType: self._lift_adjusted_type,
+      TemplateTypeParmType: self._lift_template_param_type,
+      AutoType: self._lift_auto_type,
+      RValueReferenceType: self._lift_unsupported,
+      ConstantArrayType: self._lift_unsupported,
     }
 
     self.char_schema = CharSchema() 
@@ -178,6 +184,7 @@ class SchemaLifter:
       "std::shared_ptr": self._lift_std_shared_ptr,
       "std::unique_ptr": self._lift_std_unique_ptr,
       "std::input_iterator_tag": self._lift_unsupported,
+      "std::forward_iterator_tag": self._lift_unsupported,
       "std::bidirectional_iterator_tag": self._lift_unsupported,
       "std::random_access_iterator_tag": self._lift_unsupported,
       "std::error_code": self._lift_unsupported,
@@ -191,13 +198,18 @@ class SchemaLifter:
       "std::unordered_set": self._lift_std_unordered_set,
       "std::variant": self._lift_unsupported,
       "std::__wrap_iter": self._lift_std_wrap_iter,
-      "gap::generator": self._lift_gap_generator,
-      "llvm::Twine": self._lift_llvm_twine,
-      "llvm::StringRef": self._lift_llvm_stringref,
-      "clang::ASTContext": self._lift_clang_ast_context,
-      "clang::APInt": self._lift_clang_ast_ap_int,
-      "clang::APSInt": self._lift_clang_ast_aps_int,
-      "clang::APFloat": self._lift_clang_ast_ap_float,
+      "std::reverse_iterator": self._lift_unsupported,
+      "std::tuple": self._lift_unsupported,
+      "std::pair": self._lift_unsupported,
+      "std::__optional_destruct_base::": self._lift_unsupported,
+      "gap::generator": self._make_lifter(GapGeneratorSchema),
+      "llvm::Twine": self._make_lifter(LLVMTwineSchema),
+      "llvm::StringRef": self._make_lifter(LLVMStringRefSchema),
+      "llvm::Triple": self._make_lifter(LLVMTripleSchema),
+      "clang::ASTContext": self._make_lifter(ClangASTContextSchema),
+      "clang::APInt": self._make_lifter(ClangAPIntSchema),
+      "clang::APSInt": self._make_lifter(ClangAPSIntSchema),
+      "clang::APFloat": self._make_lifter(ClangAPFloatSchema),
     }
 
   def _lift_nth_template_argument(self, tag: TagDecl, n: int) -> Schema:
@@ -296,7 +308,8 @@ class SchemaLifter:
     # Unwrap the method's return type.
     while isinstance(tp, (QualifiedType, TypedefType, ReferenceType,
                           TemplateSpecializationType, DecltypeType,
-                          ElaboratedType)):
+                          ElaboratedType, SubstTemplateTypeParmType,
+                          AdjustedType, AutoType)):
       tp = tp.unqualified_type.desugar
 
     # Pointers are the easiest form of iterator to support; the iterated type
@@ -318,9 +331,6 @@ class SchemaLifter:
     if isinstance(tag, ClassTemplateSpecializationDecl):
       if qualified_name(tag) == "std::__wrap_iter":
         return self._unwrap_std_wrap_iter(tag)
-      
-      assert False, f"Unrecognized iterator template {tag.name}"
-      return self.unknown_schema
 
     return self._lift_iterated_type_from_iterator(tag)
 
@@ -395,7 +405,7 @@ class SchemaLifter:
       # Nested enums/classes
       if isinstance(decl, (TypedefNameDecl, TagDecl)):
         nested_decl = self.lift_decl(decl)
-        if not isinstance(nested_decl, UnknownSchema):
+        if isinstance(nested_decl, NamedSchema):
           schema.nested_schemas[decl.name] = nested_decl
         continue
 
@@ -571,6 +581,9 @@ class SchemaLifter:
   def _lift_substituted_type(self, tp: SubstTemplateTypeParmType) -> Schema:
     return self.lift_type(tp.replacement_type)
 
+  def _lift_using_type(self, tp: UsingType) -> Schema:
+    return self.lift_decl(tp.found_declaration.target_declaration)
+
   def _lift_pointer_type(self, tp: PointerType) -> Schema:
     pointee_schema: Schema = self.lift_type(tp.pointee_type)
 
@@ -588,7 +601,20 @@ class SchemaLifter:
   def _lift_decltype_type(self, tp: DecltypeType) -> Schema:
     return self.lift_type(tp.desugar)
 
-  def _lift_unsupported(self, tag: TagDecl) -> Schema:
+  def _lift_adjusted_type(self, tp: AdjustedType) -> Schema:
+    return self.lift_type(tp.desugar)
+
+  def _lift_template_param_type(self, tp: TemplateTypeParmType) -> Schema:
+    if tp.is_parameter_pack:
+      return self.unknown_schema
+    if tp.is_sugared:
+      return self.lift_type(tp.desugar)
+    return self.unknown_schema
+
+  def _lift_auto_type(self, tp: AutoType) -> Schema:
+    return self.lift_type(tp.desugar)
+
+  def _lift_unsupported(self, *args) -> Schema:
     return self.unknown_schema
 
   def _lift_std_filesystem_path(self, tag: TagDecl) -> Schema:
@@ -658,23 +684,10 @@ class SchemaLifter:
       return self.unknown_schema
     return GapGeneratorSchema(arg)
 
-  def _lift_llvm_twine(self, tag: TagDecl) -> Schema:
-    return LLVMTwineSchema()
-
-  def _lift_llvm_stringref(self, tag: TagDecl) -> Schema:
-    return LLVMStringRefSchema()
-
-  def _lift_clang_ast_context(self, tag: TagDecl) -> Schema:
-    return ClangASTContextSchema()
-
-  def _lift_clang_ast_ap_int(self, tag: TagDecl) -> Schema:
-    return ClangAPIntSchema()
-
-  def _lift_clang_ast_aps_int(self, tag: TagDecl) -> Schema:
-    return ClangAPSIntSchema()
-
-  def _lift_clang_ast_ap_float(self, tag: TagDecl) -> Schema:
-    return ClangAPFloatSchema()
+  def _make_lifter(self, constructor: type[Schema]) -> Callable[[TagDecl], Schema]:
+    def do_lift(tag: TagDecl):
+      return constructor()
+    return do_lift
 
   def _lift_tag_type(self, tp: TagType) -> Schema:
     """Lift a `TagType` into a `Schema`. This tries to
@@ -694,6 +707,9 @@ class SchemaLifter:
       assert False, f"Missing support for standard library type {qual_name}"
       return self.unknown_schema
 
+    if "llvm::" in qual_name:
+      print(f"!!! {qual_name}")
+
     return self.lift_decl(tag)
 
   def lift_type(self, tp: Type) -> Schema:
@@ -704,67 +720,11 @@ class SchemaLifter:
       if tp.__class__ in self.type_handlers:
         schema = self.type_handlers[tp.__class__](tp)
       else:
-        type_str = " ".join(str(tok) for tok in PrintedTokenRange.create(tp))
-        assert False, f"Unhandled type {tp.__class__.__name__} failed: {tp_name}"
+        tp_str = " ".join(str(tok) for tok in PrintedTokenRange.create(tp))
+        assert False, f"Unhandled type {tp.__class__.__name__} failed: {tp_str}"
         schema = self.unknown_schema
 
       self.type_schemas[tp] = schema
 
     return schema
 
-
-def run_on_ast(ast: AST, ns_name: str):
-  schemas: List[Schema] = []
-  lifter = SchemaLifter()
-
-  # Filter out all tag decls that aren't private `*Impl` classes, and also
-  # only look at the definitions.
-  for ns in find_namespaces(ast.translation_unit, ns_name):
-    for tag in find_tags_in_dc_decl(ns):
-      if not tag.name.endswith("Impl") and tag.is_this_declaration_a_definition:
-        schema: Schema = lifter.lift_decl(tag)
-        if isinstance(schema, UnknownSchema):
-          continue
-
-        schemas.append(schema)
-
-  for schema in schemas:
-    schema.dump("")
-    print()
-
-
-if __name__ == "__main__":
-  parser = ArgumentParser(description='Create an inventory of the API surface area of the classes / enumerator within a namespace')
-  parser.add_argument('--namespace', default="pasta")
-  parser.add_argument('--local_include_dir', required=True)
-  parser.add_argument('--system_include_dir', required=True)
-  parser.add_argument('--working_dir', default=os.path.dirname(__file__))
-  parser.add_argument('--source_file', default="API.cpp")
-  args = parser.parse_args()
-  fs: FileSystem = FileSystem.create_native()
-  fm: FileManager = FileManager(fs)
-  cxx: Compiler = Compiler.create_host_compiler(fm, TargetLanguage.CXX)
-  argv = ArgumentVector([
-      str(cxx.executable_path),
-      "-x", "c++",
-      "-std=c++20",
-      "-isystem", str(args.local_include_dir),
-      "-isystem", str(args.system_include_dir),
-      "-DGAP_ENABLE_COROUTINES",
-      str(args.source_file)])
-
-  cmd = CompileCommand.create_from_arguments(argv, args.working_dir)
-  maybe_jobs = cxx.create_jobs_for_command(cmd)
-  
-  if isinstance(maybe_jobs, str):
-    print(maybe_jobs)
-    sys.exit(1)
-
-  for job in maybe_jobs:
-    maybe_ast = job.run()
-    if isinstance(maybe_ast, str):
-      print(maybe_ast)
-      sys.exit(1)
-
-    elif isinstance(maybe_ast, AST):
-      run_on_ast(maybe_ast, args.namespace)

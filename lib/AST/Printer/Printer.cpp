@@ -304,7 +304,7 @@ unsigned PrintedToken::NumLeadingNewLines(void) const {
 }
 
 // Number of leading spaces (after any leading new lines).
-unsigned PrintedToken::NumleadingSpaces(void) const {
+unsigned PrintedToken::NumLeadingSpaces(void) const {
   return impl->num_leading_spaces;
 }
 

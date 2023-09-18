@@ -23,6 +23,9 @@ nanobind_add_module(pypasta LTO
     "${CMAKE_CURRENT_SOURCE_DIR}/src/Compiler.cpp"
     "${CMAKE_CURRENT_SOURCE_DIR}/src/FileManager.cpp"
     "${CMAKE_CURRENT_SOURCE_DIR}/src/FileSystem.cpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/Macro.cpp"
     "${CMAKE_CURRENT_SOURCE_DIR}/src/Module.cpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/Printer.cpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/Token.cpp"
     ${PASTA_PYTHON_AST_SOURCES})
 target_link_libraries(pypasta PUBLIC pasta_force_load)

@@ -16,9 +16,11 @@ NB_MODULE(pypasta, m) {
     pasta::RegisterCompileCommand(m);
     pasta::RegisterFileSystem(m);
     pasta::RegisterFileManager(m);
+    pasta::RegisterToken(m);
+    pasta::RegisterMacro(m);
+    pasta::RegisterPrinter(m);
     pasta::RegisterCompileJob(m);
     pasta::RegisterCompiler(m);
-
     pasta::RegisterAST(m);
     pasta::RegisterAllAST(m);
 }

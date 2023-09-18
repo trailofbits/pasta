@@ -181,7 +181,7 @@ void Register)" << name << "(nb::module_ &m) {\n"
       os_py << ", " << base_class;
     }
     os_py << ">(m, \"" << name << "\")"
-          << "\n    .def(\"__hash__\", [](const " << name << " &attr) { return (intptr_t)attr.RawAttr(); })"
+          << "\n    .def(\"__hash__\", [](const " << name << " &attr) { return reinterpret_cast<intptr_t>(attr.RawAttr()); })"
           << "\n    .def(\"__eq__\", [](const Attr &a, const Attr &b) { return a.RawAttr() == b.RawAttr(); })";
 
     if (name == "Attr") {

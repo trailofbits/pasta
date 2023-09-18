@@ -161,7 +161,7 @@ void Register)" << name << "(nb::module_ &m) {\n"
       os_py << ", " << base_class;
     }
     os_py << ">(m, \"" << name << "\")"
-          << "\n    .def(\"__hash__\", [](const " << name << "& stmt) { return (intptr_t)stmt.RawStmt(); })"
+          << "\n    .def(\"__hash__\", [](const " << name << "& stmt) { return reinterpret_cast<intptr_t>(stmt.RawStmt()); })"
           << "\n    .def(\"__eq__\", [](const Stmt& a, const Stmt& b) { return a.RawStmt() == b.RawStmt(); })";
 
     for (const auto &derived_class : gTransitiveDerivedClasses[name]) {

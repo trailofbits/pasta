@@ -169,7 +169,7 @@ class PrintedToken {
   unsigned NumLeadingNewLines(void) const;
 
   // Number of leading spaces (after any leading new lines).
-  unsigned NumleadingSpaces(void) const;
+  unsigned NumLeadingSpaces(void) const;
 
   // Return the index of this token in its token range.
   unsigned Index(void) const;

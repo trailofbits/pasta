@@ -491,7 +491,15 @@ target_include_directories(pasta_bootstrap_config INTERFACE
     "${CMAKE_CURRENT_BINARY_DIR}"
 )
 
+if(NOT (PASTA_BOOTSTRAP_MACROS OR PASTA_BOOTSTRAP_TYPES))
+  add_subdirectory(bindings)
+endif()
+
 if(PASTA_ENABLE_INSTALL AND NOT PASTA_BOOTSTRAP_MACROS AND NOT PASTA_BOOTSTRAP_TYPES)
+  
+  if(PASTA_ENABLE_PY_BINDINGS)
+    set(PASTA_PY_BINDING_LIB_NAME "pypasta")
+  endif()
 
   install(
     DIRECTORY
@@ -499,12 +507,13 @@ if(PASTA_ENABLE_INSTALL AND NOT PASTA_BOOTSTRAP_MACROS AND NOT PASTA_BOOTSTRAP_T
     DESTINATION
       "${CMAKE_INSTALL_INCLUDEDIR}"
   )
-  
-  
+
   install(
     TARGETS
       "pasta" "pasta_compiler" "pasta_util"
       "pasta_thirdparty_llvm" "pasta_cxx_settings"
+      "pasta_thirdparty_llvm_force_load" "pasta_force_load"
+      ${PASTA_PY_BINDING_LIB_NAME}
     EXPORT
       "${PROJECT_NAME}Targets"
     RUNTIME
@@ -525,7 +534,3 @@ if(PASTA_ENABLE_TESTING)
   enable_testing()
   add_subdirectory(test)
 endif(PASTA_ENABLE_TESTING)
-
-if(NOT (PASTA_BOOTSTRAP_MACROS OR PASTA_BOOTSTRAP_TYPES))
-  add_subdirectory(bindings)
-endif()

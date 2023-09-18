@@ -63,6 +63,33 @@ def qualified_name(decl: NamedDecl) -> str:
   return "::".join(reversed(path))
 
 
+def _relative_location(tok: Token) -> str:
+  assert tok.role == TokenRole.FILE_TOKEN
+  path: pathlib.Path = File.containing(tok.file_location).path
+  parts: List[str] = []
+
+  while len(path.name):
+    if path.name == 'include':
+      break
+    parts.append(path.name)
+    path = path.parent
+
+  return str(os.path.join(*reversed(parts)))
+
+def decl_location(decl: Decl) -> str:
+  """Find the relative path of the include file containing `decl`."""
+  for tok in decl.tokens:
+    if tok.role == TokenRole.FILE_TOKEN:
+      return _relative_location(tok)
+    elif tok.role == TokenRole.FINAL_MACRO_EXPANSION_TOKEN:
+      macro = tok.macro_location
+      while macro.parent:
+        macro = macro.parent
+      return _relative_location(macro.first_use_token.parsed_location)
+  assert False
+  return ""
+
+
 class SchemaLifter:
   """Lift declarations into schemas."""
   decl_schemas: Dict[Decl, Schema]
@@ -218,6 +245,20 @@ class SchemaLifter:
 
     return schema
 
+  def _lift_iterated_type(self, meth: CXXMethodDecl) -> Schema:
+    """Assuming `meth` is the `begin` method on a class that follows C++'s
+    range/iterator protocol, then try to figure out the generated type from
+    inspecting the overloaded operator(s) of the return iterator type."""
+    tp = meth.return_type.unqualified_desugared_type
+
+    if isinstance(tp, RecordType):
+      pass
+    elif isinstance(tp, TemplateSpecializationType):
+      pass
+    else:
+      print(f"!!! {tp.__class__}")
+      assert False
+
   def _lift_class(self, tag: CXXRecordDecl) -> Schema:
     """Lift a `CXXRecordDecl` into a `Schema`."""
     if tag in self.decl_schemas:
@@ -245,6 +286,9 @@ class SchemaLifter:
     skip = tag.tag_kind == TagTypeKind.CLASS
 
     num_accessors = 0
+
+    begin_decl: Optional[CXXMethodDecl] = None
+    end_decl: Optional[CXXMethodDecl] = None
 
     for decl in decls_in_dc_decl(tag):
       
@@ -286,6 +330,12 @@ class SchemaLifter:
       if isinstance(decl, CXXDestructorDecl):
         continue
 
+      # Detect presence of `operator bool()` overloaded operator.
+      if isinstance(decl, CXXConversionDecl):
+        if isinstance(self.lift_type(decl.return_type), BooleanSchema):
+          schema.has_boolean_conversion = True
+        continue
+
       if isinstance(decl, CXXMethodDecl):
         if decl.is_implicit or decl.is_overloaded_operator:
           continue
@@ -299,6 +349,13 @@ class SchemaLifter:
           if isinstance(decl, CXXConstructorDecl):
             section = schema.constructors
           else:
+
+            # Try to detect an iterator protocol.
+            if decl.name == "begin":
+              begin_decl = decl
+            elif decl.name == "end":
+              end_decl = decl
+
             section = schema.methods
             num_accessors += 1
         else:
@@ -313,10 +370,19 @@ class SchemaLifter:
         method_schema.is_const = decl.is_const
         section[decl.name] = method_schema
 
+    # It looks like this follows an iterator protocol.
+    if begin_decl and end_decl:
+      iterated_schema = self._lift_iterated_type(begin_decl)
+      if not isinstance(iterated_schema, UnknownSchema):
+        num_accessors += 1
+        schema.generated_type = iterated_schema
+
     # This class doesn't expose any stateful accessors, so we'll drop it.
     if not num_accessors:
       self.decl_schemas[tag] = self.unknown_schema
       return self.unknown_schema
+
+    schema.location = decl_location(tag)
 
     return schema
 
@@ -327,17 +393,29 @@ class SchemaLifter:
 
     # Get the schema for the underlying integer type.
     int_type: Schema = self.lift_type(tag.integer_type)
-    if isinstance(int_type, UnknownSchema):
-      self.decl_schemas[tag] = int_type
-      return int_type
+    if not isinstance(int_type, IntegerSchema):
+      self.decl_schemas[tag] = self.unknown_schema
+      return self.unknown_schema
 
-    schema: EnumSchema = EnumSchema(tag.name, int_type)
-    self.decl_schemas[tag] = schema
+    schema: EnumSchema = EnumSchema(tag.name, tag.is_scoped_using_class_tag,
+                                    int_type)
+
+    if len(tag.integer_type_range):
+      schema.is_explicitly_typed = True
 
     for decl in decls_in_dc_decl(tag):
       assert isinstance(decl, EnumConstantDecl)
       schema.enumerators.append(decl.name)
 
+    # If there are no enumerators, then we can't guarantee that this can be
+    # usefully wrapped.
+    if not len(schema.enumerators):
+      self.decl_schemas[tag] = self.unknown_schema
+      return self.unknown_schema
+
+    schema.location = decl_location(tag)
+
+    self.decl_schemas[tag] = schema
     return schema
 
   def _lift_typedef(self, typedef: TypedefNameDecl) -> Schema:
@@ -356,6 +434,7 @@ class SchemaLifter:
       nested_schema = nested_schema.base_type
 
     schema: Schema = AliasSchema(typedef.name, nested_schema)
+    schema.location = decl_location(typedef)
 
     # Handle an alias, e.g. `using string_view = std::basic_string_view<...>;`.
     qual_name = qualified_name(typedef)

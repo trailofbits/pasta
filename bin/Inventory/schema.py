@@ -62,6 +62,9 @@ class ClassSchema(NamedSchema, ABC):
   """Represents a schema for an arbitrary class in the Multiplier API. This
   is an abstract class."""
 
+  # Relative path to the file where this alias is defined.
+  location: str
+
   # Bases classes, if any, of this class.
   bases: List['ClassSchema']
 
@@ -108,12 +111,13 @@ class ClassSchema(NamedSchema, ABC):
 
   def dump(self, indent: str):
     print(f"{indent}CLASS {self.name}")
+    print(f"{indent}  LOCATION {self.location}")
     
     if len(self.bases):
-      print("{}  BASES {}".format(indent, ", ".join(str(base) for base in self.bases)))
+      print("{}  BASE_CLASSES {}".format(indent, ", ".join(str(base) for base in self.bases)))
 
     if self.has_boolean_conversion:
-      printf(f"{indent}  HAS_BOOLEAN_CONVERSION")
+      print(f"{indent}  HAS_BOOLEAN_CONVERSION")
 
     if self.generated_type is not None:
       print(f"{indent}  GENERATES {self.generated_type}")
@@ -309,22 +313,46 @@ class DoubleSchema(FloatingPointSchema):
 
 class EnumSchema(NamedSchema):
   """Corresponds to an `enum` type in C/C++."""
-  base_type: Schema
+
+  # Relative path to the file where this enum is defined.
+  location: str
+
+  # Underlying integer type of this enum
+  base_type: 'IntegerSchema'
+
+  # Named list of enumerators.
   enumerators: [str]
 
-  def __init__(self, name: str, base_type: Schema):
+  # Is this an `enum class` in C++?
+  is_scoped: bool
+
+  # Is the underlying type explicitly specified?
+  is_explicitly_typed: bool
+
+  def __init__(self, name: str, is_scoped: bool, base_type: 'IntegerSchema'):
     super().__init__(name)
     self.base_type = base_type
     self.enumerators = []
+    self.is_scoped = is_scoped
+    self.is_explicitly_typed = False
 
   def dump(self, indent: str):
-    print(f"{indent}ENUM {self.name} :: {self.base_type}")
+    scoped = self.is_scoped and "_CLASS" or ""
+    explicit = self.is_explicitly_typed and "EXPLICIT_" or ""
+    print(f"{indent}ENUM{scoped} {self.name}")
+    print(f"{indent}  LOCATION {self.location}")
+    print(f"{indent}  {explicit}BASE_TYPE {self.base_type}")
+    print(f"{indent}  ENUMERATORS")
     for enumerator in self.enumerators:
-      print(f"{indent}  {enumerator}")
+      print(f"{indent}    {enumerator}")
 
 
 class AliasSchema(NamedSchema):
   """Corresponds to a `using` or `typedef` type in C/C++."""
+
+  # Relative path to the file where this alias is defined.
+  location: str
+
   base_type: Schema
 
   def __init__(self, name: str, base_type: Schema):
@@ -335,7 +363,9 @@ class AliasSchema(NamedSchema):
     return f"Alias[{self.name},{self.base_type}]"
 
   def dump(self, indent: str):
-    print(f"{indent}ALIAS {self.name} :: {self.base_type}")
+    print(f"{indent}ALIAS {self.name}")
+    print(f"{indent}  LOCATION {self.location}")
+    print(f"{indent}  BASE_TYPE {self.base_type}")
 
 
 class PointerLikeSchema(ParameterizedSchema, ABC):

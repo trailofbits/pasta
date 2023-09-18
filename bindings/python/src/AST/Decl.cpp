@@ -90,6 +90,7 @@ void RegisterDecl(nb::module_ &m) {
     .def_prop_ro("is_weak_imported", &Decl::IsWeakImported)
     .def_prop_ro("redeclarations", &Decl::Redeclarations)
     .def_prop_ro("is_implicit", &Decl::IsImplicit)
-    .def_prop_ro("token", &Decl::Token);
+    .def_prop_ro("token", &Decl::Token)
+    .def_prop_ro("tokens", &Decl::Tokens);
 }
 } // namespace pasta

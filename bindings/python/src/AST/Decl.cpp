@@ -19,6 +19,7 @@ void RegisterDecl(nb::module_ &m) {
   nb::class_<Decl>(m, "Decl")
     .def("__hash__", [](const Decl &decl) { return reinterpret_cast<intptr_t>(decl.RawDecl()); })
     .def("__eq__", [](const Decl &a, const Decl &b) { return a.RawDecl() == b.RawDecl(); })
+    .def_static("cast", nb::overload_cast<const DeclContext &>(&Decl::From))
     .def_prop_ro("kind", &Decl::Kind)
     .def_prop_ro("kind_name", &Decl::KindName)
     .def_prop_ro("attributes", &Decl::Attributes)
@@ -87,6 +88,8 @@ void RegisterDecl(nb::module_ &m) {
     .def_prop_ro("is_unconditionally_visible", &Decl::IsUnconditionallyVisible)
     .def_prop_ro("is_used", &Decl::IsUsed)
     .def_prop_ro("is_weak_imported", &Decl::IsWeakImported)
-    .def_prop_ro("redeclarations", &Decl::Redeclarations);
+    .def_prop_ro("redeclarations", &Decl::Redeclarations)
+    .def_prop_ro("is_implicit", &Decl::IsImplicit)
+    .def_prop_ro("token", &Decl::Token);
 }
 } // namespace pasta

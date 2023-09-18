@@ -261,48 +261,46 @@ class SchemaLifter:
     """Try to go and drill into `tag`, find `operator*` and then lift its
     return type."""
 
-    if isinstance(tag, ClassTemplateSpecializationDecl):
-      if qualified_name(tag) != "std::__wrap_iter":
-        return self.unknown_schema
-
-      arg: Optional[TemplateArgument] = nth_template_argument(tag, 0)
-      if not arg:
-        return self.unknown_schema
-
-      tp: Optional[Type] = arg.as_type
-      decl: Optiona[Decl] = arg.as_declaration
-      if tp:
-        return self._lift_iterated_type(tp)
-
-      if decl:
-        if isinstance(decl, RecordType):
-          return self._lift_iterated_type_from_iterator(decl)
-
-      assert False, f"Unrecognized tag type {tag.__class__} with name {tag.name}"
-      return self.unknown_schema
-
     for decl in decls_in_dc_decl(tag):
       if isinstance(decl, CXXMethodDecl) and \
          decl.is_overloaded_operator and \
          decl.access == AccessSpecifier.PUBLIC and \
-         decl.overloaded_operator != OverloadedOperatorKind.STAR and \
+         decl.overloaded_operator == OverloadedOperatorKind.STAR and \
          not len(decl.parameters):
-        
         return self.lift_type(decl.return_type)
 
     return self.unknown_schema
 
-  def _lift_iterated_type(self, tp: Type) -> Schema:
-    tp = tp.unqualified_desugared_type
-    if isinstance(tp, RecordType):
-      return self._lift_iterated_type_from_iterator(tp.declaration)
-      
-    if isinstance(tp, (TypedefType, TemplateSpecializationType)):
-      return self._lift_iterated_type(tp.desugar)
+  def _unwrap_std_wrap_iter(self, tag: ClassTemplateSpecializationDecl) -> Schema:
+    """Assuming `tag` represents `std::__wrap_iter`, try to find the iterator
+    inside its template argument and extract a schema for the iterated type."""
+    arg: Optional[TemplateArgument] = nth_template_argument(tag, 0)
+    if not arg:
+      return self.unknown_schema
 
-    if isinstance(tp, TypedefType):
-      return self._lift_iterated_type(tp.desugar)
+    tp: Optional[Type] = arg.as_type
+    decl: Optiona[Decl] = arg.as_declaration
+    if tp:
+      return self._lift_iterator(tp)
 
+    if decl:
+      if isinstance(decl, RecordType):
+        return self._lift_iterated_type_from_iterator(decl)
+
+    assert False, f"Unrecognized tag type {tag.__class__} with name {tag.name}"
+    return self.unknown_schema
+
+  def _lift_iterator(self, tp: Type) -> Schema:
+    """Recover the iterator type, and lift out the iterated type."""
+    
+    # Unwrap the method's return type.
+    while isinstance(tp, (QualifiedType, TypedefType, ReferenceType,
+                          TemplateSpecializationType, DecltypeType,
+                          ElaboratedType)):
+      tp = tp.unqualified_type.desugar
+
+    # Pointers are the easiest form of iterator to support; the iterated type
+    # is the pointer element type.
     if isinstance(tp, PointerType):
       schema = self.lift_type(tp)
       if isinstance(schema, RawPointerSchema):
@@ -311,15 +309,27 @@ class SchemaLifter:
         return self.char_schema
       return self.unknown_schema
 
-    assert False, "Unrecognied iterated type class {tp.__class__}"
-    return self.unknown_schema
+    if not isinstance(tp, RecordType):
+      assert False, f"Unrecognied iterator type class {tp.__class__}"
+    
+    tag: RecordDecl = tp.declaration
+
+    # Check if we're wrapping another iterator.
+    if isinstance(tag, ClassTemplateSpecializationDecl):
+      if qualified_name(tag) == "std::__wrap_iter":
+        return self._unwrap_std_wrap_iter(tag)
+      
+      assert False, f"Unrecognized iterator template {tag.name}"
+      return self.unknown_schema
+
+    return self._lift_iterated_type_from_iterator(tag)
 
   def _lift_iterated_method(self, meth: CXXMethodDecl) -> Schema:
     """Assuming `meth` is the `begin` method on a class that follows C++'s
     range/iterator protocol, then try to figure out the generated type from
     inspecting the overloaded operator(s) of the return iterator type."""
-    print(f"found iterator!")
-    return self._lift_iterated_type(meth.return_type)
+
+    return self._lift_iterator(meth.return_type)
 
   def _lift_class(self, tag: CXXRecordDecl) -> Schema:
     """Lift a `CXXRecordDecl` into a `Schema`."""
@@ -693,9 +703,9 @@ class SchemaLifter:
     if not schema:
       if tp.__class__ in self.type_handlers:
         schema = self.type_handlers[tp.__class__](tp)
-      else:  
-        tp_name = " ".join(str(tok) for tok in PrintedTokenRange.create(tp))
-        print(f"Type {tp.__class__.__name__} failed: {tp_name}")
+      else:
+        type_str = " ".join(str(tok) for tok in PrintedTokenRange.create(tp))
+        assert False, f"Unhandled type {tp.__class__.__name__} failed: {tp_name}"
         schema = self.unknown_schema
 
       self.type_schemas[tp] = schema

@@ -90,6 +90,18 @@ def decl_location(decl: Decl) -> str:
   return ""
 
 
+def nth_template_argument(tag: TagDecl, n: int) -> Optional[TemplateArgument]:
+  """Return the `n`th template argument."""
+  if not isinstance(tag, ClassTemplateSpecializationDecl):
+    return None
+
+  args: List[TemplateArgument] = list(tag.template_arguments)
+  if n >= len(args):
+    return None
+
+  return args[n]
+
+
 class SchemaLifter:
   """Lift declarations into schemas."""
   decl_schemas: Dict[Decl, Schema]
@@ -98,6 +110,7 @@ class SchemaLifter:
   std_path_schema: StdFilesystemPathSchema
   std_string_schema: StdStringSchema
   std_string_view_schema: StdStringViewSchema
+  char_schema: CharSchema
 
   qual_name_type_schemas: Dict[str, Callable[[TagDecl], Schema]]
   type_handlers: Dict[type[Type], Callable[[Type], Schema]]
@@ -125,6 +138,8 @@ class SchemaLifter:
       SubstTemplateTypeParmType: self._lift_substituted_type,
     }
 
+    self.char_schema = CharSchema() 
+
     int8_s = Int8Schema()
     int16_s = Int16Schema()
     int32_s = Int32Schema()
@@ -137,7 +152,7 @@ class SchemaLifter:
 
     self.builtin_type_schemas = {
       BuiltinTypeKind.BOOLEAN: BooleanSchema(),
-      BuiltinTypeKind.CHARACTER_S: int8_s,
+      BuiltinTypeKind.CHARACTER_S: self.char_schema,
       BuiltinTypeKind.S_CHAR: int8_s,
       BuiltinTypeKind.U_CHAR: uint8_s,
       BuiltinTypeKind.SHORT: int16_s,
@@ -170,10 +185,10 @@ class SchemaLifter:
       "std::error_condition": self._lift_unsupported,
       "std::filesystem::file_type": self._lift_unsupported,
       "std::filesystem::perms": self._lift_unsupported,
-      "std::map": self._lift_unsupported,
-      "std::unordered_map": self._lift_unsupported,
-      "std::set": self._lift_unsupported,
-      "std::unordered_set": self._lift_unsupported,
+      "std::map": self._lift_std_map,
+      "std::unordered_map": self._lift_std_unordered_map,
+      "std::set": self._lift_std_set,
+      "std::unordered_set": self._lift_std_unordered_set,
       "std::variant": self._lift_unsupported,
       "std::__wrap_iter": self._lift_std_wrap_iter,
       "gap::generator": self._lift_gap_generator,
@@ -187,14 +202,10 @@ class SchemaLifter:
 
   def _lift_nth_template_argument(self, tag: TagDecl, n: int) -> Schema:
     """Lift the `n`th template argument to a schema."""
-    if not isinstance(tag, ClassTemplateSpecializationDecl):
+    arg: Optional[TemplateArgument] = nth_template_argument(tag, n)
+    if not arg:
       return self.unknown_schema
 
-    args: List[TemplateArgument] = list(tag.template_arguments)
-    if n >= len(args):
-      return self.unknown_schema
-
-    arg: TemplateArgument = args[n]
     decl: Optional[Decl] = arg.as_declaration
     tp: Optional[Type] = arg.as_type
     schema: Schema = self.unknown_schema
@@ -245,19 +256,70 @@ class SchemaLifter:
 
     return schema
 
-  def _lift_iterated_type(self, meth: CXXMethodDecl) -> Schema:
+
+  def _lift_iterated_type_from_iterator(self, tag: RecordDecl) -> Schema:
+    """Try to go and drill into `tag`, find `operator*` and then lift its
+    return type."""
+
+    if isinstance(tag, ClassTemplateSpecializationDecl):
+      if qualified_name(tag) != "std::__wrap_iter":
+        return self.unknown_schema
+
+      arg: Optional[TemplateArgument] = nth_template_argument(tag, 0)
+      if not arg:
+        return self.unknown_schema
+
+      tp: Optional[Type] = arg.as_type
+      decl: Optiona[Decl] = arg.as_declaration
+      if tp:
+        return self._lift_iterated_type(tp)
+
+      if decl:
+        if isinstance(decl, RecordType):
+          return self._lift_iterated_type_from_iterator(decl)
+
+      assert False, f"Unrecognized tag type {tag.__class__} with name {tag.name}"
+      return self.unknown_schema
+
+    for decl in decls_in_dc_decl(tag):
+      if isinstance(decl, CXXMethodDecl) and \
+         decl.is_overloaded_operator and \
+         decl.access == AccessSpecifier.PUBLIC and \
+         decl.overloaded_operator != OverloadedOperatorKind.STAR and \
+         not len(decl.parameters):
+        
+        return self.lift_type(decl.return_type)
+
+    return self.unknown_schema
+
+  def _lift_iterated_type(self, tp: Type) -> Schema:
+    tp = tp.unqualified_desugared_type
+    if isinstance(tp, RecordType):
+      return self._lift_iterated_type_from_iterator(tp.declaration)
+      
+    if isinstance(tp, (TypedefType, TemplateSpecializationType)):
+      return self._lift_iterated_type(tp.desugar)
+
+    if isinstance(tp, TypedefType):
+      return self._lift_iterated_type(tp.desugar)
+
+    if isinstance(tp, PointerType):
+      schema = self.lift_type(tp)
+      if isinstance(schema, RawPointerSchema):
+        return schema.element_type
+      if isinstance(schema, CStringSchema):
+        return self.char_schema
+      return self.unknown_schema
+
+    assert False, "Unrecognied iterated type class {tp.__class__}"
+    return self.unknown_schema
+
+  def _lift_iterated_method(self, meth: CXXMethodDecl) -> Schema:
     """Assuming `meth` is the `begin` method on a class that follows C++'s
     range/iterator protocol, then try to figure out the generated type from
     inspecting the overloaded operator(s) of the return iterator type."""
-    tp = meth.return_type.unqualified_desugared_type
-
-    if isinstance(tp, RecordType):
-      pass
-    elif isinstance(tp, TemplateSpecializationType):
-      pass
-    else:
-      print(f"!!! {tp.__class__}")
-      assert False
+    print(f"found iterator!")
+    return self._lift_iterated_type(meth.return_type)
 
   def _lift_class(self, tag: CXXRecordDecl) -> Schema:
     """Lift a `CXXRecordDecl` into a `Schema`."""
@@ -340,10 +402,6 @@ class SchemaLifter:
         if decl.is_implicit or decl.is_overloaded_operator:
           continue
 
-        method_schema: Optional[MethodSchema] = self._lift_method(decl)
-        if not method_schema or isinstance(method_schema, UnknownSchema):
-          continue
-
         section: Dict[str, MethodSchema] = None
         if decl.is_instance:
           if isinstance(decl, CXXConstructorDecl):
@@ -353,8 +411,10 @@ class SchemaLifter:
             # Try to detect an iterator protocol.
             if decl.name == "begin":
               begin_decl = decl
+              continue
             elif decl.name == "end":
               end_decl = decl
+              continue
 
             section = schema.methods
             num_accessors += 1
@@ -367,12 +427,17 @@ class SchemaLifter:
           if prev_method_schema.is_const:
             continue
 
+        # Lift the method.
+        method_schema: Optional[MethodSchema] = self._lift_method(decl)
+        if not method_schema or isinstance(method_schema, UnknownSchema):
+          continue
+
         method_schema.is_const = decl.is_const
         section[decl.name] = method_schema
 
     # It looks like this follows an iterator protocol.
     if begin_decl and end_decl:
-      iterated_schema = self._lift_iterated_type(begin_decl)
+      iterated_schema = self._lift_iterated_method(begin_decl)
       if not isinstance(iterated_schema, UnknownSchema):
         num_accessors += 1
         schema.generated_type = iterated_schema
@@ -531,17 +596,36 @@ class SchemaLifter:
       return self.unknown_schema
     return self.std_string_view_schema
 
-  def _lift_std_optional(self, tag: TagDecl) -> Schema:
+  def _lift_1_parameter(self, tag: TagDecl, container: type[Schema]) -> Schema:
     arg = self._lift_nth_template_argument(tag, 0)
-    if isinstance(arg, UnknownSchema):
+    if not isinstance(arg, Int8Schema):
       return self.unknown_schema
-    return StdOptionalSchema(arg)
+    return container(arg)
+
+  def _lift_std_optional(self, tag: TagDecl) -> Schema:
+    return self._lift_1_parameter(tag, StdOptionalSchema)
 
   def _lift_std_vector(self, tag: TagDecl) -> Schema:
-    arg = self._lift_nth_template_argument(tag, 0)
-    if isinstance(arg, UnknownSchema):
+    return self._lift_1_parameter(tag, StdVectorSchema)
+
+  def _lift_std_set(self, tag: TagDecl) -> Schema:
+    return self._lift_1_parameter(tag, StdSetSchema)
+
+  def _lift_std_unordered_set(self, tag: TagDecl) -> Schema:
+    return self._lift_1_parameter(tag, StdUnorderedSetSchema)
+
+  def _lift_2_parameter(self, tag: TagDecl, container: type[Schema]) -> Schema:
+    key = self._lift_nth_template_argument(tag, 0)
+    val = self._lift_nth_template_argument(tag, 1)
+    if isinstance(key, UnknownSchema) or isinstance(val, UnknownSchema):
       return self.unknown_schema
-    return StdVectorSchema(arg)
+    return container(key, val)
+
+  def _lift_std_map(self, tag: TagDecl) -> Schema:
+    return self._lift_2_parameter(tag, StdMapSchema)
+
+  def _lift_std_unordered_map(self, tag: TagDecl) -> Schema:
+    return self._lift_2_parameter(tag, StdUnorderedMapSchema)
 
   def _lift_std_shared_ptr(self, tag: TagDecl) -> Schema:
     arg = self._lift_nth_template_argument(tag, 0)
@@ -597,7 +681,7 @@ class SchemaLifter:
       return schema
     
     if "std::" in qual_name:
-      print(f"!!! {qual_name}")
+      assert False, f"Missing support for standard library type {qual_name}"
       return self.unknown_schema
 
     return self.lift_decl(tag)

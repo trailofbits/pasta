@@ -120,7 +120,7 @@ class ClassSchema(NamedSchema, ABC):
       print(f"{indent}  HAS_BOOLEAN_CONVERSION")
 
     if self.generated_type is not None:
-      print(f"{indent}  GENERATES {self.generated_type}")
+      print(f"{indent}  ITERATOR_PROTOCOL_GENERATES {self.generated_type}")
 
     self._dump_section(indent, "NESTED_SCHEMAS", self.nested_schemas)
     self._dump_section(indent, "FIELDS", self.members)
@@ -181,17 +181,50 @@ class StdOptionalSchema(ParameterizedSchema):
   pass
 
 
-class ListLikeSchema(ParameterizedSchema, ABC):
+class ContainerLikeSchema(ParameterizedSchema, ABC):
   """Represents list-like things."""
   pass
 
 
-class StdVectorSchema(ListLikeSchema):
+class StdVectorSchema(ContainerLikeSchema):
   """Corresponds to a `std::vector<T>`."""
   pass
 
 
-class GapGeneratorSchema(ListLikeSchema):
+class StdSetSchema(ContainerLikeSchema):
+  """Corresponds to a `std::set<T>`."""
+  pass
+
+
+class StdUnorderedSetSchema(ContainerLikeSchema):
+  """Corresponds to a `std::unordered_set<T>`."""
+  pass
+
+
+class DictionaryLikeSchema(ContainerLikeSchema):
+  """Corresponds to a map/dictionary-like type."""
+  key_type: Schema
+
+  def __init__(self, key_type: Schema, value_type: Schema):
+    super().__init__(value_type)
+    self.key_type = key_type
+
+  def __str__(self) -> str:
+    class_prefix = self.__class__.__name__[:-6]  # `-len("Schema")`.
+    return f"{class_prefix}[{self.key_type}, {self.element_type}]"
+
+
+class StdMapSchema(DictionaryLikeSchema):
+  """Corresponds to a `std::map<K, V>`."""
+  pass
+
+
+class StdUnorderedMapSchema(DictionaryLikeSchema):
+  """Corresponds to a `std::unordered_map<K, V>`."""
+  pass
+
+
+class GapGeneratorSchema(ParameterizedSchema):
   """Corresponds to a `gap::generator<T>`."""
   pass
 
@@ -241,6 +274,11 @@ class Int8Schema(IntegerSchema):
   """Corresponds to a `char`, `signed char`, or `int8_t` in C/C++."""
   def __init__(self):
     super().__init__(8, True)
+
+
+class CharSchema(Int8Schema):
+  """Corresponds to the `char` type in C/C++."""
+  pass
 
 
 class Int16Schema(IntegerSchema):

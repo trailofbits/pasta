@@ -163,11 +163,6 @@ class LLVMTwineSchema(StringLikeSchema):
   pass
 
 
-class LLVMTripleSchema(StringLikeSchema):
-  """Corresponds to an `llvm::Triple`."""
-  pass
-
-
 class ParameterizedSchema(Schema, ABC):
   """Corresponds to a parameterized schema, e.g. `type<T>` in C++."""
   element_type: Schema
@@ -234,18 +229,26 @@ class GapGeneratorSchema(ParameterizedSchema):
   pass
 
 
-class ClangAPIntSchema(Schema):
-  """Corresponds to a `clang::APInt`."""
+class LLVMNumericSchema(Schema, ABC):
+  pass
+
+class LLVMAPIntSchema(LLVMNumericSchema):
+  """Corresponds to an `llvm::APInt`."""
   pass
 
 
-class ClangAPSIntSchema(Schema):
-  """Corresponds to a `clang::APSInt`."""
+class LLVMAPSIntSchema(LLVMNumericSchema):
+  """Corresponds to an `llvm::APSInt`."""
   pass
 
 
-class ClangAPFloatSchema(Schema):
-  """Corresponds to a `clang::APFloat`."""
+class LLVMAPFloatSchema(LLVMNumericSchema):
+  """Corresponds to an `llvm::APFloat`."""
+  pass
+
+
+class LLVMAPFixedPointSchema(LLVMNumericSchema):
+  """Corresponds to an `llvm::APFixedPoint`."""
   pass
 
 

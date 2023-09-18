@@ -9,11 +9,20 @@ def run_on_ast(ast: AST, ns_name: str):
   # Filter out all tag decls that aren't private `*Impl` classes, and also
   # only look at the definitions.
   for ns in find_namespaces(ast.translation_unit, ns_name):
-    for tag in find_tags_in_dc_decl(ns):
-      if tag.is_this_declaration_a_definition:
-        schema: Schema = lifter.lift_decl(tag)
-        if isinstance(schema, NamedSchema):
-          schemas.append(schema)
+    for decl in decls_in_dc_decl(ns):
+      if isinstance(decl, UsingShadowDecl):
+        decl = decl.target_declaration
+
+      schema: Optional[Schema] = None
+      if isinstance(decl, TypeAliasDecl):
+        schema = lifter.lift_type(decl.underlying_type)
+
+      elif isinstance(decl, TagDecl):
+        if decl.is_this_declaration_a_definition:
+          schema: Schema = lifter.lift_decl(decl)
+
+      if schema and isinstance(schema, NamedSchema):
+        schemas.append(schema)
 
   for schema in schemas:
     schema.dump("")
@@ -22,7 +31,7 @@ def run_on_ast(ast: AST, ns_name: str):
 
 if __name__ == "__main__":
   parser = ArgumentParser(description='Create an inventory of the API surface area of the classes / enumerator within a namespace')
-  parser.add_argument('--namespace', default="clang")
+  parser.add_argument('--namespace', default="to_lift")
   parser.add_argument('--local_include_dir', required=True)
   parser.add_argument('--system_include_dir', required=True)
   parser.add_argument('--working_dir', default=os.path.dirname(__file__))

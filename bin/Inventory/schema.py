@@ -103,7 +103,7 @@ class ClassSchema(NamedSchema, ABC):
   is an abstract class."""
 
   # Relative path to the file where this alias is defined.
-  location: str
+  location: Optional[str]
 
   # `STRUCT` or `CLASS`.
   elaborator: str
@@ -132,8 +132,9 @@ class ClassSchema(NamedSchema, ABC):
 
   def __init__(self, name: str):
     super().__init__(name)
-    self.bases = []
+    self.location = None
     self.elaborator = "struct"
+    self.bases = []
     self.constructor = None
     self.members = {}
     self.static_members = {}

@@ -76,9 +76,9 @@ def qualified_name(decl: NamedDecl) -> str:
   return "::".join(reversed(path))
 
 
-def _relative_location(tok: Token) -> str:
-  """Compute the relative location of some token."""
-  path: pathlib.Path = File.containing(tok.file_location).path
+def _relative_file_location(tok: FileToken) -> str:
+  """Compute the relative location of some file token."""
+  path: pathlib.Path = File.containing(tok).path
   parts: List[str] = []
 
   while len(path.name):
@@ -90,7 +90,13 @@ def _relative_location(tok: Token) -> str:
   return str(os.path.join(*reversed(parts)))
 
 
-def decl_location(decl: Decl) -> str:
+def _relative_location(tok: Token) -> Optional[str]:
+  """Compute the relative location of some token."""
+  ft: Optional[FileToken] = tok.file_location
+  return ft and _relative_file_location(ft) or None
+
+
+def decl_location(decl: Decl) -> Optional[str]:
   """Find the relative path of the include file containing `decl`."""
   for tok in decl.tokens:
     if tok.role in (TokenRole.FILE_TOKEN, TokenRole.INITIAL_MACRO_USE_TOKEN):
@@ -100,8 +106,8 @@ def decl_location(decl: Decl) -> str:
       while macro.parent:
         macro = macro.parent
       return _relative_location(macro.first_use_token.parsed_location)
-  assert False
-  return ""
+
+  return _relative_location(decl.token)
 
 
 def nth_template_argument(tag: TagDecl, n: int) -> Optional[TemplateArgument]:
@@ -197,6 +203,10 @@ class SchemaLifter:
       RValueReferenceType: self._lift_unsupported,
       ConstantArrayType: self._lift_unsupported,
       IncompleteArrayType: self._lift_unsupported,
+      ParenType: self._lift_unsupported,
+      FunctionType: self._lift_unsupported,
+      FunctionProtoType: self._lift_unsupported,
+      InjectedClassNameType: self._lift_injected_class_name_type,
     }
 
     self.char_schema = CharSchema() 
@@ -259,6 +269,7 @@ class SchemaLifter:
       "std::pair": self._lift_unsupported,
       "std::function": self._lift_unsupported,
       "std::__optional_destruct_base::": self._lift_unsupported,
+      "std::aligned_storage::type": self._lift_unsupported,
       "gap::generator": self._make_lifter(GapGeneratorSchema),
       "llvm::hash_code": self._lift_unsupported,
       "llvm::PointerUnion": self._lift_unsupported,  # TODO(pag): Adapt to variant.
@@ -399,8 +410,12 @@ class SchemaLifter:
 
     # Allow ourselves to handle pointer-to-pointer-like constructs here, e.g.
     # `clang::Stmt *&` as returned by a `clang::StmtIterator`.
-    if isinstance(tp.desugar, ReferenceType):
-      referenced_schema = self.lift_type(tp.desugar.pointee_type)
+    while tp.is_sugared:
+      tp = tp.desugar
+
+    # Treat iterators returning `T *&` as though they return `T *`.
+    if isinstance(tp, ReferenceType):
+      referenced_schema = self.lift_type(tp.pointee_type)
       if isinstance(referenced_schema, PointerLikeSchema):
         return referenced_schema
 
@@ -471,8 +486,10 @@ class SchemaLifter:
         error.append("rejecting unions")
       return self.unknown_schema
 
-    # Cache it early on, so that we can handle self-referential types.
     schema: ClassSchema = ClassSchema(tag.name)
+    schema.location = decl_location(tag)
+
+    # Cache it early on, so that we can handle self-referential types.
     self.decl_schemas[tag] = schema
 
     # Capture base classes. If we can't lift a base class then we ignore it.
@@ -599,7 +616,6 @@ class SchemaLifter:
         error.append(f"{tag.__class__.__name__} named {tag.name} without generated type {begin_decl} {end_decl}")
       return new_schema
 
-    schema.location = decl_location(tag)
     return schema
 
   def _lift_enum(self, tag: EnumDecl) -> Schema:
@@ -610,8 +626,11 @@ class SchemaLifter:
     if not isinstance(int_type, IntegerSchema):
       return self.unknown_schema
 
-    schema: EnumSchema = EnumSchema(tag.name, tag.is_scoped_using_class_tag,
-                                    int_type)
+    schema = EnumSchema(tag.name, tag.is_scoped_using_class_tag, int_type)
+    schema.location = decl_location(tag)
+
+    # Cache it, just in case an enumerator initializer somehow references it.
+    self.decl_schemas[tag] = schema
 
     if len(tag.integer_type_range):
       schema.is_explicitly_typed = True
@@ -631,7 +650,6 @@ class SchemaLifter:
     if not len(schema.enumerators):
       return self.unknown_schema
 
-    schema.location = decl_location(tag)
     return schema
 
   def _lift_typedef(self, typedef: TypedefNameDecl) -> Schema:
@@ -648,6 +666,10 @@ class SchemaLifter:
 
     schema: Schema = AliasSchema(typedef.name, nested_schema)
     schema.location = decl_location(typedef)
+
+    # Cache it, just in we end up going into some kind of struct body that then
+    # re-refereces this typedef.
+    self.decl_schemas[typedef] = schema
 
     # Handle things like `size_t`.    
     if isinstance(nested_schema, (BuiltinTypeSchema, IteratorRangeSchema, 
@@ -802,11 +824,12 @@ class SchemaLifter:
     return self.lift_type(tp.desugar)
 
   def _lift_template_param_type(self, tp: TemplateTypeParmType) -> Schema:
-    if tp.is_parameter_pack:
+    if tp.is_parameter_pack or not tp.is_sugared:
       return self.unknown_schema
-    if tp.is_sugared:
-      return self.lift_type(tp.desugar)
-    return self.unknown_schema
+    return self.lift_type(tp.desugar)
+
+  def _lift_injected_class_name_type(self, tp: InjectedClassNameType) -> Schema:
+    return self.lift_decl(tp.declaration)
 
   def _lift_auto_type(self, tp: AutoType) -> Schema:
     return self.lift_type(tp.desugar)

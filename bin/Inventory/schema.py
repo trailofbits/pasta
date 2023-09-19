@@ -62,6 +62,9 @@ class OverloadSetSchema(NamedSchema):
   """Represents a set of method overloads, where the methods have the same
   name."""
 
+  # Non-empty list of overloads. If there is only one method in here, then
+  # it suggests that other methods do exist, but were not added (e.g. because
+  # the lifter doesn't support them).
   overloads: List[MethodSchema]
 
   def __init__(self, name: str):

@@ -293,37 +293,46 @@ class SchemaLifter:
 
     return schema
 
-  def _merge_method(self, method: MethodSchema, existing: Optional[Schema]) -> Schema:
+  def _merge_method(self, method: MethodSchema, existing: Optional[Schema],
+                    num_with_name: int) -> Schema:
     """Combine multiple same-named methods into an overload set. If two methods
     have the same parameter lists, then choose the `const`-qualified method."""
-    if not existing:
-      return method
 
     if isinstance(existing, MethodSchema):
       overloads = OverloadSetSchema(method.name)
       overloads.overloads.append(existing)
       existing = overloads
 
-    if isinstance(existing, OverloadSetSchema):
-      found = False
-      method_params = " ".join(str(p) for p in method.parameters)
+    # We have at least one other method with this name, though we may not have
+    # lifted it. We want to communicate that we're dealing with an overload set
+    # because event if only one overload makes it out, if we tried to pass that
+    # to something like nanobind then it wouldn't know which overload to select.
+    elif num_with_name:
+      overloads = OverloadSetSchema(method.name)
+      existing = overloads
 
-      for i, overload in enumerate(existing.overloads):
-        assert overload.name == method.name
+    else:
+      assert existing is None
+      return method
 
-        if method_params != " ".join(str(p) for p in overload.parameters):
-          continue
+    assert isinstance(existing, OverloadSetSchema)
 
-        found = True
-        if method.is_const:
-          existing.overloads[i] = method
-        break
+    found = False
+    method_params = " ".join(str(p) for p in method.parameters)
 
-      if not found:
-        existing.overloads.append(method)
+    for i, overload in enumerate(existing.overloads):
+      assert overload.name == method.name
 
-      if len(existing.overloads) == 1:
-        return existing.overloads[0]
+      if method_params != " ".join(str(p) for p in overload.parameters):
+        continue
+
+      found = True
+      if method.is_const:
+        existing.overloads[i] = method
+      break
+
+    if not found:
+      existing.overloads.append(method)
 
     return existing
 
@@ -428,8 +437,12 @@ class SchemaLifter:
 
     num_accessors = 0
 
+    # `begin` and `end` methods of an iterator protocol.
     begin_decl: Optional[CXXMethodDecl] = None
     end_decl: Optional[CXXMethodDecl] = None
+
+    # Number of methods seen with a given name.
+    overload_count: Dict[str, int] = {}
 
     for decl in decls_in_dc_decl(tag):
       
@@ -461,14 +474,18 @@ class SchemaLifter:
           schema.static_members[decl.name] = member_schema
         continue
 
-      # Nested enums/classes
+      # Nested enums/classes/aliases.
       if isinstance(decl, (TypedefNameDecl, TagDecl)):
         nested_decl = self.lift_decl(decl)
         if isinstance(nested_decl, NamedSchema):
           schema.nested_schemas[decl.name] = nested_decl
         continue
 
+      # No point in describing the destructor.
       if isinstance(decl, CXXDestructorDecl):
+        continue
+
+      if not isinstance(decl, CXXMethodDecl):
         continue
 
       # Detect presence of `operator bool()` overloaded operator.
@@ -477,40 +494,45 @@ class SchemaLifter:
           schema.has_boolean_conversion = True
         continue
 
-      if isinstance(decl, CXXMethodDecl):
-        if decl.is_implicit or decl.is_overloaded_operator:
-          continue
+      if decl.is_implicit or decl.is_overloaded_operator:
+        continue
 
-        section: Optional[Dict[str, MethodSchema]] = None
-        if not isinstance(decl, CXXConstructorDecl):
-          if decl.is_instance:
+      section: Optional[Dict[str, MethodSchema]] = None
+      accessor_increment = 0
 
-            # Try to detect an iterator protocol.
-            if decl.name == "begin":
-              begin_decl = decl
-              continue
-            elif decl.name == "end":
-              end_decl = decl
-              continue
+      num_with_name = overload_count.get(decl.name, 0)
+      overload_count[decl.name] = num_with_name + 1
 
-            section = schema.methods
-            num_accessors += 1
-          else:
-            section = schema.static_methods
+      if not isinstance(decl, CXXConstructorDecl):
+        if decl.is_instance:
 
-        # Lift the method.
-        method_schema: Optional[MethodSchema] = self._lift_method(decl)
-        if not method_schema or isinstance(method_schema, UnknownSchema):
-          continue
+          # Try to detect an iterator protocol.
+          if decl.name == "begin":
+            begin_decl = decl
+            continue
+          elif decl.name == "end":
+            end_decl = decl
+            continue
 
-        method_schema.is_const = decl.is_const
-
-        if section is not None:
-          section[decl.name] = self._merge_method(
-              method_schema, section.get(decl.name))
+          section = schema.methods
+          accessor_increment = 1
         else:
-          schema.constructor = self._merge_method(
-              method_schema, schema.constructor)
+          section = schema.static_methods
+
+      # Lift the method.
+      method_schema: Optional[MethodSchema] = self._lift_method(decl)
+      if not method_schema or isinstance(method_schema, UnknownSchema):
+        continue
+
+      num_accessors += accessor_increment
+      method_schema.is_const = decl.is_const
+
+      if section is not None:
+        section[decl.name] = self._merge_method(
+            method_schema, section.get(decl.name), overload_count)
+      else:
+        schema.constructor = self._merge_method(
+            method_schema, schema.constructor, overload_count)
 
     # It looks like this follows an iterator protocol.
     iterated_schema = None

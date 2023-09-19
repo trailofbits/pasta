@@ -40,8 +40,16 @@ class VarSchema(NamedSchema):
 
 
 class MethodSchema(NamedSchema):
+
+  # Return type of this method. Constructors will have a return type of
+  # `UnknownSchema`. No other method should have a return type of
+  # `UnknownSchema`.
   return_type: Schema
+
+  # List of parameters to this method.
   parameters: List[VarSchema]
+
+  # Is this method `const`-qualified?
   is_const: bool
 
   def __init__(self, name: str, return_type: Schema):
@@ -55,7 +63,8 @@ class MethodSchema(NamedSchema):
     if len(self.parameters):
       params = " -> ".join("({} {})".format(p.element_type, p.name) for p in self.parameters)
       params += " -> "
-    print(f"{indent}{self.name} :: {params}{self.return_type}")
+    const = self.is_const and " CONST" or ""
+    print(f"{indent}{self.name}{const} :: {params}{self.return_type}")
 
 
 class OverloadSetSchema(NamedSchema):
@@ -113,7 +122,7 @@ class ClassSchema(NamedSchema, ABC):
   def __init__(self, name: str):
     super().__init__(name)
     self.bases = []
-    self.elaborator = "STRUCT"
+    self.elaborator = "struct"
     self.constructor = None
     self.members = {}
     self.static_members = {}
@@ -134,7 +143,7 @@ class ClassSchema(NamedSchema, ABC):
 
 
   def dump(self, indent: str):
-    print(f"{indent}{self.elaborator} {self.name}")
+    print(f"{indent}{self.elaborator.upper()} {self.name}")
     print(f"{indent}  LOCATION {self.location}")
     
     if len(self.bases):
@@ -414,12 +423,17 @@ class EnumSchema(NamedSchema):
   # Is the underlying type explicitly specified?
   is_explicitly_typed: bool
 
+  # Is this enum enumerable? This will be `False` if any of the enumerators
+  # has an initializer.
+  is_enumerable: bool
+
   def __init__(self, name: str, is_scoped: bool, base_type: 'IntegerSchema'):
     super().__init__(name)
     self.base_type = base_type
     self.enumerators = []
     self.is_scoped = is_scoped
     self.is_explicitly_typed = False
+    self.is_enumerable = True
 
   def dump(self, indent: str):
     scoped = self.is_scoped and "_CLASS" or ""
@@ -427,6 +441,8 @@ class EnumSchema(NamedSchema):
     print(f"{indent}ENUM{scoped} {self.name}")
     print(f"{indent}  LOCATION {self.location}")
     print(f"{indent}  {explicit}BASE_TYPE {self.base_type}")
+    if self.is_enumerable:
+      print(f"{indent}  ENUMERABLE")
     print(f"{indent}  ENUMERATORS")
     for enumerator in self.enumerators:
       print(f"{indent}    {enumerator}")

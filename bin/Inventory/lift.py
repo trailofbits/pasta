@@ -269,6 +269,9 @@ class SchemaLifter:
     if not len(method.name):
       return None
 
+    # Lift the return type. Things like `void` are mapped to `UnknownSchema`,
+    # and we disallow `UnknownSchema` as return types (except for constructors),
+    # largely to avoid lifting setters methods.
     type_schema = self.lift_type(method.return_type)
     if isinstance(type_schema, UnknownSchema):
       if not isinstance(method, CXXConstructorDecl):
@@ -433,7 +436,7 @@ class SchemaLifter:
     skip = False
     if tag.tag_kind == TagTypeKind.CLASS:
       skip = True
-      schema.elaborator = "CLASS"
+      schema.elaborator = "class"
 
     num_accessors = 0
 
@@ -529,10 +532,10 @@ class SchemaLifter:
 
       if section is not None:
         section[decl.name] = self._merge_method(
-            method_schema, section.get(decl.name), overload_count)
+            method_schema, section.get(decl.name), num_with_name)
       else:
         schema.constructor = self._merge_method(
-            method_schema, schema.constructor, overload_count)
+            method_schema, schema.constructor, num_with_name)
 
     # It looks like this follows an iterator protocol.
     iterated_schema = None
@@ -541,24 +544,16 @@ class SchemaLifter:
       if not isinstance(iterated_schema, UnknownSchema):
         schema.generated_type = iterated_schema
 
-        # Looks like a `llvm::iterator_range`.
-        if not num_accessors or \
-           (num_accessors == 1 and 'empty' in schema.methods): 
-          range_schema = IteratorRangeSchema(iterated_schema)
-          self.decl_schemas[tag] = range_schema
-          return range_schema
-      elif schema.name == "iterator_range":
-        tp_str = " ".join(str(tok) for tok in PrintedTokenRange.create(begin_decl))
-        print(f"??? {tp_str}")
-
-
-    # This class doesn't expose any stateful accessors, so we'll drop it.
-    if not num_accessors:
+    # This class is a template specialization, or has no stateful accessors,
+    # so try to convert it into an iterator range or outright drop it.
+    if isinstance(tag, ClassTemplateSpecializationDecl) or not num_accessors:
+      new_schema: Schema = self.unknown_schema
+      if schema.generated_type:
+        new_schema = IteratorRangeSchema(schema.generated_type)
       self.decl_schemas[tag] = self.unknown_schema
       return self.unknown_schema
 
     schema.location = decl_location(tag)
-
     return schema
 
   def _lift_enum(self, tag: EnumDecl) -> Schema:
@@ -581,6 +576,12 @@ class SchemaLifter:
     for decl in decls_in_dc_decl(tag):
       assert isinstance(decl, EnumConstantDecl)
       schema.enumerators.append(decl.name)
+
+      # If any of the enumerators has an initializer expression, then assume
+      # that the enumerators are not totally ordered and/or that this value
+      # doesn't match the would-be default value.
+      if decl.initializer_expression is not None:
+        schema.is_enumerable = False
 
     # If there are no enumerators, then we can't guarantee that this can be
     # usefully wrapped.
@@ -613,7 +614,7 @@ class SchemaLifter:
 
     # Handle things like `size_t`.    
     if isinstance(nested_schema, (BuiltinTypeSchema, IteratorRangeSchema, 
-                                  PointerLikeSchema)):
+                                  PointerLikeSchema, NamedSchema)):
       schema = nested_schema
 
     # Handle an alias, e.g. `using string_view = std::basic_string_view<...>;`.

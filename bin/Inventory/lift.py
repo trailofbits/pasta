@@ -204,9 +204,12 @@ class SchemaLifter:
       "std::function": self._lift_unsupported,
       "std::__optional_destruct_base::": self._lift_unsupported,
       "gap::generator": self._make_lifter(GapGeneratorSchema),
+      "llvm::hash_code": self._lift_unsupported,
+      "llvm::PointerUnion": self._lift_unsupported,  # TODO(pag): Adapt to variant.
       "llvm::function_ref": self._lift_unsupported,
       "llvm::Twine": self._make_lifter(LLVMTwineSchema),
       "llvm::StringRef": self._make_lifter(LLVMStringRefSchema),
+      "llvm::Triple": self._make_lifter(LLVMTriple),
       "clang::ASTContext": self._make_lifter(ClangASTContextSchema),
       "clang::APInt": self._make_lifter(LLVMAPIntSchema),
       "clang::APSInt": self._make_lifter(LLVMAPSIntSchema),
@@ -230,7 +233,15 @@ class SchemaLifter:
 
     if decl:
       schema = self.lift_decl(decl)
+    
     elif tp:
+
+      # Only let us find basic things in the template arguments. This is a
+      # simple way to prevent things like pointers-to-pointers.
+      if not isinstance(tp, (RecordType, ElaboratedType, BuiltinType, \
+                             TemplateSpecializationType)):
+        return self.unknown_schema
+
       schema = self.lift_type(tp)
 
     return schema
@@ -361,7 +372,7 @@ class SchemaLifter:
     schema: ClassSchema = ClassSchema(tag.name)
     self.decl_schemas[tag] = schema
 
-    # Capture base classes.
+    # Capture base classes. If we can't lift a base class then we ignore it.
     if tag.num_bases:
       for base_tag in base_classes(tag):
         base_schema = self.lift_decl(base_tag)
@@ -539,18 +550,40 @@ class SchemaLifter:
     self.decl_schemas[typedef] = schema
     return schema
 
+  def _lift_parent(self, decl: NamedDecl) -> bool:
+    """Returns `True` if `decl` isn't nested inside of a `TagDecl`, or if
+    if that parent tag can be successfully lifted."""
+
+    dc: Optional[DeclContext] = decl.declaration_context
+    if not dc:
+      return True
+
+    dc_decl: Optional[Decl] = Decl.cast(dc)
+    if not isinstance(dc_decl, TagDecl):
+      return isinstance(dc_decl, (TranslationUnitDecl, NamespaceDecl,
+                                  LinkageSpecDecl))
+
+    if dc_decl in self.decl_schemas:
+      dc_schema = self.decl_schemas[dc_decl]
+    else:
+      dc_schema = self.lift_decl(dc_decl)
+
+    return not isinstance(dc_schema, UnknownSchema)
+
   def lift_decl(self, decl: Decl) -> Schema:
     """Lift a `Decl` into a `Schema`. Returns `UnknownSchema` when the
     decl isn't supported."""
     
-    # Don't lift anything that can't be named.
-    if not isinstance(decl, NamedDecl) or not len(decl.name):
-      return self.unknown_schema
-
-    # Don't lift templates, or partially specialized templates.
-    if isinstance(self, (ClassTemplatePartialSpecializationDecl,
+    # Don't lift anything that can't be named, and whose parent's can't be
+    # lifted, or that is a template or partially specialized template.
+    if not isinstance(decl, NamedDecl) or \
+       not len(decl.name) or \
+       isinstance(self, (ClassTemplatePartialSpecializationDecl,
                          VarTemplatePartialSpecializationDecl,
-                         TemplateDecl)):
+                         TemplateDecl)) or \
+       not self._lift_parent(decl):
+
+      self.decl_schemas[decl] = self.unknown_schema
       return self.unknown_schema
 
     if isinstance(decl, CXXRecordDecl):
@@ -567,9 +600,45 @@ class SchemaLifter:
     return self.unknown_schema
 
   def _lift_qualified_type(self, tp: QualifiedType) -> Schema:
-    return self.lift_type(tp.unqualified_type)
+    return self.unknown_schema
+
+    # # We don't like `restrict` or `volatile` things.
+    # if not tp.is_const_qualified or tp.is_restrict_qualified or \
+    #    tp.is_volatile_qualified:
+    #    return self.unknown_schema
+
+    # ut: Type = tp.unqualified_type
+
+    # # Detect a `T * const`... Doesn't really affect us
+    # if isinstance(ut, PointerType):
+    #   return self.lift_type(ut)
+
+    # tp_str = " ".join(str(tok) for tok in PrintedTokenRange.create(tp))
+    # print(f"Ignoring {ut.__class__.__name__}: {tp_str}")
+    # return self.unknown_schema
 
   def _lift_reference_type(self, tp: ReferenceType) -> Schema:
+    pt: Type = tp.pointee_type
+    is_const = False
+    if isinstance(pt, QualifiedType):
+      is_const = pt.is_const_qualified
+
+      # Reject `const`- and `restrict`-qualified reference element types.
+      if pt.is_restrict_qualified or pt.is_volatile_qualified:
+        return self.unknown_schema
+
+      pt = pt.unqualified_type  # Unwrap the qualification
+
+    # Don't allow pointers-to-unknowns, or pointers-to-pointers.
+    ps: Schema = self.lift_type(pt)
+    if isinstance(ps, (UnknownSchema, PointerLikeSchema, CStringSchema)):
+      return self.unknown_schema
+
+    if isinstance(ps, Int8Schema) and is_const:
+        return CStringSchema()
+
+    return is_const and ConstReferenceSchema(ps) or ReferenceSchema(ps)
+
     return self.lift_type(tp.pointee_type)
 
   def _lift_builtin_type(self, tp: BuiltinType) -> Schema:
@@ -591,18 +660,26 @@ class SchemaLifter:
     return self.lift_decl(tp.found_declaration.target_declaration)
 
   def _lift_pointer_type(self, tp: PointerType) -> Schema:
-    pointee_schema: Schema = self.lift_type(tp.pointee_type)
+    pt: Type = tp.pointee_type
+    is_const = False
+    if isinstance(pt, QualifiedType):
+      is_const = pt.is_const_qualified
+
+      # Reject `const`- and `restrict`-qualified pointer element types.
+      if pt.is_restrict_qualified or pt.is_volatile_qualified:
+        return self.unknown_schema
+
+      pt = pt.unqualified_type  # Unwrap the qualification
 
     # Don't allow pointers-to-unknowns, or pointers-to-pointers.
-    if isinstance(pointee_schema, (UnknownSchema, PointerType, CStringSchema)):
+    ps: Schema = self.lift_type(pt)
+    if isinstance(ps, (UnknownSchema, PointerLikeSchema, CStringSchema)):
       return self.unknown_schema
 
-    schema: Schema = RawPointerSchema(pointee_schema)
-
-    if isinstance(pointee_schema, Int8Schema):
-      schema = CStringSchema()
-
-    return schema
+    if isinstance(ps, Int8Schema) and is_const:
+        return CStringSchema()
+    
+    return is_const and ConstRawPointerSchema(ps) or RawPointerSchema(ps)
 
   def _lift_decltype_type(self, tp: DecltypeType) -> Schema:
     return self.lift_type(tp.desugar)
@@ -671,13 +748,13 @@ class SchemaLifter:
 
   def _lift_std_shared_ptr(self, tag: TagDecl) -> Schema:
     arg = self._lift_nth_template_argument(tag, 0)
-    if isinstance(arg, UnknownSchema):
+    if isinstance(arg, (UnknownSchema, PointerLikeSchema, CStringSchema)):
       return self.unknown_schema
     return StdSharedPtrSchema(arg)
 
   def _lift_std_unique_ptr(self, tag: TagDecl) -> Schema:
     arg = self._lift_nth_template_argument(tag, 0)
-    if isinstance(arg, UnknownSchema):
+    if isinstance(arg, (UnknownSchema, PointerLikeSchema, CStringSchema)):
       return self.unknown_schema
     return StdUniquePtrSchema(arg)
 
@@ -722,15 +799,17 @@ class SchemaLifter:
     """Lift a `Type` into a `Schema`. Returns `UnknownSchema` when the type
     isn't supported."""
     schema: Optional[Schema] = self.type_schemas.get(tp)
-    if not schema:
-      if tp.__class__ in self.type_handlers:
-        schema = self.type_handlers[tp.__class__](tp)
-      else:
-        tp_str = " ".join(str(tok) for tok in PrintedTokenRange.create(tp))
-        assert False, f"Unhandled type {tp.__class__.__name__} failed: {tp_str}"
-        schema = self.unknown_schema
+    if schema:
+      return schema
 
-      self.type_schemas[tp] = schema
+    if tp.__class__ in self.type_handlers:
+      schema = self.type_handlers[tp.__class__](tp)
+    else:
+      tp_str = " ".join(str(tok) for tok in PrintedTokenRange.create(tp))
+      assert False, f"Unhandled type {tp.__class__.__name__} failed: {tp_str}"
+      schema = self.unknown_schema
+
+    self.type_schemas[tp] = schema
 
     return schema
 

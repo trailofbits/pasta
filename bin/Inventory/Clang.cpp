@@ -30,7 +30,17 @@
 // NOTE(pag): This is a bit of a hack to get our lifter to "find" `Triple` in
 //            the top-level `clang` namespace.
 namespace to_lift {
-using Triple = llvm::Triple;
+
+#define COUNTED_(counter) x ## counter
+#define COUNTED(counter) COUNTED_(counter)
+#define FRESH_SYMBOL COUNTED(__COUNTER__)
+#define USE(name) using FRESH_SYMBOL = name
+
+USE(llvm::Triple);
+USE(clang::Decl);
+USE(clang::Stmt);
+USE(clang::Type);
+USE(clang::Attr);
 
 // When bootstrapping, prefix `__VA_ARGS__` with a specific Clang installation,
 // e.g. `/Users/pag/Install/llvm-16/Release/include/__VA_ARGS__`.
@@ -38,16 +48,11 @@ using Triple = llvm::Triple;
 #define TARGET_CLANG_HEADER(...) \
   TARGET_CLANG_HEADER_STR(__VA_ARGS__)
 
-
-#define COUNTED_(counter) x ## counter
-#define COUNTED(counter) COUNTED_(counter)
-#define FRESH_SYMBOL COUNTED(__COUNTER__)
-
-#define TYPE(Class, Base) using FRESH_SYMBOL = clang::Class ## Type;
+#define TYPE(Class, Base) USE(clang::Class ## Type);
 #include TARGET_CLANG_HEADER(clang/AST/TypeNodes.inc)
 #undef TYPE
 
-#define DECL(Type, Base) using FRESH_SYMBOL = clang::Type ## Decl;
+#define DECL(Type, Base) USE(clang::Type ## Decl);
 #include TARGET_CLANG_HEADER(clang/AST/DeclNodes.inc)
 #undef DECL
 
@@ -60,7 +65,7 @@ using Triple = llvm::Triple;
 // #include TARGET_CLANG_HEADER(clang/AST/StmtNodes.inc)
 // #undef STMT
 
-#define ATTR(Type) using FRESH_SYMBOL = clang::Type ## Attr;
+#define ATTR(Type) USE(clang::Type ## Attr);
 #include TARGET_CLANG_HEADER(clang/Basic/AttrList.inc)
 #undef ATTR
 

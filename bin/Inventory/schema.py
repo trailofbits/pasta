@@ -163,6 +163,11 @@ class LLVMTwineSchema(StringLikeSchema):
   pass
 
 
+class LLVMTriple(StringLikeSchema):
+  """Corresponds to an `llvm::Triple`."""
+  pass
+
+
 class ParameterizedSchema(Schema, ABC):
   """Corresponds to a parameterized schema, e.g. `type<T>` in C++."""
   element_type: Schema
@@ -418,8 +423,23 @@ class PointerLikeSchema(ParameterizedSchema, ABC):
   """Corresponds to something pointer-like."""
 
 
+class ReferenceSchema(PointerLikeSchema):
+  """Corresponds to an `T &` reference type."""
+  pass
+
+
+class ConstReferenceSchema(ReferenceSchema):
+  """Corresponds to an `const T &` reference type."""
+  pass
+
+
 class RawPointerSchema(PointerLikeSchema):
   """Corresponds to a `T *` in C/C++."""
+  pass
+
+
+class ConstRawPointerSchema(RawPointerSchema):
+  """Corresponds to a `const T *` in C/C++."""
   pass
 
 

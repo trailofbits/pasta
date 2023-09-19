@@ -58,12 +58,32 @@ class MethodSchema(NamedSchema):
     print(f"{indent}{self.name} :: {params}{self.return_type}")
 
 
+class OverloadSetSchema(NamedSchema):
+  """Represents a set of method overloads, where the methods have the same
+  name."""
+
+  overloads: List[MethodSchema]
+
+  def __init__(self, name: str):
+    super().__init__(name)
+    self.overloads = []
+
+  def dump(self, indent: str):
+    print(f"{indent}OVERLOAD_SET {self.name}")
+    next_indent = f"{indent}  "
+    for method in self.overloads:
+      method.dump(next_indent)
+
+
 class ClassSchema(NamedSchema, ABC):
   """Represents a schema for an arbitrary class in the Multiplier API. This
   is an abstract class."""
 
   # Relative path to the file where this alias is defined.
   location: str
+
+  # `STRUCT` or `CLASS`.
+  elaborator: str
 
   # Bases classes, if any, of this class.
   bases: List['ClassSchema']
@@ -73,9 +93,9 @@ class ClassSchema(NamedSchema, ABC):
   static_members: Dict[str, VarSchema]
 
   # Public methods, and public static methods.
-  constructors: List[MethodSchema]
-  methods: Dict[str, MethodSchema]
-  static_methods: Dict[str, MethodSchema]
+  constructor: Optional[Schema]
+  methods: Dict[str, Schema]
+  static_methods: Dict[str, Schema]
 
   # Does this class support `operator bool` in C++?
   has_boolean_conversion: bool
@@ -90,7 +110,8 @@ class ClassSchema(NamedSchema, ABC):
   def __init__(self, name: str):
     super().__init__(name)
     self.bases = []
-    self.constructors = []
+    self.elaborator = "STRUCT"
+    self.constructor = None
     self.members = {}
     self.static_members = {}
     self.methods = {}
@@ -110,7 +131,7 @@ class ClassSchema(NamedSchema, ABC):
 
 
   def dump(self, indent: str):
-    print(f"{indent}CLASS {self.name}")
+    print(f"{indent}{self.elaborator} {self.name}")
     print(f"{indent}  LOCATION {self.location}")
     
     if len(self.bases):
@@ -125,6 +146,9 @@ class ClassSchema(NamedSchema, ABC):
     self._dump_section(indent, "NESTED_SCHEMAS", self.nested_schemas)
     self._dump_section(indent, "FIELDS", self.members)
     self._dump_section(indent, "VARIABLES", self.static_members)
+    if self.constructor:
+      print(f"{indent}  CONSTRUCTOR")
+      self.constructor.dump(f"{indent}    ")
     self._dump_section(indent, "METHODS", self.methods)
     self._dump_section(indent, "STATIC_METHODS", self.static_methods)
 

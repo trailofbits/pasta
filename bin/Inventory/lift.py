@@ -102,7 +102,11 @@ def nth_template_argument(tag: TagDecl, n: int) -> Optional[TemplateArgument]:
 
 
 class SchemaLifter:
-  """Lift declarations into schemas."""
+  """Lift declarations into schemas. This acts as one big recursive visitor.
+  It primarily focuses on classes, methods, and enumerators. It tries to
+  recognize certain things like C++ standard library containers and represent
+  those in a specific way."""
+
   decl_schemas: Dict[Decl, Schema]
   type_schemas: Dict[Type, Schema]
   unknown_schema: UnknownSchema
@@ -142,6 +146,7 @@ class SchemaLifter:
       AutoType: self._lift_auto_type,
       RValueReferenceType: self._lift_unsupported,
       ConstantArrayType: self._lift_unsupported,
+      IncompleteArrayType: self._lift_unsupported,
     }
 
     self.char_schema = CharSchema() 
@@ -196,7 +201,9 @@ class SchemaLifter:
       "std::unordered_map": self._lift_std_unordered_map,
       "std::set": self._lift_std_set,
       "std::unordered_set": self._lift_std_unordered_set,
+      "std::initializer_list": self._lift_unsupported,
       "std::variant": self._lift_unsupported,
+      "std::nullopt_t": self._lift_unsupported,
       "std::__wrap_iter": self._lift_std_wrap_iter,
       "std::reverse_iterator": self._lift_unsupported,
       "std::tuple": self._lift_unsupported,
@@ -264,7 +271,8 @@ class SchemaLifter:
 
     type_schema = self.lift_type(method.return_type)
     if isinstance(type_schema, UnknownSchema):
-      return None
+      if not isinstance(method, CXXConstructorDecl):
+        return None
 
     schema = MethodSchema(method.name, type_schema)
 
@@ -284,6 +292,40 @@ class SchemaLifter:
       schema.parameters.append(VarSchema(name, type_schema))
 
     return schema
+
+  def _merge_method(self, method: MethodSchema, existing: Optional[Schema]) -> Schema:
+    """Combine multiple same-named methods into an overload set. If two methods
+    have the same parameter lists, then choose the `const`-qualified method."""
+    if not existing:
+      return method
+
+    if isinstance(existing, MethodSchema):
+      overloads = OverloadSetSchema(method.name)
+      overloads.overloads.append(existing)
+      existing = overloads
+
+    if isinstance(existing, OverloadSetSchema):
+      found = False
+      method_params = " ".join(str(p) for p in method.parameters)
+
+      for i, overload in enumerate(existing.overloads):
+        assert overload.name == method.name
+
+        if method_params != " ".join(str(p) for p in overload.parameters):
+          continue
+
+        found = True
+        if method.is_const:
+          existing.overloads[i] = method
+        break
+
+      if not found:
+        existing.overloads.append(method)
+
+      if len(existing.overloads) == 1:
+        return existing.overloads[0]
+
+    return existing
 
 
   def _lift_iterated_type_from_iterator(self, tag: RecordDecl) -> Schema:
@@ -382,7 +424,10 @@ class SchemaLifter:
     # If this is a `class`, as opposed to a `struct` or `union`, then start
     # by treating the access as private, and so skip anything we come across
     # by default.
-    skip = tag.tag_kind == TagTypeKind.CLASS
+    skip = False
+    if tag.tag_kind == TagTypeKind.CLASS:
+      skip = True
+      schema.elaborator = "CLASS"
 
     num_accessors = 0
 
@@ -439,12 +484,9 @@ class SchemaLifter:
         if decl.is_implicit or decl.is_overloaded_operator:
           continue
 
-        section: Dict[str, MethodSchema] = None
-        if decl.is_instance:
-          if isinstance(decl, CXXConstructorDecl):
-            section = schema.constructors
-          else:
-
+        section: Optional[Dict[str, MethodSchema]] = None
+        if not isinstance(decl, CXXConstructorDecl):
+          if decl.is_instance:
             # Try to detect an iterator protocol.
             if decl.name == "begin":
               begin_decl = decl
@@ -455,14 +497,8 @@ class SchemaLifter:
 
             section = schema.methods
             num_accessors += 1
-        else:
-          section = schema.static_methods
-
-        # Prefer overloads that are `const`-qualified.
-        if decl.name in section:
-          prev_method_schema = section[decl.name]
-          if prev_method_schema.is_const:
-            continue
+          else:
+            section = schema.static_methods
 
         # Lift the method.
         method_schema: Optional[MethodSchema] = self._lift_method(decl)
@@ -470,7 +506,13 @@ class SchemaLifter:
           continue
 
         method_schema.is_const = decl.is_const
-        section[decl.name] = method_schema
+
+        if section is not None:
+          section[decl.name] = self._merge_method(
+              method_schema, section.get(decl.name))
+        else:
+          schema.constructor = self._merge_method(
+              method_schema, schema.constructor)
 
     # It looks like this follows an iterator protocol.
     if begin_decl and end_decl:

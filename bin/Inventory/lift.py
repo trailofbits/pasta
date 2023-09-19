@@ -338,6 +338,8 @@ class SchemaLifter:
          decl.access == AccessSpecifier.PUBLIC and \
          decl.overloaded_operator == OverloadedOperatorKind.STAR and \
          not len(decl.parameters):
+        tp_str = " ".join(str(tok) for tok in PrintedTokenRange.create(decl))
+        print(f"~~~ {tp_str}")
         return self.lift_type(decl.return_type)
 
     return self.unknown_schema
@@ -386,19 +388,14 @@ class SchemaLifter:
     
     tag: RecordDecl = tp.declaration
 
+    print(f"!!! {tp.__class__.__name__} {tag.__class__.__name__} {tag.name}")
+
     # Check if we're wrapping another iterator.
     if isinstance(tag, ClassTemplateSpecializationDecl):
       if qualified_name(tag) == "std::__wrap_iter":
         return self._unwrap_std_wrap_iter(tag)
 
     return self._lift_iterated_type_from_iterator(tag)
-
-  def _lift_iterated_method(self, meth: CXXMethodDecl) -> Schema:
-    """Assuming `meth` is the `begin` method on a class that follows C++'s
-    range/iterator protocol, then try to figure out the generated type from
-    inspecting the overloaded operator(s) of the return iterator type."""
-
-    return self._lift_iterator(meth.return_type)
 
   def _lift_class(self, tag: CXXRecordDecl) -> Schema:
     """Lift a `CXXRecordDecl` into a `Schema`."""
@@ -487,6 +484,7 @@ class SchemaLifter:
         section: Optional[Dict[str, MethodSchema]] = None
         if not isinstance(decl, CXXConstructorDecl):
           if decl.is_instance:
+
             # Try to detect an iterator protocol.
             if decl.name == "begin":
               begin_decl = decl
@@ -515,11 +513,22 @@ class SchemaLifter:
               method_schema, schema.constructor)
 
     # It looks like this follows an iterator protocol.
+    iterated_schema = None
     if begin_decl and end_decl:
-      iterated_schema = self._lift_iterated_method(begin_decl)
+      iterated_schema = self._lift_iterator(begin_decl.return_type)
       if not isinstance(iterated_schema, UnknownSchema):
-        num_accessors += 1
         schema.generated_type = iterated_schema
+
+        # Looks like a `llvm::iterator_range`.
+        if not num_accessors or \
+           (num_accessors == 1 and 'empty' in schema.methods): 
+          range_schema = IteratorRangeSchema(iterated_schema)
+          self.decl_schemas[tag] = range_schema
+          return range_schema
+      elif schema.name == "iterator_range":
+        tp_str = " ".join(str(tok) for tok in PrintedTokenRange.create(begin_decl))
+        print(f"??? {tp_str}")
+
 
     # This class doesn't expose any stateful accessors, so we'll drop it.
     if not num_accessors:
@@ -580,13 +589,13 @@ class SchemaLifter:
     schema: Schema = AliasSchema(typedef.name, nested_schema)
     schema.location = decl_location(typedef)
 
-    # Handle an alias, e.g. `using string_view = std::basic_string_view<...>;`.
-    qual_name = qualified_name(typedef)
-    if qual_name in self.qual_name_type_schemas:
+    # Handle things like `size_t`.    
+    if isinstance(nested_schema, (BuiltinTypeSchema, IteratorRangeSchema, 
+                                  PointerLikeSchema)):
       schema = nested_schema
 
-    # Handle things like `size_t`.    
-    if isinstance(nested_schema, BuiltinTypeSchema):
+    # Handle an alias, e.g. `using string_view = std::basic_string_view<...>;`.
+    elif qualified_name(typedef) in self.qual_name_type_schemas:
       schema = nested_schema
 
     self.decl_schemas[typedef] = schema

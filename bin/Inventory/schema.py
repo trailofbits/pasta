@@ -205,6 +205,13 @@ class ParameterizedSchema(Schema, ABC):
     return f"{class_prefix}[{self.element_type}]"
 
 
+class IteratorRangeSchema(ParameterizedSchema):
+  """Represents a type having both a `begin` and `end` methods, and where we're
+  able to infer the iterated type. This is also a class with no other meaningful
+  accessors/state."""
+  pass 
+
+
 class StdOptionalSchema(ParameterizedSchema):
   """Corresponds to a `std::optional<T>`."""
   pass

@@ -44,6 +44,19 @@ def base_classes(tag: CXXRecordDecl) -> Iterable[CXXRecordDecl]:
       yield base_tag
 
 
+def indirect_base_classes(tag: RecordDecl) -> Iterable[RecordDecl]:
+  """Find all base classes of `tag` that are also `RecordDecl`s. This will skip
+  through template specializations."""
+  if not isinstance(tag, CXXRecordDecl) or not tag.num_bases:
+    return
+
+  for base_tag in base_classes(tag):
+    if isinstance(base_tag, ClassTemplateSpecializationDecl):
+      yield from indirect_base_classes(base_tag)
+    else:
+      yield base_tag
+
+
 def qualified_name(decl: NamedDecl) -> str:
   """Compute an approximation of the qualified name of `decl`."""
   path: List[str] = [decl.name]
@@ -64,6 +77,7 @@ def qualified_name(decl: NamedDecl) -> str:
 
 
 def _relative_location(tok: Token) -> str:
+  """Compute the relative location of some token."""
   path: pathlib.Path = File.containing(tok.file_location).path
   parts: List[str] = []
 
@@ -74,6 +88,7 @@ def _relative_location(tok: Token) -> str:
     path = path.parent
 
   return str(os.path.join(*reversed(parts)))
+
 
 def decl_location(decl: Decl) -> str:
   """Find the relative path of the include file containing `decl`."""
@@ -101,6 +116,42 @@ def nth_template_argument(tag: TagDecl, n: int) -> Optional[TemplateArgument]:
   return args[n]
 
 
+def public_decls_in_tag(tag: TagDecl) -> Iterable[Decl]:
+  """Generate the publicly visible `Decl`s inside of a `TagDecl`."""
+
+  # If this is a `class`, as opposed to a `struct` or `union`, then start
+  # by treating the access as private, and so skip anything we come across
+  # by default.
+  skip = tag.tag_kind == TagTypeKind.CLASS
+  for decl in decls_in_dc_decl(tag):
+    
+    # Turn on skipping if the access specifier hasn't changed to `public`.
+    if isinstance(decl, AccessSpecDecl):
+      skip = decl.access_specifier_token.data != "public"
+      continue
+
+    # Don't inventory stuff with `private` or `protected` visibility.
+    if not skip:
+      yield decl
+
+
+def public_decls_in_tag_and_template_bases(tag: TagDecl) -> Iterable[Decl]:
+  """Generate the public `Decl`s from `tag`. If tag extends any class template
+  specializations, then go and generate the public decls from those too, because
+  we can't represent them."""
+  if isinstance(tag, CXXRecordDecl) and tag.num_bases:
+    for base_tag in base_classes(tag):
+      if isinstance(base_tag, ClassTemplateSpecializationDecl):
+        for decl in public_decls_in_tag_and_template_bases(base_tag):
+
+          # Filter out constructors/destructors; they're on the wrong types.
+          if not isinstance(decl, (CXXConstructorDecl, CXXDestructorDecl)):
+            yield decl
+
+  for decl in public_decls_in_tag(tag):
+    yield decl
+
+
 class SchemaLifter:
   """Lift declarations into schemas. This acts as one big recursive visitor.
   It primarily focuses on classes, methods, and enumerators. It tries to
@@ -110,9 +161,6 @@ class SchemaLifter:
   decl_schemas: Dict[Decl, Schema]
   type_schemas: Dict[Type, Schema]
   unknown_schema: UnknownSchema
-  std_path_schema: StdFilesystemPathSchema
-  std_string_schema: StdStringSchema
-  std_string_view_schema: StdStringViewSchema
   char_schema: CharSchema
 
   qual_name_type_schemas: Dict[str, Callable[[TagDecl], Schema]]
@@ -120,12 +168,14 @@ class SchemaLifter:
   builtin_type_schemas: Dict[BuiltinTypeKind, BuiltinTypeSchema]
 
   def __init__(self):
-    self.decl_schemas = {}
-    self.type_schemas = {}
     self.unknown_schema = UnknownSchema()
-    self.std_path_schema = StdFilesystemPathSchema()
-    self.std_string_schema = StdStringSchema()
-    self.std_string_view_schema = StdStringViewSchema()
+
+    self.decl_schemas = {
+      None: self.unknown_schema,
+    }
+    self.type_schemas = {
+      None: self.unknown_schema,
+    }
 
     self.type_handlers = {
       QualifiedType: self._lift_qualified_type,
@@ -179,13 +229,13 @@ class SchemaLifter:
     }
 
     self.qual_name_type_schemas = {
-      "std::filesystem::path": self._lift_std_filesystem_path,
-      "std::string": self._lift_std_string,
-      "std::basic_string": self._lift_std_string,
-      "std::string_view": self._lift_std_string_view,
-      "std::basic_string_view": self._lift_std_string_view,
-      "std::optional": self._lift_std_optional,
-      "std::vector": self._lift_std_vector,
+      "std::filesystem::path":self._make_lifter(StdFilesystemPathSchema),
+      "std::string": self._make_lifter(StdStringSchema),
+      "std::basic_string": self._make_lifter(StdStringSchema),
+      "std::string_view": self._make_lifter(StdStringViewSchema),
+      "std::basic_string_view": self._make_lifter(StdStringViewSchema),
+      "std::optional": self._make_1_parameter_lifter(StdOptionalSchema),
+      "std::vector": self._make_1_parameter_lifter(StdVectorSchema),
       "std::shared_ptr": self._lift_std_shared_ptr,
       "std::unique_ptr": self._lift_std_unique_ptr,
       "std::input_iterator_tag": self._lift_unsupported,
@@ -197,14 +247,13 @@ class SchemaLifter:
       "std::error_condition": self._lift_unsupported,
       "std::filesystem::file_type": self._lift_unsupported,
       "std::filesystem::perms": self._lift_unsupported,
-      "std::map": self._lift_std_map,
-      "std::unordered_map": self._lift_std_unordered_map,
-      "std::set": self._lift_std_set,
-      "std::unordered_set": self._lift_std_unordered_set,
+      "std::map": self._make_2_parameter_lifter(StdMapSchema),
+      "std::unordered_map": self._make_2_parameter_lifter(StdUnorderedMapSchema),
+      "std::set": self._make_1_parameter_lifter(StdSetSchema),
+      "std::unordered_set": self._make_1_parameter_lifter(StdUnorderedSetSchema),
       "std::initializer_list": self._lift_unsupported,
       "std::variant": self._lift_unsupported,
       "std::nullopt_t": self._lift_unsupported,
-      "std::__wrap_iter": self._lift_std_wrap_iter,
       "std::reverse_iterator": self._lift_unsupported,
       "std::tuple": self._lift_unsupported,
       "std::pair": self._lift_unsupported,
@@ -226,6 +275,10 @@ class SchemaLifter:
       "llvm::APSInt": self._make_lifter(LLVMAPSIntSchema),
       "llvm::APFloat": self._make_lifter(LLVMAPFloatSchema),
       "llvm::APFixedPoint": self._make_lifter(LLVMAPFixedPointSchema),
+      "llvm::ArrayRef": self._make_1_parameter_lifter(LLVMArrayRefSchema),
+      "llvm::MutableArrayRef": self._lift_unsupported,
+      "llvm::SmallVector": self._make_1_parameter_lifter(LLVMSmallVectorSchema),
+      "llvm::SmallVectorImpl": self._make_1_parameter_lifter(LLVMSmallVectorSchema),
     }
 
   def _lift_nth_template_argument(self, tag: TagDecl, n: int) -> Schema:
@@ -315,6 +368,8 @@ class SchemaLifter:
       existing = overloads
 
     else:
+      if existing is not None:
+        print(existing)
       assert existing is None
       return method
 
@@ -339,84 +394,81 @@ class SchemaLifter:
 
     return existing
 
+  def _lift_iterated_type(self, tp: Type) -> Schema:
+    """Lift the iterated type of an iterator to a `Schema`."""
 
-  def _lift_iterated_type_from_iterator(self, tag: RecordDecl) -> Schema:
+    # Allow ourselves to handle pointer-to-pointer-like constructs here, e.g.
+    # `clang::Stmt *&` as returned by a `clang::StmtIterator`.
+    if isinstance(tp.desugar, ReferenceType):
+      referenced_schema = self.lift_type(tp.desugar.pointee_type)
+      if isinstance(referenced_schema, PointerLikeSchema):
+        return referenced_schema
+
+    return self.lift_type(tp)
+
+  def _lift_iterated_type_from_decl(self, tag: RecordDecl) -> Schema:
     """Try to go and drill into `tag`, find `operator*` and then lift its
     return type."""
 
     for decl in decls_in_dc_decl(tag):
+
+      if isinstance(decl, CXXMethodDecl):
+        tp_str = " ".join(str(tok) for tok in PrintedTokenRange.create(decl.return_type))
+        print(f"--- found {tag.name}::{decl.name} returning {tp_str} {decl.return_type.__class__}")
+
       if isinstance(decl, CXXMethodDecl) and \
          decl.is_overloaded_operator and \
          decl.access == AccessSpecifier.PUBLIC and \
          decl.overloaded_operator == OverloadedOperatorKind.STAR and \
          not len(decl.parameters):
-        tp_str = " ".join(str(tok) for tok in PrintedTokenRange.create(decl))
-        print(f"~~~ {tp_str}")
-        return self.lift_type(decl.return_type)
 
-    return self.unknown_schema
+        iterated_schema = self._lift_iterated_type(decl.return_type)
 
-  def _unwrap_std_wrap_iter(self, tag: ClassTemplateSpecializationDecl) -> Schema:
-    """Assuming `tag` represents `std::__wrap_iter`, try to find the iterator
-    inside its template argument and extract a schema for the iterated type."""
-    arg: Optional[TemplateArgument] = nth_template_argument(tag, 0)
-    if not arg:
+        # NOTE(pag): There might be an `operator *(void)` that we fail on, but
+        #            an `operator *(void) const` that we can succeed on.
+        if not isinstance(iterated_schema, UnknownSchema):
+          return iterated_schema
+
+    # We failed to find an `operator*` in `tag`. Try to see if we can find it in
+    # a base class.
+    if not isinstance(tag, CXXRecordDecl) or not tag.num_bases:
+      print(f"!!! Failed on iterator 1: {qualified_name(tag)}")
       return self.unknown_schema
 
-    tp: Optional[Type] = arg.as_type
-    decl: Optiona[Decl] = arg.as_declaration
-    if tp:
-      return self._lift_iterator(tp)
+    # Capture base classes. If we can't lift a base class then we ignore it.
+    for base_tag in base_classes(tag):
+      iterated_schema = self._lift_iterated_type_from_decl(base_tag)
+      if not isinstance(iterated_schema, UnknownSchema):
+        return iterated_schema
 
-    if decl:
-      if isinstance(decl, RecordType):
-        return self._lift_iterated_type_from_iterator(decl)
-
-    assert False, f"Unrecognized tag type {tag.__class__} with name {tag.name}"
+    print(f"!!! Failed on iterator 2: {qualified_name(tag)}")
     return self.unknown_schema
 
-  def _lift_iterator(self, tp: Type) -> Schema:
+  def _lift_iterated_type_from_type(self, tp: Type) -> Schema:
     """Recover the iterator type, and lift out the iterated type."""
     
     # Unwrap the method's return type.
-    while isinstance(tp, (QualifiedType, TypedefType, ReferenceType,
-                          TemplateSpecializationType, DecltypeType,
-                          ElaboratedType, SubstTemplateTypeParmType,
-                          AdjustedType, AutoType)):
+    while tp.is_sugared:
       tp = tp.unqualified_type.desugar
 
     # Pointers are the easiest form of iterator to support; the iterated type
     # is the pointer element type.
     if isinstance(tp, PointerType):
-      schema = self.lift_type(tp)
-      if isinstance(schema, RawPointerSchema):
-        return schema.element_type
-      if isinstance(schema, CStringSchema):
-        return self.char_schema
-      return self.unknown_schema
+      return self.lift_type(tp.pointee_type)
 
     if not isinstance(tp, RecordType):
-      assert False, f"Unrecognied iterator type class {tp.__class__}"
-    
-    tag: RecordDecl = tp.declaration
+      assert False, f"Unrecognized iterator type class {tp.__class__}"
+      return self.unknown_schema
 
-    print(f"!!! {tp.__class__.__name__} {tag.__class__.__name__} {tag.name}")
+    return self._lift_iterated_type_from_decl(tp.declaration)
 
-    # Check if we're wrapping another iterator.
-    if isinstance(tag, ClassTemplateSpecializationDecl):
-      if qualified_name(tag) == "std::__wrap_iter":
-        return self._unwrap_std_wrap_iter(tag)
-
-    return self._lift_iterated_type_from_iterator(tag)
-
-  def _lift_class(self, tag: CXXRecordDecl) -> Schema:
-    """Lift a `CXXRecordDecl` into a `Schema`."""
-    if tag in self.decl_schemas:
-      return self.decl_schemas[tag]
+  def _lift_record(self, tag: RecordDecl, error: Optional[List[str]] = None) -> Schema:
+    """Lift a `RecordDecl` into a `Schema`."""
 
     # We do not allow binding of `union`s, they are not friendly to binidng.
     if tag.tag_kind == TagTypeKind.UNION:
-      self.decl_schemas[tag] = self.unknown_schema
+      if error is not None:
+        error.append("rejecting unions")
       return self.unknown_schema
 
     # Cache it early on, so that we can handle self-referential types.
@@ -424,18 +476,15 @@ class SchemaLifter:
     self.decl_schemas[tag] = schema
 
     # Capture base classes. If we can't lift a base class then we ignore it.
-    if tag.num_bases:
-      for base_tag in base_classes(tag):
-        base_schema = self.lift_decl(base_tag)
-        if isinstance(base_schema, ClassSchema):
-          schema.bases.append(base_schema)
+    for base_tag in indirect_base_classes(tag):
+      base_schema = self.lift_decl(base_tag)
+      if isinstance(base_schema, ClassSchema):
+        schema.bases.append(base_schema)
 
     # If this is a `class`, as opposed to a `struct` or `union`, then start
     # by treating the access as private, and so skip anything we come across
     # by default.
-    skip = False
     if tag.tag_kind == TagTypeKind.CLASS:
-      skip = True
       schema.elaborator = "class"
 
     num_accessors = 0
@@ -447,16 +496,9 @@ class SchemaLifter:
     # Number of methods seen with a given name.
     overload_count: Dict[str, int] = {}
 
-    for decl in decls_in_dc_decl(tag):
-      
-      # Turn on skipping if the access specifier hasn't changed to `public`.
-      if isinstance(decl, AccessSpecDecl):
-        skip = decl.access_specifier_token.data != "public"
-        continue
-
-      # Don't inventory stuff with `private` or `protected` visibility.
-      if skip:
-        continue
+    # Get the public decls in `tag`, as well as any public decls in any base
+    # classes that are actually class template specializations.
+    for decl in public_decls_in_tag_and_template_bases(tag):
 
       # E.g. `FriendDecl`.
       if not isinstance(decl, NamedDecl):
@@ -529,6 +571,7 @@ class SchemaLifter:
 
       num_accessors += accessor_increment
       method_schema.is_const = decl.is_const
+      method_schema.is_inherited = decl.parent != tag
 
       if section is not None:
         section[decl.name] = self._merge_method(
@@ -540,9 +583,11 @@ class SchemaLifter:
     # It looks like this follows an iterator protocol.
     iterated_schema = None
     if begin_decl and end_decl:
-      iterated_schema = self._lift_iterator(begin_decl.return_type)
+      iterated_schema = self._lift_iterated_type_from_type(begin_decl.return_type)
       if not isinstance(iterated_schema, UnknownSchema):
         schema.generated_type = iterated_schema
+      elif error is not None:
+        error.append(f"{tag.__class__.__name__} named {tag.name} bad 'begin' type: {begin_decl.return_type.__class__.__name__}")
 
     # This class is a template specialization, or has no stateful accessors,
     # so try to convert it into an iterator range or outright drop it.
@@ -550,21 +595,19 @@ class SchemaLifter:
       new_schema: Schema = self.unknown_schema
       if schema.generated_type:
         new_schema = IteratorRangeSchema(schema.generated_type)
-      self.decl_schemas[tag] = self.unknown_schema
-      return self.unknown_schema
+      elif error is not None:
+        error.append(f"{tag.__class__.__name__} named {tag.name} without generated type {begin_decl} {end_decl}")
+      return new_schema
 
     schema.location = decl_location(tag)
     return schema
 
   def _lift_enum(self, tag: EnumDecl) -> Schema:
     """Lift an `EnumDecl` into an `EnumSchema`."""
-    if tag in self.decl_schemas:
-      return self.decl_schemas[tag]
 
     # Get the schema for the underlying integer type.
     int_type: Schema = self.lift_type(tag.integer_type)
     if not isinstance(int_type, IntegerSchema):
-      self.decl_schemas[tag] = self.unknown_schema
       return self.unknown_schema
 
     schema: EnumSchema = EnumSchema(tag.name, tag.is_scoped_using_class_tag,
@@ -586,23 +629,17 @@ class SchemaLifter:
     # If there are no enumerators, then we can't guarantee that this can be
     # usefully wrapped.
     if not len(schema.enumerators):
-      self.decl_schemas[tag] = self.unknown_schema
       return self.unknown_schema
 
     schema.location = decl_location(tag)
-
-    self.decl_schemas[tag] = schema
     return schema
 
   def _lift_typedef(self, typedef: TypedefNameDecl) -> Schema:
     """Lift a `TypedefNameDecl`, i.e. a `typedef` or a `using`, into an
     `AliasSchema`."""
-    if typedef in self.decl_schemas:
-      return self.decl_schemas[typedef]
 
     nested_schema: Schema = self.lift_type(typedef.underlying_type)
     if isinstance(nested_schema, UnknownSchema):
-      self.decl_schemas[typedef] = nested_schema
       return nested_schema
 
     # Drill down through the aliases.
@@ -621,7 +658,6 @@ class SchemaLifter:
     elif qualified_name(typedef) in self.qual_name_type_schemas:
       schema = nested_schema
 
-    self.decl_schemas[typedef] = schema
     return schema
 
   def _lift_parent(self, decl: NamedDecl) -> bool:
@@ -644,9 +680,15 @@ class SchemaLifter:
 
     return not isinstance(dc_schema, UnknownSchema)
 
-  def lift_decl(self, decl: Decl) -> Schema:
+  def lift_decl(self, decl: Decl, error=None) -> Schema:
     """Lift a `Decl` into a `Schema`. Returns `UnknownSchema` when the
     decl isn't supported."""
+    assert isinstance(decl, Decl)
+
+    if decl in self.decl_schemas:
+      return self.decl_schemas[decl]
+
+    schema: Schema = self.unknown_schema
     
     # Don't lift anything that can't be named, and whose parent's can't be
     # lifted, or that is a template or partially specialized template.
@@ -658,38 +700,27 @@ class SchemaLifter:
        not self._lift_parent(decl):
 
       self.decl_schemas[decl] = self.unknown_schema
-      return self.unknown_schema
+      schema = self.unknown_schema
 
-    if isinstance(decl, CXXRecordDecl):
-      return self._lift_class(decl)
+    elif isinstance(decl, RecordDecl):
+      schema = self._lift_record(decl, error)
       
     elif isinstance(decl, EnumDecl):
-      return self._lift_enum(decl)
+      schema = self._lift_enum(decl)
 
     elif isinstance(decl, TypedefNameDecl):
-      return self._lift_typedef(decl)
+      schema = self._lift_typedef(decl)
 
-    assert False
-    self.decl_schemas[decl] = self.unknown_schema
-    return self.unknown_schema
+    else:
+      assert False
+
+    self.decl_schemas[decl] = schema
+    return schema
 
   def _lift_qualified_type(self, tp: QualifiedType) -> Schema:
-    return self.unknown_schema
-
-    # # We don't like `restrict` or `volatile` things.
-    # if not tp.is_const_qualified or tp.is_restrict_qualified or \
-    #    tp.is_volatile_qualified:
-    #    return self.unknown_schema
-
-    # ut: Type = tp.unqualified_type
-
-    # # Detect a `T * const`... Doesn't really affect us
-    # if isinstance(ut, PointerType):
-    #   return self.lift_type(ut)
-
     # tp_str = " ".join(str(tok) for tok in PrintedTokenRange.create(tp))
-    # print(f"Ignoring {ut.__class__.__name__}: {tp_str}")
-    # return self.unknown_schema
+    # print(f"*** Ignoring {tp.__class__.__name__}: {tp_str}")
+    return self.unknown_schema
 
   def _lift_reference_type(self, tp: ReferenceType) -> Schema:
     pt: Type = tp.pointee_type
@@ -719,16 +750,25 @@ class SchemaLifter:
     return self.builtin_type_schemas.get(tp.builtin_kind, self.unknown_schema)
 
   def _lift_typedef_type(self, tp: TypedefType) -> Schema:
-    return self._lift_typedef(tp.declaration)
+    return self.lift_decl(tp.declaration)
 
   def _lift_elaborated_type(self, tp: ElaboratedType) -> Schema:
     return self.lift_type(tp.desugar)
 
   def _lift_spec_type(self, tp: TemplateSpecializationType) -> Schema:
+    if not tp.is_sugared:
+      return self.unknown_schema
     return self.lift_type(tp.desugar)
 
   def _lift_substituted_type(self, tp: SubstTemplateTypeParmType) -> Schema:
-    return self.lift_type(tp.replacement_type)
+    if not tp.is_sugared:
+      return self.unknown_schema
+    
+    schema = self.lift_type(tp.desugar)
+    if isinstance(schema, UnknownSchema):
+      tp_str = " ".join(str(tok) for tok in PrintedTokenRange.create(tp.replacement_type))
+      print(f"### Unsugared {tp.desugar.__class__.__name__} {tp_str}")
+    return schema
 
   def _lift_using_type(self, tp: UsingType) -> Schema:
     return self.lift_decl(tp.found_declaration.target_declaration)
@@ -774,38 +814,11 @@ class SchemaLifter:
   def _lift_unsupported(self, *args) -> Schema:
     return self.unknown_schema
 
-  def _lift_std_filesystem_path(self, tag: TagDecl) -> Schema:
-    return self.std_path_schema
-
-  def _lift_std_string(self, tag: TagDecl) -> Schema:
-    arg = self._lift_nth_template_argument(tag, 0)
-    if not isinstance(arg, Int8Schema):
-      return self.unknown_schema
-    return self.std_string_schema
-
-  def _lift_std_string_view(self, tag: TagDecl) -> Schema:
-    arg = self._lift_nth_template_argument(tag, 0)
-    if not isinstance(arg, Int8Schema):
-      return self.unknown_schema
-    return self.std_string_view_schema
-
   def _lift_1_parameter(self, tag: TagDecl, container: type[Schema]) -> Schema:
     arg = self._lift_nth_template_argument(tag, 0)
-    if not isinstance(arg, Int8Schema):
+    if isinstance(arg, UnknownSchema):
       return self.unknown_schema
     return container(arg)
-
-  def _lift_std_optional(self, tag: TagDecl) -> Schema:
-    return self._lift_1_parameter(tag, StdOptionalSchema)
-
-  def _lift_std_vector(self, tag: TagDecl) -> Schema:
-    return self._lift_1_parameter(tag, StdVectorSchema)
-
-  def _lift_std_set(self, tag: TagDecl) -> Schema:
-    return self._lift_1_parameter(tag, StdSetSchema)
-
-  def _lift_std_unordered_set(self, tag: TagDecl) -> Schema:
-    return self._lift_1_parameter(tag, StdUnorderedSetSchema)
 
   def _lift_2_parameter(self, tag: TagDecl, container: type[Schema]) -> Schema:
     key = self._lift_nth_template_argument(tag, 0)
@@ -814,11 +827,20 @@ class SchemaLifter:
       return self.unknown_schema
     return container(key, val)
 
-  def _lift_std_map(self, tag: TagDecl) -> Schema:
-    return self._lift_2_parameter(tag, StdMapSchema)
+  def _make_lifter(self, constructor: type[Schema]) -> Callable[[TagDecl], Schema]:
+    def do_lift(tag: TagDecl):
+      return constructor()
+    return do_lift
 
-  def _lift_std_unordered_map(self, tag: TagDecl) -> Schema:
-    return self._lift_2_parameter(tag, StdUnorderedMapSchema)
+  def _make_1_parameter_lifter(self, constructor: type[Schema]) -> Callable[[TagDecl], Schema]:
+    def do_lift(tag: TagDecl):
+      return self._lift_1_parameter(tag, constructor)
+    return do_lift
+
+  def _make_2_parameter_lifter(self, constructor: type[Schema]) -> Callable[[TagDecl], Schema]:
+    def do_lift(tag: TagDecl):
+      return self._lift_2_parameter(tag, constructor)
+    return do_lift
 
   def _lift_std_shared_ptr(self, tag: TagDecl) -> Schema:
     arg = self._lift_nth_template_argument(tag, 0)
@@ -831,20 +853,6 @@ class SchemaLifter:
     if isinstance(arg, (UnknownSchema, PointerLikeSchema, CStringSchema)):
       return self.unknown_schema
     return StdUniquePtrSchema(arg)
-
-  def _lift_std_wrap_iter(self, tag: TagDecl) -> Schema:
-    return self._lift_nth_template_argument(tag, 0)
-
-  def _lift_gap_generator(self, tag: TagDecl) -> Schema:
-    arg = self._lift_nth_template_argument(tag, 0)
-    if isinstance(arg, UnknownSchema):
-      return self.unknown_schema
-    return GapGeneratorSchema(arg)
-
-  def _make_lifter(self, constructor: type[Schema]) -> Callable[[TagDecl], Schema]:
-    def do_lift(tag: TagDecl):
-      return constructor()
-    return do_lift
 
   def _lift_tag_type(self, tp: TagType) -> Schema:
     """Lift a `TagType` into a `Schema`. This tries to
@@ -864,14 +872,21 @@ class SchemaLifter:
       assert False, f"Missing support for standard library type {qual_name}"
       return self.unknown_schema
 
-    if "llvm::" in qual_name:
-      print(f"!!! {qual_name}")
+    error = []
+    schema = self.lift_decl(tag, error)
 
-    return self.lift_decl(tag)
+    if "llvm::" in qual_name and isinstance(schema, UnknownSchema):
+      tp_str = " ".join(str(tok) for tok in PrintedTokenRange.create(tp))
+      e = '\n'.join(error)
+      print(f"!!! {qual_name} unsupported: {tp_str} error: {e}")
+
+    return schema
 
   def lift_type(self, tp: Type) -> Schema:
     """Lift a `Type` into a `Schema`. Returns `UnknownSchema` when the type
     isn't supported."""
+    assert isinstance(tp, Type)
+
     schema: Optional[Schema] = self.type_schemas.get(tp)
     if schema:
       return schema

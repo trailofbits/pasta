@@ -52,6 +52,16 @@ class MethodSchema(NamedSchema):
   # Is this method `const`-qualified?
   is_const: bool
 
+  # Marks whether or not this method is actually inherited by something that
+  # isn't representable in the schema format. For example, an
+  # `clang::OMPThreadPrivateDecl` extends `clang::OMPDeclarativeDirective<Decl>`
+  # which extends `Decl`. We don't represent class template specializations
+  # in the schema format, so what we do is we say that `OMPThreadPrivateDecl`
+  # extends `Decl`, and then we replicate the normally inherited methods from
+  # `OMPDeclarativeDirective` into `OMPThreadPrivateDecl`, marking them as
+  # `is_inherited`.
+  is_inherited: bool
+
   def __init__(self, name: str, return_type: Schema):
     super().__init__(name)
     self.return_type = return_type
@@ -64,7 +74,8 @@ class MethodSchema(NamedSchema):
       params = " -> ".join("({} {})".format(p.element_type, p.name) for p in self.parameters)
       params += " -> "
     const = self.is_const and " CONST" or ""
-    print(f"{indent}{self.name}{const} :: {params}{self.return_type}")
+    inherited = self.is_inherited and " INHERITED" or ""
+    print(f"{indent}{self.name}{const}{inherited} :: {params}{self.return_type}")
 
 
 class OverloadSetSchema(NamedSchema):
@@ -274,6 +285,16 @@ class StdUnorderedMapSchema(DictionaryLikeSchema):
 
 class GapGeneratorSchema(ParameterizedSchema):
   """Corresponds to a `gap::generator<T>`."""
+  pass
+
+
+class LLVMArrayRefSchema(ContainerLikeSchema):
+  """Corresponds to an `llvm::ArrayRef<T>`."""
+  pass
+
+
+class LLVMSmallVectorSchema(ContainerLikeSchema):
+  """Corresponds to an `llvm::SmallVector<T>`."""
   pass
 
 

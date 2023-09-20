@@ -338,6 +338,8 @@ CreateAdjustedCompilerCommand(FileSystemView &fs, const Compiler &compiler,
         prefix = "-Xclang";
       } else {
         prefix = "-Xassembler";
+      } else {
+        prefix = "-Xclang";
       }
 
     // A `-cc1` input argument.

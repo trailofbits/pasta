@@ -40,7 +40,7 @@ static void TryLocateAttribute(const clang::Attr *A,
 
   switch (A->getSyntax()) {
     case clang::AttributeCommonInfo::AS_CXX11:
-    case clang::AttributeCommonInfo::AS_C2x:
+    case clang::AttributeCommonInfo::AS_C23:
       opener_kind = clang::tok::l_square;
       expected_num_openers = 2u;
       break;

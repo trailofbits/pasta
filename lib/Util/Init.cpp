@@ -27,10 +27,6 @@ InitLLVM::InitLLVM(void) {
   // We're a library, and we *don't* want LLVM to do any crash recovery on
   // our behalf.
   llvm::CrashRecoveryContext::Disable();
-  llvm::InitializeAllTargets();
-  llvm::InitializeAllTargetMCs();
-  llvm::InitializeAllAsmPrinters();
-  llvm::InitializeAllAsmParsers();
   llvm::sys::DynamicLibrary::LoadLibraryPermanently(nullptr);
 }
 

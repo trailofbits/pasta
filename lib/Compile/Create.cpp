@@ -7,8 +7,8 @@
 #pragma clang diagnostic ignored "-Wsign-conversion"
 #pragma clang diagnostic ignored "-Wshorten-64-to-32"
 #include <llvm/ADT/StringRef.h>
-#include <llvm/ADT/Triple.h>
 #include <llvm/Support/Error.h>
+#include <llvm/TargetParser/Triple.h>
 #pragma clang diagnostic pop
 
 #include <pasta/Util/ArgumentVector.h>

@@ -1440,7 +1440,7 @@ void DeclPrinter::VisitStaticAssertDecl(clang::StaticAssertDecl *D) {
   TokenPrinterContext ctx(Out, D, tokens);
   Out << "static_assert(";
   printPrettyStmt(D->getAssertExpr(), Out, nullptr, Policy, Indentation);
-  if (clang::StringLiteral *SL = D->getMessage()) {
+  if (clang::Expr *SL = D->getMessage()) {
     Out << ", ";
     printPrettyStmt(SL, Out, nullptr, Policy, Indentation);
   }

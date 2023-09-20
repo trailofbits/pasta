@@ -13,6 +13,8 @@
 
 #include "DeclStmtPrinter.h"
 
+#include <llvm/ADT/StringExtras.h>
+
 //===----------------------------------------------------------------------===//
 //  Stmt printing methods.
 //===----------------------------------------------------------------------===//
@@ -1985,7 +1987,7 @@ void StmtPrinter::VisitDesignatedInitExpr(clang::DesignatedInitExpr *Node) {
     TokenPrinterContext ctx(OS, &D, tokens);
     if (D.isFieldDesignator()) {
       if (D.getDotLoc().isInvalid()) {
-        if (clang::IdentifierInfo *II = D.getFieldName()) {
+        if (auto *II = D.getFieldName()) {
           OS << II->getName();
           ctx.MarkLocation(D.getFieldLoc());
           OS << ":";

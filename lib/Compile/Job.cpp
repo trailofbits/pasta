@@ -101,8 +101,10 @@ static bool OmitOption(unsigned id) {
     case clang::driver::options::OPT_fdebug_compilation_dir_EQ:
     case clang::driver::options::OPT_fcoverage_compilation_dir_EQ:
     case clang::driver::options::OPT_fcoverage_mapping:
+    case clang::driver::options::OPT_fno_coverage_mapping:
     case clang::driver::options::OPT_fcoverage_prefix_map_EQ:
     case clang::driver::options::OPT_fcrash_diagnostics_dir:
+    case clang::driver::options::OPT_coverage_version_EQ:
 
     // Randomization.
     case clang::driver::options::OPT_frandom_seed_EQ:
@@ -110,13 +112,8 @@ static bool OmitOption(unsigned id) {
     case clang::driver::options::OPT_frandomize_layout_seed_file_EQ:
 
     // File references.
-    case clang::driver::options::OPT_frewrite_map_file_EQ:
     case clang::driver::options::OPT_fprofile_remapping_file_EQ:
     case clang::driver::options::OPT_fmodules_embed_file_EQ:
-    case clang::driver::options::OPT_coverage_data_file_EQ:
-    case clang::driver::options::OPT_coverage_data_file:
-    case clang::driver::options::OPT_coverage_notes_file_EQ:
-    case clang::driver::options::OPT_coverage_notes_file:
     case clang::driver::options::OPT_foptimization_record_file_EQ:
     case clang::driver::options::OPT_dependency_file:
     case clang::driver::options::OPT_dependent_lib:
@@ -321,30 +318,28 @@ CreateAdjustedCompilerCommand(FileSystemView &fs, const Compiler &compiler,
     const auto &opt = arg->getOption();
     const char *prefix = nullptr;
 
+    auto is_cc1_opt = opt.hasFlag(clang::driver::options::CC1Option);
+    auto is_cc1as_opt = opt.hasFlag(clang::driver::options::CC1AsOption);
+
     // A linker input argument.
     if (opt.hasFlag(clang::driver::options::LinkerInput)) {
-      prefix = "-Xlinker";
+      prefix = "-Xlinker";      
 
-    } else if (opt.hasFlag(clang::driver::options::NoDriverOption)) {
-      auto is_cc1_opt = opt.hasFlag(clang::driver::options::CC1Option);
-      auto is_cc1as_opt = opt.hasFlag(clang::driver::options::CC1AsOption);
-
-      // Applies to either `-cc1` or `-cc1as`; choose one.
-      if (is_cc1_opt && is_cc1as_opt) {
-        if (is_cc1as) {
-          prefix = "-Xassembler";
-        } else {
-          prefix = "-Xclang";
-        }
-
-      // A `-cc1` input argument.
-      } else if (is_cc1_opt) {
-        prefix = "-Xclang";
-
-      // An assembler `-cc1as` linker argument.
-      } else if (is_cc1as_opt) {
+    // Applies to either `-cc1` or `-cc1as`; choose one.
+    } else if (is_cc1_opt && is_cc1as_opt) {
+      if (is_cc1as) {
         prefix = "-Xassembler";
+      } else {
+        prefix = "-Xclang";
       }
+
+    // A `-cc1` input argument.
+    } else if (is_cc1_opt) {
+      prefix = "-Xclang";
+
+    // An assembler `-cc1as` linker argument.
+    } else if (is_cc1as_opt) {
+      prefix = "-Xassembler";
     }
 
     const auto id = arg->getOption().getID();
@@ -638,8 +633,6 @@ Compiler::CreateJobsForCommand(const CompileCommand &command) const {
   unsigned int driver_options =
       clang::driver::options::CC1Option |
       clang::driver::options::CC1AsOption |
-      clang::driver::options::CoreOption |
-      clang::driver::options::NoDriverOption |
       clang::driver::options::NoXarchOption; // Used to be `DriverOption`.
   unsigned int excluded_driver_options = 0;
 

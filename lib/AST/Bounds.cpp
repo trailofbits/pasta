@@ -685,7 +685,7 @@ class DeclBoundsFinder : public clang::DeclVisitor<DeclBoundsFinder>,
       }
       // [[...]]
       case clang::AttributeCommonInfo::AS_CXX11:
-      case clang::AttributeCommonInfo::AS_C2x: {
+      case clang::AttributeCommonInfo::AS_C23: {
         if (auto punc = FindPrev(tok, clang::tok::TokenKind::l_square)) {
           Expand(punc);
           if (punc[-1].Kind() == clang::tok::TokenKind::l_square) {

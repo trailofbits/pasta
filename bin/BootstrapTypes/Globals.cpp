@@ -1194,7 +1194,11 @@ std::set<std::pair<std::string, std::string>> kCanReturnNullptr{
   {"Decl", "DeclarationContext"},
   {"Decl", "LexicalDeclarationContext"},
   {"NamespaceDecl", "AnonymousNamespace"},
-
+  {"EnumDecl", "Definition"},
+  {"RecordDecl", "Definition"},
+  {"CXXRecordDecl", "Definition"},
+  {"ObjCInterfaceDecl", "Definition"},
+  {"ObjCProtocolDecl", "Definition"},
 //  {"FunctionProtoType", "EllipsisToken"},
 //  {"FunctionDecl", "EllipsisToken"},
 //  {"FunctionDecl", "PointOfInstantiation"},

@@ -326,6 +326,7 @@ class Type {
   ::pasta::Type RVVEltType(void) const;
   std::optional<enum TypeScalarTypeKind> ScalarTypeKind(void) const;
   std::optional<::pasta::Type> SveElementType(void) const;
+  ::pasta::TypeKind Kind(void) const;
   std::string_view KindName(void) const;
   ::pasta::Type UnqualifiedDesugaredType(void) const;
   enum Visibility Visibility(void) const;

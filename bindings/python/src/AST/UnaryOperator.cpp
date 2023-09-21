@@ -17,7 +17,7 @@ namespace nb = nanobind;
 
 void RegisterUnaryOperator(nb::module_ &m) {
   nb::class_<UnaryOperator, Expr>(m, "UnaryOperator")
-    .def("__hash__", [](const UnaryOperator& stmt) { return (intptr_t)stmt.RawStmt(); })
+    .def("__hash__", [](const UnaryOperator& stmt) { return reinterpret_cast<intptr_t>(stmt.RawStmt()); })
     .def("__eq__", [](const Stmt& a, const Stmt& b) { return a.RawStmt() == b.RawStmt(); })
     .def_prop_ro("can_overflow", &UnaryOperator::CanOverflow)
     .def_prop_ro("children", &UnaryOperator::Children)

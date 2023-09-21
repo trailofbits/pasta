@@ -17,7 +17,7 @@ namespace nb = nanobind;
 
 void RegisterDeclaratorDecl(nb::module_ &m) {
   nb::class_<DeclaratorDecl, ValueDecl>(m, "DeclaratorDecl")
-    .def("__hash__", [](const DeclaratorDecl &decl) { return (intptr_t)decl.RawDecl(); })
+    .def("__hash__", [](const DeclaratorDecl &decl) { return reinterpret_cast<intptr_t>(decl.RawDecl()); })
     .def("__eq__", [](const Decl &a, const Decl &b) { return a.RawDecl() == b.RawDecl(); })
     .def_prop_ro("begin_token", &DeclaratorDecl::BeginToken)
     .def_prop_ro("first_inner_token", &DeclaratorDecl::FirstInnerToken)

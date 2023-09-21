@@ -17,7 +17,7 @@ namespace nb = nanobind;
 
 void RegisterLambdaExpr(nb::module_ &m) {
   nb::class_<LambdaExpr, Expr>(m, "LambdaExpr")
-    .def("__hash__", [](const LambdaExpr& stmt) { return (intptr_t)stmt.RawStmt(); })
+    .def("__hash__", [](const LambdaExpr& stmt) { return reinterpret_cast<intptr_t>(stmt.RawStmt()); })
     .def("__eq__", [](const Stmt& a, const Stmt& b) { return a.RawStmt() == b.RawStmt(); })
     .def_prop_ro("children", &LambdaExpr::Children)
     .def_prop_ro("begin_token", &LambdaExpr::BeginToken)

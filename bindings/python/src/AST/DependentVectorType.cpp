@@ -17,7 +17,7 @@ namespace nb = nanobind;
 
 void RegisterDependentVectorType(nb::module_ &m) {
   nb::class_<DependentVectorType, Type>(m, "DependentVectorType")
-    .def("__hash__", [](const DependentVectorType &type) { return (intptr_t)type.RawType(); })
+    .def("__hash__", [](const DependentVectorType &type) { return reinterpret_cast<intptr_t>(type.RawType()); })
     .def("__eq__", [](const Type &a, const Type &b) { return a.RawType() == b.RawType(); })
     .def_prop_ro("desugar", &DependentVectorType::Desugar)
     .def_prop_ro("attribute_token", &DependentVectorType::AttributeToken)

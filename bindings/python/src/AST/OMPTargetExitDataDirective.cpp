@@ -17,7 +17,7 @@ namespace nb = nanobind;
 
 void RegisterOMPTargetExitDataDirective(nb::module_ &m) {
   nb::class_<OMPTargetExitDataDirective, OMPExecutableDirective>(m, "OMPTargetExitDataDirective")
-    .def("__hash__", [](const OMPTargetExitDataDirective& stmt) { return (intptr_t)stmt.RawStmt(); })
+    .def("__hash__", [](const OMPTargetExitDataDirective& stmt) { return reinterpret_cast<intptr_t>(stmt.RawStmt()); })
     .def("__eq__", [](const Stmt& a, const Stmt& b) { return a.RawStmt() == b.RawStmt(); });
 }
 } // namespace pasta

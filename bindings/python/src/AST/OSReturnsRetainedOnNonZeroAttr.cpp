@@ -17,7 +17,7 @@ namespace nb = nanobind;
 
 void RegisterOSReturnsRetainedOnNonZeroAttr(nb::module_ &m) {
   nb::class_<OSReturnsRetainedOnNonZeroAttr, InheritableAttr>(m, "OSReturnsRetainedOnNonZeroAttr")
-    .def("__hash__", [](const OSReturnsRetainedOnNonZeroAttr &attr) { return (intptr_t)attr.RawAttr(); })
+    .def("__hash__", [](const OSReturnsRetainedOnNonZeroAttr &attr) { return reinterpret_cast<intptr_t>(attr.RawAttr()); })
     .def("__eq__", [](const Attr &a, const Attr &b) { return a.RawAttr() == b.RawAttr(); })
     .def_prop_ro("spelling", &OSReturnsRetainedOnNonZeroAttr::Spelling);
 }

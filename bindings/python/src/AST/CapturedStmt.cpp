@@ -17,7 +17,7 @@ namespace nb = nanobind;
 
 void RegisterCapturedStmt(nb::module_ &m) {
   nb::class_<CapturedStmt, Stmt>(m, "CapturedStmt")
-    .def("__hash__", [](const CapturedStmt& stmt) { return (intptr_t)stmt.RawStmt(); })
+    .def("__hash__", [](const CapturedStmt& stmt) { return reinterpret_cast<intptr_t>(stmt.RawStmt()); })
     .def("__eq__", [](const Stmt& a, const Stmt& b) { return a.RawStmt() == b.RawStmt(); })
     .def_prop_ro("children", &CapturedStmt::Children)
     .def_prop_ro("begin_token", &CapturedStmt::BeginToken)

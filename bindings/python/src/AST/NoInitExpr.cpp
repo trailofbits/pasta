@@ -17,7 +17,7 @@ namespace nb = nanobind;
 
 void RegisterNoInitExpr(nb::module_ &m) {
   nb::class_<NoInitExpr, Expr>(m, "NoInitExpr")
-    .def("__hash__", [](const NoInitExpr& stmt) { return (intptr_t)stmt.RawStmt(); })
+    .def("__hash__", [](const NoInitExpr& stmt) { return reinterpret_cast<intptr_t>(stmt.RawStmt()); })
     .def("__eq__", [](const Stmt& a, const Stmt& b) { return a.RawStmt() == b.RawStmt(); })
     .def_prop_ro("children", &NoInitExpr::Children)
     .def_prop_ro("begin_token", &NoInitExpr::BeginToken)

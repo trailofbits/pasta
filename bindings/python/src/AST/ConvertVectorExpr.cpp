@@ -17,7 +17,7 @@ namespace nb = nanobind;
 
 void RegisterConvertVectorExpr(nb::module_ &m) {
   nb::class_<ConvertVectorExpr, Expr>(m, "ConvertVectorExpr")
-    .def("__hash__", [](const ConvertVectorExpr& stmt) { return (intptr_t)stmt.RawStmt(); })
+    .def("__hash__", [](const ConvertVectorExpr& stmt) { return reinterpret_cast<intptr_t>(stmt.RawStmt()); })
     .def("__eq__", [](const Stmt& a, const Stmt& b) { return a.RawStmt() == b.RawStmt(); })
     .def_prop_ro("children", &ConvertVectorExpr::Children)
     .def_prop_ro("begin_token", &ConvertVectorExpr::BeginToken)

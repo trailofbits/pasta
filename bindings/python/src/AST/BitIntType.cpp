@@ -17,7 +17,7 @@ namespace nb = nanobind;
 
 void RegisterBitIntType(nb::module_ &m) {
   nb::class_<BitIntType, Type>(m, "BitIntType")
-    .def("__hash__", [](const BitIntType &type) { return (intptr_t)type.RawType(); })
+    .def("__hash__", [](const BitIntType &type) { return reinterpret_cast<intptr_t>(type.RawType()); })
     .def("__eq__", [](const Type &a, const Type &b) { return a.RawType() == b.RawType(); })
     .def_prop_ro("desugar", &BitIntType::Desugar)
     .def_prop_ro("num_bits", &BitIntType::NumBits)

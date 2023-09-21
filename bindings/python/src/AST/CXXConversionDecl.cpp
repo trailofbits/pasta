@@ -17,7 +17,7 @@ namespace nb = nanobind;
 
 void RegisterCXXConversionDecl(nb::module_ &m) {
   nb::class_<CXXConversionDecl, CXXMethodDecl>(m, "CXXConversionDecl")
-    .def("__hash__", [](const CXXConversionDecl &decl) { return (intptr_t)decl.RawDecl(); })
+    .def("__hash__", [](const CXXConversionDecl &decl) { return reinterpret_cast<intptr_t>(decl.RawDecl()); })
     .def("__eq__", [](const Decl &a, const Decl &b) { return a.RawDecl() == b.RawDecl(); })
     .def_prop_ro("canonical_declaration", &CXXConversionDecl::CanonicalDeclaration)
     .def_prop_ro("conversion_type", &CXXConversionDecl::ConversionType)

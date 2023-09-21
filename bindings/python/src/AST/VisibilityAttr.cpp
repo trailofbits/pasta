@@ -17,7 +17,7 @@ namespace nb = nanobind;
 
 void RegisterVisibilityAttr(nb::module_ &m) {
   nb::class_<VisibilityAttr, InheritableAttr>(m, "VisibilityAttr")
-    .def("__hash__", [](const VisibilityAttr &attr) { return (intptr_t)attr.RawAttr(); })
+    .def("__hash__", [](const VisibilityAttr &attr) { return reinterpret_cast<intptr_t>(attr.RawAttr()); })
     .def("__eq__", [](const Attr &a, const Attr &b) { return a.RawAttr() == b.RawAttr(); })
     .def_prop_ro("spelling", &VisibilityAttr::Spelling)
     .def_prop_ro("visibility", &VisibilityAttr::Visibility);

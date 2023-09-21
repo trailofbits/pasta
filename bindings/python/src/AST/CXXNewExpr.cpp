@@ -17,7 +17,7 @@ namespace nb = nanobind;
 
 void RegisterCXXNewExpr(nb::module_ &m) {
   nb::class_<CXXNewExpr, Expr>(m, "CXXNewExpr")
-    .def("__hash__", [](const CXXNewExpr& stmt) { return (intptr_t)stmt.RawStmt(); })
+    .def("__hash__", [](const CXXNewExpr& stmt) { return reinterpret_cast<intptr_t>(stmt.RawStmt()); })
     .def("__eq__", [](const Stmt& a, const Stmt& b) { return a.RawStmt() == b.RawStmt(); })
     .def_prop_ro("children", &CXXNewExpr::Children)
     .def_prop_ro("does_usual_array_delete_want_size", &CXXNewExpr::DoesUsualArrayDeleteWantSize)

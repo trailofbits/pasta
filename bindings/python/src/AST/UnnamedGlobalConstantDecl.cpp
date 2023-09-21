@@ -17,7 +17,7 @@ namespace nb = nanobind;
 
 void RegisterUnnamedGlobalConstantDecl(nb::module_ &m) {
   nb::class_<UnnamedGlobalConstantDecl, ValueDecl>(m, "UnnamedGlobalConstantDecl")
-    .def("__hash__", [](const UnnamedGlobalConstantDecl &decl) { return (intptr_t)decl.RawDecl(); })
+    .def("__hash__", [](const UnnamedGlobalConstantDecl &decl) { return reinterpret_cast<intptr_t>(decl.RawDecl()); })
     .def("__eq__", [](const Decl &a, const Decl &b) { return a.RawDecl() == b.RawDecl(); });
 }
 } // namespace pasta

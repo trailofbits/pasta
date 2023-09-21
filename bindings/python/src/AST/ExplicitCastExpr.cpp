@@ -17,7 +17,7 @@ namespace nb = nanobind;
 
 void RegisterExplicitCastExpr(nb::module_ &m) {
   nb::class_<ExplicitCastExpr, CastExpr>(m, "ExplicitCastExpr")
-    .def("__hash__", [](const ExplicitCastExpr& stmt) { return (intptr_t)stmt.RawStmt(); })
+    .def("__hash__", [](const ExplicitCastExpr& stmt) { return reinterpret_cast<intptr_t>(stmt.RawStmt()); })
     .def("__eq__", [](const Stmt& a, const Stmt& b) { return a.RawStmt() == b.RawStmt(); })
     .def_prop_ro("type_as_written", &ExplicitCastExpr::TypeAsWritten)
     .def_prop_ro("type_info_as_written", &ExplicitCastExpr::TypeInfoAsWritten);

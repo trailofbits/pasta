@@ -17,7 +17,7 @@ namespace nb = nanobind;
 
 void RegisterParmVarDecl(nb::module_ &m) {
   nb::class_<ParmVarDecl, VarDecl>(m, "ParmVarDecl")
-    .def("__hash__", [](const ParmVarDecl &decl) { return (intptr_t)decl.RawDecl(); })
+    .def("__hash__", [](const ParmVarDecl &decl) { return reinterpret_cast<intptr_t>(decl.RawDecl()); })
     .def("__eq__", [](const Decl &a, const Decl &b) { return a.RawDecl() == b.RawDecl(); })
     .def_prop_ro("default_argument", &ParmVarDecl::DefaultArgument)
     .def_prop_ro("default_argument_range", &ParmVarDecl::DefaultArgumentRange)

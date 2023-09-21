@@ -17,7 +17,7 @@ namespace nb = nanobind;
 
 void RegisterUnresolvedUsingValueDecl(nb::module_ &m) {
   nb::class_<UnresolvedUsingValueDecl, ValueDecl>(m, "UnresolvedUsingValueDecl")
-    .def("__hash__", [](const UnresolvedUsingValueDecl &decl) { return (intptr_t)decl.RawDecl(); })
+    .def("__hash__", [](const UnresolvedUsingValueDecl &decl) { return reinterpret_cast<intptr_t>(decl.RawDecl()); })
     .def("__eq__", [](const Decl &a, const Decl &b) { return a.RawDecl() == b.RawDecl(); })
     .def_prop_ro("canonical_declaration", &UnresolvedUsingValueDecl::CanonicalDeclaration)
     .def_prop_ro("ellipsis_token", &UnresolvedUsingValueDecl::EllipsisToken)

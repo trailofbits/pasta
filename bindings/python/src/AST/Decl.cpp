@@ -17,7 +17,7 @@ namespace nb = nanobind;
 
 void RegisterDecl(nb::module_ &m) {
   nb::class_<Decl>(m, "Decl")
-    .def("__hash__", [](const Decl &decl) { return (intptr_t)decl.RawDecl(); })
+    .def("__hash__", [](const Decl &decl) { return reinterpret_cast<intptr_t>(decl.RawDecl()); })
     .def("__eq__", [](const Decl &a, const Decl &b) { return a.RawDecl() == b.RawDecl(); })
     .def_prop_ro("kind", &Decl::Kind)
     .def_prop_ro("kind_name", &Decl::KindName)
@@ -63,7 +63,9 @@ void RegisterDecl(nb::module_ &m) {
     .def_prop_ro("is_first_declaration", &Decl::IsFirstDeclaration)
     .def_prop_ro("is_from_ast_file", &Decl::IsFromASTFile)
     .def_prop_ro("is_function_or_function_template", &Decl::IsFunctionOrFunctionTemplate)
+    .def_prop_ro("is_function_pointer_type", &Decl::IsFunctionPointerType)
     .def_prop_ro("is_in_anonymous_namespace", &Decl::IsInAnonymousNamespace)
+    .def_prop_ro("is_in_another_module_unit", &Decl::IsInAnotherModuleUnit)
     .def_prop_ro("is_in_export_declaration_context", &Decl::IsInExportDeclarationContext)
     .def_prop_ro("is_in_local_scope_for_instantiation", &Decl::IsInLocalScopeForInstantiation)
     .def_prop_ro("is_in_std_namespace", &Decl::IsInStdNamespace)

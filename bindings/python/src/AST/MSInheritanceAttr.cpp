@@ -17,7 +17,7 @@ namespace nb = nanobind;
 
 void RegisterMSInheritanceAttr(nb::module_ &m) {
   nb::class_<MSInheritanceAttr, InheritableAttr>(m, "MSInheritanceAttr")
-    .def("__hash__", [](const MSInheritanceAttr &attr) { return (intptr_t)attr.RawAttr(); })
+    .def("__hash__", [](const MSInheritanceAttr &attr) { return reinterpret_cast<intptr_t>(attr.RawAttr()); })
     .def("__eq__", [](const Attr &a, const Attr &b) { return a.RawAttr() == b.RawAttr(); })
     .def_prop_ro("best_case", &MSInheritanceAttr::BestCase)
     .def_prop_ro("inheritance_model", &MSInheritanceAttr::InheritanceModel)

@@ -17,11 +17,12 @@ namespace nb = nanobind;
 
 void RegisterFunctionProtoType(nb::module_ &m) {
   nb::class_<FunctionProtoType, FunctionType>(m, "FunctionProtoType")
-    .def("__hash__", [](const FunctionProtoType &type) { return (intptr_t)type.RawType(); })
+    .def("__hash__", [](const FunctionProtoType &type) { return reinterpret_cast<intptr_t>(type.RawType()); })
     .def("__eq__", [](const Type &a, const Type &b) { return a.RawType() == b.RawType(); })
     .def_prop_ro("can_throw", &FunctionProtoType::CanThrow)
     .def_prop_ro("desugar", &FunctionProtoType::Desugar)
     .def_prop_ro("exceptions", &FunctionProtoType::Exceptions)
+    .def_prop_ro("a_arch64_sme_attributes", &FunctionProtoType::AArch64SMEAttributes)
     .def_prop_ro("ellipsis_token", &FunctionProtoType::EllipsisToken)
     .def_prop_ro("exception_spec_declaration", &FunctionProtoType::ExceptionSpecDeclaration)
     .def_prop_ro("exception_spec_template", &FunctionProtoType::ExceptionSpecTemplate)

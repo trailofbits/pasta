@@ -17,7 +17,7 @@ namespace nb = nanobind;
 
 void RegisterTemplateTemplateParmDecl(nb::module_ &m) {
   nb::class_<TemplateTemplateParmDecl, TemplateDecl>(m, "TemplateTemplateParmDecl")
-    .def("__hash__", [](const TemplateTemplateParmDecl &decl) { return (intptr_t)decl.RawDecl(); })
+    .def("__hash__", [](const TemplateTemplateParmDecl &decl) { return reinterpret_cast<intptr_t>(decl.RawDecl()); })
     .def("__eq__", [](const Decl &a, const Decl &b) { return a.RawDecl() == b.RawDecl(); })
     .def_prop_ro("default_argument_was_inherited", &TemplateTemplateParmDecl::DefaultArgumentWasInherited)
     .def_prop_ro("default_argument_token", &TemplateTemplateParmDecl::DefaultArgumentToken)

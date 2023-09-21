@@ -17,7 +17,7 @@ namespace nb = nanobind;
 
 void RegisterEmptyBasesAttr(nb::module_ &m) {
   nb::class_<EmptyBasesAttr, InheritableAttr>(m, "EmptyBasesAttr")
-    .def("__hash__", [](const EmptyBasesAttr &attr) { return (intptr_t)attr.RawAttr(); })
+    .def("__hash__", [](const EmptyBasesAttr &attr) { return reinterpret_cast<intptr_t>(attr.RawAttr()); })
     .def("__eq__", [](const Attr &a, const Attr &b) { return a.RawAttr() == b.RawAttr(); })
     .def_prop_ro("spelling", &EmptyBasesAttr::Spelling);
 }

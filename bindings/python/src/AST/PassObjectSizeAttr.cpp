@@ -17,7 +17,7 @@ namespace nb = nanobind;
 
 void RegisterPassObjectSizeAttr(nb::module_ &m) {
   nb::class_<PassObjectSizeAttr, InheritableParamAttr>(m, "PassObjectSizeAttr")
-    .def("__hash__", [](const PassObjectSizeAttr &attr) { return (intptr_t)attr.RawAttr(); })
+    .def("__hash__", [](const PassObjectSizeAttr &attr) { return reinterpret_cast<intptr_t>(attr.RawAttr()); })
     .def("__eq__", [](const Attr &a, const Attr &b) { return a.RawAttr() == b.RawAttr(); })
     .def_prop_ro("semantic_spelling", &PassObjectSizeAttr::SemanticSpelling)
     .def_prop_ro("spelling", &PassObjectSizeAttr::Spelling)

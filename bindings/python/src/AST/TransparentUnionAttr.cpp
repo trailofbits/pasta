@@ -17,7 +17,7 @@ namespace nb = nanobind;
 
 void RegisterTransparentUnionAttr(nb::module_ &m) {
   nb::class_<TransparentUnionAttr, InheritableAttr>(m, "TransparentUnionAttr")
-    .def("__hash__", [](const TransparentUnionAttr &attr) { return (intptr_t)attr.RawAttr(); })
+    .def("__hash__", [](const TransparentUnionAttr &attr) { return reinterpret_cast<intptr_t>(attr.RawAttr()); })
     .def("__eq__", [](const Attr &a, const Attr &b) { return a.RawAttr() == b.RawAttr(); })
     .def_prop_ro("spelling", &TransparentUnionAttr::Spelling);
 }

@@ -17,7 +17,7 @@ namespace nb = nanobind;
 
 void RegisterVarTemplateSpecializationDecl(nb::module_ &m) {
   nb::class_<VarTemplateSpecializationDecl, VarDecl>(m, "VarTemplateSpecializationDecl")
-    .def("__hash__", [](const VarTemplateSpecializationDecl &decl) { return (intptr_t)decl.RawDecl(); })
+    .def("__hash__", [](const VarTemplateSpecializationDecl &decl) { return reinterpret_cast<intptr_t>(decl.RawDecl()); })
     .def("__eq__", [](const Decl &a, const Decl &b) { return a.RawDecl() == b.RawDecl(); })
     .def_prop_ro("extern_token", &VarTemplateSpecializationDecl::ExternToken)
     .def_prop_ro("instantiated_from", &VarTemplateSpecializationDecl::InstantiatedFrom)

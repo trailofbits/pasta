@@ -17,7 +17,7 @@ namespace nb = nanobind;
 
 void RegisterOMPCanonicalLoop(nb::module_ &m) {
   nb::class_<OMPCanonicalLoop, Stmt>(m, "OMPCanonicalLoop")
-    .def("__hash__", [](const OMPCanonicalLoop& stmt) { return (intptr_t)stmt.RawStmt(); })
+    .def("__hash__", [](const OMPCanonicalLoop& stmt) { return reinterpret_cast<intptr_t>(stmt.RawStmt()); })
     .def("__eq__", [](const Stmt& a, const Stmt& b) { return a.RawStmt() == b.RawStmt(); })
     .def_prop_ro("children", &OMPCanonicalLoop::Children)
     .def_prop_ro("begin_token", &OMPCanonicalLoop::BeginToken)

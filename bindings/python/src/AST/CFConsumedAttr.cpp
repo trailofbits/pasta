@@ -17,7 +17,7 @@ namespace nb = nanobind;
 
 void RegisterCFConsumedAttr(nb::module_ &m) {
   nb::class_<CFConsumedAttr, InheritableParamAttr>(m, "CFConsumedAttr")
-    .def("__hash__", [](const CFConsumedAttr &attr) { return (intptr_t)attr.RawAttr(); })
+    .def("__hash__", [](const CFConsumedAttr &attr) { return reinterpret_cast<intptr_t>(attr.RawAttr()); })
     .def("__eq__", [](const Attr &a, const Attr &b) { return a.RawAttr() == b.RawAttr(); })
     .def_prop_ro("spelling", &CFConsumedAttr::Spelling);
 }

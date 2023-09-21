@@ -17,7 +17,7 @@ namespace nb = nanobind;
 
 void RegisterAcquiredAfterAttr(nb::module_ &m) {
   nb::class_<AcquiredAfterAttr, InheritableAttr>(m, "AcquiredAfterAttr")
-    .def("__hash__", [](const AcquiredAfterAttr &attr) { return (intptr_t)attr.RawAttr(); })
+    .def("__hash__", [](const AcquiredAfterAttr &attr) { return reinterpret_cast<intptr_t>(attr.RawAttr()); })
     .def("__eq__", [](const Attr &a, const Attr &b) { return a.RawAttr() == b.RawAttr(); })
     .def_prop_ro("spelling", &AcquiredAfterAttr::Spelling);
 }

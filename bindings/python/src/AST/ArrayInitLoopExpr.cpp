@@ -17,7 +17,7 @@ namespace nb = nanobind;
 
 void RegisterArrayInitLoopExpr(nb::module_ &m) {
   nb::class_<ArrayInitLoopExpr, Expr>(m, "ArrayInitLoopExpr")
-    .def("__hash__", [](const ArrayInitLoopExpr& stmt) { return (intptr_t)stmt.RawStmt(); })
+    .def("__hash__", [](const ArrayInitLoopExpr& stmt) { return reinterpret_cast<intptr_t>(stmt.RawStmt()); })
     .def("__eq__", [](const Stmt& a, const Stmt& b) { return a.RawStmt() == b.RawStmt(); })
     .def_prop_ro("children", &ArrayInitLoopExpr::Children)
     .def_prop_ro("array_size", &ArrayInitLoopExpr::ArraySize)

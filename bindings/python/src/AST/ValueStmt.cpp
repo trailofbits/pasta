@@ -17,7 +17,7 @@ namespace nb = nanobind;
 
 void RegisterValueStmt(nb::module_ &m) {
   nb::class_<ValueStmt, Stmt>(m, "ValueStmt")
-    .def("__hash__", [](const ValueStmt& stmt) { return (intptr_t)stmt.RawStmt(); })
+    .def("__hash__", [](const ValueStmt& stmt) { return reinterpret_cast<intptr_t>(stmt.RawStmt()); })
     .def("__eq__", [](const Stmt& a, const Stmt& b) { return a.RawStmt() == b.RawStmt(); })
     .def_prop_ro("expression_statement", &ValueStmt::ExpressionStatement);
 }

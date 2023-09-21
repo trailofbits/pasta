@@ -17,7 +17,7 @@ namespace nb = nanobind;
 
 void RegisterOMPCancelDirective(nb::module_ &m) {
   nb::class_<OMPCancelDirective, OMPExecutableDirective>(m, "OMPCancelDirective")
-    .def("__hash__", [](const OMPCancelDirective& stmt) { return (intptr_t)stmt.RawStmt(); })
+    .def("__hash__", [](const OMPCancelDirective& stmt) { return reinterpret_cast<intptr_t>(stmt.RawStmt()); })
     .def("__eq__", [](const Stmt& a, const Stmt& b) { return a.RawStmt() == b.RawStmt(); });
 }
 } // namespace pasta

@@ -17,7 +17,7 @@ namespace nb = nanobind;
 
 void RegisterCXXDefaultInitExpr(nb::module_ &m) {
   nb::class_<CXXDefaultInitExpr, Expr>(m, "CXXDefaultInitExpr")
-    .def("__hash__", [](const CXXDefaultInitExpr& stmt) { return (intptr_t)stmt.RawStmt(); })
+    .def("__hash__", [](const CXXDefaultInitExpr& stmt) { return reinterpret_cast<intptr_t>(stmt.RawStmt()); })
     .def("__eq__", [](const Stmt& a, const Stmt& b) { return a.RawStmt() == b.RawStmt(); })
     .def_prop_ro("children", &CXXDefaultInitExpr::Children)
     .def_prop_ro("begin_token", &CXXDefaultInitExpr::BeginToken)

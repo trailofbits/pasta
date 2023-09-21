@@ -242,6 +242,10 @@ void AttrVisitor::VisitNSReturnsRetainedAttr(const NSReturnsRetainedAttr &attr) 
   VisitInheritableAttr(attr);
 }
 
+void AttrVisitor::VisitNVPTXKernelAttr(const NVPTXKernelAttr &attr) {
+  VisitInheritableAttr(attr);
+}
+
 void AttrVisitor::VisitNakedAttr(const NakedAttr &attr) {
   VisitInheritableAttr(attr);
 }
@@ -878,6 +882,10 @@ void AttrVisitor::VisitUnlikelyAttr(const UnlikelyAttr &attr) {
   VisitStmtAttr(attr);
 }
 
+void AttrVisitor::VisitUnsafeBufferUsageAttr(const UnsafeBufferUsageAttr &attr) {
+  VisitInheritableAttr(attr);
+}
+
 void AttrVisitor::VisitUnusedAttr(const UnusedAttr &attr) {
   VisitInheritableAttr(attr);
 }
@@ -936,6 +944,10 @@ void AttrVisitor::VisitWeakRefAttr(const WeakRefAttr &attr) {
 
 void AttrVisitor::VisitWebAssemblyExportNameAttr(const WebAssemblyExportNameAttr &attr) {
   VisitInheritableAttr(attr);
+}
+
+void AttrVisitor::VisitWebAssemblyFuncrefAttr(const WebAssemblyFuncrefAttr &attr) {
+  VisitTypeAttr(attr);
 }
 
 void AttrVisitor::VisitWebAssemblyImportModuleAttr(const WebAssemblyImportModuleAttr &attr) {
@@ -1098,7 +1110,31 @@ void AttrVisitor::VisitArmBuiltinAliasAttr(const ArmBuiltinAliasAttr &attr) {
   VisitInheritableAttr(attr);
 }
 
+void AttrVisitor::VisitArmLocallyStreamingAttr(const ArmLocallyStreamingAttr &attr) {
+  VisitInheritableAttr(attr);
+}
+
 void AttrVisitor::VisitArmMveStrictPolymorphismAttr(const ArmMveStrictPolymorphismAttr &attr) {
+  VisitTypeAttr(attr);
+}
+
+void AttrVisitor::VisitArmNewZAAttr(const ArmNewZAAttr &attr) {
+  VisitInheritableAttr(attr);
+}
+
+void AttrVisitor::VisitArmPreservesZAAttr(const ArmPreservesZAAttr &attr) {
+  VisitTypeAttr(attr);
+}
+
+void AttrVisitor::VisitArmSharedZAAttr(const ArmSharedZAAttr &attr) {
+  VisitTypeAttr(attr);
+}
+
+void AttrVisitor::VisitArmStreamingAttr(const ArmStreamingAttr &attr) {
+  VisitTypeAttr(attr);
+}
+
+void AttrVisitor::VisitArmStreamingCompatibleAttr(const ArmStreamingCompatibleAttr &attr) {
   VisitTypeAttr(attr);
 }
 
@@ -1131,6 +1167,10 @@ void AttrVisitor::VisitAssumptionAttr(const AssumptionAttr &attr) {
 }
 
 void AttrVisitor::VisitAvailabilityAttr(const AvailabilityAttr &attr) {
+  VisitInheritableAttr(attr);
+}
+
+void AttrVisitor::VisitAvailableOnlyInDefaultEvalMethodAttr(const AvailableOnlyInDefaultEvalMethodAttr &attr) {
   VisitInheritableAttr(attr);
 }
 
@@ -1634,7 +1674,13 @@ PASTA_DEFINE_DERIVED_OPERATORS(Attr, AnyX86NoCfCheckAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(Attr, ArcWeakrefUnavailableAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(Attr, ArgumentWithTypeTagAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(Attr, ArmBuiltinAliasAttr)
+PASTA_DEFINE_DERIVED_OPERATORS(Attr, ArmLocallyStreamingAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(Attr, ArmMveStrictPolymorphismAttr)
+PASTA_DEFINE_DERIVED_OPERATORS(Attr, ArmNewZAAttr)
+PASTA_DEFINE_DERIVED_OPERATORS(Attr, ArmPreservesZAAttr)
+PASTA_DEFINE_DERIVED_OPERATORS(Attr, ArmSharedZAAttr)
+PASTA_DEFINE_DERIVED_OPERATORS(Attr, ArmStreamingAttr)
+PASTA_DEFINE_DERIVED_OPERATORS(Attr, ArmStreamingCompatibleAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(Attr, ArtificialAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(Attr, AsmLabelAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(Attr, AssertCapabilityAttr)
@@ -1643,6 +1689,7 @@ PASTA_DEFINE_DERIVED_OPERATORS(Attr, AssertSharedLockAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(Attr, AssumeAlignedAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(Attr, AssumptionAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(Attr, AvailabilityAttr)
+PASTA_DEFINE_DERIVED_OPERATORS(Attr, AvailableOnlyInDefaultEvalMethodAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(Attr, BPFPreserveAccessIndexAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(Attr, BTFDeclTagAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(Attr, BTFTypeTagAttr)
@@ -1776,6 +1823,7 @@ PASTA_DEFINE_DERIVED_OPERATORS(Attr, NSErrorDomainAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(Attr, NSReturnsAutoreleasedAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(Attr, NSReturnsNotRetainedAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(Attr, NSReturnsRetainedAttr)
+PASTA_DEFINE_DERIVED_OPERATORS(Attr, NVPTXKernelAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(Attr, NakedAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(Attr, NoAliasAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(Attr, NoBuiltinAttr)
@@ -1952,6 +2000,7 @@ PASTA_DEFINE_DERIVED_OPERATORS(Attr, UPtrAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(Attr, UnavailableAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(Attr, UninitializedAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(Attr, UnlikelyAttr)
+PASTA_DEFINE_DERIVED_OPERATORS(Attr, UnsafeBufferUsageAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(Attr, UnusedAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(Attr, UseHandleAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(Attr, UsedAttr)
@@ -1967,6 +2016,7 @@ PASTA_DEFINE_DERIVED_OPERATORS(Attr, WeakAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(Attr, WeakImportAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(Attr, WeakRefAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(Attr, WebAssemblyExportNameAttr)
+PASTA_DEFINE_DERIVED_OPERATORS(Attr, WebAssemblyFuncrefAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(Attr, WebAssemblyImportModuleAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(Attr, WebAssemblyImportNameAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(Attr, WorkGroupSizeHintAttr)
@@ -1975,6 +2025,7 @@ PASTA_DEFINE_DERIVED_OPERATORS(Attr, XRayInstrumentAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(Attr, XRayLogArgsAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(Attr, ZeroCallUsedRegsAttr)
 // 1: Attr::Clone
+// 0: Attr::
 ::pasta::Token Attr::Token(void) const {
   auto &self = *const_cast<clang::Attr *>(u.Attr);
   decltype(auto) val = self.getLocation();
@@ -2134,6 +2185,8 @@ PASTA_DEFINE_DERIVED_OPERATORS(InheritableAttr, AnyX86NoCfCheckAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(InheritableAttr, ArcWeakrefUnavailableAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(InheritableAttr, ArgumentWithTypeTagAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(InheritableAttr, ArmBuiltinAliasAttr)
+PASTA_DEFINE_DERIVED_OPERATORS(InheritableAttr, ArmLocallyStreamingAttr)
+PASTA_DEFINE_DERIVED_OPERATORS(InheritableAttr, ArmNewZAAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(InheritableAttr, ArtificialAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(InheritableAttr, AsmLabelAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(InheritableAttr, AssertCapabilityAttr)
@@ -2142,6 +2195,7 @@ PASTA_DEFINE_DERIVED_OPERATORS(InheritableAttr, AssertSharedLockAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(InheritableAttr, AssumeAlignedAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(InheritableAttr, AssumptionAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(InheritableAttr, AvailabilityAttr)
+PASTA_DEFINE_DERIVED_OPERATORS(InheritableAttr, AvailableOnlyInDefaultEvalMethodAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(InheritableAttr, BPFPreserveAccessIndexAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(InheritableAttr, BTFDeclTagAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(InheritableAttr, BlocksAttr)
@@ -2261,6 +2315,7 @@ PASTA_DEFINE_DERIVED_OPERATORS(InheritableAttr, NSErrorDomainAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(InheritableAttr, NSReturnsAutoreleasedAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(InheritableAttr, NSReturnsNotRetainedAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(InheritableAttr, NSReturnsRetainedAttr)
+PASTA_DEFINE_DERIVED_OPERATORS(InheritableAttr, NVPTXKernelAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(InheritableAttr, NakedAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(InheritableAttr, NoAliasAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(InheritableAttr, NoCommonAttr)
@@ -2394,6 +2449,7 @@ PASTA_DEFINE_DERIVED_OPERATORS(InheritableAttr, TypeTagForDatatypeAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(InheritableAttr, TypeVisibilityAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(InheritableAttr, UnavailableAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(InheritableAttr, UninitializedAttr)
+PASTA_DEFINE_DERIVED_OPERATORS(InheritableAttr, UnsafeBufferUsageAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(InheritableAttr, UnusedAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(InheritableAttr, UseHandleAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(InheritableAttr, UsedAttr)
@@ -3314,6 +3370,25 @@ std::string_view NSReturnsRetainedAttr::Spelling(void) const {
     return std::string_view();
   }
   throw std::runtime_error("NSReturnsRetainedAttr::Spelling can return nullptr!");
+}
+
+NVPTXKernelAttr::NVPTXKernelAttr(
+    std::shared_ptr<ASTImpl> ast_,
+    const ::clang::Attr *attr_)
+    : InheritableAttr(std::move(ast_), attr_) {}
+
+PASTA_DEFINE_BASE_OPERATORS(Attr, NVPTXKernelAttr)
+PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, NVPTXKernelAttr)
+// 1: NVPTXKernelAttr::Clone
+std::string_view NVPTXKernelAttr::Spelling(void) const {
+  auto &self = *const_cast<clang::NVPTXKernelAttr *>(u.NVPTXKernelAttr);
+  decltype(auto) val = self.getSpelling();
+  if (val) {
+    return std::string_view(val);
+  } else {
+    return std::string_view();
+  }
+  throw std::runtime_error("NVPTXKernelAttr::Spelling can return nullptr!");
 }
 
 NakedAttr::NakedAttr(
@@ -4511,7 +4586,7 @@ ObjCOwnershipAttr::ObjCOwnershipAttr(
 PASTA_DEFINE_BASE_OPERATORS(Attr, ObjCOwnershipAttr)
 PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, ObjCOwnershipAttr)
 // 1: ObjCOwnershipAttr::Clone
-// 0: ObjCOwnershipAttr::Kind
+// 0: ObjCOwnershipAttr::OwnershipKind
 std::string_view ObjCOwnershipAttr::Spelling(void) const {
   auto &self = *const_cast<clang::ObjCOwnershipAttr *>(u.ObjCOwnershipAttr);
   decltype(auto) val = self.getSpelling();
@@ -6894,6 +6969,10 @@ PASTA_DEFINE_BASE_OPERATORS(Attr, TypeAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(TypeAttr, AddressSpaceAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(TypeAttr, AnnotateTypeAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(TypeAttr, ArmMveStrictPolymorphismAttr)
+PASTA_DEFINE_DERIVED_OPERATORS(TypeAttr, ArmPreservesZAAttr)
+PASTA_DEFINE_DERIVED_OPERATORS(TypeAttr, ArmSharedZAAttr)
+PASTA_DEFINE_DERIVED_OPERATORS(TypeAttr, ArmStreamingAttr)
+PASTA_DEFINE_DERIVED_OPERATORS(TypeAttr, ArmStreamingCompatibleAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(TypeAttr, BTFTypeTagAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(TypeAttr, CmseNSCallAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(TypeAttr, HLSLGroupSharedAddressSpaceAttr)
@@ -6916,6 +6995,7 @@ PASTA_DEFINE_DERIVED_OPERATORS(TypeAttr, TypeNullUnspecifiedAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(TypeAttr, TypeNullableAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(TypeAttr, TypeNullableResultAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(TypeAttr, UPtrAttr)
+PASTA_DEFINE_DERIVED_OPERATORS(TypeAttr, WebAssemblyFuncrefAttr)
 TypeNonNullAttr::TypeNonNullAttr(
     std::shared_ptr<ASTImpl> ast_,
     const ::clang::Attr *attr_)
@@ -7159,6 +7239,25 @@ std::string_view UnlikelyAttr::Spelling(void) const {
     return std::string_view();
   }
   throw std::runtime_error("UnlikelyAttr::Spelling can return nullptr!");
+}
+
+UnsafeBufferUsageAttr::UnsafeBufferUsageAttr(
+    std::shared_ptr<ASTImpl> ast_,
+    const ::clang::Attr *attr_)
+    : InheritableAttr(std::move(ast_), attr_) {}
+
+PASTA_DEFINE_BASE_OPERATORS(Attr, UnsafeBufferUsageAttr)
+PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, UnsafeBufferUsageAttr)
+// 1: UnsafeBufferUsageAttr::Clone
+std::string_view UnsafeBufferUsageAttr::Spelling(void) const {
+  auto &self = *const_cast<clang::UnsafeBufferUsageAttr *>(u.UnsafeBufferUsageAttr);
+  decltype(auto) val = self.getSpelling();
+  if (val) {
+    return std::string_view(val);
+  } else {
+    return std::string_view();
+  }
+  throw std::runtime_error("UnsafeBufferUsageAttr::Spelling can return nullptr!");
 }
 
 UnusedAttr::UnusedAttr(
@@ -7572,6 +7671,25 @@ std::string_view WebAssemblyExportNameAttr::Spelling(void) const {
     return std::string_view();
   }
   throw std::runtime_error("WebAssemblyExportNameAttr::Spelling can return nullptr!");
+}
+
+WebAssemblyFuncrefAttr::WebAssemblyFuncrefAttr(
+    std::shared_ptr<ASTImpl> ast_,
+    const ::clang::Attr *attr_)
+    : TypeAttr(std::move(ast_), attr_) {}
+
+PASTA_DEFINE_BASE_OPERATORS(Attr, WebAssemblyFuncrefAttr)
+PASTA_DEFINE_BASE_OPERATORS(TypeAttr, WebAssemblyFuncrefAttr)
+// 1: WebAssemblyFuncrefAttr::Clone
+std::string_view WebAssemblyFuncrefAttr::Spelling(void) const {
+  auto &self = *const_cast<clang::WebAssemblyFuncrefAttr *>(u.WebAssemblyFuncrefAttr);
+  decltype(auto) val = self.getSpelling();
+  if (val) {
+    return std::string_view(val);
+  } else {
+    return std::string_view();
+  }
+  throw std::runtime_error("WebAssemblyFuncrefAttr::Spelling can return nullptr!");
 }
 
 WebAssemblyImportModuleAttr::WebAssemblyImportModuleAttr(
@@ -8328,6 +8446,16 @@ std::optional<::pasta::Type> AlignedAttr::AlignmentType(void) const {
   return TypeBuilder::Build(ast, val->getType());
 }
 
+std::optional<unsigned> AlignedAttr::CachedAlignmentValue(void) const {
+  auto &self = *const_cast<clang::AlignedAttr *>(u.AlignedAttr);
+  decltype(auto) val = self.getCachedAlignmentValue();
+  if (val.has_value()) {
+    return val.value();
+  } else {
+    return std::nullopt;
+  }
+}
+
 enum AlignedAttrSpelling AlignedAttr::SemanticSpelling(void) const {
   auto &self = *const_cast<clang::AlignedAttr *>(u.AlignedAttr);
   decltype(auto) val = self.getSemanticSpelling();
@@ -8683,6 +8811,25 @@ std::string_view ArmBuiltinAliasAttr::Spelling(void) const {
   throw std::runtime_error("ArmBuiltinAliasAttr::Spelling can return nullptr!");
 }
 
+ArmLocallyStreamingAttr::ArmLocallyStreamingAttr(
+    std::shared_ptr<ASTImpl> ast_,
+    const ::clang::Attr *attr_)
+    : InheritableAttr(std::move(ast_), attr_) {}
+
+PASTA_DEFINE_BASE_OPERATORS(Attr, ArmLocallyStreamingAttr)
+PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, ArmLocallyStreamingAttr)
+// 1: ArmLocallyStreamingAttr::Clone
+std::string_view ArmLocallyStreamingAttr::Spelling(void) const {
+  auto &self = *const_cast<clang::ArmLocallyStreamingAttr *>(u.ArmLocallyStreamingAttr);
+  decltype(auto) val = self.getSpelling();
+  if (val) {
+    return std::string_view(val);
+  } else {
+    return std::string_view();
+  }
+  throw std::runtime_error("ArmLocallyStreamingAttr::Spelling can return nullptr!");
+}
+
 ArmMveStrictPolymorphismAttr::ArmMveStrictPolymorphismAttr(
     std::shared_ptr<ASTImpl> ast_,
     const ::clang::Attr *attr_)
@@ -8700,6 +8847,101 @@ std::string_view ArmMveStrictPolymorphismAttr::Spelling(void) const {
     return std::string_view();
   }
   throw std::runtime_error("ArmMveStrictPolymorphismAttr::Spelling can return nullptr!");
+}
+
+ArmNewZAAttr::ArmNewZAAttr(
+    std::shared_ptr<ASTImpl> ast_,
+    const ::clang::Attr *attr_)
+    : InheritableAttr(std::move(ast_), attr_) {}
+
+PASTA_DEFINE_BASE_OPERATORS(Attr, ArmNewZAAttr)
+PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, ArmNewZAAttr)
+// 1: ArmNewZAAttr::Clone
+std::string_view ArmNewZAAttr::Spelling(void) const {
+  auto &self = *const_cast<clang::ArmNewZAAttr *>(u.ArmNewZAAttr);
+  decltype(auto) val = self.getSpelling();
+  if (val) {
+    return std::string_view(val);
+  } else {
+    return std::string_view();
+  }
+  throw std::runtime_error("ArmNewZAAttr::Spelling can return nullptr!");
+}
+
+ArmPreservesZAAttr::ArmPreservesZAAttr(
+    std::shared_ptr<ASTImpl> ast_,
+    const ::clang::Attr *attr_)
+    : TypeAttr(std::move(ast_), attr_) {}
+
+PASTA_DEFINE_BASE_OPERATORS(Attr, ArmPreservesZAAttr)
+PASTA_DEFINE_BASE_OPERATORS(TypeAttr, ArmPreservesZAAttr)
+// 1: ArmPreservesZAAttr::Clone
+std::string_view ArmPreservesZAAttr::Spelling(void) const {
+  auto &self = *const_cast<clang::ArmPreservesZAAttr *>(u.ArmPreservesZAAttr);
+  decltype(auto) val = self.getSpelling();
+  if (val) {
+    return std::string_view(val);
+  } else {
+    return std::string_view();
+  }
+  throw std::runtime_error("ArmPreservesZAAttr::Spelling can return nullptr!");
+}
+
+ArmSharedZAAttr::ArmSharedZAAttr(
+    std::shared_ptr<ASTImpl> ast_,
+    const ::clang::Attr *attr_)
+    : TypeAttr(std::move(ast_), attr_) {}
+
+PASTA_DEFINE_BASE_OPERATORS(Attr, ArmSharedZAAttr)
+PASTA_DEFINE_BASE_OPERATORS(TypeAttr, ArmSharedZAAttr)
+// 1: ArmSharedZAAttr::Clone
+std::string_view ArmSharedZAAttr::Spelling(void) const {
+  auto &self = *const_cast<clang::ArmSharedZAAttr *>(u.ArmSharedZAAttr);
+  decltype(auto) val = self.getSpelling();
+  if (val) {
+    return std::string_view(val);
+  } else {
+    return std::string_view();
+  }
+  throw std::runtime_error("ArmSharedZAAttr::Spelling can return nullptr!");
+}
+
+ArmStreamingAttr::ArmStreamingAttr(
+    std::shared_ptr<ASTImpl> ast_,
+    const ::clang::Attr *attr_)
+    : TypeAttr(std::move(ast_), attr_) {}
+
+PASTA_DEFINE_BASE_OPERATORS(Attr, ArmStreamingAttr)
+PASTA_DEFINE_BASE_OPERATORS(TypeAttr, ArmStreamingAttr)
+// 1: ArmStreamingAttr::Clone
+std::string_view ArmStreamingAttr::Spelling(void) const {
+  auto &self = *const_cast<clang::ArmStreamingAttr *>(u.ArmStreamingAttr);
+  decltype(auto) val = self.getSpelling();
+  if (val) {
+    return std::string_view(val);
+  } else {
+    return std::string_view();
+  }
+  throw std::runtime_error("ArmStreamingAttr::Spelling can return nullptr!");
+}
+
+ArmStreamingCompatibleAttr::ArmStreamingCompatibleAttr(
+    std::shared_ptr<ASTImpl> ast_,
+    const ::clang::Attr *attr_)
+    : TypeAttr(std::move(ast_), attr_) {}
+
+PASTA_DEFINE_BASE_OPERATORS(Attr, ArmStreamingCompatibleAttr)
+PASTA_DEFINE_BASE_OPERATORS(TypeAttr, ArmStreamingCompatibleAttr)
+// 1: ArmStreamingCompatibleAttr::Clone
+std::string_view ArmStreamingCompatibleAttr::Spelling(void) const {
+  auto &self = *const_cast<clang::ArmStreamingCompatibleAttr *>(u.ArmStreamingCompatibleAttr);
+  decltype(auto) val = self.getSpelling();
+  if (val) {
+    return std::string_view(val);
+  } else {
+    return std::string_view();
+  }
+  throw std::runtime_error("ArmStreamingCompatibleAttr::Spelling can return nullptr!");
 }
 
 ArtificialAttr::ArtificialAttr(
@@ -8984,6 +9226,25 @@ bool AvailabilityAttr::Unavailable(void) const {
   auto &self = *const_cast<clang::AvailabilityAttr *>(u.AvailabilityAttr);
   decltype(auto) val = self.getUnavailable();
   return val;
+}
+
+AvailableOnlyInDefaultEvalMethodAttr::AvailableOnlyInDefaultEvalMethodAttr(
+    std::shared_ptr<ASTImpl> ast_,
+    const ::clang::Attr *attr_)
+    : InheritableAttr(std::move(ast_), attr_) {}
+
+PASTA_DEFINE_BASE_OPERATORS(Attr, AvailableOnlyInDefaultEvalMethodAttr)
+PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, AvailableOnlyInDefaultEvalMethodAttr)
+// 1: AvailableOnlyInDefaultEvalMethodAttr::Clone
+std::string_view AvailableOnlyInDefaultEvalMethodAttr::Spelling(void) const {
+  auto &self = *const_cast<clang::AvailableOnlyInDefaultEvalMethodAttr *>(u.AvailableOnlyInDefaultEvalMethodAttr);
+  decltype(auto) val = self.getSpelling();
+  if (val) {
+    return std::string_view(val);
+  } else {
+    return std::string_view();
+  }
+  throw std::runtime_error("AvailableOnlyInDefaultEvalMethodAttr::Spelling can return nullptr!");
 }
 
 BPFPreserveAccessIndexAttr::BPFPreserveAccessIndexAttr(
@@ -10610,6 +10871,22 @@ std::string_view ExternalSourceSymbolAttr::Spelling(void) const {
   throw std::runtime_error("ExternalSourceSymbolAttr::Spelling can return nullptr!");
 }
 
+std::string_view ExternalSourceSymbolAttr::USR(void) const {
+  auto &self = *const_cast<clang::ExternalSourceSymbolAttr *>(u.ExternalSourceSymbolAttr);
+  decltype(auto) val = self.getUSR();
+  if (auto size = val.size()) {
+    return std::string_view(val.data(), size);
+  } else {
+    return std::string_view();
+  }
+}
+
+uint32_t ExternalSourceSymbolAttr::USRLength(void) const {
+  auto &self = *const_cast<clang::ExternalSourceSymbolAttr *>(u.ExternalSourceSymbolAttr);
+  decltype(auto) val = self.getUSRLength();
+  return val;
+}
+
 FallThroughAttr::FallThroughAttr(
     std::shared_ptr<ASTImpl> ast_,
     const ::clang::Attr *attr_)
@@ -11267,7 +11544,7 @@ ObjCGCAttr::ObjCGCAttr(
 PASTA_DEFINE_BASE_OPERATORS(Attr, ObjCGCAttr)
 PASTA_DEFINE_BASE_OPERATORS(TypeAttr, ObjCGCAttr)
 // 1: ObjCGCAttr::Clone
-// 0: ObjCGCAttr::Kind
+// 0: ObjCGCAttr::GarbageCollectionKind
 std::string_view ObjCGCAttr::Spelling(void) const {
   auto &self = *const_cast<clang::ObjCGCAttr *>(u.ObjCGCAttr);
   decltype(auto) val = self.getSpelling();

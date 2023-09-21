@@ -17,7 +17,7 @@ namespace nb = nanobind;
 
 void RegisterBlockPointerType(nb::module_ &m) {
   nb::class_<BlockPointerType, Type>(m, "BlockPointerType")
-    .def("__hash__", [](const BlockPointerType &type) { return (intptr_t)type.RawType(); })
+    .def("__hash__", [](const BlockPointerType &type) { return reinterpret_cast<intptr_t>(type.RawType()); })
     .def("__eq__", [](const Type &a, const Type &b) { return a.RawType() == b.RawType(); })
     .def_prop_ro("desugar", &BlockPointerType::Desugar)
     .def_prop_ro("pointee_type", &BlockPointerType::PointeeType)

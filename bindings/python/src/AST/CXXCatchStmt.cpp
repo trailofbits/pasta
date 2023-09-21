@@ -17,7 +17,7 @@ namespace nb = nanobind;
 
 void RegisterCXXCatchStmt(nb::module_ &m) {
   nb::class_<CXXCatchStmt, Stmt>(m, "CXXCatchStmt")
-    .def("__hash__", [](const CXXCatchStmt& stmt) { return (intptr_t)stmt.RawStmt(); })
+    .def("__hash__", [](const CXXCatchStmt& stmt) { return reinterpret_cast<intptr_t>(stmt.RawStmt()); })
     .def("__eq__", [](const Stmt& a, const Stmt& b) { return a.RawStmt() == b.RawStmt(); })
     .def_prop_ro("children", &CXXCatchStmt::Children)
     .def_prop_ro("begin_token", &CXXCatchStmt::BeginToken)

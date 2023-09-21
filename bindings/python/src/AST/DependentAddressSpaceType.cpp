@@ -17,7 +17,7 @@ namespace nb = nanobind;
 
 void RegisterDependentAddressSpaceType(nb::module_ &m) {
   nb::class_<DependentAddressSpaceType, Type>(m, "DependentAddressSpaceType")
-    .def("__hash__", [](const DependentAddressSpaceType &type) { return (intptr_t)type.RawType(); })
+    .def("__hash__", [](const DependentAddressSpaceType &type) { return reinterpret_cast<intptr_t>(type.RawType()); })
     .def("__eq__", [](const Type &a, const Type &b) { return a.RawType() == b.RawType(); })
     .def_prop_ro("desugar", &DependentAddressSpaceType::Desugar)
     .def_prop_ro("address_space_expression", &DependentAddressSpaceType::AddressSpaceExpression)

@@ -17,7 +17,7 @@ namespace nb = nanobind;
 
 void RegisterUnaryExprOrTypeTraitExpr(nb::module_ &m) {
   nb::class_<UnaryExprOrTypeTraitExpr, Expr>(m, "UnaryExprOrTypeTraitExpr")
-    .def("__hash__", [](const UnaryExprOrTypeTraitExpr& stmt) { return (intptr_t)stmt.RawStmt(); })
+    .def("__hash__", [](const UnaryExprOrTypeTraitExpr& stmt) { return reinterpret_cast<intptr_t>(stmt.RawStmt()); })
     .def("__eq__", [](const Stmt& a, const Stmt& b) { return a.RawStmt() == b.RawStmt(); })
     .def_prop_ro("children", &UnaryExprOrTypeTraitExpr::Children)
     .def_prop_ro("argument_expression", &UnaryExprOrTypeTraitExpr::ArgumentExpression)

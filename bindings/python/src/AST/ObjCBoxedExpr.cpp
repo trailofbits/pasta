@@ -17,7 +17,7 @@ namespace nb = nanobind;
 
 void RegisterObjCBoxedExpr(nb::module_ &m) {
   nb::class_<ObjCBoxedExpr, Expr>(m, "ObjCBoxedExpr")
-    .def("__hash__", [](const ObjCBoxedExpr& stmt) { return (intptr_t)stmt.RawStmt(); })
+    .def("__hash__", [](const ObjCBoxedExpr& stmt) { return reinterpret_cast<intptr_t>(stmt.RawStmt()); })
     .def("__eq__", [](const Stmt& a, const Stmt& b) { return a.RawStmt() == b.RawStmt(); })
     .def_prop_ro("children", &ObjCBoxedExpr::Children)
     .def_prop_ro("at_token", &ObjCBoxedExpr::AtToken)

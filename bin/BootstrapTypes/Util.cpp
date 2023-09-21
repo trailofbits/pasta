@@ -284,6 +284,16 @@ std::string CxxName(llvm::StringRef cls_name, llvm::StringRef meth_name) {
   
   } else if (cls_name == "UnaryExprOrTypeTraitExpr") {
     return CxxName("KeywordKind");
+
+  } else if (cls_name == "ObjCOwnershipAttr") {
+    return "OwnershipKind";
+
+  } else if (cls_name == "ObjCGCAttr") {
+    return "GarbageCollectionKind";
+  
+  } else if (cls_name == "Attr" || cls_name == "Decl" || cls_name == "Stmt" ||
+             cls_name == "Type") {
+    return "";
   
   } else {
     assert(false);

@@ -17,7 +17,7 @@ namespace nb = nanobind;
 
 void RegisterMatrixType(nb::module_ &m) {
   nb::class_<MatrixType, Type>(m, "MatrixType")
-    .def("__hash__", [](const MatrixType &type) { return (intptr_t)type.RawType(); })
+    .def("__hash__", [](const MatrixType &type) { return reinterpret_cast<intptr_t>(type.RawType()); })
     .def("__eq__", [](const Type &a, const Type &b) { return a.RawType() == b.RawType(); })
     .def_prop_ro("desugar", &MatrixType::Desugar)
     .def_prop_ro("element_type", &MatrixType::ElementType)

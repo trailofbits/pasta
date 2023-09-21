@@ -17,7 +17,7 @@ namespace nb = nanobind;
 
 void RegisterAddressSpaceAttr(nb::module_ &m) {
   nb::class_<AddressSpaceAttr, TypeAttr>(m, "AddressSpaceAttr")
-    .def("__hash__", [](const AddressSpaceAttr &attr) { return (intptr_t)attr.RawAttr(); })
+    .def("__hash__", [](const AddressSpaceAttr &attr) { return reinterpret_cast<intptr_t>(attr.RawAttr()); })
     .def("__eq__", [](const Attr &a, const Attr &b) { return a.RawAttr() == b.RawAttr(); })
     .def_prop_ro("spelling", &AddressSpaceAttr::Spelling);
 }

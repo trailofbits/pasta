@@ -17,7 +17,7 @@ namespace nb = nanobind;
 
 void RegisterUnresolvedUsingIfExistsDecl(nb::module_ &m) {
   nb::class_<UnresolvedUsingIfExistsDecl, NamedDecl>(m, "UnresolvedUsingIfExistsDecl")
-    .def("__hash__", [](const UnresolvedUsingIfExistsDecl &decl) { return (intptr_t)decl.RawDecl(); })
+    .def("__hash__", [](const UnresolvedUsingIfExistsDecl &decl) { return reinterpret_cast<intptr_t>(decl.RawDecl()); })
     .def("__eq__", [](const Decl &a, const Decl &b) { return a.RawDecl() == b.RawDecl(); });
 }
 } // namespace pasta

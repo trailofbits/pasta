@@ -17,7 +17,7 @@ namespace nb = nanobind;
 
 void RegisterFixedPointLiteral(nb::module_ &m) {
   nb::class_<FixedPointLiteral, Expr>(m, "FixedPointLiteral")
-    .def("__hash__", [](const FixedPointLiteral& stmt) { return (intptr_t)stmt.RawStmt(); })
+    .def("__hash__", [](const FixedPointLiteral& stmt) { return reinterpret_cast<intptr_t>(stmt.RawStmt()); })
     .def("__eq__", [](const Stmt& a, const Stmt& b) { return a.RawStmt() == b.RawStmt(); })
     .def_prop_ro("children", &FixedPointLiteral::Children)
     .def_prop_ro("begin_token", &FixedPointLiteral::BeginToken)

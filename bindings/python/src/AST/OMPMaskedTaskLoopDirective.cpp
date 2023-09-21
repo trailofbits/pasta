@@ -17,7 +17,7 @@ namespace nb = nanobind;
 
 void RegisterOMPMaskedTaskLoopDirective(nb::module_ &m) {
   nb::class_<OMPMaskedTaskLoopDirective, OMPLoopDirective>(m, "OMPMaskedTaskLoopDirective")
-    .def("__hash__", [](const OMPMaskedTaskLoopDirective& stmt) { return (intptr_t)stmt.RawStmt(); })
+    .def("__hash__", [](const OMPMaskedTaskLoopDirective& stmt) { return reinterpret_cast<intptr_t>(stmt.RawStmt()); })
     .def("__eq__", [](const Stmt& a, const Stmt& b) { return a.RawStmt() == b.RawStmt(); })
     .def_prop_ro("has_cancel", &OMPMaskedTaskLoopDirective::HasCancel);
 }

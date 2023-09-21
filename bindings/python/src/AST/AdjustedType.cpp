@@ -17,7 +17,7 @@ namespace nb = nanobind;
 
 void RegisterAdjustedType(nb::module_ &m) {
   nb::class_<AdjustedType, Type>(m, "AdjustedType")
-    .def("__hash__", [](const AdjustedType &type) { return (intptr_t)type.RawType(); })
+    .def("__hash__", [](const AdjustedType &type) { return reinterpret_cast<intptr_t>(type.RawType()); })
     .def("__eq__", [](const Type &a, const Type &b) { return a.RawType() == b.RawType(); })
     .def_prop_ro("desugar", &AdjustedType::Desugar)
     .def_prop_ro("resolved_type", &AdjustedType::ResolvedType)

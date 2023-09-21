@@ -17,7 +17,7 @@ namespace nb = nanobind;
 
 void RegisterEmptyDecl(nb::module_ &m) {
   nb::class_<EmptyDecl, Decl>(m, "EmptyDecl")
-    .def("__hash__", [](const EmptyDecl &decl) { return (intptr_t)decl.RawDecl(); })
+    .def("__hash__", [](const EmptyDecl &decl) { return reinterpret_cast<intptr_t>(decl.RawDecl()); })
     .def("__eq__", [](const Decl &a, const Decl &b) { return a.RawDecl() == b.RawDecl(); });
 }
 } // namespace pasta

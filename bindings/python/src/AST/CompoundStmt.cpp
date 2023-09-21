@@ -17,7 +17,7 @@ namespace nb = nanobind;
 
 void RegisterCompoundStmt(nb::module_ &m) {
   nb::class_<CompoundStmt, Stmt>(m, "CompoundStmt")
-    .def("__hash__", [](const CompoundStmt& stmt) { return (intptr_t)stmt.RawStmt(); })
+    .def("__hash__", [](const CompoundStmt& stmt) { return reinterpret_cast<intptr_t>(stmt.RawStmt()); })
     .def("__eq__", [](const Stmt& a, const Stmt& b) { return a.RawStmt() == b.RawStmt(); })
     .def_prop_ro("children", &CompoundStmt::Children)
     .def_prop_ro("begin_token", &CompoundStmt::BeginToken)

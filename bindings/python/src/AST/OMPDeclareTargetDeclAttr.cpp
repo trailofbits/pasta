@@ -17,7 +17,7 @@ namespace nb = nanobind;
 
 void RegisterOMPDeclareTargetDeclAttr(nb::module_ &m) {
   nb::class_<OMPDeclareTargetDeclAttr, InheritableAttr>(m, "OMPDeclareTargetDeclAttr")
-    .def("__hash__", [](const OMPDeclareTargetDeclAttr &attr) { return (intptr_t)attr.RawAttr(); })
+    .def("__hash__", [](const OMPDeclareTargetDeclAttr &attr) { return reinterpret_cast<intptr_t>(attr.RawAttr()); })
     .def("__eq__", [](const Attr &a, const Attr &b) { return a.RawAttr() == b.RawAttr(); })
     .def_prop_ro("dev_type", &OMPDeclareTargetDeclAttr::DevType)
     .def_prop_ro("indirect", &OMPDeclareTargetDeclAttr::Indirect)

@@ -17,7 +17,7 @@ namespace nb = nanobind;
 
 void RegisterHLSLGroupSharedAddressSpaceAttr(nb::module_ &m) {
   nb::class_<HLSLGroupSharedAddressSpaceAttr, TypeAttr>(m, "HLSLGroupSharedAddressSpaceAttr")
-    .def("__hash__", [](const HLSLGroupSharedAddressSpaceAttr &attr) { return (intptr_t)attr.RawAttr(); })
+    .def("__hash__", [](const HLSLGroupSharedAddressSpaceAttr &attr) { return reinterpret_cast<intptr_t>(attr.RawAttr()); })
     .def("__eq__", [](const Attr &a, const Attr &b) { return a.RawAttr() == b.RawAttr(); })
     .def_prop_ro("spelling", &HLSLGroupSharedAddressSpaceAttr::Spelling);
 }

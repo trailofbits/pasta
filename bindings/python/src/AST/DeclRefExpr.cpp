@@ -17,7 +17,7 @@ namespace nb = nanobind;
 
 void RegisterDeclRefExpr(nb::module_ &m) {
   nb::class_<DeclRefExpr, Expr>(m, "DeclRefExpr")
-    .def("__hash__", [](const DeclRefExpr& stmt) { return (intptr_t)stmt.RawStmt(); })
+    .def("__hash__", [](const DeclRefExpr& stmt) { return reinterpret_cast<intptr_t>(stmt.RawStmt()); })
     .def("__eq__", [](const Stmt& a, const Stmt& b) { return a.RawStmt() == b.RawStmt(); })
     .def_prop_ro("children", &DeclRefExpr::Children)
     .def_prop_ro("begin_token", &DeclRefExpr::BeginToken)
@@ -33,6 +33,7 @@ void RegisterDeclRefExpr(nb::module_ &m) {
     .def_prop_ro("has_qualifier", &DeclRefExpr::HasQualifier)
     .def_prop_ro("has_template_keyword_and_arguments_info", &DeclRefExpr::HasTemplateKeywordAndArgumentsInfo)
     .def_prop_ro("has_template_keyword", &DeclRefExpr::HasTemplateKeyword)
+    .def_prop_ro("is_immediate_escalating", &DeclRefExpr::IsImmediateEscalating)
     .def_prop_ro("is_non_odr_use", &DeclRefExpr::IsNonOdrUse)
     .def_prop_ro("refers_to_enclosing_variable_or_capture", &DeclRefExpr::RefersToEnclosingVariableOrCapture);
 }

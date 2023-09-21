@@ -17,7 +17,7 @@ namespace nb = nanobind;
 
 void RegisterSEHExceptStmt(nb::module_ &m) {
   nb::class_<SEHExceptStmt, Stmt>(m, "SEHExceptStmt")
-    .def("__hash__", [](const SEHExceptStmt& stmt) { return (intptr_t)stmt.RawStmt(); })
+    .def("__hash__", [](const SEHExceptStmt& stmt) { return reinterpret_cast<intptr_t>(stmt.RawStmt()); })
     .def("__eq__", [](const Stmt& a, const Stmt& b) { return a.RawStmt() == b.RawStmt(); })
     .def_prop_ro("children", &SEHExceptStmt::Children)
     .def_prop_ro("begin_token", &SEHExceptStmt::BeginToken)

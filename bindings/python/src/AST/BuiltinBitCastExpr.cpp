@@ -17,7 +17,7 @@ namespace nb = nanobind;
 
 void RegisterBuiltinBitCastExpr(nb::module_ &m) {
   nb::class_<BuiltinBitCastExpr, ExplicitCastExpr>(m, "BuiltinBitCastExpr")
-    .def("__hash__", [](const BuiltinBitCastExpr& stmt) { return (intptr_t)stmt.RawStmt(); })
+    .def("__hash__", [](const BuiltinBitCastExpr& stmt) { return reinterpret_cast<intptr_t>(stmt.RawStmt()); })
     .def("__eq__", [](const Stmt& a, const Stmt& b) { return a.RawStmt() == b.RawStmt(); })
     .def_prop_ro("begin_token", &BuiltinBitCastExpr::BeginToken)
     .def_prop_ro("end_token", &BuiltinBitCastExpr::EndToken);

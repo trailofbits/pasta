@@ -17,7 +17,7 @@ namespace nb = nanobind;
 
 void RegisterAMDGPUNumSGPRAttr(nb::module_ &m) {
   nb::class_<AMDGPUNumSGPRAttr, InheritableAttr>(m, "AMDGPUNumSGPRAttr")
-    .def("__hash__", [](const AMDGPUNumSGPRAttr &attr) { return (intptr_t)attr.RawAttr(); })
+    .def("__hash__", [](const AMDGPUNumSGPRAttr &attr) { return reinterpret_cast<intptr_t>(attr.RawAttr()); })
     .def("__eq__", [](const Attr &a, const Attr &b) { return a.RawAttr() == b.RawAttr(); })
     .def_prop_ro("num_sgpr", &AMDGPUNumSGPRAttr::NumSGPR)
     .def_prop_ro("spelling", &AMDGPUNumSGPRAttr::Spelling);

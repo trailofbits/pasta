@@ -17,7 +17,7 @@ namespace nb = nanobind;
 
 void RegisterObjCProtocolExpr(nb::module_ &m) {
   nb::class_<ObjCProtocolExpr, Expr>(m, "ObjCProtocolExpr")
-    .def("__hash__", [](const ObjCProtocolExpr& stmt) { return (intptr_t)stmt.RawStmt(); })
+    .def("__hash__", [](const ObjCProtocolExpr& stmt) { return reinterpret_cast<intptr_t>(stmt.RawStmt()); })
     .def("__eq__", [](const Stmt& a, const Stmt& b) { return a.RawStmt() == b.RawStmt(); })
     .def_prop_ro("children", &ObjCProtocolExpr::Children)
     .def_prop_ro("at_token", &ObjCProtocolExpr::AtToken)

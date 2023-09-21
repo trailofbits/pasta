@@ -17,7 +17,7 @@ namespace nb = nanobind;
 
 void RegisterCXXTemporaryObjectExpr(nb::module_ &m) {
   nb::class_<CXXTemporaryObjectExpr, CXXConstructExpr>(m, "CXXTemporaryObjectExpr")
-    .def("__hash__", [](const CXXTemporaryObjectExpr& stmt) { return (intptr_t)stmt.RawStmt(); })
+    .def("__hash__", [](const CXXTemporaryObjectExpr& stmt) { return reinterpret_cast<intptr_t>(stmt.RawStmt()); })
     .def("__eq__", [](const Stmt& a, const Stmt& b) { return a.RawStmt() == b.RawStmt(); })
     .def_prop_ro("begin_token", &CXXTemporaryObjectExpr::BeginToken)
     .def_prop_ro("end_token", &CXXTemporaryObjectExpr::EndToken)

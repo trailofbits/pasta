@@ -17,7 +17,7 @@ namespace nb = nanobind;
 
 void RegisterDoStmt(nb::module_ &m) {
   nb::class_<DoStmt, Stmt>(m, "DoStmt")
-    .def("__hash__", [](const DoStmt& stmt) { return (intptr_t)stmt.RawStmt(); })
+    .def("__hash__", [](const DoStmt& stmt) { return reinterpret_cast<intptr_t>(stmt.RawStmt()); })
     .def("__eq__", [](const Stmt& a, const Stmt& b) { return a.RawStmt() == b.RawStmt(); })
     .def_prop_ro("children", &DoStmt::Children)
     .def_prop_ro("begin_token", &DoStmt::BeginToken)

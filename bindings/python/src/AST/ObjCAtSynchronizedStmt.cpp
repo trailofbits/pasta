@@ -17,7 +17,7 @@ namespace nb = nanobind;
 
 void RegisterObjCAtSynchronizedStmt(nb::module_ &m) {
   nb::class_<ObjCAtSynchronizedStmt, Stmt>(m, "ObjCAtSynchronizedStmt")
-    .def("__hash__", [](const ObjCAtSynchronizedStmt& stmt) { return (intptr_t)stmt.RawStmt(); })
+    .def("__hash__", [](const ObjCAtSynchronizedStmt& stmt) { return reinterpret_cast<intptr_t>(stmt.RawStmt()); })
     .def("__eq__", [](const Stmt& a, const Stmt& b) { return a.RawStmt() == b.RawStmt(); })
     .def_prop_ro("children", &ObjCAtSynchronizedStmt::Children)
     .def_prop_ro("at_synchronized_token", &ObjCAtSynchronizedStmt::AtSynchronizedToken)

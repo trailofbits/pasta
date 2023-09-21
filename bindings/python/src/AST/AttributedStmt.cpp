@@ -17,7 +17,7 @@ namespace nb = nanobind;
 
 void RegisterAttributedStmt(nb::module_ &m) {
   nb::class_<AttributedStmt, ValueStmt>(m, "AttributedStmt")
-    .def("__hash__", [](const AttributedStmt& stmt) { return (intptr_t)stmt.RawStmt(); })
+    .def("__hash__", [](const AttributedStmt& stmt) { return reinterpret_cast<intptr_t>(stmt.RawStmt()); })
     .def("__eq__", [](const Stmt& a, const Stmt& b) { return a.RawStmt() == b.RawStmt(); })
     .def_prop_ro("children", &AttributedStmt::Children)
     .def_prop_ro("attribute_token", &AttributedStmt::AttributeToken)

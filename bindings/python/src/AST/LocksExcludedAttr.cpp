@@ -17,7 +17,7 @@ namespace nb = nanobind;
 
 void RegisterLocksExcludedAttr(nb::module_ &m) {
   nb::class_<LocksExcludedAttr, InheritableAttr>(m, "LocksExcludedAttr")
-    .def("__hash__", [](const LocksExcludedAttr &attr) { return (intptr_t)attr.RawAttr(); })
+    .def("__hash__", [](const LocksExcludedAttr &attr) { return reinterpret_cast<intptr_t>(attr.RawAttr()); })
     .def("__eq__", [](const Attr &a, const Attr &b) { return a.RawAttr() == b.RawAttr(); })
     .def_prop_ro("spelling", &LocksExcludedAttr::Spelling);
 }

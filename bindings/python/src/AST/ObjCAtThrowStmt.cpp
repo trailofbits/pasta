@@ -17,7 +17,7 @@ namespace nb = nanobind;
 
 void RegisterObjCAtThrowStmt(nb::module_ &m) {
   nb::class_<ObjCAtThrowStmt, Stmt>(m, "ObjCAtThrowStmt")
-    .def("__hash__", [](const ObjCAtThrowStmt& stmt) { return (intptr_t)stmt.RawStmt(); })
+    .def("__hash__", [](const ObjCAtThrowStmt& stmt) { return reinterpret_cast<intptr_t>(stmt.RawStmt()); })
     .def("__eq__", [](const Stmt& a, const Stmt& b) { return a.RawStmt() == b.RawStmt(); })
     .def_prop_ro("children", &ObjCAtThrowStmt::Children)
     .def_prop_ro("begin_token", &ObjCAtThrowStmt::BeginToken)

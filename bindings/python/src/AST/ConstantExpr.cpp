@@ -17,7 +17,7 @@ namespace nb = nanobind;
 
 void RegisterConstantExpr(nb::module_ &m) {
   nb::class_<ConstantExpr, FullExpr>(m, "ConstantExpr")
-    .def("__hash__", [](const ConstantExpr& stmt) { return (intptr_t)stmt.RawStmt(); })
+    .def("__hash__", [](const ConstantExpr& stmt) { return reinterpret_cast<intptr_t>(stmt.RawStmt()); })
     .def("__eq__", [](const Stmt& a, const Stmt& b) { return a.RawStmt() == b.RawStmt(); })
     .def_prop_ro("children", &ConstantExpr::Children)
     .def_prop_ro("begin_token", &ConstantExpr::BeginToken)

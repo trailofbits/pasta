@@ -17,7 +17,7 @@ namespace nb = nanobind;
 
 void RegisterOMPTeamsDistributeSimdDirective(nb::module_ &m) {
   nb::class_<OMPTeamsDistributeSimdDirective, OMPLoopDirective>(m, "OMPTeamsDistributeSimdDirective")
-    .def("__hash__", [](const OMPTeamsDistributeSimdDirective& stmt) { return (intptr_t)stmt.RawStmt(); })
+    .def("__hash__", [](const OMPTeamsDistributeSimdDirective& stmt) { return reinterpret_cast<intptr_t>(stmt.RawStmt()); })
     .def("__eq__", [](const Stmt& a, const Stmt& b) { return a.RawStmt() == b.RawStmt(); });
 }
 } // namespace pasta

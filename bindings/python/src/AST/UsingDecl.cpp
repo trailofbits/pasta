@@ -17,7 +17,7 @@ namespace nb = nanobind;
 
 void RegisterUsingDecl(nb::module_ &m) {
   nb::class_<UsingDecl, BaseUsingDecl>(m, "UsingDecl")
-    .def("__hash__", [](const UsingDecl &decl) { return (intptr_t)decl.RawDecl(); })
+    .def("__hash__", [](const UsingDecl &decl) { return reinterpret_cast<intptr_t>(decl.RawDecl()); })
     .def("__eq__", [](const Decl &a, const Decl &b) { return a.RawDecl() == b.RawDecl(); })
     .def_prop_ro("canonical_declaration", &UsingDecl::CanonicalDeclaration)
     .def_prop_ro("using_token", &UsingDecl::UsingToken)

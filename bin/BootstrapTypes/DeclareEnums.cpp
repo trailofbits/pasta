@@ -53,6 +53,12 @@ static std::string RenameEnumerator(const std::string &name) {
   } else if (enumerator_name == "eod") {
     return "EndOfDirective";
 
+  // NOTE(pag): There's also a `C23_noreturn`, so we don't want the names to
+  //            collide. The lower case variant corresponds to `[[noreturn]]`
+  //            whereas the uppercase variant corresponds to `_Noreturn`.
+  } else if (enumerator_name == "C23_Noreturn") {
+    return "C23_Noreturn";
+
   } else if (enumerator_name.endswith("less")) {
     enumerator_name = enumerator_name.substr(0, enumerator_name.size() - 4);
     return RenameEnumerator(name) + "Less";

@@ -17,7 +17,7 @@ namespace nb = nanobind;
 
 void RegisterObjCBoolLiteralExpr(nb::module_ &m) {
   nb::class_<ObjCBoolLiteralExpr, Expr>(m, "ObjCBoolLiteralExpr")
-    .def("__hash__", [](const ObjCBoolLiteralExpr& stmt) { return (intptr_t)stmt.RawStmt(); })
+    .def("__hash__", [](const ObjCBoolLiteralExpr& stmt) { return reinterpret_cast<intptr_t>(stmt.RawStmt()); })
     .def("__eq__", [](const Stmt& a, const Stmt& b) { return a.RawStmt() == b.RawStmt(); })
     .def_prop_ro("children", &ObjCBoolLiteralExpr::Children)
     .def_prop_ro("begin_token", &ObjCBoolLiteralExpr::BeginToken)

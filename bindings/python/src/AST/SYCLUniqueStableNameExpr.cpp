@@ -17,7 +17,7 @@ namespace nb = nanobind;
 
 void RegisterSYCLUniqueStableNameExpr(nb::module_ &m) {
   nb::class_<SYCLUniqueStableNameExpr, Expr>(m, "SYCLUniqueStableNameExpr")
-    .def("__hash__", [](const SYCLUniqueStableNameExpr& stmt) { return (intptr_t)stmt.RawStmt(); })
+    .def("__hash__", [](const SYCLUniqueStableNameExpr& stmt) { return reinterpret_cast<intptr_t>(stmt.RawStmt()); })
     .def("__eq__", [](const Stmt& a, const Stmt& b) { return a.RawStmt() == b.RawStmt(); })
     .def_prop_ro("compute_name", &SYCLUniqueStableNameExpr::ComputeName)
     .def_prop_ro("children", &SYCLUniqueStableNameExpr::Children)

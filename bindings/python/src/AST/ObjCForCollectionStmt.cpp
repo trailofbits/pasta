@@ -17,7 +17,7 @@ namespace nb = nanobind;
 
 void RegisterObjCForCollectionStmt(nb::module_ &m) {
   nb::class_<ObjCForCollectionStmt, Stmt>(m, "ObjCForCollectionStmt")
-    .def("__hash__", [](const ObjCForCollectionStmt& stmt) { return (intptr_t)stmt.RawStmt(); })
+    .def("__hash__", [](const ObjCForCollectionStmt& stmt) { return reinterpret_cast<intptr_t>(stmt.RawStmt()); })
     .def("__eq__", [](const Stmt& a, const Stmt& b) { return a.RawStmt() == b.RawStmt(); })
     .def_prop_ro("children", &ObjCForCollectionStmt::Children)
     .def_prop_ro("begin_token", &ObjCForCollectionStmt::BeginToken)

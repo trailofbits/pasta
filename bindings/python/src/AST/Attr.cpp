@@ -17,7 +17,7 @@ namespace nb = nanobind;
 
 void RegisterAttr(nb::module_ &m) {
   nb::class_<Attr>(m, "Attr")
-    .def("__hash__", [](const Attr &attr) { return (intptr_t)attr.RawAttr(); })
+    .def("__hash__", [](const Attr &attr) { return reinterpret_cast<intptr_t>(attr.RawAttr()); })
     .def("__eq__", [](const Attr &a, const Attr &b) { return a.RawAttr() == b.RawAttr(); })
     .def_prop_ro("kind", &Attr::Kind)
     .def_prop_ro("kind_name", &Attr::KindName)

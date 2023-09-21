@@ -17,7 +17,7 @@ namespace nb = nanobind;
 
 void RegisterFloatingLiteral(nb::module_ &m) {
   nb::class_<FloatingLiteral, Expr>(m, "FloatingLiteral")
-    .def("__hash__", [](const FloatingLiteral& stmt) { return (intptr_t)stmt.RawStmt(); })
+    .def("__hash__", [](const FloatingLiteral& stmt) { return reinterpret_cast<intptr_t>(stmt.RawStmt()); })
     .def("__eq__", [](const Stmt& a, const Stmt& b) { return a.RawStmt() == b.RawStmt(); })
     .def_prop_ro("children", &FloatingLiteral::Children)
     .def_prop_ro("begin_token", &FloatingLiteral::BeginToken)

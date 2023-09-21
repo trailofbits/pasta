@@ -17,7 +17,7 @@ namespace nb = nanobind;
 
 void RegisterPragmaClangRelroSectionAttr(nb::module_ &m) {
   nb::class_<PragmaClangRelroSectionAttr, InheritableAttr>(m, "PragmaClangRelroSectionAttr")
-    .def("__hash__", [](const PragmaClangRelroSectionAttr &attr) { return (intptr_t)attr.RawAttr(); })
+    .def("__hash__", [](const PragmaClangRelroSectionAttr &attr) { return reinterpret_cast<intptr_t>(attr.RawAttr()); })
     .def("__eq__", [](const Attr &a, const Attr &b) { return a.RawAttr() == b.RawAttr(); })
     .def_prop_ro("name", &PragmaClangRelroSectionAttr::Name)
     .def_prop_ro("name_length", &PragmaClangRelroSectionAttr::NameLength)

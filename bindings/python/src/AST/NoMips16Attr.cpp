@@ -17,7 +17,7 @@ namespace nb = nanobind;
 
 void RegisterNoMips16Attr(nb::module_ &m) {
   nb::class_<NoMips16Attr, InheritableAttr>(m, "NoMips16Attr")
-    .def("__hash__", [](const NoMips16Attr &attr) { return (intptr_t)attr.RawAttr(); })
+    .def("__hash__", [](const NoMips16Attr &attr) { return reinterpret_cast<intptr_t>(attr.RawAttr()); })
     .def("__eq__", [](const Attr &a, const Attr &b) { return a.RawAttr() == b.RawAttr(); })
     .def_prop_ro("spelling", &NoMips16Attr::Spelling);
 }

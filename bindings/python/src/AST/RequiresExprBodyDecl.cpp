@@ -17,7 +17,7 @@ namespace nb = nanobind;
 
 void RegisterRequiresExprBodyDecl(nb::module_ &m) {
   nb::class_<RequiresExprBodyDecl, Decl>(m, "RequiresExprBodyDecl")
-    .def("__hash__", [](const RequiresExprBodyDecl &decl) { return (intptr_t)decl.RawDecl(); })
+    .def("__hash__", [](const RequiresExprBodyDecl &decl) { return reinterpret_cast<intptr_t>(decl.RawDecl()); })
     .def("__eq__", [](const Decl &a, const Decl &b) { return a.RawDecl() == b.RawDecl(); });
 }
 } // namespace pasta

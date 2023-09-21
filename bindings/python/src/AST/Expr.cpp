@@ -17,7 +17,7 @@ namespace nb = nanobind;
 
 void RegisterExpr(nb::module_ &m) {
   nb::class_<Expr, ValueStmt>(m, "Expr")
-    .def("__hash__", [](const Expr& stmt) { return (intptr_t)stmt.RawStmt(); })
+    .def("__hash__", [](const Expr& stmt) { return reinterpret_cast<intptr_t>(stmt.RawStmt()); })
     .def("__eq__", [](const Stmt& a, const Stmt& b) { return a.RawStmt() == b.RawStmt(); })
     .def_prop_ro("classify_l_value", &Expr::ClassifyLValue)
     .def_prop_ro("evaluate_known_const_int", &Expr::EvaluateKnownConstInt)

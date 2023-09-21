@@ -17,7 +17,7 @@ namespace nb = nanobind;
 
 void RegisterObjCAtFinallyStmt(nb::module_ &m) {
   nb::class_<ObjCAtFinallyStmt, Stmt>(m, "ObjCAtFinallyStmt")
-    .def("__hash__", [](const ObjCAtFinallyStmt& stmt) { return (intptr_t)stmt.RawStmt(); })
+    .def("__hash__", [](const ObjCAtFinallyStmt& stmt) { return reinterpret_cast<intptr_t>(stmt.RawStmt()); })
     .def("__eq__", [](const Stmt& a, const Stmt& b) { return a.RawStmt() == b.RawStmt(); })
     .def_prop_ro("children", &ObjCAtFinallyStmt::Children)
     .def_prop_ro("at_finally_token", &ObjCAtFinallyStmt::AtFinallyToken)

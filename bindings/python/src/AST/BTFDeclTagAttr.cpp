@@ -17,7 +17,7 @@ namespace nb = nanobind;
 
 void RegisterBTFDeclTagAttr(nb::module_ &m) {
   nb::class_<BTFDeclTagAttr, InheritableAttr>(m, "BTFDeclTagAttr")
-    .def("__hash__", [](const BTFDeclTagAttr &attr) { return (intptr_t)attr.RawAttr(); })
+    .def("__hash__", [](const BTFDeclTagAttr &attr) { return reinterpret_cast<intptr_t>(attr.RawAttr()); })
     .def("__eq__", [](const Attr &a, const Attr &b) { return a.RawAttr() == b.RawAttr(); })
     .def_prop_ro("btf_decl_tag", &BTFDeclTagAttr::BTFDeclTag)
     .def_prop_ro("btf_decl_tag_length", &BTFDeclTagAttr::BTFDeclTagLength)

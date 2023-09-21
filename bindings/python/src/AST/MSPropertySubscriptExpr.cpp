@@ -17,7 +17,7 @@ namespace nb = nanobind;
 
 void RegisterMSPropertySubscriptExpr(nb::module_ &m) {
   nb::class_<MSPropertySubscriptExpr, Expr>(m, "MSPropertySubscriptExpr")
-    .def("__hash__", [](const MSPropertySubscriptExpr& stmt) { return (intptr_t)stmt.RawStmt(); })
+    .def("__hash__", [](const MSPropertySubscriptExpr& stmt) { return reinterpret_cast<intptr_t>(stmt.RawStmt()); })
     .def("__eq__", [](const Stmt& a, const Stmt& b) { return a.RawStmt() == b.RawStmt(); })
     .def_prop_ro("children", &MSPropertySubscriptExpr::Children)
     .def_prop_ro("base", &MSPropertySubscriptExpr::Base)

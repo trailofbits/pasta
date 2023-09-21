@@ -17,7 +17,7 @@ namespace nb = nanobind;
 
 void RegisterCXXNamedCastExpr(nb::module_ &m) {
   nb::class_<CXXNamedCastExpr, ExplicitCastExpr>(m, "CXXNamedCastExpr")
-    .def("__hash__", [](const CXXNamedCastExpr& stmt) { return (intptr_t)stmt.RawStmt(); })
+    .def("__hash__", [](const CXXNamedCastExpr& stmt) { return reinterpret_cast<intptr_t>(stmt.RawStmt()); })
     .def("__eq__", [](const Stmt& a, const Stmt& b) { return a.RawStmt() == b.RawStmt(); })
     .def_prop_ro("angle_brackets", &CXXNamedCastExpr::AngleBrackets)
     .def_prop_ro("begin_token", &CXXNamedCastExpr::BeginToken)

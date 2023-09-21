@@ -17,7 +17,7 @@ namespace nb = nanobind;
 
 void RegisterHLSLResourceBindingAttr(nb::module_ &m) {
   nb::class_<HLSLResourceBindingAttr, InheritableAttr>(m, "HLSLResourceBindingAttr")
-    .def("__hash__", [](const HLSLResourceBindingAttr &attr) { return (intptr_t)attr.RawAttr(); })
+    .def("__hash__", [](const HLSLResourceBindingAttr &attr) { return reinterpret_cast<intptr_t>(attr.RawAttr()); })
     .def("__eq__", [](const Attr &a, const Attr &b) { return a.RawAttr() == b.RawAttr(); })
     .def_prop_ro("slot", &HLSLResourceBindingAttr::Slot)
     .def_prop_ro("slot_length", &HLSLResourceBindingAttr::SlotLength)

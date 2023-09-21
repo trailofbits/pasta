@@ -17,7 +17,7 @@ namespace nb = nanobind;
 
 void RegisterQualifiedType(nb::module_ &m) {
   nb::class_<QualifiedType, Type>(m, "QualifiedType")
-    .def("__hash__", [](const QualifiedType &type) { return (intptr_t)type.RawType(); })
+    .def("__hash__", [](const QualifiedType &type) { return reinterpret_cast<intptr_t>(type.RawType()); })
     .def("__eq__", [](const Type &a, const Type &b) { return a.RawType() == b.RawType(); })
     .def_prop_ro("ignore_parentheses", &QualifiedType::IgnoreParentheses)
     .def_prop_ro("address_space", &QualifiedType::AddressSpace)
@@ -60,8 +60,12 @@ void RegisterQualifiedType(nb::module_ &m) {
     .def_prop_ro("is_restrict_qualified", &QualifiedType::IsRestrictQualified)
     .def_prop_ro("is_trivial_type", &QualifiedType::IsTrivialType)
     .def_prop_ro("is_trivially_copyable_type", &QualifiedType::IsTriviallyCopyableType)
+    .def_prop_ro("is_trivially_equality_comparable_type", &QualifiedType::IsTriviallyEqualityComparableType)
     .def_prop_ro("is_trivially_relocatable_type", &QualifiedType::IsTriviallyRelocatableType)
     .def_prop_ro("is_volatile_qualified", &QualifiedType::IsVolatileQualified)
+    .def_prop_ro("is_web_assembly_externref_type", &QualifiedType::IsWebAssemblyExternrefType)
+    .def_prop_ro("is_web_assembly_funcref_type", &QualifiedType::IsWebAssemblyFuncrefType)
+    .def_prop_ro("is_web_assembly_reference_type", &QualifiedType::IsWebAssemblyReferenceType)
     .def_prop_ro("may_be_dynamic_class", &QualifiedType::MayBeDynamicClass)
     .def_prop_ro("may_be_not_dynamic_class", &QualifiedType::MayBeNotDynamicClass)
     .def_prop_ro("strip_obj_c_kind_of_type", &QualifiedType::StripObjCKindOfType)

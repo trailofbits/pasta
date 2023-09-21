@@ -17,7 +17,7 @@ namespace nb = nanobind;
 
 void RegisterCXXConstructorDecl(nb::module_ &m) {
   nb::class_<CXXConstructorDecl, CXXMethodDecl>(m, "CXXConstructorDecl")
-    .def("__hash__", [](const CXXConstructorDecl &decl) { return (intptr_t)decl.RawDecl(); })
+    .def("__hash__", [](const CXXConstructorDecl &decl) { return reinterpret_cast<intptr_t>(decl.RawDecl()); })
     .def("__eq__", [](const Decl &a, const Decl &b) { return a.RawDecl() == b.RawDecl(); })
     .def_prop_ro("canonical_declaration", &CXXConstructorDecl::CanonicalDeclaration)
     .def_prop_ro("num_constructor_initializers", &CXXConstructorDecl::NumConstructorInitializers)

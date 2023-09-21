@@ -39,6 +39,11 @@ static void TryLocateAttribute(const clang::Attr *A,
   unsigned num_found_openers = 0u;
 
   switch (A->getSyntax()) {
+    
+    // Implicit attributes have no source location.
+    case clang::AttributeCommonInfo::AS_Implicit:
+      return;
+
     case clang::AttributeCommonInfo::AS_CXX11:
     case clang::AttributeCommonInfo::AS_C23:
       opener_kind = clang::tok::l_square;

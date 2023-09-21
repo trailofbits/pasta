@@ -17,7 +17,7 @@ namespace nb = nanobind;
 
 void RegisterMaterializeTemporaryExpr(nb::module_ &m) {
   nb::class_<MaterializeTemporaryExpr, Expr>(m, "MaterializeTemporaryExpr")
-    .def("__hash__", [](const MaterializeTemporaryExpr& stmt) { return (intptr_t)stmt.RawStmt(); })
+    .def("__hash__", [](const MaterializeTemporaryExpr& stmt) { return reinterpret_cast<intptr_t>(stmt.RawStmt()); })
     .def("__eq__", [](const Stmt& a, const Stmt& b) { return a.RawStmt() == b.RawStmt(); })
     .def_prop_ro("children", &MaterializeTemporaryExpr::Children)
     .def_prop_ro("begin_token", &MaterializeTemporaryExpr::BeginToken)

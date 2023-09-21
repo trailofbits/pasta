@@ -17,7 +17,7 @@ namespace nb = nanobind;
 
 void RegisterMSAsmStmt(nb::module_ &m) {
   nb::class_<MSAsmStmt, AsmStmt>(m, "MSAsmStmt")
-    .def("__hash__", [](const MSAsmStmt& stmt) { return (intptr_t)stmt.RawStmt(); })
+    .def("__hash__", [](const MSAsmStmt& stmt) { return reinterpret_cast<intptr_t>(stmt.RawStmt()); })
     .def("__eq__", [](const Stmt& a, const Stmt& b) { return a.RawStmt() == b.RawStmt(); })
     .def_prop_ro("children", &MSAsmStmt::Children)
     .def_prop_ro("generate_assembly_string", &MSAsmStmt::GenerateAssemblyString)

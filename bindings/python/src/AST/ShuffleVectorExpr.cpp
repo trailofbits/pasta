@@ -17,7 +17,7 @@ namespace nb = nanobind;
 
 void RegisterShuffleVectorExpr(nb::module_ &m) {
   nb::class_<ShuffleVectorExpr, Expr>(m, "ShuffleVectorExpr")
-    .def("__hash__", [](const ShuffleVectorExpr& stmt) { return (intptr_t)stmt.RawStmt(); })
+    .def("__hash__", [](const ShuffleVectorExpr& stmt) { return reinterpret_cast<intptr_t>(stmt.RawStmt()); })
     .def("__eq__", [](const Stmt& a, const Stmt& b) { return a.RawStmt() == b.RawStmt(); })
     .def_prop_ro("children", &ShuffleVectorExpr::Children)
     .def_prop_ro("begin_token", &ShuffleVectorExpr::BeginToken)

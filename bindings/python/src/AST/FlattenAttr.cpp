@@ -17,7 +17,7 @@ namespace nb = nanobind;
 
 void RegisterFlattenAttr(nb::module_ &m) {
   nb::class_<FlattenAttr, InheritableAttr>(m, "FlattenAttr")
-    .def("__hash__", [](const FlattenAttr &attr) { return (intptr_t)attr.RawAttr(); })
+    .def("__hash__", [](const FlattenAttr &attr) { return reinterpret_cast<intptr_t>(attr.RawAttr()); })
     .def("__eq__", [](const Attr &a, const Attr &b) { return a.RawAttr() == b.RawAttr(); })
     .def_prop_ro("spelling", &FlattenAttr::Spelling);
 }

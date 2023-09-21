@@ -17,7 +17,7 @@ namespace nb = nanobind;
 
 void RegisterFallThroughAttr(nb::module_ &m) {
   nb::class_<FallThroughAttr, StmtAttr>(m, "FallThroughAttr")
-    .def("__hash__", [](const FallThroughAttr &attr) { return (intptr_t)attr.RawAttr(); })
+    .def("__hash__", [](const FallThroughAttr &attr) { return reinterpret_cast<intptr_t>(attr.RawAttr()); })
     .def("__eq__", [](const Attr &a, const Attr &b) { return a.RawAttr() == b.RawAttr(); })
     .def_prop_ro("spelling", &FallThroughAttr::Spelling);
 }

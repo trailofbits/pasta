@@ -17,7 +17,7 @@ namespace nb = nanobind;
 
 void RegisterConsumableSetOnReadAttr(nb::module_ &m) {
   nb::class_<ConsumableSetOnReadAttr, InheritableAttr>(m, "ConsumableSetOnReadAttr")
-    .def("__hash__", [](const ConsumableSetOnReadAttr &attr) { return (intptr_t)attr.RawAttr(); })
+    .def("__hash__", [](const ConsumableSetOnReadAttr &attr) { return reinterpret_cast<intptr_t>(attr.RawAttr()); })
     .def("__eq__", [](const Attr &a, const Attr &b) { return a.RawAttr() == b.RawAttr(); })
     .def_prop_ro("spelling", &ConsumableSetOnReadAttr::Spelling);
 }

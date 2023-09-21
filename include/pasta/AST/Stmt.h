@@ -119,6 +119,7 @@ class StmtVisitor {
   virtual void VisitOMPParallelMasterTaskLoopSimdDirective(const OMPParallelMasterTaskLoopSimdDirective &);
   virtual void VisitOMPParallelSectionsDirective(const OMPParallelSectionsDirective &);
   virtual void VisitOMPScanDirective(const OMPScanDirective &);
+  virtual void VisitOMPScopeDirective(const OMPScopeDirective &);
   virtual void VisitOMPSectionDirective(const OMPSectionDirective &);
   virtual void VisitOMPSectionsDirective(const OMPSectionsDirective &);
   virtual void VisitOMPSimdDirective(const OMPSimdDirective &);
@@ -454,6 +455,7 @@ class Stmt {
   PASTA_DECLARE_DERIVED_OPERATORS(Stmt, OMPParallelMasterTaskLoopSimdDirective)
   PASTA_DECLARE_DERIVED_OPERATORS(Stmt, OMPParallelSectionsDirective)
   PASTA_DECLARE_DERIVED_OPERATORS(Stmt, OMPScanDirective)
+  PASTA_DECLARE_DERIVED_OPERATORS(Stmt, OMPScopeDirective)
   PASTA_DECLARE_DERIVED_OPERATORS(Stmt, OMPSectionDirective)
   PASTA_DECLARE_DERIVED_OPERATORS(Stmt, OMPSectionsDirective)
   PASTA_DECLARE_DERIVED_OPERATORS(Stmt, OMPSimdDirective)
@@ -552,7 +554,6 @@ class Stmt {
   ::pasta::Token EndToken(void) const;
   int64_t ID(void) const;
   ::pasta::TokenRange Tokens(void) const;
-  ::pasta::StmtKind Kind(void) const;
   std::string_view KindName(void) const;
   ::pasta::Stmt StripLabelLikeStatements(void) const;
   inline bool operator==(const Stmt &that) const noexcept {
@@ -717,6 +718,7 @@ class Stmt {
     const ::clang::OMPParallelMasterTaskLoopSimdDirective *OMPParallelMasterTaskLoopSimdDirective;
     const ::clang::OMPParallelSectionsDirective *OMPParallelSectionsDirective;
     const ::clang::OMPScanDirective *OMPScanDirective;
+    const ::clang::OMPScopeDirective *OMPScopeDirective;
     const ::clang::OMPSectionDirective *OMPSectionDirective;
     const ::clang::OMPSectionsDirective *OMPSectionsDirective;
     const ::clang::OMPSimdDirective *OMPSimdDirective;
@@ -1280,9 +1282,10 @@ class CoroutineBodyStmt : public Stmt {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(CoroutineBodyStmt)
   PASTA_DECLARE_BASE_OPERATORS(Stmt, CoroutineBodyStmt)
   std::vector<::pasta::Stmt> Children(void) const;
+  std::vector<::pasta::Stmt> ChildrenExclBody(void) const;
   ::pasta::Expr Allocate(void) const;
   ::pasta::Token BeginToken(void) const;
-  ::pasta::Stmt Body(void) const;
+  ::pasta::CompoundStmt Body(void) const;
   ::pasta::Expr Deallocate(void) const;
   ::pasta::Token EndToken(void) const;
   ::pasta::Stmt ExceptionHandler(void) const;
@@ -1292,6 +1295,7 @@ class CoroutineBodyStmt : public Stmt {
   std::vector<::pasta::Stmt> ParameterMoves(void) const;
   ::pasta::VarDecl PromiseDeclaration(void) const;
   ::pasta::Stmt PromiseDeclarationStatement(void) const;
+  ::pasta::Stmt ResultDeclaration(void) const;
   ::pasta::Stmt ReturnStatement(void) const;
   ::pasta::Stmt ReturnStatementOnAllocFailure(void) const;
   ::pasta::Expr ReturnValue(void) const;
@@ -1507,6 +1511,7 @@ class Expr : public ValueStmt {
   // EvaluateAsInt: (bool)
   // EvaluateAsLValue: (bool)
   // EvaluateAsRValue: (bool)
+  // EvaluateCharacterRangeAsString: (bool)
   std::optional<llvm::APSInt> EvaluateKnownConstInt(void) const;
   std::optional<llvm::APSInt> EvaluateKnownConstIntCheckOverflow(void) const;
   // EvaluateWithSubstitution: (bool)
@@ -1631,7 +1636,7 @@ class FixedPointLiteral : public Expr {
   ::pasta::Token EndToken(void) const;
   ::pasta::Token Token(void) const;
   uint32_t Scale(void) const;
-  // ValueAsString: (std::basic_string<char, std::char_traits<char>, std::allocator<char>>)
+  // ValueAsString: (std::string)
  protected:
   PASTA_DEFINE_DEFAULT_STMT_CONSTRUCTOR(FixedPointLiteral)
 };
@@ -1809,6 +1814,7 @@ class GenericSelectionExpr : public Expr {
   // Association: (clang::GenericSelectionExpr::AssociationTy<true>)
   ::pasta::Token BeginToken(void) const;
   ::pasta::Expr ControllingExpression(void) const;
+  ::pasta::Type ControllingType(void) const;
   ::pasta::Token DefaultToken(void) const;
   ::pasta::Token EndToken(void) const;
   ::pasta::Token GenericToken(void) const;
@@ -1816,7 +1822,9 @@ class GenericSelectionExpr : public Expr {
   ::pasta::Token RParenToken(void) const;
   ::pasta::Expr ResultExpression(void) const;
   uint32_t ResultIndex(void) const;
+  bool IsExpressionPredicate(void) const;
   bool IsResultDependent(void) const;
+  bool IsTypePredicate(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_STMT_CONSTRUCTOR(GenericSelectionExpr)
 };
@@ -1949,6 +1957,7 @@ class InitListExpr : public Expr {
   std::optional<::pasta::InitListExpr> SyntacticForm(void) const;
   bool HadArrayRangeDesignator(void) const;
   bool HasArrayFiller(void) const;
+  bool HasDesignatedInitializer(void) const;
   std::vector<::pasta::Expr> Initializers(void) const;
   bool IsExplicit(void) const;
   // IsIdiomaticZeroInitializer: (bool)
@@ -2366,6 +2375,7 @@ class OMPExecutableDirective : public Stmt {
   PASTA_DECLARE_DERIVED_OPERATORS(OMPExecutableDirective, OMPParallelMasterTaskLoopSimdDirective)
   PASTA_DECLARE_DERIVED_OPERATORS(OMPExecutableDirective, OMPParallelSectionsDirective)
   PASTA_DECLARE_DERIVED_OPERATORS(OMPExecutableDirective, OMPScanDirective)
+  PASTA_DECLARE_DERIVED_OPERATORS(OMPExecutableDirective, OMPScopeDirective)
   PASTA_DECLARE_DERIVED_OPERATORS(OMPExecutableDirective, OMPSectionDirective)
   PASTA_DECLARE_DERIVED_OPERATORS(OMPExecutableDirective, OMPSectionsDirective)
   PASTA_DECLARE_DERIVED_OPERATORS(OMPExecutableDirective, OMPSimdDirective)
@@ -2409,6 +2419,7 @@ class OMPExecutableDirective : public Stmt {
   // DirectiveKind: (llvm::omp::Directive)
   ::pasta::Token EndToken(void) const;
   ::pasta::CapturedStmt InnermostCapturedStatement(void) const;
+  // MappedDirective: (llvm::omp::Directive)
   uint32_t NumClauses(void) const;
   ::pasta::Stmt RawStatement(void) const;
   ::pasta::Stmt StructuredBlock(void) const;
@@ -2952,6 +2963,20 @@ class OMPScanDirective : public OMPExecutableDirective {
 };
 
 static_assert(sizeof(Stmt) == sizeof(OMPScanDirective));
+
+class OMPScopeDirective : public OMPExecutableDirective {
+ private:
+  using OMPExecutableDirective::From;
+ public:
+  PASTA_DECLARE_DEFAULT_CONSTRUCTORS(OMPScopeDirective)
+  PASTA_DECLARE_BASE_OPERATORS(OMPExecutableDirective, OMPScopeDirective)
+  PASTA_DECLARE_BASE_OPERATORS(Stmt, OMPScopeDirective)
+  // !!! Clause getNumClauses getClause (empty ret type = (clang::OMPClause *))
+ protected:
+  PASTA_DEFINE_DEFAULT_STMT_CONSTRUCTOR(OMPScopeDirective)
+};
+
+static_assert(sizeof(Stmt) == sizeof(OMPScopeDirective));
 
 class OMPSectionDirective : public OMPExecutableDirective {
  private:
@@ -4117,6 +4142,7 @@ class PredefinedExpr : public Expr {
   enum PredefinedExprIdentKind IdentifierKind(void) const;
   std::string_view IdentifierKindName(void) const;
   ::pasta::Token Token(void) const;
+  bool IsTransparent(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_STMT_CONSTRUCTOR(PredefinedExpr)
 };
@@ -4413,6 +4439,7 @@ class StringLiteral : public Expr {
   bool IsUTF16(void) const;
   bool IsUTF32(void) const;
   bool IsUTF8(void) const;
+  bool IsUnevaluated(void) const;
   bool IsWide(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_STMT_CONSTRUCTOR(StringLiteral)
@@ -4793,6 +4820,7 @@ class AtomicExpr : public Expr {
   ::pasta::Token EndToken(void) const;
   uint32_t NumSubExpressions(void) const;
   enum AtomicExprAtomicOp Operation(void) const;
+  std::string_view OperationAsString(void) const;
   ::pasta::Expr Order(void) const;
   std::optional<::pasta::Expr> OrderFail(void) const;
   ::pasta::Expr Pointer(void) const;
@@ -4961,6 +4989,7 @@ class CXXConstructExpr : public Expr {
   ::pasta::TokenRange ParenthesisOrBraceRange(void) const;
   bool HadMultipleCandidates(void) const;
   bool IsElidable(void) const;
+  bool IsImmediateEscalating(void) const;
   bool IsListInitialization(void) const;
   bool IsStdInitializerListInitialization(void) const;
   bool RequiresZeroInitialization(void) const;
@@ -5626,10 +5655,20 @@ class ConceptSpecializationExpr : public Expr {
   PASTA_DECLARE_BASE_OPERATORS(ValueStmt, ConceptSpecializationExpr)
   std::vector<::pasta::Stmt> Children(void) const;
   ::pasta::Token BeginToken(void) const;
+  // ConceptNameInfo: (const clang::DeclarationNameInfo &)
+  ::pasta::Token ConceptNameToken(void) const;
+  // ConceptReference: (clang::ConceptReference *)
   ::pasta::Token EndToken(void) const;
+  ::pasta::Token ExpressionToken(void) const;
+  ::pasta::NamedDecl FoundDeclaration(void) const;
+  ::pasta::ConceptDecl NamedConcept(void) const;
+  // NestedNameSpecifierToken: (const clang::NestedNameSpecifierLoc &)
   // Satisfaction: (const clang::ASTConstraintSatisfaction &)
   ::pasta::ImplicitConceptSpecializationDecl SpecializationDeclaration(void) const;
+  // TemplateArgumentsAsWritten: (const clang::ASTTemplateArgumentListInfo *)
   std::vector<::pasta::TemplateArgument> TemplateArguments(void) const;
+  ::pasta::Token TemplateKeywordToken(void) const;
+  bool HasExplicitTemplateArguments(void) const;
   bool IsSatisfied(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_STMT_CONSTRUCTOR(ConceptSpecializationExpr)
@@ -5773,6 +5812,7 @@ class DeclRefExpr : public Expr {
   bool HasQualifier(void) const;
   bool HasTemplateKeywordAndArgumentsInfo(void) const;
   bool HasTemplateKeyword(void) const;
+  bool IsImmediateEscalating(void) const;
   enum NonOdrUseReason IsNonOdrUse(void) const;
   bool RefersToEnclosingVariableOrCapture(void) const;
   // TemplateArguments: (llvm::ArrayRef<clang::TemplateArgumentLoc>)

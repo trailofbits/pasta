@@ -1070,6 +1070,19 @@ void TypePrinter::printVector(
       // Multiply by 8 for the number of bits.
       OS << ") * 8))) ";
       break;
+
+    case clang::VectorType::RVVFixedLengthDataVector:
+      // FIXME: We prefer to print the size directly here, but have no way
+      // to get the size of the type.
+      OS << "__attribute__((__riscv_rvv_vector_bits__(";
+
+      OS << T->getNumElements();
+
+      OS << " * sizeof(";
+      print(T->getElementType(), clang::StringRef());
+      // Multiply by 8 for the number of bits.
+      OS << ") * 8))) ";
+      break;
   }
 
   // TODO(pag): Why are altivecpixel types different?
@@ -1140,6 +1153,19 @@ void TypePrinter::printDependentVector(
       print(T->getElementType(), clang::StringRef());
       // Multiply by 8 for the number of bits.
       OS << ") * 8))) ";
+      break;
+    case clang::VectorType::RVVFixedLengthDataVector:
+      // FIXME: We prefer to print the size directly here, but have no way
+      // to get the size of the type.
+      OS << "__attribute__((__riscv_rvv_vector_bits__(";
+      if (T->getSizeExpr()) {
+        T->getSizeExpr()->printPretty(OS, nullptr, Policy);
+        OS << " * sizeof(";
+        print(T->getElementType(), clang::StringRef());
+        // Multiply by 8 for the number of bits.
+        OS << ") * 8";
+      }
+      OS << "))) ";
       break;
   }
 
@@ -2256,7 +2282,33 @@ void TypePrinter::printAttributed(const clang::AttributedType *T,
       // here. For the meantime, we just print `[[clang::annotate_type(...)]]`
       // without the arguments so that we know at least that we had _some_
       // annotation on the type.
+      printBeforeAfter(T->getModifiedType(), OS, std::move(IdentFn));
       OS << " [[clang::annotate_type(...)]]";
+      return;
+
+    case clang::attr::WebAssemblyFuncref:
+      OS << "__funcref";
+      printBeforeAfter(T->getModifiedType(), OS, std::move(IdentFn));
+      return;
+
+    case clang::attr::ArmStreaming:
+      printBeforeAfter(T->getModifiedType(), OS, std::move(IdentFn));
+      OS << "__arm_streaming";
+      return;
+
+    case clang::attr::ArmStreamingCompatible:
+      printBeforeAfter(T->getModifiedType(), OS, std::move(IdentFn));
+      OS << "__arm_streaming_compatible";
+      return;
+
+    case clang::attr::ArmSharedZA:
+      printBeforeAfter(T->getModifiedType(), OS, std::move(IdentFn));
+      OS << "__arm_shared_za";
+      return;
+
+    case clang::attr::ArmPreservesZA:
+      printBeforeAfter(T->getModifiedType(), OS, std::move(IdentFn));
+      OS << "__arm_preserves_za";
       return;
 
     default:
@@ -2314,6 +2366,11 @@ void TypePrinter::printAttributed(const clang::AttributedType *T,
         case clang::attr::AddressSpace:
         case clang::attr::CmseNSCall:
         case clang::attr::AnnotateType:
+        case clang::attr::WebAssemblyFuncref:
+        case clang::attr::ArmStreaming:
+        case clang::attr::ArmStreamingCompatible:
+        case clang::attr::ArmSharedZA:
+        case clang::attr::ArmPreservesZA:
           llvm_unreachable("This attribute should have been handled already");
 
         case clang::attr::NSReturnsRetained:

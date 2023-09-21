@@ -17,7 +17,7 @@ namespace nb = nanobind;
 
 void RegisterCXX11NoReturnAttr(nb::module_ &m) {
   nb::class_<CXX11NoReturnAttr, InheritableAttr>(m, "CXX11NoReturnAttr")
-    .def("__hash__", [](const CXX11NoReturnAttr &attr) { return (intptr_t)attr.RawAttr(); })
+    .def("__hash__", [](const CXX11NoReturnAttr &attr) { return reinterpret_cast<intptr_t>(attr.RawAttr()); })
     .def("__eq__", [](const Attr &a, const Attr &b) { return a.RawAttr() == b.RawAttr(); })
     .def_prop_ro("semantic_spelling", &CXX11NoReturnAttr::SemanticSpelling)
     .def_prop_ro("spelling", &CXX11NoReturnAttr::Spelling);

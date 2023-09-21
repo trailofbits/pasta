@@ -17,7 +17,7 @@ namespace nb = nanobind;
 
 void RegisterCStyleCastExpr(nb::module_ &m) {
   nb::class_<CStyleCastExpr, ExplicitCastExpr>(m, "CStyleCastExpr")
-    .def("__hash__", [](const CStyleCastExpr& stmt) { return (intptr_t)stmt.RawStmt(); })
+    .def("__hash__", [](const CStyleCastExpr& stmt) { return reinterpret_cast<intptr_t>(stmt.RawStmt()); })
     .def("__eq__", [](const Stmt& a, const Stmt& b) { return a.RawStmt() == b.RawStmt(); })
     .def_prop_ro("begin_token", &CStyleCastExpr::BeginToken)
     .def_prop_ro("end_token", &CStyleCastExpr::EndToken)

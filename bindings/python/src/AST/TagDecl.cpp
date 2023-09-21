@@ -17,7 +17,7 @@ namespace nb = nanobind;
 
 void RegisterTagDecl(nb::module_ &m) {
   nb::class_<TagDecl, TypeDecl>(m, "TagDecl")
-    .def("__hash__", [](const TagDecl &decl) { return (intptr_t)decl.RawDecl(); })
+    .def("__hash__", [](const TagDecl &decl) { return reinterpret_cast<intptr_t>(decl.RawDecl()); })
     .def("__eq__", [](const Decl &a, const Decl &b) { return a.RawDecl() == b.RawDecl(); })
     .def_prop_ro("brace_range", &TagDecl::BraceRange)
     .def_prop_ro("canonical_declaration", &TagDecl::CanonicalDeclaration)

@@ -17,7 +17,7 @@ namespace nb = nanobind;
 
 void RegisterParenListExpr(nb::module_ &m) {
   nb::class_<ParenListExpr, Expr>(m, "ParenListExpr")
-    .def("__hash__", [](const ParenListExpr& stmt) { return (intptr_t)stmt.RawStmt(); })
+    .def("__hash__", [](const ParenListExpr& stmt) { return reinterpret_cast<intptr_t>(stmt.RawStmt()); })
     .def("__eq__", [](const Stmt& a, const Stmt& b) { return a.RawStmt() == b.RawStmt(); })
     .def_prop_ro("children", &ParenListExpr::Children)
     .def_prop_ro("begin_token", &ParenListExpr::BeginToken)

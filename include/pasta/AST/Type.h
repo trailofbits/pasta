@@ -323,9 +323,9 @@ class Type {
   std::optional<::pasta::CXXRecordDecl> PointeeCXXRecordDeclaration(void) const;
   std::optional<::pasta::Type> PointeeOrArrayElementType(void) const;
   std::optional<::pasta::Type> PointeeType(void) const;
+  ::pasta::Type RVVEltType(void) const;
   std::optional<enum TypeScalarTypeKind> ScalarTypeKind(void) const;
   std::optional<::pasta::Type> SveElementType(void) const;
-  ::pasta::TypeKind Kind(void) const;
   std::string_view KindName(void) const;
   ::pasta::Type UnqualifiedDesugaredType(void) const;
   enum Visibility Visibility(void) const;
@@ -491,7 +491,8 @@ class Type {
   bool IsPlaceholderType(void) const;
   bool IsPointerType(void) const;
   bool IsQueueT(void) const;
-  bool IsRVVType(void) const;
+  bool IsRVVSizelessBuiltinType(void) const;
+  bool IsRVVVLSBuiltinType(void) const;
   bool IsRValueReferenceType(void) const;
   bool IsRealFloatingType(void) const;
   bool IsRealType(void) const;
@@ -516,6 +517,7 @@ class Type {
   std::optional<bool> IsStructuralType(void) const;
   bool IsStructureOrClassType(void) const;
   bool IsStructureType(void) const;
+  bool IsSveVLSBuiltinType(void) const;
   bool IsTemplateTypeParmType(void) const;
   bool IsTypedefNameType(void) const;
   bool IsUndeducedAutoType(void) const;
@@ -526,13 +528,14 @@ class Type {
   bool IsUnsignedFixedPointType(void) const;
   bool IsUnsignedIntegerOrEnumerationType(void) const;
   bool IsUnsignedIntegerType(void) const;
-  bool IsVLSTBuiltinType(void) const;
   bool IsVariableArrayType(void) const;
   bool IsVariablyModifiedType(void) const;
   bool IsVectorType(void) const;
   bool IsVisibilityExplicit(void) const;
   bool IsVoidPointerType(void) const;
   bool IsVoidType(void) const;
+  bool IsWebAssemblyExternrefType(void) const;
+  bool IsWebAssemblyTableType(void) const;
   bool IsWideCharacterType(void) const;
 };
 
@@ -725,6 +728,7 @@ class AttributedType : public Type {
   bool IsMSTypeSpec(void) const;
   bool IsQualifier(void) const;
   bool IsSugared(void) const;
+  bool IsWebAssemblyFuncrefSpec(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_TYPE_CONSTRUCTOR(AttributedType)
 };
@@ -790,6 +794,7 @@ class BuiltinType : public Type {
   bool IsNonOverloadPlaceholderType(void) const;
   bool IsPlaceholderType(void) const;
   bool IsSVEBool(void) const;
+  bool IsSVECount(void) const;
   bool IsSignedInteger(void) const;
   bool IsSugared(void) const;
   bool IsUnsignedInteger(void) const;
@@ -821,6 +826,7 @@ class ConstantArrayType : public ArrayType {
   PASTA_DECLARE_BASE_OPERATORS(ArrayType, ConstantArrayType)
   PASTA_DECLARE_BASE_OPERATORS(Type, ConstantArrayType)
   ::pasta::Type Desugar(void) const;
+  uint32_t NumAddressingBits(void) const;
   llvm::APInt Size(void) const;
   std::optional<::pasta::Expr> SizeExpression(void) const;
   bool IsSugared(void) const;
@@ -1336,8 +1342,12 @@ class QualifiedType : public Type {
   bool IsRestrictQualified(void) const;
   bool IsTrivialType(void) const;
   bool IsTriviallyCopyableType(void) const;
+  bool IsTriviallyEqualityComparableType(void) const;
   bool IsTriviallyRelocatableType(void) const;
   bool IsVolatileQualified(void) const;
+  bool IsWebAssemblyExternrefType(void) const;
+  bool IsWebAssemblyFuncrefType(void) const;
+  bool IsWebAssemblyReferenceType(void) const;
   bool MayBeDynamicClass(void) const;
   bool MayBeNotDynamicClass(void) const;
   // Split: (clang::SplitQualType)
@@ -1590,6 +1600,7 @@ class FunctionProtoType : public FunctionType {
   std::optional<enum CanThrowResult> CanThrow(void) const;
   ::pasta::Type Desugar(void) const;
   std::vector<::pasta::Type> Exceptions(void) const;
+  uint32_t AArch64SMEAttributes(void) const;
   ::pasta::Token EllipsisToken(void) const;
   std::optional<::pasta::FunctionDecl> ExceptionSpecDeclaration(void) const;
   // ExceptionSpecInfo: (clang::FunctionProtoType::ExceptionSpecInfo)

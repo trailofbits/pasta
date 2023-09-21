@@ -17,7 +17,7 @@ namespace nb = nanobind;
 
 void RegisterCapturedDecl(nb::module_ &m) {
   nb::class_<CapturedDecl, Decl>(m, "CapturedDecl")
-    .def("__hash__", [](const CapturedDecl &decl) { return (intptr_t)decl.RawDecl(); })
+    .def("__hash__", [](const CapturedDecl &decl) { return reinterpret_cast<intptr_t>(decl.RawDecl()); })
     .def("__eq__", [](const Decl &a, const Decl &b) { return a.RawDecl() == b.RawDecl(); })
     .def_prop_ro("context_parameter", &CapturedDecl::ContextParameter)
     .def_prop_ro("context_parameter_position", &CapturedDecl::ContextParameterPosition)

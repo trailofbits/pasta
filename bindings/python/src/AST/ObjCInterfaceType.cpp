@@ -17,7 +17,7 @@ namespace nb = nanobind;
 
 void RegisterObjCInterfaceType(nb::module_ &m) {
   nb::class_<ObjCInterfaceType, ObjCObjectType>(m, "ObjCInterfaceType")
-    .def("__hash__", [](const ObjCInterfaceType &type) { return (intptr_t)type.RawType(); })
+    .def("__hash__", [](const ObjCInterfaceType &type) { return reinterpret_cast<intptr_t>(type.RawType()); })
     .def("__eq__", [](const Type &a, const Type &b) { return a.RawType() == b.RawType(); })
     .def_prop_ro("desugar", &ObjCInterfaceType::Desugar)
     .def_prop_ro("declaration", &ObjCInterfaceType::Declaration)

@@ -17,7 +17,7 @@ namespace nb = nanobind;
 
 void RegisterOMPExecutableDirective(nb::module_ &m) {
   nb::class_<OMPExecutableDirective, Stmt>(m, "OMPExecutableDirective")
-    .def("__hash__", [](const OMPExecutableDirective& stmt) { return (intptr_t)stmt.RawStmt(); })
+    .def("__hash__", [](const OMPExecutableDirective& stmt) { return reinterpret_cast<intptr_t>(stmt.RawStmt()); })
     .def("__eq__", [](const Stmt& a, const Stmt& b) { return a.RawStmt() == b.RawStmt(); })
     .def_prop_ro("children", &OMPExecutableDirective::Children)
     .def_prop_ro("associated_statement", &OMPExecutableDirective::AssociatedStatement)

@@ -17,7 +17,7 @@ namespace nb = nanobind;
 
 void RegisterSubstTemplateTypeParmType(nb::module_ &m) {
   nb::class_<SubstTemplateTypeParmType, Type>(m, "SubstTemplateTypeParmType")
-    .def("__hash__", [](const SubstTemplateTypeParmType &type) { return (intptr_t)type.RawType(); })
+    .def("__hash__", [](const SubstTemplateTypeParmType &type) { return reinterpret_cast<intptr_t>(type.RawType()); })
     .def("__eq__", [](const Type &a, const Type &b) { return a.RawType() == b.RawType(); })
     .def_prop_ro("desugar", &SubstTemplateTypeParmType::Desugar)
     .def_prop_ro("associated_declaration", &SubstTemplateTypeParmType::AssociatedDeclaration)

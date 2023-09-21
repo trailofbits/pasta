@@ -17,7 +17,7 @@ namespace nb = nanobind;
 
 void RegisterObjCInertUnsafeUnretainedAttr(nb::module_ &m) {
   nb::class_<ObjCInertUnsafeUnretainedAttr, TypeAttr>(m, "ObjCInertUnsafeUnretainedAttr")
-    .def("__hash__", [](const ObjCInertUnsafeUnretainedAttr &attr) { return (intptr_t)attr.RawAttr(); })
+    .def("__hash__", [](const ObjCInertUnsafeUnretainedAttr &attr) { return reinterpret_cast<intptr_t>(attr.RawAttr()); })
     .def("__eq__", [](const Attr &a, const Attr &b) { return a.RawAttr() == b.RawAttr(); })
     .def_prop_ro("spelling", &ObjCInertUnsafeUnretainedAttr::Spelling);
 }

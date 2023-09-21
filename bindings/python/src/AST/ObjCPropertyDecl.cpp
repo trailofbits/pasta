@@ -17,7 +17,7 @@ namespace nb = nanobind;
 
 void RegisterObjCPropertyDecl(nb::module_ &m) {
   nb::class_<ObjCPropertyDecl, NamedDecl>(m, "ObjCPropertyDecl")
-    .def("__hash__", [](const ObjCPropertyDecl &decl) { return (intptr_t)decl.RawDecl(); })
+    .def("__hash__", [](const ObjCPropertyDecl &decl) { return reinterpret_cast<intptr_t>(decl.RawDecl()); })
     .def("__eq__", [](const Decl &a, const Decl &b) { return a.RawDecl() == b.RawDecl(); })
     .def_prop_ro("at_token", &ObjCPropertyDecl::AtToken)
     .def_prop_ro("getter_method_declaration", &ObjCPropertyDecl::GetterMethodDeclaration)

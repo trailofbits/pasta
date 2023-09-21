@@ -17,7 +17,7 @@ namespace nb = nanobind;
 
 void RegisterTranslationUnitDecl(nb::module_ &m) {
   nb::class_<TranslationUnitDecl, Decl>(m, "TranslationUnitDecl")
-    .def("__hash__", [](const TranslationUnitDecl &decl) { return (intptr_t)decl.RawDecl(); })
+    .def("__hash__", [](const TranslationUnitDecl &decl) { return reinterpret_cast<intptr_t>(decl.RawDecl()); })
     .def("__eq__", [](const Decl &a, const Decl &b) { return a.RawDecl() == b.RawDecl(); })
     .def_prop_ro("anonymous_namespace", &TranslationUnitDecl::AnonymousNamespace);
 }

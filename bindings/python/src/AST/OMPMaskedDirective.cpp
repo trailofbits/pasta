@@ -17,7 +17,7 @@ namespace nb = nanobind;
 
 void RegisterOMPMaskedDirective(nb::module_ &m) {
   nb::class_<OMPMaskedDirective, OMPExecutableDirective>(m, "OMPMaskedDirective")
-    .def("__hash__", [](const OMPMaskedDirective& stmt) { return (intptr_t)stmt.RawStmt(); })
+    .def("__hash__", [](const OMPMaskedDirective& stmt) { return reinterpret_cast<intptr_t>(stmt.RawStmt()); })
     .def("__eq__", [](const Stmt& a, const Stmt& b) { return a.RawStmt() == b.RawStmt(); });
 }
 } // namespace pasta

@@ -17,7 +17,7 @@ namespace nb = nanobind;
 
 void RegisterInitListExpr(nb::module_ &m) {
   nb::class_<InitListExpr, Expr>(m, "InitListExpr")
-    .def("__hash__", [](const InitListExpr& stmt) { return (intptr_t)stmt.RawStmt(); })
+    .def("__hash__", [](const InitListExpr& stmt) { return reinterpret_cast<intptr_t>(stmt.RawStmt()); })
     .def("__eq__", [](const Stmt& a, const Stmt& b) { return a.RawStmt() == b.RawStmt(); })
     .def_prop_ro("children", &InitListExpr::Children)
     .def_prop_ro("array_filler", &InitListExpr::ArrayFiller)
@@ -31,6 +31,7 @@ void RegisterInitListExpr(nb::module_ &m) {
     .def_prop_ro("syntactic_form", &InitListExpr::SyntacticForm)
     .def_prop_ro("had_array_range_designator", &InitListExpr::HadArrayRangeDesignator)
     .def_prop_ro("has_array_filler", &InitListExpr::HasArrayFiller)
+    .def_prop_ro("has_designated_initializer", &InitListExpr::HasDesignatedInitializer)
     .def_prop_ro("initializers", &InitListExpr::Initializers)
     .def_prop_ro("is_explicit", &InitListExpr::IsExplicit)
     .def_prop_ro("is_semantic_form", &InitListExpr::IsSemanticForm)

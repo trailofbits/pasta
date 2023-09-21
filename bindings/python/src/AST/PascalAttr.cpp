@@ -17,7 +17,7 @@ namespace nb = nanobind;
 
 void RegisterPascalAttr(nb::module_ &m) {
   nb::class_<PascalAttr, InheritableAttr>(m, "PascalAttr")
-    .def("__hash__", [](const PascalAttr &attr) { return (intptr_t)attr.RawAttr(); })
+    .def("__hash__", [](const PascalAttr &attr) { return reinterpret_cast<intptr_t>(attr.RawAttr()); })
     .def("__eq__", [](const Attr &a, const Attr &b) { return a.RawAttr() == b.RawAttr(); })
     .def_prop_ro("spelling", &PascalAttr::Spelling);
 }

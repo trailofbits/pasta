@@ -17,7 +17,7 @@ namespace nb = nanobind;
 
 void RegisterObjCReturnsInnerPointerAttr(nb::module_ &m) {
   nb::class_<ObjCReturnsInnerPointerAttr, InheritableAttr>(m, "ObjCReturnsInnerPointerAttr")
-    .def("__hash__", [](const ObjCReturnsInnerPointerAttr &attr) { return (intptr_t)attr.RawAttr(); })
+    .def("__hash__", [](const ObjCReturnsInnerPointerAttr &attr) { return reinterpret_cast<intptr_t>(attr.RawAttr()); })
     .def("__eq__", [](const Attr &a, const Attr &b) { return a.RawAttr() == b.RawAttr(); })
     .def_prop_ro("spelling", &ObjCReturnsInnerPointerAttr::Spelling);
 }

@@ -17,7 +17,7 @@ namespace nb = nanobind;
 
 void RegisterConsumableAutoCastAttr(nb::module_ &m) {
   nb::class_<ConsumableAutoCastAttr, InheritableAttr>(m, "ConsumableAutoCastAttr")
-    .def("__hash__", [](const ConsumableAutoCastAttr &attr) { return (intptr_t)attr.RawAttr(); })
+    .def("__hash__", [](const ConsumableAutoCastAttr &attr) { return reinterpret_cast<intptr_t>(attr.RawAttr()); })
     .def("__eq__", [](const Attr &a, const Attr &b) { return a.RawAttr() == b.RawAttr(); })
     .def_prop_ro("spelling", &ConsumableAutoCastAttr::Spelling);
 }

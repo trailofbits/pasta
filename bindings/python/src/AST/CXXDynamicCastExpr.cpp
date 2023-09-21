@@ -17,7 +17,7 @@ namespace nb = nanobind;
 
 void RegisterCXXDynamicCastExpr(nb::module_ &m) {
   nb::class_<CXXDynamicCastExpr, CXXNamedCastExpr>(m, "CXXDynamicCastExpr")
-    .def("__hash__", [](const CXXDynamicCastExpr& stmt) { return (intptr_t)stmt.RawStmt(); })
+    .def("__hash__", [](const CXXDynamicCastExpr& stmt) { return reinterpret_cast<intptr_t>(stmt.RawStmt()); })
     .def("__eq__", [](const Stmt& a, const Stmt& b) { return a.RawStmt() == b.RawStmt(); })
     .def_prop_ro("is_always_null", &CXXDynamicCastExpr::IsAlwaysNull);
 }

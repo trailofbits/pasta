@@ -17,7 +17,7 @@ namespace nb = nanobind;
 
 void RegisterClassTemplateDecl(nb::module_ &m) {
   nb::class_<ClassTemplateDecl, RedeclarableTemplateDecl>(m, "ClassTemplateDecl")
-    .def("__hash__", [](const ClassTemplateDecl &decl) { return (intptr_t)decl.RawDecl(); })
+    .def("__hash__", [](const ClassTemplateDecl &decl) { return reinterpret_cast<intptr_t>(decl.RawDecl()); })
     .def("__eq__", [](const Decl &a, const Decl &b) { return a.RawDecl() == b.RawDecl(); })
     .def_prop_ro("canonical_declaration", &ClassTemplateDecl::CanonicalDeclaration)
     .def_prop_ro("instantiated_from_member_template", &ClassTemplateDecl::InstantiatedFromMemberTemplate)

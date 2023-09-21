@@ -17,7 +17,7 @@ namespace nb = nanobind;
 
 void RegisterOMPTeamsDistributeParallelForDirective(nb::module_ &m) {
   nb::class_<OMPTeamsDistributeParallelForDirective, OMPLoopDirective>(m, "OMPTeamsDistributeParallelForDirective")
-    .def("__hash__", [](const OMPTeamsDistributeParallelForDirective& stmt) { return (intptr_t)stmt.RawStmt(); })
+    .def("__hash__", [](const OMPTeamsDistributeParallelForDirective& stmt) { return reinterpret_cast<intptr_t>(stmt.RawStmt()); })
     .def("__eq__", [](const Stmt& a, const Stmt& b) { return a.RawStmt() == b.RawStmt(); })
     .def_prop_ro("task_reduction_reference_expression", &OMPTeamsDistributeParallelForDirective::TaskReductionReferenceExpression)
     .def_prop_ro("has_cancel", &OMPTeamsDistributeParallelForDirective::HasCancel);

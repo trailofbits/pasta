@@ -17,7 +17,7 @@ namespace nb = nanobind;
 
 void RegisterOMPTaskDirective(nb::module_ &m) {
   nb::class_<OMPTaskDirective, OMPExecutableDirective>(m, "OMPTaskDirective")
-    .def("__hash__", [](const OMPTaskDirective& stmt) { return (intptr_t)stmt.RawStmt(); })
+    .def("__hash__", [](const OMPTaskDirective& stmt) { return reinterpret_cast<intptr_t>(stmt.RawStmt()); })
     .def("__eq__", [](const Stmt& a, const Stmt& b) { return a.RawStmt() == b.RawStmt(); })
     .def_prop_ro("has_cancel", &OMPTaskDirective::HasCancel);
 }

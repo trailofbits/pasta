@@ -250,6 +250,9 @@ Result<AST, std::string> CompileJob::Run(void) const {
   // converting them into annotation attributes.
   lang_opts.UnknownAttrAnnotate = true;
 
+  // This is a path that makes attributed types store their attributes.
+  lang_opts.AttrTypesHaveAttrs = true;
+
   // Don't try to produce recovery expressions or types.
   lang_opts.RecoveryAST = false;
   lang_opts.RecoveryASTType = false;

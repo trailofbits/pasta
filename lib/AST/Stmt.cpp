@@ -1376,12 +1376,7 @@ int64_t Stmt::ID(void) const {
   return ast->TokenRangeFrom(val);
 }
 
-::pasta::StmtKind Stmt::Kind(void) const {
-  auto &self = *const_cast<clang::Stmt *>(u.Stmt);
-  decltype(auto) val = self.getStmtClass();
-  return static_cast<enum ::pasta::StmtKind>(val);
-}
-
+// 0: Stmt::
 std::string_view Stmt::KindName(void) const {
   auto &self = *const_cast<clang::Stmt *>(u.Stmt);
   decltype(auto) val = self.getStmtClassName();

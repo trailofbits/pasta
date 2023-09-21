@@ -25,7 +25,6 @@ void RegisterStmt(nb::module_ &m) {
     .def_prop_ro("end_token", &Stmt::EndToken)
     .def_prop_ro("id", &Stmt::ID)
     .def_prop_ro("tokens", &Stmt::Tokens)
-    .def_prop_ro("kind", &Stmt::Kind)
     .def_prop_ro("kind_name", &Stmt::KindName)
     .def_prop_ro("strip_label_like_statements", &Stmt::StripLabelLikeStatements);
 }

@@ -649,15 +649,10 @@ std::optional<::pasta::Type> Type::PointeeType(void) const {
   return TypeBuilder::Build(ast, val);
 }
 
-std::optional<::pasta::Type> Type::RVVElementType(void) const {
+::pasta::Type Type::RVVEltType(void) const {
   auto &self = *(u.Type);
-  if (!self.isRVVVLSBuiltinType()) {
-    return std::nullopt;
-  }
   decltype(auto) val = self.getRVVEltType(ast->ci->getASTContext());
-  if (val.isNull()) {
-    return std::nullopt;
-  }
+  assert(!val.isNull());
   return TypeBuilder::Build(ast, val);
 }
 
@@ -679,7 +674,7 @@ std::optional<enum TypeScalarTypeKind> Type::ScalarTypeKind(void) const {
 
 std::optional<::pasta::Type> Type::SveElementType(void) const {
   auto &self = *(u.Type);
-  if (!self.isSveVLSBuiltinType()) {
+  if (!self.isVLSTBuiltinType()) {
     return std::nullopt;
   }
   decltype(auto) val = self.getSveEltType(ast->ci->getASTContext());
@@ -689,6 +684,7 @@ std::optional<::pasta::Type> Type::SveElementType(void) const {
   return TypeBuilder::Build(ast, val);
 }
 
+// 0: Type::
 ::pasta::Type Type::UnqualifiedDesugaredType(void) const {
   auto &self = *const_cast<clang::Type *>(u.Type);
   decltype(auto) val = self.getUnqualifiedDesugaredType();

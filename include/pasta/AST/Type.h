@@ -323,10 +323,9 @@ class Type {
   std::optional<::pasta::CXXRecordDecl> PointeeCXXRecordDeclaration(void) const;
   std::optional<::pasta::Type> PointeeOrArrayElementType(void) const;
   std::optional<::pasta::Type> PointeeType(void) const;
-  std::optional<::pasta::Type> RVVElementType(void) const;
+  ::pasta::Type RVVEltType(void) const;
   std::optional<enum TypeScalarTypeKind> ScalarTypeKind(void) const;
   std::optional<::pasta::Type> SveElementType(void) const;
-  ::pasta::TypeKind Kind(void) const;
   std::string_view KindName(void) const;
   ::pasta::Type UnqualifiedDesugaredType(void) const;
   enum Visibility Visibility(void) const;

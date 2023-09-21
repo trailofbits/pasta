@@ -554,7 +554,6 @@ class Stmt {
   ::pasta::Token EndToken(void) const;
   int64_t ID(void) const;
   ::pasta::TokenRange Tokens(void) const;
-  ::pasta::StmtKind Kind(void) const;
   std::string_view KindName(void) const;
   ::pasta::Stmt StripLabelLikeStatements(void) const;
   inline bool operator==(const Stmt &that) const noexcept {

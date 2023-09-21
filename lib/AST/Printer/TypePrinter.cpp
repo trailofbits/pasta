@@ -2283,7 +2283,10 @@ void TypePrinter::printAttributed(const clang::AttributedType *T,
       // without the arguments so that we know at least that we had _some_
       // annotation on the type.
       printBeforeAfter(T->getModifiedType(), OS, std::move(IdentFn));
-      OS << " [[clang::annotate_type(...)]]";
+      if (auto A = T->getAttr())
+        PrintAttribute(OS, A, tokens, Policy);
+      else
+        OS << " [[clang::annotate_type(...)]]";
       return;
 
     case clang::attr::WebAssemblyFuncref:
@@ -2324,6 +2327,11 @@ void TypePrinter::printAttributed(const clang::AttributedType *T,
       if (T->getAttrKind() == clang::attr::NSReturnsRetained &&
           !T->getEquivalentType()->castAs<clang::FunctionType>()
                                  ->getExtInfo().getProducesResult()) {
+        return;
+      }
+
+      if (auto A = T->getAttr()) {
+        PrintAttribute(OS, A, tokens, Policy);
         return;
       }
 

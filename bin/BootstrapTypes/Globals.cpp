@@ -1720,7 +1720,7 @@ std::map<std::pair<std::string, std::string>, std::string> kConditionalNullptr{
    "    }\n"
    "  }\n"},
   {{"Type", "SveElementType"},
-   "  if (!self.isVLSTBuiltinType()) {\n"
+   "  if (!self.isSveVLSBuiltinType()) {\n"
    "    return std::nullopt;\n"
    "  }\n"},
   {{"Type", "IsObjCARCImplicitlyUnretainedType"},

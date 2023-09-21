@@ -674,7 +674,7 @@ std::optional<enum TypeScalarTypeKind> Type::ScalarTypeKind(void) const {
 
 std::optional<::pasta::Type> Type::SveElementType(void) const {
   auto &self = *(u.Type);
-  if (!self.isVLSTBuiltinType()) {
+  if (!self.isSveVLSBuiltinType()) {
     return std::nullopt;
   }
   decltype(auto) val = self.getSveEltType(ast->ci->getASTContext());
@@ -684,7 +684,6 @@ std::optional<::pasta::Type> Type::SveElementType(void) const {
   return TypeBuilder::Build(ast, val);
 }
 
-// 0: Type::
 ::pasta::Type Type::UnqualifiedDesugaredType(void) const {
   auto &self = *const_cast<clang::Type *>(u.Type);
   decltype(auto) val = self.getUnqualifiedDesugaredType();

@@ -95,9 +95,6 @@ class Designator {
   // Returns the token for Ellipsis location. It will be only valid
   // on an array-range designators.
   ::pasta::Token EllipsisToken(void) const noexcept;
-
-  // Returns the index of first designator expression.
-  std::optional<unsigned> FirstExpressionIndex(void) const noexcept;
 #endif
 };
 

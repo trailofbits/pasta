@@ -779,6 +779,11 @@ void StmtPrinter::VisitOMPSectionDirective(clang::OMPSectionDirective *Node) {
   PrintOMPExecutableDirective(Node);
 }
 
+void StmtPrinter::VisitOMPScopeDirective(clang::OMPScopeDirective *Node) {
+  Indent() << "#pragma omp scope";
+  PrintOMPExecutableDirective(Node);
+}
+
 void StmtPrinter::VisitOMPSingleDirective(clang::OMPSingleDirective *Node) {
   TokenPrinterContext ctx(OS, Node, tokens);
   Indent() << "#pragma omp single";

@@ -38,19 +38,14 @@ bool AttributeCommonInfo::IsGNUScope() const noexcept {
   return attr->isGNUScope();
 }
 
-// Returns true if attribute syntax is alignas type
-bool AttributeCommonInfo::IsAlignasAttribute() const noexcept {
-  return attr->isAlignasAttribute();
-}
-
 // Returns true if attribute syntax is CXX11
 bool AttributeCommonInfo::IsCXX11Attribute() const noexcept {
   return attr->isCXX11Attribute();
 }
 
 // Returns true if attribute syntax is C2x
-bool AttributeCommonInfo::IsC2xAttribute() const noexcept {
-  return attr->isC2xAttribute();
+bool AttributeCommonInfo::IsC23Attribute() const noexcept {
+  return attr->isC23Attribute();
 }
 
 // Returns true if attribute syntax is keyword

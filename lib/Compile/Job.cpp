@@ -26,7 +26,7 @@
 #include <llvm/Option/ArgList.h>
 #include <llvm/Option/Option.h>
 #include <llvm/Support/CommandLine.h>
-#include <llvm/Support/Host.h>
+#include <llvm/TargetParser/Host.h>
 #pragma GCC diagnostic pop
 
 #include <pasta/Compile/Command.h>
@@ -42,7 +42,6 @@
 #include "Compiler.h"
 #include "Diagnostic.h"
 #include "FileSystem.h"
-#include "Version.h"
 
 namespace pasta {
 
@@ -308,7 +307,7 @@ CreateAdjustedCompilerCommand(FileSystemView &fs, const Compiler &compiler,
 
   std::string curr_lang;
 
-//  bool is_cc1 = !!args.getLastArg(clang::driver::options::OPT_cc1);
+  bool is_cc1 = !!args.getLastArg(clang::driver::options::OPT_cc1);
   bool is_cc1as = !!args.getLastArg(clang::driver::options::OPT_cc1as);
 
   // Strip out all include path/file related arguments from non-include-related
@@ -316,6 +315,7 @@ CreateAdjustedCompilerCommand(FileSystemView &fs, const Compiler &compiler,
   for (llvm::opt::Arg *arg : args) {
 
     const auto &opt = arg->getOption();
+    const auto id = opt.getID();
     const char *prefix = nullptr;
 
     auto is_cc1_opt = opt.hasFlag(clang::driver::options::CC1Option);
@@ -327,10 +327,10 @@ CreateAdjustedCompilerCommand(FileSystemView &fs, const Compiler &compiler,
 
     // Applies to either `-cc1` or `-cc1as`; choose one.
     } else if (is_cc1_opt && is_cc1as_opt) {
-      if (is_cc1as) {
-        prefix = "-Xassembler";
-      } else {
+      if (is_cc1 || !is_cc1as) {
         prefix = "-Xclang";
+      } else {
+        prefix = "-Xassembler";
       }
 
     // A `-cc1` input argument.
@@ -342,7 +342,6 @@ CreateAdjustedCompilerCommand(FileSystemView &fs, const Compiler &compiler,
       prefix = "-Xassembler";
     }
 
-    const auto id = arg->getOption().getID();
     if (IsIncludeOption(id) && arg->getNumValues()) {
       if (id == clang::driver::options::OPT__sysroot ||
           id == clang::driver::options::OPT__sysroot_EQ) {
@@ -612,34 +611,19 @@ Compiler::CreateJobsForCommand(const CompileCommand &command) const {
   }
 
   // Make the driver.
-#if LLVM_VERSION_NUMBER < LLVM_VERSION(12, 0)
-  clang::driver::Driver driver(exe_path.generic_string(),
-                               TargetTriple(),
-                               *diagnostics_engine, overlay_vfs.get());
-#else
   auto driver_title = "PASTA Driver";
   clang::driver::Driver driver(
       exe_path.generic_string(), TargetTriple(),
       *diagnostics_engine, driver_title, overlay_vfs.get());
-#endif
 
-  auto &opts = driver.getOpts();
-
-  auto missing_arg_index = 0u;
-  auto missing_arg_count = 0u;
+  unsigned driver_options =
+      clang::driver::options::ClangOption |
+      clang::driver::options::CC1Option |
+      clang::driver::options::CC1AsOption; // Used to be `DriverOption`.
 
   bool enable_cl = driver.IsCLMode();
-
-  unsigned int driver_options =
-      clang::driver::options::CC1Option |
-      clang::driver::options::CC1AsOption |
-      clang::driver::options::NoXarchOption; // Used to be `DriverOption`.
-  unsigned int excluded_driver_options = 0;
-
   if (enable_cl) {
     driver_options |= clang::driver::options::CLOption;
-  } else {
-    excluded_driver_options |= clang::driver::options::CLOption;
   }
 
   // Strip out `-Xclang`, etc. because our `CreateAdjustedCompilerCommand`
@@ -667,9 +651,11 @@ Compiler::CreateJobsForCommand(const CompileCommand &command) const {
   }
 
   llvm::ArrayRef<const char *> command_args(all_args);
-  auto parsed_args = opts.ParseArgs(
-      command_args.slice(1u), missing_arg_index, missing_arg_count,
-      driver_options, excluded_driver_options);
+  auto missing_arg_index = 0u;
+  auto missing_arg_count = 0u;
+  auto parsed_args = driver.getOpts().ParseArgs(
+      command_args.drop_front(), missing_arg_index, missing_arg_count,
+      llvm::opt::Visibility(driver_options));
 
   // Something didn't parse.
   if (0 < missing_arg_count) {
@@ -719,8 +705,6 @@ Compiler::CreateJobsForCommand(const CompileCommand &command) const {
   //            `argv[0]` to be the driver.
   const std::unique_ptr<clang::driver::Compilation> compilation(
       driver.BuildCompilation(new_args.Arguments()));
-
-//  std::cerr << "New args: " << new_args.Join() << '\n';
 
   if (!compilation) {
     if (diag->error.empty()) {
@@ -856,16 +840,16 @@ Compiler::CreateJobsForCommand(const CompileCommand &command) const {
 
       // Try to look for things that look file file names, then see if they are
       // file names, and if so, make them absolute paths.
-      if (a.contains("./") || a.endswith_insensitive(".o") ||
-          a.endswith_insensitive(".cc") || a.endswith_insensitive(".hh") ||
-          a.endswith_insensitive(".cpp") || a.endswith_insensitive(".hpp") ||
-          a.endswith_insensitive(".c++") || a.endswith_insensitive(".h++") ||
-          a.endswith_insensitive(".cxx") || a.endswith_insensitive(".hxx") ||
-          a.endswith_insensitive(".c") || a.endswith_insensitive(".h") ||
-          a.endswith_insensitive(".gcno") || a.endswith_insensitive(".pch") ||
-          a.endswith_insensitive(".s") || a.endswith_insensitive(".asm") ||
-          a.endswith_insensitive(".mm") || a.endswith_insensitive(".d") ||
-          a.endswith_insensitive(".sdk")) {
+      if (a.contains("./") || a.ends_with_insensitive(".o") ||
+          a.ends_with_insensitive(".cc") || a.ends_with_insensitive(".hh") ||
+          a.ends_with_insensitive(".cpp") || a.ends_with_insensitive(".hpp") ||
+          a.ends_with_insensitive(".c++") || a.ends_with_insensitive(".h++") ||
+          a.ends_with_insensitive(".cxx") || a.ends_with_insensitive(".hxx") ||
+          a.ends_with_insensitive(".c") || a.ends_with_insensitive(".h") ||
+          a.ends_with_insensitive(".gcno") || a.ends_with_insensitive(".pch") ||
+          a.ends_with_insensitive(".s") || a.ends_with_insensitive(".asm") ||
+          a.ends_with_insensitive(".mm") || a.ends_with_insensitive(".d") ||
+          a.ends_with_insensitive(".sdk")) {
 
         if (auto maybe_info = fs.Stat(arg); maybe_info.Succeeded()) {
           new_argv.emplace_back(

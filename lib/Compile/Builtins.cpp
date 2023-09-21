@@ -25,8 +25,8 @@
 #include <clang/Lex/PreprocessorOptions.h>
 #include <clang/Parse/Parser.h>
 #include <clang/Sema/Sema.h>
-#include <llvm/Support/Host.h>
 #include <llvm/Support/raw_ostream.h>
+#include <llvm/TargetParser/Host.h>
 #pragma GCC diagnostic pop
 
 #include "Compiler.h"

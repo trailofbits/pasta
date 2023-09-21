@@ -4,7 +4,7 @@
 
 #include "Compiler.h"
 
-#include <llvm/Support/Host.h>
+#include <llvm/TargetParser/Host.h>
 #include <pasta/Util/FileSystem.h>
 
 namespace pasta {

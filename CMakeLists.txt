@@ -21,6 +21,8 @@ endif(PASTA_ENABLE_INSTALL)
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
+set(PASTA_SOURCE_DIR "${CMAKE_CURRENT_LIST_DIR}")
+
 # --------------------------------------------
 # toolchain-specific warning options ---------
 # --------------------------------------------

@@ -1,9 +1,9 @@
 [submodule "vendor/llvm-project/src"]
 	path = vendor/llvm-project/src
-  url = https://github.com/trail-of-forks/llvm-project.git
-  shallow = true
-  branch = pasta
+	url = https://github.com/trail-of-forks/llvm-project.git
+	shallow = true
+	branch = pasta
 [submodule "vendor/nanobind/src"]
-  path = vendor/nanobind/src
-  url = https://github.com/wjakob/nanobind.git
-  shallow = true
+	path = vendor/nanobind/src
+	url = https://github.com/wjakob/nanobind.git
+	shallow = true

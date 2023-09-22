@@ -23,6 +23,10 @@ if(NOT EXISTS "${src_dir}/CMakeLists.txt")
   execute_process(
     COMMAND "${GIT_EXECUTABLE}" submodule update --init src
     WORKING_DIRECTORY "${CMAKE_CURRENT_LIST_DIR}")
+
+  execute_process(
+    COMMAND "${GIT_EXECUTABLE}" submodule set-branch --branch pasta src
+    WORKING_DIRECTORY "${CMAKE_CURRENT_LIST_DIR}")
 endif()
 
 # This is the main build, setup and execute the nested build
@@ -36,10 +40,10 @@ execute_process(COMMAND ${CMAKE_COMMAND}
                         -G "${CMAKE_GENERATOR}"
                         -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
                         -DCMAKE_MAKE_PROGRAM=${CMAKE_MAKE_PROGRAM}
-                        "-DCMAKE_INSTALL_PREFIX=${install_dir}"
-                        "-DCMAKE_C_COMPILER=${CMAKE_C_COMPILER}"
-                        "-DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER}"
-                        "-DCMAKE_CXX_STANDARD=${CMAKE_CXX_STANDARD}"
+                        -DCMAKE_INSTALL_PREFIX="${install_dir}"
+                        -DCMAKE_C_COMPILER="${CMAKE_C_COMPILER}"
+                        -DCMAKE_CXX_COMPILER="${CMAKE_CXX_COMPILER}"
+                        -DCMAKE_CXX_STANDARD="${CMAKE_CXX_STANDARD}"
                         -DLLVM_ENABLE_PROJECTS="clang"
                         -DLLVM_TARGETS_TO_BUILD="AArch64;X86;ARM"
                         -DLLVM_EXPERIMENTAL_TARGETS_TO_BUILD="ARM"

@@ -45,9 +45,9 @@ execute_process(COMMAND ${CMAKE_COMMAND}
                         -DCMAKE_CXX_COMPILER="${CMAKE_CXX_COMPILER}"
                         -DCMAKE_CXX_STANDARD="${CMAKE_CXX_STANDARD}"
                         -DLLVM_ENABLE_PROJECTS="clang"
-                        -DLLVM_TARGETS_TO_BUILD="AArch64\;X86\;ARM"
+                        -DLLVM_TARGETS_TO_BUILD="AArch64;X86;ARM"
                         -DLLVM_EXPERIMENTAL_TARGETS_TO_BUILD="ARM"
-                        -DLLVM_ENABLE_RUNTIMES="libcxx\;libcxxabi"
+                        -DLLVM_ENABLE_RUNTIMES="libcxx;libcxxabi"
                         -DBUILD_SHARED_LIBS:BOOL=OFF
                         -DLLVM_APPEND_VC_REV:BOOL=OFF
                         -DLLVM_BUILD_DOCS:BOOL=OFF

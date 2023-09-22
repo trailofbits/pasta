@@ -70,12 +70,8 @@ target_link_libraries(pasta_cxx_settings INTERFACE std::filesystem)
 # Clang/LLVM dependencies --------------------
 # --------------------------------------------
 
-find_package(zstd CONFIG REQUIRED)
-find_package(Z3 CONFIG REQUIRED)
+add_subdirectory(vendor)
 
-# NOTE(pag): We want LLVM/Clang 17, but in git the version is 18.
-find_package(LLVM 18 CONFIG REQUIRED)
-find_package(Clang 18 CONFIG REQUIRED)
 add_library(pasta_thirdparty_llvm INTERFACE)
 if(PASTA_ENABLE_TESTING)
     list(APPEND CMAKE_MODULE_PATH "${LLVM_CMAKE_DIR}")
@@ -364,7 +360,6 @@ endif()
 
 set(PASTA_INCLUDE_SOURCE_PATH "${PROJECT_SOURCE_DIR}/include")
 set(PASTA_BINARY_PATH "${CMAKE_CURRENT_BINARY_DIR}")
-set(PASTA_VCPKG_INCLUDE_PATH "${VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}/include")
 set(PASTA_BIN_BOOTSTRAP_MACROS_MACRO_GENERATOR_CPP_PATH "${PROJECT_SOURCE_DIR}/bin/BootstrapMacros/MacroGenerator.cpp")
 set(PASTA_BIN_BOOTSTRAP_TYPES_GENERATED_H_PATH "${PROJECT_SOURCE_DIR}/bin/BootstrapTypes/Generated.h")
 set(PASTA_INCLUDE_AST_FORWARD_H_PATH "${PROJECT_SOURCE_DIR}/include/pasta/AST/Forward.h")

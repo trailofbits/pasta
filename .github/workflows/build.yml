@@ -30,17 +30,9 @@ jobs:
           ]
         image:
           - { name: 'ubuntu', tag: '22.04' }
-        cxx_common_version: [v0.5.0]
-        llvm_version: [16]
+        llvm_version: [17]
 
     runs-on: ubuntu-22.04
-    container:
-      # Image is built with https://github.com/lifting-bits/cxx-common/blob/master/docker/Dockerfile.ubuntu.vcpkg
-      # Look at that file for the full set of dependencies that may be required for building
-      image: docker.pkg.github.com/lifting-bits/cxx-common/vcpkg-builder-${{ matrix.image.name }}:${{ matrix.image.tag }}
-      credentials:
-        username: ${{ github.actor }}
-        password: ${{ secrets.GITHUB_TOKEN }}
 
     steps:
     - name: Get the 🍝
@@ -99,10 +91,10 @@ jobs:
         path: ${{ steps.build_paths.outputs.REL_CCACHE }}
 
         key: |
-          gitmodules_${{ matrix.image.name }}-${{ matrix.image.tag }}_${{ matrix.build_type }}_${{ matrix.llvm_version }}_${{ matrix.cxx_common_version }}_${{ github.sha }}
+          gitmodules_${{ matrix.image.name }}-${{ matrix.image.tag }}_${{ matrix.build_type }}_${{ matrix.llvm_version }}_${{ github.sha }}
 
         restore-keys: |
-          gitmodules_${{ matrix.image.name }}-${{ matrix.image.tag }}_${{ matrix.build_type }}_${{ matrix.llvm_version }}_${{ matrix.cxx_common_version }}
+          gitmodules_${{ matrix.image.name }}-${{ matrix.image.tag }}_${{ matrix.build_type }}_${{ matrix.llvm_version }}
 
     - name: Update the cache (downloads)
       uses: actions/cache@v3
@@ -110,35 +102,10 @@ jobs:
         path: ${{ steps.build_paths.outputs.REL_DOWNLOADS }}
 
         key: |
-          gitmodules_${{ matrix.image.name }}-${{ matrix.image.tag }}_${{ matrix.build_type }}_${{ matrix.llvm_version }}_${{ matrix.cxx_common_version }}_${{ github.sha }}
+          gitmodules_${{ matrix.image.name }}-${{ matrix.image.tag }}_${{ matrix.build_type }}_${{ matrix.llvm_version }}_${{ github.sha }}
 
         restore-keys: |
-          gitmodules_${{ matrix.image.name }}-${{ matrix.image.tag }}_${{ matrix.build_type }}_${{ matrix.llvm_version }}_${{ matrix.cxx_common_version }}
-
-    - name: Acquire the cxx-common ${{ matrix.cxx_common_version }} package for LLVM ${{ matrix.llvm_version }}
-      shell: bash
-      id: cxx_common_installer
-      working-directory: ${{ steps.build_paths.outputs.DOWNLOADS }}
-      run: |
-        folder_name="vcpkg_${{ matrix.image.name }}-${{ matrix.image.tag }}_llvm-${{ matrix.llvm_version }}-pasta_amd64"
-        file_name="${folder_name}.tar.xz"
-        url="https://github.com/lifting-bits/cxx-common/releases/download/${{ matrix.cxx_common_version }}/${file_name}"
-
-        file_path="${{ steps.build_paths.outputs.DOWNLOADS }}/${file_name}"
-        if [[ ! -f "${file_path}" ]]; then
-          curl "${url}" -L -O
-
-          ls -t ${{ steps.build_paths.outputs.DOWNLOADS }}/*.tar.xz | tail -n +2 | while read archive_file ; do
-            rm "${archive_file}"
-          done
-        fi
-
-        tar xf "${file_path}" \
-            -C "${{ steps.build_paths.outputs.INSTALL }}"
-
-        echo ::set-output name=PATH::${{ steps.build_paths.outputs.INSTALL }}/${folder_name}
-
-        echo "${{ steps.build_paths.outputs.INSTALL }}/${folder_name}/installed/x64-linux-rel/bin" >> $GITHUB_PATH
+          gitmodules_${{ matrix.image.name }}-${{ matrix.image.tag }}_${{ matrix.build_type }}_${{ matrix.llvm_version }}
 
     - name: Configure the project
       working-directory: ${{ steps.build_paths.outputs.BUILD }}
@@ -149,17 +116,14 @@ jobs:
 
       run: |
         cmake -G "Ninja" \
-          -DCMAKE_TOOLCHAIN_FILE="${{ steps.cxx_common_installer.outputs.PATH }}/scripts/buildsystems/vcpkg.cmake" \
-          -DVCPKG_ROOT="${{ steps.cxx_common_installer.outputs.PATH }}" \
           -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} \
           -DCMAKE_C_COMPILER="$(which clang-15)" \
           -DCMAKE_CXX_COMPILER="$(which clang++-15)" \
           -DPASTA_BOOTSTRAP_MACROS=OFF \
           -DPASTA_BOOTSTRAP_TYPES=OFF \
           -DPASTA_ENABLE_TESTING=OFF \
+          -DPASTA_ENABLE_PY_BINDINGS=ON \
           -DPASTA_ENABLE_INSTALL=ON \
-          -DLLVM_DIR="${{ steps.cxx_common_installer.outputs.PATH }}/installed/x64-linux-rel/share/llvm" \
-          -DClang_DIR="${{ steps.cxx_common_installer.outputs.PATH }}/installed/x64-linux-rel/share/clang" \
           "${{ steps.build_paths.outputs.SOURCE }}"
 
     - name: Build the project

@@ -24,38 +24,6 @@ name mangling problems. If you're using macOS then we recommend installing
 Homebrew, and ensuring that you have Python 3.9 installed, along with an
 up-to-date `cmake` and `ninja`.
 
-### cxx-common
-
-As for the dependencies, most of them are provided by [cxx-common](https://github.com/trailofbits/cxx-common). To get them you have two options:
-  * Get the pre-built package for some available architectures
-  * Build the yourself. (Can take around 40 minutes, since LLVM is being built)
-For more depth on each option consult [`README`](https://github.com/lifting-bits/cxx-common#readme) of the project.
-
-**Note:** PASTA relies upon Clang patches which are included in cxx-common. PASTA cannot build without the presence of these patches.
-
-If you choose to build it manually first get the sources:
-
-```shell
-# Clone
-git clone https://github.com/trailofbits/cxx-common.git
-cd cxx-common
-```
-
-The repository uses [vcpkg](https://github.com/microsoft/vcpkg) which makes entire process rather easy.
-
-```shell
-./build_dependencies.sh --export-dir /path/to/export/vcpkg-16 "llvm-16[pasta]"
-```
-
-If you do not plan to tinker with or work on PASTA, then we recommend adding in
-`--release` so that you get a release build of LLVM.
-
-It is important *do not forget the `llvm-16[pasta]`* option, otherwise it will not build
-and subsequently the projects built in next step will try to link system libraries
-and that is highly unstable and not
-tested (at least for now).
-
-
 ### PASTA
 
 And finally to build PASTA itself.
@@ -63,21 +31,15 @@ And finally to build PASTA itself.
 #### On Linux
 ```shell
 git clone https://github.com/trailofbits/pasta.git
-cd pasta
-mkdir build
-cd build
+mkdir -p pasta-build
+cd pasta-build
 cmake \
     -DCMAKE_BUILD_TYPE=Release \
-    -DCMAKE_TOOLCHAIN_FILE="/path/to/export/vcpkg-16/scripts/buildsystems/vcpkg.cmake" \
-    -DVCPKG_TARGET_TRIPLET=x64-linux \
-    -DVCPKG_HOST_TRIPLET=x64-linux-rel \
-    ..
-make install
+    -DPASTA_ENABLE_INSTALL=ON \
+    -GNinja \
+    ../pasta
+ninja install
 ```
-
-You might need to add `-rel` to `-DVCPKG_TARGET_TRIPLET=x64-linux`; this depends on whether
-or not you're using a downloaded cxx-common release. If you experience issues then try
-excluding teh HOST and TARGET triplets altogether.
 
 #### On macOS
 
@@ -87,32 +49,16 @@ unusual results. Therefore, you should give the absolute path to your Clang.
 
 ```shell
 git clone https://github.com/trailofbits/pasta.git
-cd pasta
-mkdir build
-cd build
+mkdir -p pasta-build
+cd pasta-build
 cmake \
     -DCMAKE_BUILD_TYPE=Release \
-    -DVCPKG_ROOT=/path/to/cxx-common/vcpkg \
-    -DVCPKG_TARGET_TRIPLET=x64-osx-rel \
     -DCMAKE_C_COMPILER=`which clang` \
     -DCMAKE_CXX_COMPILER=`which clang++` \
     -DPASTA_ENABLE_INSTALL=ON \
-    ..
-make install
-```
-
-### Testing
-
-To run the test suite, configure PASTA in the usual way, with the addition of
-the `PASTA_ENABLE_TESTING` and `LLVM_EXTERNAL_LIT` options speficied.
-
-```shell
-cmake \
-    ... \
-    -DPASTA_ENABLE_TESTING=ON \
-    -DLLVM_EXTERNAL_LIT=/path/to/llvm-lit \
-    ..
-make check-pasta
+    -GNinja \
+    ../pasta
+ninja install
 ```
 
 # License

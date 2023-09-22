@@ -1,0 +1,81 @@
+#
+# Copyright (c) 2023-present, Trail of Bits, Inc.
+# All rights reserved.
+#
+# This source code is licensed in accordance with the terms specified in
+# the LICENSE file found in the root directory of this source tree.
+#
+
+if(NOT PASTA_USE_VENDORED_CLANG)
+  find_package(LLVM CONFIG QUIET)
+  find_package(Clang CONFIG QUIET)
+  if(LLVM_Found AND Clang_FOUND)
+    return()
+  endif()
+endif()
+
+set(src_dir "${CMAKE_CURRENT_LIST_DIR}/src")
+set(build_dir "${CMAKE_CURRENT_BINARY_DIR}/build")
+set(install_dir "${CMAKE_CURRENT_BINARY_DIR}/install")
+
+# Fetch the submodule if we don't yet have it.
+if(NOT EXISTS "${src_dir}/CMakeLists.txt")
+  execute_process(
+    COMMAND "${GIT_EXECUTABLE}" submodule update --init src
+    WORKING_DIRECTORY "${CMAKE_CURRENT_LIST_DIR}")
+endif()
+
+# This is the main build, setup and execute the nested build
+# to ensure the Cap'n Proto library exists before continuing
+
+execute_process(COMMAND ${CMAKE_COMMAND} -E make_directory "${build_dir}")
+execute_process(COMMAND ${CMAKE_COMMAND} -E make_directory "${install_dir}")
+
+# (b) Nested CMake run. May need more -D... options than shown here.
+execute_process(COMMAND ${CMAKE_COMMAND} -G "${CMAKE_GENERATOR}"
+                        -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
+                        -DCMAKE_MAKE_PROGRAM=${CMAKE_MAKE_PROGRAM}
+                        "-DCMAKE_INSTALL_PREFIX=${install_dir}"
+                        "-DCMAKE_C_COMPILER=${CMAKE_C_COMPILER}"
+                        "-DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER}"
+                        -DCMAKE_CXX_STANDARD=${CMAKE_CXX_STANDARD}
+                        "-G${CMAKE_GENERATOR}"
+                        -DLLVM_ENABLE_PROJECTS="clang;mlir;lld"
+                        -DLLVM_TARGETS_TO_BUILD="AArch64;X86;ARM"
+                        -DLLVM_EXPERIMENTAL_TARGETS_TO_BUILD="ARM"
+                        -DLLVM_ENABLE_RUNTIMES="libcxx;libcxxabi"
+                        -DBUILD_SHARED_LIBS:BOOL=OFF
+                        -DLLVM_APPEND_VC_REV:BOOL=OFF
+                        -DLLVM_BUILD_DOCS:BOOL=OFF
+                        -DLLVM_INCLUDE_DOCS:BOOL=OFF
+                        -DLLVM_INCLUDE_EXAMPLES:BOOL=OFF
+                        -DLLVM_BUILD_EXAMPLES:BOOL=OFF
+                        -DLLVM_BUILD_LLVM_DYLIB:BOOL=OFF
+                        -DLLVM_BUILD_TESTS:BOOL=OFF
+                        -DLLVM_ENABLE_BINDINGS:BOOL=OFF
+                        -DLLVM_ENABLE_OCAMLDOC:BOOL=OFF
+                        -DLLVM_ENABLE_DIA_SDK:BOOL=OFF
+                        -DLLVM_ENABLE_EH:BOOL=ON
+                        -DLLVM_ENABLE_RTTI:BOOL=ON
+                        -DLLVM_ENABLE_ASSERTIONS:BOOL=ON
+                        -DLLVM_ENABLE_EXPENSIVE_CHECKS:BOOL=ON
+                        -DLLVM_ENABLE_FFI:BOOL=OFF
+                        -DLLVM_ENABLE_WARNINGS:BOOL=ON
+                        -DLLVM_INCLUDE_BENCHMARKS:BOOL=OFF
+                        -DLLVM_INCLUDE_EXAMPLES:BOOL=OFF
+                        -DLLVM_INCLUDE_TESTS:BOOL=OFF
+                        -DLLVM_INCLUDE_TOOLS:BOOL=ON
+                        -DLLVM_INSTALL_UTILS:BOOL=ON
+                        -DLLVM_ENABLE_ZSTD:BOOL=OFF
+                        "${src_dir}"
+               WORKING_DIRECTORY "${build_dir}")
+
+# (c) Build just mycomp in the nested build. Don't specify a --config
+#     because we cannot know what config the developer will be using
+#     at this point. For non-multi-config generators, we've already
+#     specified CMAKE_BUILD_TYPE above in (b).
+execute_process(COMMAND ${CMAKE_COMMAND} --build . --target install
+                WORKING_DIRECTORY "${build_dir}")
+
+find_package(LLVM CONFIG REQUIRED PATHS "${install_dir}" NO_DEFAULT_PATH)
+find_package(Clang CONFIG REQUIRED PATHS "${install_dir}" NO_DEFAULT_PATH)

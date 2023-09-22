@@ -12,19 +12,22 @@
 
 #include "../Bindings.h"
 
+#include <sstream>
+
 namespace pasta {
 namespace nb = nanobind;
 
 void RegisterType(nb::module_ &m) {
   nb::class_<Type>(m, "Type")
-    .def("__hash__", [](const Type &type) { return reinterpret_cast<intptr_t>(type.RawType()); })
-    .def("__eq__", [](const Type &a, const Type &b) { return a.RawType() == b.RawType(); })
+    .def("__hash__", [](const Type &type) { return (intptr_t)type.RawType(); })
+    .def("__eq__", [](const Type &a, const Type &b) { return a == b; })
+    .def("__ne__", [](const Type &a, const Type &b) { return a != b; })
     .def_prop_ro("kind", &Type::Kind)
     .def_prop_ro("kind_name", &Type::KindName)
     .def_prop_ro("size_in_bits", &Type::SizeInBits)
     .def_prop_ro("alignment", &Type::Alignment)
     .def_prop_ro("is_qualified", &Type::IsQualified)
-    .def_prop_ro("unqualified_type", &Type::UnqualifiedType)
+    .def_prop_ro("unqualified_type", [] (const Type &tp) { return tp.UnqualifiedType(); })
     .def_prop_ro("accepts_obj_c_type_parameters", &Type::AcceptsObjCTypeParameters)
     .def_prop_ro("can_decay_to_pointer_type", &Type::CanDecayToPointerType)
     .def_prop_ro("can_have_nullability", &Type::CanHaveNullability)

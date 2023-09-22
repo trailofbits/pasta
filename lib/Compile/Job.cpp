@@ -104,6 +104,13 @@ static bool OmitOption(unsigned id) {
     case clang::driver::options::OPT_fcoverage_prefix_map_EQ:
     case clang::driver::options::OPT_fcrash_diagnostics_dir:
     case clang::driver::options::OPT_coverage_version_EQ:
+    case clang::driver::options::OPT_ast_dump_filter:
+    case clang::driver::options::OPT_ast_dump_filter_EQ:
+    case clang::driver::options::OPT_ast_dump:
+    case clang::driver::options::OPT_ast_dump_EQ:
+    case clang::driver::options::OPT_ast_dump_all:
+    case clang::driver::options::OPT_ast_dump_all_EQ:
+    case clang::driver::options::OPT_ast_dump_decl_types:
 
     // Randomization.
     case clang::driver::options::OPT_frandom_seed_EQ:
@@ -617,7 +624,7 @@ Compiler::CreateJobsForCommand(const CompileCommand &command) const {
       *diagnostics_engine, driver_title, overlay_vfs.get());
 
   unsigned driver_options =
-      clang::driver::options::ClangOption |
+      clang::driver::options::ClangOption |  // TODO(pag): Unsure on this.
       clang::driver::options::CC1Option |
       clang::driver::options::CC1AsOption; // Used to be `DriverOption`.
 

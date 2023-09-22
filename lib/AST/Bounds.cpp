@@ -821,11 +821,25 @@ class DeclBoundsFinder : public clang::DeclVisitor<DeclBoundsFinder>,
       changed = ExpandLeadingKeyword(clang::tok::kw___private_extern__, true) || changed;
       changed = ExpandLeadingKeyword(clang::tok::kw___module_private__, true) || changed;
       changed = ExpandLeadingKeyword(clang::tok::kw___extension__, true) || changed;
+    
+      if (lower_bound <= first_tok) {
+        break;
+      }
+
+      // If the previous token is a `]` or a `)`, then go find the matching one.
+      // This helps us expand past leading attributes when we fail to find them.
+      auto prev_tok = &(lower_bound[-1]);
+      if (prev_tok->Kind() == clang::tok::r_paren ||
+          prev_tok->Kind() == clang::tok::r_square) {
+        std::tie(lower_bound, prev_tok) = GetMatching(prev_tok);
+        changed = true;
+      }
     }
   }
 
 
   void VisitCommonFunctionDecl(clang::FunctionDecl *decl) {
+
     if (clang::FunctionTypeLoc ftl = decl->getFunctionTypeLoc()) {
       this->TypeLocVisitor::Visit(ftl);
 
@@ -1620,7 +1634,8 @@ std::pair<TokenImpl *, TokenImpl *> ASTImpl::DeclBounds(clang::Decl *decl) {
     return ret;
   }
 
-  return DeclBoundsFinder(*this).GetBounds(decl);
+  ret = DeclBoundsFinder(*this).GetBounds(decl);
+  return ret;
 }
 
 TokenRange ASTImpl::DeclTokenRange(const clang::Decl *decl_,

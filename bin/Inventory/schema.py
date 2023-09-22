@@ -111,10 +111,6 @@ class ClassSchema(NamedSchema, ABC):
   # Bases classes, if any, of this class.
   bases: List['ClassSchema']
 
-  # Public instance and static members.
-  members: Dict[str, VarSchema]
-  static_members: Dict[str, VarSchema]
-
   # Public methods, and public static methods.
   constructor: Optional[Schema]
   methods: Dict[str, Schema]
@@ -139,8 +135,6 @@ class ClassSchema(NamedSchema, ABC):
     self.elaborator = "struct"
     self.bases = []
     self.constructor = None
-    self.members = {}
-    self.static_members = {}
     self.methods = {}
     self.static_methods = {}
     self.has_boolean_conversion = False
@@ -175,8 +169,6 @@ class ClassSchema(NamedSchema, ABC):
       print(f"{indent}  ITERATOR_PROTOCOL_GENERATES {self.generated_type}")
 
     self._dump_section(indent, "NESTED_SCHEMAS", self.nested_schemas)
-    self._dump_section(indent, "FIELDS", self.members)
-    self._dump_section(indent, "VARIABLES", self.static_members)
     if self.constructor:
       print(f"{indent}  CONSTRUCTOR")
       self.constructor.dump(f"{indent}    ")

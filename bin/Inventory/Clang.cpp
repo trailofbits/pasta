@@ -6,7 +6,6 @@
 #pragma GCC diagnostic ignored "-Wimplicit-int-conversion"
 #pragma GCC diagnostic ignored "-Wsign-conversion"
 #pragma GCC diagnostic ignored "-Wshorten-64-to-32"
-#include <llvm/ADT/Triple.h>
 #include <clang/AST/Attr.h>
 #include <clang/AST/Decl.h>
 #include <clang/AST/DeclCXX.h>
@@ -25,6 +24,7 @@
 #include <clang/AST/StmtOpenMP.h>
 #include <clang/AST/Type.h>
 #include <clang/Basic/TokenKinds.h>
+#include <llvm/TargetParser/Triple.h>
 #pragma GCC diagnostic pop
 
 // NOTE(pag): This is a bit of a hack to get our lifter to "find" `Triple` in

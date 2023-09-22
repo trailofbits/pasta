@@ -40,7 +40,7 @@ execute_process(COMMAND ${CMAKE_COMMAND} -G "${CMAKE_GENERATOR}"
                         "-DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER}"
                         -DCMAKE_CXX_STANDARD=${CMAKE_CXX_STANDARD}
                         "-G${CMAKE_GENERATOR}"
-                        -DLLVM_ENABLE_PROJECTS="clang;mlir;lld"
+                        -DLLVM_ENABLE_PROJECTS="clang;lld"
                         -DLLVM_TARGETS_TO_BUILD="AArch64;X86;ARM"
                         -DLLVM_EXPERIMENTAL_TARGETS_TO_BUILD="ARM"
                         -DLLVM_ENABLE_RUNTIMES="libcxx;libcxxabi"

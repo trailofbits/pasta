@@ -19,7 +19,7 @@ set(build_dir "${CMAKE_CURRENT_BINARY_DIR}/build")
 set(install_dir "${CMAKE_CURRENT_BINARY_DIR}/install")
 
 # Fetch the submodule if we don't yet have it.
-if(NOT EXISTS "${src_dir}/CMakeLists.txt")
+if(NOT EXISTS "${src_dir}/llvm/CMakeLists.txt")
   execute_process(
     COMMAND "${GIT_EXECUTABLE}" submodule update --init vendor/llvm-project/src
     WORKING_DIRECTORY "${PASTA_SOURCE_DIR}")

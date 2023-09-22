@@ -26,7 +26,6 @@ jobs:
       matrix:
         build_type: [
           'Release',
-          'Debug'
           ]
         image:
           - { name: 'ubuntu', tag: '22.04' }
@@ -49,15 +48,14 @@ jobs:
     - name: Install system dependencies
       shell: bash
       run: |
-        apt update
-        apt install -y build-essential \
-                       ninja-build \
-                       curl \
-                       ccache \
-                       python3-dev \
-                       libncurses-dev \
-                       clang-15
-        python3 -m pip install nanobind nanobind[global]
+        sudo apt update
+        sudo apt install -y build-essential \
+                            ninja-build \
+                            curl \
+                            ccache \
+                            python3-dev \
+                            libncurses-dev \
+                            clang-15
 
     - name: Setup the build paths
       shell: bash

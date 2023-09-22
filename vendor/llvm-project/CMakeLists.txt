@@ -18,43 +18,6 @@ set(src_dir "${CMAKE_CURRENT_LIST_DIR}/src")
 set(build_dir "${CMAKE_CURRENT_BINARY_DIR}/build")
 set(install_dir "${CMAKE_CURRENT_BINARY_DIR}/install")
 
-message(FATAL_ERROR ${CMAKE_COMMAND}
-                        -G "${CMAKE_GENERATOR}"
-                        -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
-                        -DCMAKE_MAKE_PROGRAM=${CMAKE_MAKE_PROGRAM}
-                        -DCMAKE_INSTALL_PREFIX="${install_dir}"
-                        -DCMAKE_C_COMPILER="${CMAKE_C_COMPILER}"
-                        -DCMAKE_CXX_COMPILER="${CMAKE_CXX_COMPILER}"
-                        -DCMAKE_CXX_STANDARD="${CMAKE_CXX_STANDARD}"
-                        -DLLVM_ENABLE_PROJECTS="clang"
-                        -DLLVM_TARGETS_TO_BUILD="AArch64;X86;ARM"
-                        -DLLVM_EXPERIMENTAL_TARGETS_TO_BUILD="ARM"
-                        -DLLVM_ENABLE_RUNTIMES="libcxx;libcxxabi"
-                        -DBUILD_SHARED_LIBS:BOOL=OFF
-                        -DLLVM_APPEND_VC_REV:BOOL=OFF
-                        -DLLVM_BUILD_DOCS:BOOL=OFF
-                        -DLLVM_INCLUDE_DOCS:BOOL=OFF
-                        -DLLVM_INCLUDE_EXAMPLES:BOOL=OFF
-                        -DLLVM_BUILD_EXAMPLES:BOOL=OFF
-                        -DLLVM_BUILD_LLVM_DYLIB:BOOL=OFF
-                        -DLLVM_BUILD_TESTS:BOOL=OFF
-                        -DLLVM_ENABLE_BINDINGS:BOOL=OFF
-                        -DLLVM_ENABLE_OCAMLDOC:BOOL=OFF
-                        -DLLVM_ENABLE_DIA_SDK:BOOL=OFF
-                        -DLLVM_ENABLE_EH:BOOL=ON
-                        -DLLVM_ENABLE_RTTI:BOOL=ON
-                        -DLLVM_ENABLE_ASSERTIONS:BOOL=ON
-                        -DLLVM_ENABLE_EXPENSIVE_CHECKS:BOOL=ON
-                        -DLLVM_ENABLE_FFI:BOOL=OFF
-                        -DLLVM_ENABLE_WARNINGS:BOOL=ON
-                        -DLLVM_INCLUDE_BENCHMARKS:BOOL=OFF
-                        -DLLVM_INCLUDE_EXAMPLES:BOOL=OFF
-                        -DLLVM_INCLUDE_TESTS:BOOL=OFF
-                        -DLLVM_INCLUDE_TOOLS:BOOL=ON
-                        -DLLVM_INSTALL_UTILS:BOOL=ON
-                        -DLLVM_ENABLE_ZSTD:BOOL=OFF
-                        "${src_dir}")
-
 # Fetch the submodule if we don't yet have it.
 if(NOT EXISTS "${src_dir}/CMakeLists.txt")
   execute_process(
@@ -82,9 +45,9 @@ execute_process(COMMAND ${CMAKE_COMMAND}
                         -DCMAKE_CXX_COMPILER="${CMAKE_CXX_COMPILER}"
                         -DCMAKE_CXX_STANDARD="${CMAKE_CXX_STANDARD}"
                         -DLLVM_ENABLE_PROJECTS="clang"
-                        -DLLVM_TARGETS_TO_BUILD="AArch64;X86;ARM"
+                        -DLLVM_TARGETS_TO_BUILD="AArch64\;X86\;ARM"
                         -DLLVM_EXPERIMENTAL_TARGETS_TO_BUILD="ARM"
-                        -DLLVM_ENABLE_RUNTIMES="libcxx;libcxxabi"
+                        -DLLVM_ENABLE_RUNTIMES="libcxx\;libcxxabi"
                         -DBUILD_SHARED_LIBS:BOOL=OFF
                         -DLLVM_APPEND_VC_REV:BOOL=OFF
                         -DLLVM_BUILD_DOCS:BOOL=OFF
@@ -108,7 +71,7 @@ execute_process(COMMAND ${CMAKE_COMMAND}
                         -DLLVM_INCLUDE_TOOLS:BOOL=ON
                         -DLLVM_INSTALL_UTILS:BOOL=ON
                         -DLLVM_ENABLE_ZSTD:BOOL=OFF
-                        "${src_dir}"
+                        "${src_dir}/llvm"
                WORKING_DIRECTORY "${build_dir}")
 
 # (c) Build just mycomp in the nested build. Don't specify a --config

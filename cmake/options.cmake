@@ -2,6 +2,8 @@
 
 include(CMakeDependentOption)
 
+set(CMAKE_CXX_STANDARD 20 CACHE STRING "C++ standard version")
+
 # --------------------------------------------
 # build-time options -------------------------
 # --------------------------------------------

@@ -32,15 +32,15 @@ execute_process(COMMAND ${CMAKE_COMMAND} -E make_directory "${build_dir}")
 execute_process(COMMAND ${CMAKE_COMMAND} -E make_directory "${install_dir}")
 
 # (b) Nested CMake run. May need more -D... options than shown here.
-execute_process(COMMAND ${CMAKE_COMMAND} -G "${CMAKE_GENERATOR}"
+execute_process(COMMAND ${CMAKE_COMMAND}
+                        -G "${CMAKE_GENERATOR}"
                         -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
                         -DCMAKE_MAKE_PROGRAM=${CMAKE_MAKE_PROGRAM}
                         "-DCMAKE_INSTALL_PREFIX=${install_dir}"
                         "-DCMAKE_C_COMPILER=${CMAKE_C_COMPILER}"
                         "-DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER}"
-                        -DCMAKE_CXX_STANDARD=${CMAKE_CXX_STANDARD}
-                        "-G${CMAKE_GENERATOR}"
-                        -DLLVM_ENABLE_PROJECTS="clang;lld"
+                        "-DCMAKE_CXX_STANDARD=${CMAKE_CXX_STANDARD}"
+                        -DLLVM_ENABLE_PROJECTS="clang"
                         -DLLVM_TARGETS_TO_BUILD="AArch64;X86;ARM"
                         -DLLVM_EXPERIMENTAL_TARGETS_TO_BUILD="ARM"
                         -DLLVM_ENABLE_RUNTIMES="libcxx;libcxxabi"

@@ -35,8 +35,7 @@ void RegisterAST(nb::module_ &m) {
     .def_prop_ro("field_token", &Designator::FieldToken)
     .def_prop_ro("left_bracket_token", &Designator::LeftBracketToken)
     .def_prop_ro("right_bracket_token", &Designator::RightBracketToken)
-    .def_prop_ro("ellipsis_token", &Designator::EllipsisToken)
-    .def_prop_ro("first_expression_index", &Designator::FirstExpressionIndex);
+    .def_prop_ro("ellipsis_token", &Designator::EllipsisToken);
 
   nb::class_<CXXBaseSpecifier>(m, "CXXBaseSpecifier")
     .def("__hash__", [](const CXXBaseSpecifier &d) { return reinterpret_cast<intptr_t>(d.RawCXXBaseSpecifier()); })

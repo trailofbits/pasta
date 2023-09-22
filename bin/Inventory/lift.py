@@ -418,6 +418,7 @@ class SchemaLifter:
       referenced_schema = self.lift_type(tp.pointee_type)
       if isinstance(referenced_schema, PointerLikeSchema):
         return referenced_schema
+      print(f"~~~ {tp.__class__.__name__} {tp.pointee_type.unqualified_type.__class__.__name__}")
 
     return self.lift_type(tp)
 
@@ -429,7 +430,7 @@ class SchemaLifter:
 
       if isinstance(decl, CXXMethodDecl):
         tp_str = " ".join(str(tok) for tok in PrintedTokenRange.create(decl.return_type))
-        print(f"--- found {tag.name}::{decl.name} returning {tp_str} {decl.return_type.__class__}")
+        print(f"--- found {tag.name}::{decl.name} returning {tp_str} {decl.return_type.__class__}\n\t{isinstance(decl, CXXMethodDecl)} {decl.is_overloaded_operator} {decl.access} {decl.overloaded_operator} {len(decl.parameters)}")
 
       if isinstance(decl, CXXMethodDecl) and \
          decl.is_overloaded_operator and \
@@ -437,7 +438,10 @@ class SchemaLifter:
          decl.overloaded_operator == OverloadedOperatorKind.STAR and \
          not len(decl.parameters):
 
+        print("{")
         iterated_schema = self._lift_iterated_type(decl.return_type)
+
+        print(f"}} = {iterated_schema}")
 
         # NOTE(pag): There might be an `operator *(void)` that we fail on, but
         #            an `operator *(void) const` that we can succeed on.
@@ -556,6 +560,14 @@ class SchemaLifter:
           schema.has_boolean_conversion = True
         continue
 
+      # Detect presence of `operator==` or `operator!=`, so that we can know if
+      # this object induces an equivalence relation. 
+      if decl.is_overloaded_operator and \
+         (decl.overloaded_operator == OverloadedOperatorKind.EQUAL_EQUAL or
+          decl.overloaded_operator == OverloadedOperatorKind.EXCLAIM_EQUAL):
+        schema.has_equivalence_relation = True
+
+      # Skip these.
       if decl.is_implicit or decl.is_overloaded_operator:
         continue
 
@@ -720,49 +732,80 @@ class SchemaLifter:
                          VarTemplatePartialSpecializationDecl,
                          TemplateDecl)) or \
        not self._lift_parent(decl):
+      
+      if error is not None:
+        error.append("Don't support templates")
 
       self.decl_schemas[decl] = self.unknown_schema
       schema = self.unknown_schema
 
     elif isinstance(decl, RecordDecl):
-      schema = self._lift_record(decl, error)
+      decl_def = decl.definition
+      if decl_def:
+        decl = decl_def
+        schema = self._lift_record(decl_def, error)
+      elif error is not None:
+        error.append("Missing record definition")
       
     elif isinstance(decl, EnumDecl):
-      schema = self._lift_enum(decl)
+      decl_def = decl.definition
+      if decl_def:
+        decl = decl_def
+        schema = self._lift_enum(decl_def)
+      elif error is not None:
+        error.append("Missing enum definition")
 
     elif isinstance(decl, TypedefNameDecl):
       schema = self._lift_typedef(decl)
 
+    elif isinstance(decl, VarDecl):
+      if error is not None:
+        error.append("Don't support global vars")
+      pass
+
     else:
       assert False
+
+    if error is not None and len(error):
+      tp_str = " ".join(str(tok) for tok in PrintedTokenRange.create(decl))
+      e = '\n'.join(error)
+      print(f"!!! ERROR {tp_str}: {e}")
 
     self.decl_schemas[decl] = schema
     return schema
 
   def _lift_qualified_type(self, tp: QualifiedType) -> Schema:
-    # tp_str = " ".join(str(tok) for tok in PrintedTokenRange.create(tp))
-    # print(f"*** Ignoring {tp.__class__.__name__}: {tp_str}")
+    tp_str = " ".join(str(tok) for tok in PrintedTokenRange.create(tp))
+    print(f"*** Ignoring {tp.__class__.__name__}: {tp_str}")
     return self.unknown_schema
 
   def _lift_reference_type(self, tp: ReferenceType) -> Schema:
     pt: Type = tp.pointee_type
     is_const = False
-    if isinstance(pt, QualifiedType):
-      is_const = pt.is_const_qualified
 
-      # Reject `const`- and `restrict`-qualified reference element types.
-      if pt.is_restrict_qualified or pt.is_volatile_qualified:
-        return self.unknown_schema
+    # Desugar the type, but keep track of whether or not we encountered
+    # `const`-qualification.
+    changed = True
+    while changed:
+      changed = False
+      if isinstance(pt, QualifiedType):
+        is_const = pt.is_const_qualified
 
-      pt = pt.unqualified_type  # Unwrap the qualification
+        # Reject `const`- and `restrict`-qualified reference element types.
+        if pt.is_restrict_qualified or pt.is_volatile_qualified:
+          return self.unknown_schema
+
+        pt = pt.unqualified_type  # Unwrap the qualification
+        changed = True
+
+      if pt.is_sugared:
+        pt = pt.desugar
+        changed = True
 
     # Don't allow pointers-to-unknowns, or pointers-to-pointers.
     ps: Schema = self.lift_type(pt)
-    if isinstance(ps, (UnknownSchema, PointerLikeSchema, CStringSchema)):
+    if isinstance(ps, UnknownSchema):
       return self.unknown_schema
-
-    if isinstance(ps, Int8Schema) and is_const:
-        return CStringSchema()
 
     return is_const and ConstReferenceSchema(ps) or ReferenceSchema(ps)
 
@@ -813,7 +856,7 @@ class SchemaLifter:
       return self.unknown_schema
 
     if isinstance(ps, Int8Schema) and is_const:
-        return CStringSchema()
+      return CStringSchema()
     
     return is_const and ConstRawPointerSchema(ps) or RawPointerSchema(ps)
 

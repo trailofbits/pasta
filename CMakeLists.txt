@@ -21,8 +21,6 @@ endif(PASTA_ENABLE_INSTALL)
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
-set(PASTA_SOURCE_DIR "${CMAKE_CURRENT_LIST_DIR}")
-
 # --------------------------------------------
 # toolchain-specific warning options ---------
 # --------------------------------------------
@@ -73,6 +71,9 @@ target_link_libraries(pasta_cxx_settings INTERFACE std::filesystem)
 # --------------------------------------------
 
 add_subdirectory(vendor)
+
+find_package(LLVM CONFIG REQUIRED)
+find_package(Clang CONFIG REQUIRED)
 
 add_library(pasta_thirdparty_llvm INTERFACE)
 if(PASTA_ENABLE_TESTING)

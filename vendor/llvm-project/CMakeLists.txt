@@ -16,31 +16,29 @@ endif()
 
 set(src_dir "${CMAKE_CURRENT_LIST_DIR}/src")
 set(build_dir "${CMAKE_CURRENT_BINARY_DIR}/build")
-set(install_dir "${CMAKE_CURRENT_BINARY_DIR}/install")
 
 # Fetch the submodule if we don't yet have it.
 if(NOT EXISTS "${src_dir}/llvm/CMakeLists.txt")
   execute_process(
     COMMAND "${GIT_EXECUTABLE}" submodule update --init vendor/llvm-project/src
-    WORKING_DIRECTORY "${PASTA_SOURCE_DIR}")
+    WORKING_DIRECTORY "${PROJECT_SOURCE_DIR}")
 
   execute_process(
     COMMAND "${GIT_EXECUTABLE}" submodule set-branch --branch pasta vendor/llvm-project/src
-    WORKING_DIRECTORY "${PASTA_SOURCE_DIR}")
+    WORKING_DIRECTORY "${PROJECT_SOURCE_DIR}")
 endif()
 
 # This is the main build, setup and execute the nested build
 # to ensure the Cap'n Proto library exists before continuing
 
 execute_process(COMMAND ${CMAKE_COMMAND} -E make_directory "${build_dir}")
-execute_process(COMMAND ${CMAKE_COMMAND} -E make_directory "${install_dir}")
 
 # (b) Nested CMake run. May need more -D... options than shown here.
 execute_process(COMMAND ${CMAKE_COMMAND}
                         -G "${CMAKE_GENERATOR}"
                         -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
                         "-DCMAKE_MAKE_PROGRAM=${CMAKE_MAKE_PROGRAM}"
-                        "-DCMAKE_INSTALL_PREFIX=${install_dir}"
+                        "-DCMAKE_INSTALL_PREFIX=${PASTA_VENDOR_INSTALL_DIR}"
                         "-DCMAKE_C_COMPILER=${CMAKE_C_COMPILER}"
                         "-DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER}"
                         "-DCMAKE_ASM_COMPILER=${CMAKE_C_COMPILER}"
@@ -82,5 +80,5 @@ execute_process(COMMAND ${CMAKE_COMMAND}
 execute_process(COMMAND ${CMAKE_COMMAND} --build . --target install
                 WORKING_DIRECTORY "${build_dir}")
 
-find_package(LLVM CONFIG REQUIRED PATHS "${install_dir}" NO_DEFAULT_PATH)
-find_package(Clang CONFIG REQUIRED PATHS "${install_dir}" NO_DEFAULT_PATH)
+find_package(LLVM CONFIG REQUIRED PATHS "${PASTA_VENDOR_INSTALL_DIR}" NO_DEFAULT_PATH)
+find_package(Clang CONFIG REQUIRED PATHS "${PASTA_VENDOR_INSTALL_DIR}" NO_DEFAULT_PATH)

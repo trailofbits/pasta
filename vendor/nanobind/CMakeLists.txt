@@ -29,7 +29,7 @@ set(src_dir "${CMAKE_CURRENT_LIST_DIR}/src")
 # Fetch the submodule if we don't yet have it.
 if(NOT EXISTS "${src_dir}/CMakeLists.txt")
   execute_process(
-    COMMAND "${GIT_EXECUTABLE}" submodule update --init src
+    COMMAND "${GIT_EXECUTABLE}" submodule update --init --recursive src
     WORKING_DIRECTORY "${CMAKE_CURRENT_LIST_DIR}")
 endif()
 

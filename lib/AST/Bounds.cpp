@@ -793,13 +793,22 @@ class DeclBoundsFinder : public clang::DeclVisitor<DeclBoundsFinder>,
     // `inline static constexpr`.
     for (auto changed = true; lower_bound && changed; ) {
       changed = false;
+      changed = ExpandLeadingKeyword(clang::tok::kw_typeof) || changed;
+      changed = ExpandLeadingKeyword(clang::tok::kw_typeof_unqual) || changed;
+      changed = ExpandLeadingKeyword(clang::tok::kw__Accum) || changed;
+      changed = ExpandLeadingKeyword(clang::tok::kw__Fract) || changed;
+      changed = ExpandLeadingKeyword(clang::tok::kw__Sat) || changed;
+      changed = ExpandLeadingKeyword(clang::tok::kw__Complex) || changed;
+      changed = ExpandLeadingKeyword(clang::tok::kw__Imaginary) || changed;
+      changed = ExpandLeadingKeyword(clang::tok::kw___thread) || changed;
+      changed = ExpandLeadingKeyword(clang::tok::kw__Thread_local) || changed;
       changed = ExpandLeadingKeyword(clang::tok::kw_auto) || changed;
       changed = ExpandLeadingKeyword(clang::tok::kw_static) || changed;
       changed = ExpandLeadingKeyword(clang::tok::kw___attribute) || changed;
       changed = ExpandLeadingKeyword(clang::tok::kw___declspec) || changed;
-      changed = ExpandLeadingKeyword(clang::tok::kw_extern, true) || changed;
       changed = ExpandLeadingKeyword(clang::tok::kw__ExtInt) || changed;
       changed = ExpandLeadingKeyword(clang::tok::kw__BitInt) || changed;
+      changed = ExpandLeadingKeyword(clang::tok::kw_extern, true) || changed;
       changed = ExpandLeadingKeyword(clang::tok::kw_unsigned) || changed;
       changed = ExpandLeadingKeyword(clang::tok::kw_signed) || changed;
       changed = ExpandLeadingKeyword(clang::tok::kw_short) || changed;

@@ -9,7 +9,7 @@
 if(NOT PASTA_USE_VENDORED_CLANG)
   find_package(LLVM CONFIG QUIET)
   find_package(Clang CONFIG QUIET)
-  if(LLVM_Found AND Clang_FOUND)
+  if(LLVM_FOUND AND Clang_FOUND)
     return()
   endif()
 endif()

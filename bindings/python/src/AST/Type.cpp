@@ -52,7 +52,7 @@ void RegisterType(nb::module_ &m) {
     .def_prop_ro("pointee_cxx_record_declaration", &Type::PointeeCXXRecordDeclaration)
     .def_prop_ro("pointee_or_array_element_type", &Type::PointeeOrArrayElementType)
     .def_prop_ro("pointee_type", &Type::PointeeType)
-    .def_prop_ro("rvv_elt_type", &Type::RVVEltType)
+    .def_prop_ro("rvv_element_type", &Type::RVVElementType)
     .def_prop_ro("scalar_type_kind", &Type::ScalarTypeKind)
     .def_prop_ro("sve_element_type", &Type::SveElementType)
     .def_prop_ro("unqualified_desugared_type", &Type::UnqualifiedDesugaredType)

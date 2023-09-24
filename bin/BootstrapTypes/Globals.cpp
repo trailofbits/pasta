@@ -119,6 +119,7 @@ const std::unordered_map<std::string, std::string> kCxxMethodRenames{
   {"Qualifieds", "Qualifiers"},
   {"Unqual", "Unqualified"},
   {"Elt", "Element"},
+  {"RVVEltType", "RVVElementType"},
   {"SveEltType", "SveElementType"},
   {"noload_decls", "AlreadyLoadedDeclarations"},
   {"Noload_decls", "AlreadyLoadedDeclarations"},
@@ -1047,6 +1048,7 @@ std::set<std::pair<std::string, std::string>> kCanReturnNullptr{
   {"Type", "PointeeCXXRecordDeclaration"},
   {"Type", "PointeeOrArrayElementType"},
   {"Type", "PointeeType"},
+  {"Type", "RVVElementType"},
   {"Type", "SveElementType"},
   {"FunctionDecl", "Definition"},
   {"ReturnStmt", "NRVOCandidate"},
@@ -1348,7 +1350,7 @@ std::map<std::pair<std::string, std::string>, std::string> kConditionalNullptr{
    "    return std::nullopt;\n"
    "  }\n"},
   {{"Expr", "IsCXX11ConstantExpression"},
-   "  if (self.isValueDependent()) {\n"
+   "  if (self.getType().isNull() || self.isValueDependent()) {\n"
    "    return std::nullopt;\n"
    "  }\n"
    "  auto &ac = ast->ci->getASTContext();\n"
@@ -1358,35 +1360,35 @@ std::map<std::pair<std::string, std::string>, std::string> kConditionalNullptr{
    "    return self.isCXX11ConstantExpr(ac);\n"
    "  }\n"},
   {{"Expr", "IsIntegerConstantExpression"},
-   "  if (self.isValueDependent()) {\n"
+   "  if (self.getType().isNull() || self.isValueDependent()) {\n"
    "    return std::nullopt;\n"
    "  } else {\n"
    "    auto &ac = ast->ci->getASTContext();\n"
    "    return self.isIntegerConstantExpr(ac);\n"
    "  }\n"},
   {{"Expr", "IsCXX98IntegralConstantExpression"},
-   "  if (self.isValueDependent()) {\n"
+   "  if (self.getType().isNull() || self.isValueDependent()) {\n"
    "    return std::nullopt;\n"
    "  } else {\n"
    "    auto &ac = ast->ci->getASTContext();\n"
    "    return self.isCXX98IntegralConstantExpr(ac);\n"
    "  }\n"},
   {{"Expr", "IsEvaluatable"},
-   "  if (self.isValueDependent()) {\n"
+   "  if (self.getType().isNull() || self.isValueDependent()) {\n"
    "    return std::nullopt;\n"
    "  } else {\n"
    "    auto &ac = ast->ci->getASTContext();\n"
    "    return self.isEvaluatable(ac);\n"
    "  }\n"},
   {{"Expr", "EvaluateKnownConstInt"},
-   "  if (self.isValueDependent()) {\n"
+   "  if (self.getType().isNull() || self.isValueDependent()) {\n"
    "    return std::nullopt;\n"
    "  } else {\n"
    "    auto &ac = ast->ci->getASTContext();\n"
    "    return self.EvaluateKnownConstInt(ac);\n"
    "  }\n"},
   {{"Expr", "EvaluateKnownConstIntCheckOverflow"},
-   "  if (self.isValueDependent()) {\n"
+   "  if (self.getType().isNull() || self.isValueDependent()) {\n"
    "    return std::nullopt;\n"
    "  } else {\n"
    "    auto &ac = ast->ci->getASTContext();\n"
@@ -1721,6 +1723,10 @@ std::map<std::pair<std::string, std::string>, std::string> kConditionalNullptr{
    "  }\n"},
   {{"Type", "SveElementType"},
    "  if (!self.isSveVLSBuiltinType()) {\n"
+   "    return std::nullopt;\n"
+   "  }\n"},
+  {{"Type", "RVVElementType"},
+   "  if (!self.isRVVVLSBuiltinType()) {\n"
    "    return std::nullopt;\n"
    "  }\n"},
   {{"Type", "IsObjCARCImplicitlyUnretainedType"},

@@ -3243,7 +3243,7 @@ enum ExprLValueClassification Expr::ClassifyLValue(void) const {
 // 5: Expr::EvaluateCharacterRangeAsString
 std::optional<llvm::APSInt> Expr::EvaluateKnownConstInt(void) const {
   auto &self = *(u.Expr);
-  if (self.isValueDependent()) {
+  if (self.getType().isNull() || self.isValueDependent()) {
     return std::nullopt;
   } else {
     auto &ac = ast->ci->getASTContext();
@@ -3255,7 +3255,7 @@ std::optional<llvm::APSInt> Expr::EvaluateKnownConstInt(void) const {
 
 std::optional<llvm::APSInt> Expr::EvaluateKnownConstIntCheckOverflow(void) const {
   auto &self = *(u.Expr);
-  if (self.isValueDependent()) {
+  if (self.getType().isNull() || self.isValueDependent()) {
     return std::nullopt;
   } else {
     auto &ac = ast->ci->getASTContext();
@@ -3515,7 +3515,7 @@ bool Expr::IsBoundMemberFunction(void) const {
 
 std::optional<bool> Expr::IsCXX11ConstantExpression(void) const {
   auto &self = *(u.Expr);
-  if (self.isValueDependent()) {
+  if (self.getType().isNull() || self.isValueDependent()) {
     return std::nullopt;
   }
   auto &ac = ast->ci->getASTContext();
@@ -3530,7 +3530,7 @@ std::optional<bool> Expr::IsCXX11ConstantExpression(void) const {
 
 std::optional<bool> Expr::IsCXX98IntegralConstantExpression(void) const {
   auto &self = *(u.Expr);
-  if (self.isValueDependent()) {
+  if (self.getType().isNull() || self.isValueDependent()) {
     return std::nullopt;
   } else {
     auto &ac = ast->ci->getASTContext();
@@ -3549,7 +3549,7 @@ bool Expr::IsDefaultArgument(void) const {
 
 std::optional<bool> Expr::IsEvaluatable(void) const {
   auto &self = *(u.Expr);
-  if (self.isValueDependent()) {
+  if (self.getType().isNull() || self.isValueDependent()) {
     return std::nullopt;
   } else {
     auto &ac = ast->ci->getASTContext();
@@ -3580,7 +3580,7 @@ bool Expr::IsInstantiationDependent(void) const {
 
 std::optional<bool> Expr::IsIntegerConstantExpression(void) const {
   auto &self = *(u.Expr);
-  if (self.isValueDependent()) {
+  if (self.getType().isNull() || self.isValueDependent()) {
     return std::nullopt;
   } else {
     auto &ac = ast->ci->getASTContext();

@@ -298,11 +298,11 @@ class DeclBoundsFinder : public clang::DeclVisitor<DeclBoundsFinder>,
 
           if (0 > nesting) {
             return r_brace;
-          
+
           } else if (!nesting) {
             if (can_have_semi) {
               r_brace = tok;
-            
+
             } else {
               return tok;
             }
@@ -830,7 +830,7 @@ class DeclBoundsFinder : public clang::DeclVisitor<DeclBoundsFinder>,
       changed = ExpandLeadingKeyword(clang::tok::kw___private_extern__, true) || changed;
       changed = ExpandLeadingKeyword(clang::tok::kw___module_private__, true) || changed;
       changed = ExpandLeadingKeyword(clang::tok::kw___extension__, true) || changed;
-    
+
       if (lower_bound <= first_tok) {
         break;
       }
@@ -840,12 +840,16 @@ class DeclBoundsFinder : public clang::DeclVisitor<DeclBoundsFinder>,
       auto prev_tok = &(lower_bound[-1]);
       if (prev_tok->Kind() == clang::tok::r_paren ||
           prev_tok->Kind() == clang::tok::r_square) {
-        std::tie(lower_bound, prev_tok) = GetMatching(prev_tok);
-        changed = true;
+
+        // NOTE(pag): This may fail if `prev_tok` is a macro token, e.g. the
+        //            `)` of a macro function call.
+        if (auto matching_tok = GetMatching(prev_tok).first) {
+          lower_bound = matching_tok;
+          changed = true;
+        }
       }
     }
   }
-
 
   void VisitCommonFunctionDecl(clang::FunctionDecl *decl) {
 
@@ -861,7 +865,7 @@ class DeclBoundsFinder : public clang::DeclVisitor<DeclBoundsFinder>,
     VisitCommonDeclaratorDecl(decl);
 
     TokenImpl *tok_loc = ast.RawTokenAt(decl->getLocation());
-    
+
     const clang::FunctionDecl *def = nullptr;
     auto body = decl->getBody(def);
     if (def == decl) {
@@ -999,7 +1003,7 @@ class DeclBoundsFinder : public clang::DeclVisitor<DeclBoundsFinder>,
       if (!params_begin || params_begin < func_name_tok) {
         auto next_semicolon = FindNext(func_name_tok, clang::tok::semi);
         params_begin = FindNext(func_name_tok, clang::tok::l_paren);
-        
+
         // Watch out for `foo_t foo; int bar() {}`, that we don't find
         // `(` from `bar` and associate it with `foo`.
         if (next_semicolon && next_semicolon < params_begin) {

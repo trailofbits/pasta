@@ -55,7 +55,7 @@ jobs:
                             ccache \
                             python3-dev \
                             libncurses-dev \
-                            clang-15
+                            clang-16
 
     - name: Setup the build paths
       shell: bash
@@ -115,13 +115,13 @@ jobs:
       run: |
         cmake -G "Ninja" \
           -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} \
-          -DCMAKE_C_COMPILER="$(which clang-15)" \
-          -DCMAKE_CXX_COMPILER="$(which clang++-15)" \
+          -DCMAKE_C_COMPILER="$(which clang-16)" \
+          -DCMAKE_CXX_COMPILER="$(which clang++-16)" \
           -DPASTA_BOOTSTRAP_MACROS=OFF \
           -DPASTA_BOOTSTRAP_TYPES=OFF \
           -DPASTA_ENABLE_TESTING=OFF \
           -DPASTA_ENABLE_PY_BINDINGS=ON \
-          -DPASTA_ENABLE_INSTALL=ON \
+          -DPASTA_ENABLE_INSTALL=OFF \
           "${{ steps.build_paths.outputs.SOURCE }}"
 
     - name: Build the project

@@ -1356,6 +1356,32 @@ class DeclBoundsFinder : public clang::DeclVisitor<DeclBoundsFinder>,
     }
   }
 
+  void VisitAutoTypeLoc(clang::AutoTypeLoc loc) {
+    Expand(loc.getNameLoc());
+    if (loc.isDecltypeAuto()) {
+      Expand(loc.getRParenLoc());
+    }
+  }
+
+  void VisitDecltypeTypeLoc(clang::DecltypeTypeLoc loc) {
+    Expand(loc.getDecltypeLoc());
+    Expand(loc.getRParenLoc());
+  }
+
+  // NOTE(pag): Don't enter the referenced expression.
+  void VisitTypeOfExprTypeLoc(clang::TypeOfExprTypeLoc loc) {
+    Expand(loc.getTypeofLoc());
+    Expand(loc.getLParenLoc());
+    Expand(loc.getRParenLoc());
+  }
+
+  // NOTE(pag): Don't enter the referenced type.
+  void VisitTypeOfTypeLoc(clang::TypeOfTypeLoc loc) {
+    Expand(loc.getTypeofLoc());
+    Expand(loc.getLParenLoc());
+    Expand(loc.getRParenLoc());
+  }
+
   void VisitBuiltinTypeLoc(clang::BuiltinTypeLoc loc) {
     Expand(loc.getLocalSourceRange());
   }
@@ -1403,14 +1429,12 @@ class DeclBoundsFinder : public clang::DeclVisitor<DeclBoundsFinder>,
 
   void VisitTagTypeLoc(clang::TagTypeLoc loc) {
     Expand(loc.getNameLoc());
-    if (auto decl = loc.getDecl(); decl && loc.isDefinition()) {
-      Visit(decl);
-    }
   }
 
   void VisitEnumTypeLoc(clang::EnumTypeLoc loc) {
     return VisitTagTypeLoc(loc);
   }
+
   void VisitRecordTypeLoc(clang::RecordTypeLoc loc) {
     return VisitTagTypeLoc(loc);
   }

@@ -24,9 +24,20 @@ int main(int argc, char *argv[]) {
   }
 
   pasta::InitPasta initializer;
+
+  auto tl = pasta::TargetLanguage::kC;
+
+  const pasta::ArgumentVector args(argc - 1, &argv[1]);
+  for (auto arg : args) {
+    if (strstr(arg, "++") || strstr(arg, "cpp") || strstr(arg, "hpp") ||
+        strstr(arg, "cxx") || strstr(arg, "hxx")) {
+      tl = pasta::TargetLanguage::kCXX;
+      break;
+    }
+  }
+
   pasta::FileManager fm(pasta::FileSystem::CreateNative());
-  auto maybe_compiler = pasta::Compiler::CreateHostCompiler(
-      fm, pasta::TargetLanguage::kC);
+  auto maybe_compiler = pasta::Compiler::CreateHostCompiler(fm, tl);
 
   if (!maybe_compiler.Succeeded()) {
     std::cerr << maybe_compiler.TakeError() << std::endl;
@@ -39,7 +50,6 @@ int main(int argc, char *argv[]) {
     return EXIT_FAILURE;
   }
 
-  const pasta::ArgumentVector args(argc - 1, &argv[1]);
   auto maybe_command = pasta::CompileCommand::CreateFromArguments(
       args, maybe_cwd.TakeValue());
   if (!maybe_command.Succeeded()) {

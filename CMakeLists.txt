@@ -172,12 +172,12 @@ set(HOST_H_FILE "${CMAKE_CURRENT_BINARY_DIR}/lib/Compile/Host.h")
 get_compiler_paths(
     COMPILER "${CMAKE_C_COMPILER}"
     OUT_VAR CSTR_HOST_CC_VERSION_INFO
-    ARGS -x c -std=c18
+    ARGS -x c -std=c23
 )
 get_compiler_paths(
     COMPILER "${CMAKE_C_COMPILER}"
     OUT_VAR CSTR_HOST_CC_VERSION_INFO_FAKE_SYSROOT
-    ARGS -x c -std=c18 -isysroot "${CMAKE_CURRENT_BINARY_DIR}/xyz/" -Wno-missing-sysroot
+    ARGS -x c -std=c23 -isysroot "/xyz" -Wno-missing-sysroot
 )
 
 get_compiler_paths(
@@ -188,7 +188,7 @@ get_compiler_paths(
 get_compiler_paths(
     COMPILER "${CMAKE_CXX_COMPILER}"
     OUT_VAR CSTR_HOST_CXX_VERSION_INFO_FAKE_SYSROOT
-    ARGS -x c++ -std=c++20 -isysroot "${CMAKE_CURRENT_BINARY_DIR}/xyz" -Wno-missing-sysroot
+    ARGS -x c++ -std=c++20 -isysroot "/xyz" -Wno-missing-sysroot
 )
 
 configure_file("${HOST_H_IN_FILE}" "${HOST_H_FILE}" @ONLY)

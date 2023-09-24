@@ -13,7 +13,7 @@ def main(argv):
       wrapped_line = line.rstrip(" \t\r\n").replace("\"", "\\\"")
       new_lines.append("\"{}\\n\"".format(wrapped_line))
   
-  print(" \\\n".join(new_lines))
+  print("\n".join(new_lines))
   return 0
 
 if __name__ == "__main__":

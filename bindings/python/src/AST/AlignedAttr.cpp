@@ -17,11 +17,12 @@ namespace nb = nanobind;
 
 void RegisterAlignedAttr(nb::module_ &m) {
   nb::class_<AlignedAttr, InheritableAttr>(m, "AlignedAttr")
-    .def("__hash__", [](const AlignedAttr &attr) { return (intptr_t)attr.RawAttr(); })
+    .def("__hash__", [](const AlignedAttr &attr) { return reinterpret_cast<intptr_t>(attr.RawAttr()); })
     .def("__eq__", [](const Attr &a, const Attr &b) { return a.RawAttr() == b.RawAttr(); })
     .def_prop_ro("alignment", &AlignedAttr::Alignment)
     .def_prop_ro("alignment_expression", &AlignedAttr::AlignmentExpression)
     .def_prop_ro("alignment_type", &AlignedAttr::AlignmentType)
+    .def_prop_ro("cached_alignment_value", &AlignedAttr::CachedAlignmentValue)
     .def_prop_ro("semantic_spelling", &AlignedAttr::SemanticSpelling)
     .def_prop_ro("spelling", &AlignedAttr::Spelling)
     .def_prop_ro("is_alignas", &AlignedAttr::IsAlignas)

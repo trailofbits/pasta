@@ -17,7 +17,7 @@ namespace nb = nanobind;
 
 void RegisterWebAssemblyImportModuleAttr(nb::module_ &m) {
   nb::class_<WebAssemblyImportModuleAttr, InheritableAttr>(m, "WebAssemblyImportModuleAttr")
-    .def("__hash__", [](const WebAssemblyImportModuleAttr &attr) { return (intptr_t)attr.RawAttr(); })
+    .def("__hash__", [](const WebAssemblyImportModuleAttr &attr) { return reinterpret_cast<intptr_t>(attr.RawAttr()); })
     .def("__eq__", [](const Attr &a, const Attr &b) { return a.RawAttr() == b.RawAttr(); })
     .def_prop_ro("import_module", &WebAssemblyImportModuleAttr::ImportModule)
     .def_prop_ro("import_module_length", &WebAssemblyImportModuleAttr::ImportModuleLength)

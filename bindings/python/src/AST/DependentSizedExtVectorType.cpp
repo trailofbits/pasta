@@ -17,7 +17,7 @@ namespace nb = nanobind;
 
 void RegisterDependentSizedExtVectorType(nb::module_ &m) {
   nb::class_<DependentSizedExtVectorType, Type>(m, "DependentSizedExtVectorType")
-    .def("__hash__", [](const DependentSizedExtVectorType &type) { return (intptr_t)type.RawType(); })
+    .def("__hash__", [](const DependentSizedExtVectorType &type) { return reinterpret_cast<intptr_t>(type.RawType()); })
     .def("__eq__", [](const Type &a, const Type &b) { return a.RawType() == b.RawType(); })
     .def_prop_ro("desugar", &DependentSizedExtVectorType::Desugar)
     .def_prop_ro("attribute_token", &DependentSizedExtVectorType::AttributeToken)

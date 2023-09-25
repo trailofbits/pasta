@@ -35,8 +35,8 @@
 #include <clang/Lex/PreprocessorOptions.h>
 #include <clang/Parse/Parser.h>
 #include <clang/Sema/Sema.h>
-#include <llvm/Support/Host.h>
 #include <llvm/Support/raw_ostream.h>
+#include <llvm/TargetParser/Host.h>
 #pragma GCC diagnostic pop
 
 #include <pasta/Util/ArgumentVector.h>
@@ -223,50 +223,53 @@ Result<AST, std::string> CompileJob::Run(void) const {
       invocation.getPreprocessorOutputOpts();
   ppo_options = {};  // Reset to defaults.
 
-  clang::LangOptions * const lang_opts = invocation.getLangOpts();
+  clang::LangOptions &lang_opts = invocation.getLangOpts();
 
   // Disable cpp language option that enable true/false keyword. It
   // can have conflict with C identifiers declaring true/false
-  // lang_opts->Bool = true;
-  // lang_opts->Half = had_legal_half_type;
-  lang_opts->WChar = lang_opts->CPlusPlus;
-  lang_opts->Char8 = true;
-  lang_opts->IEEE128 = true;
-  lang_opts->EmitAllDecls = true;
-  // lang_opts->Blocks = lang_opts->ObjC;
-  lang_opts->POSIXThreads = true;
-  lang_opts->HeinousExtensions = true;
-  lang_opts->DoubleSquareBracketAttributes = true;
-  lang_opts->GNUMode = true;
-  lang_opts->GNUKeywords = true;
-  lang_opts->GNUAsm = true;
-  lang_opts->SpellChecking = false;
-  lang_opts->RetainCommentsFromSystemHeaders = false;
-  lang_opts->AllowEditorPlaceholders = false;
-  lang_opts->CommentOpts.ParseAllComments = false;
-  lang_opts->ForceEmitVTables = lang_opts->CPlusPlus;
+  // lang_opts.Bool = true;
+  // lang_opts.Half = had_legal_half_type;
+  lang_opts.WChar = lang_opts.CPlusPlus;
+  lang_opts.Char8 = true;
+  lang_opts.IEEE128 = true;
+  lang_opts.EmitAllDecls = true;
+  // lang_opts.Blocks = lang_opts.ObjC;
+  lang_opts.POSIXThreads = true;
+  lang_opts.HeinousExtensions = true;
+  lang_opts.DoubleSquareBracketAttributes = true;
+  lang_opts.GNUMode = true;
+  lang_opts.GNUKeywords = true;
+  lang_opts.GNUAsm = true;
+  lang_opts.SpellChecking = false;
+  lang_opts.RetainCommentsFromSystemHeaders = false;
+  lang_opts.AllowEditorPlaceholders = false;
+  lang_opts.CommentOpts.ParseAllComments = false;
+  lang_opts.ForceEmitVTables = lang_opts.CPlusPlus;
 
   // This is a patch that introduces transparent support for unknown attributes,
   // converting them into annotation attributes.
-  lang_opts->UnknownAttrAnnotate = true;
+  lang_opts.UnknownAttrAnnotate = true;
+
+  // This is a path that makes attributed types store their attributes.
+  lang_opts.AttrTypesHaveAttrs = true;
 
   // Don't try to produce recovery expressions or types.
-  lang_opts->RecoveryAST = false;
-  lang_opts->RecoveryASTType = false;
+  lang_opts.RecoveryAST = false;
+  lang_opts.RecoveryASTType = false;
 
   // Affects `PPCallbacks`, and also does additional parsing of things in
   // Objective-C mode, e.g. parsing module imports.
-  lang_opts->DebuggerSupport = true;
+  lang_opts.DebuggerSupport = true;
 
   // TODO(pag): Should pragmas be ignored?
 
   // Enable C++-style comments, even in C code. If we don't do this, then we
   // can observe two tokens for something like `// foo` in C code, one is a
   // `slash`, the second is a `comment`.
-  lang_opts->LineComment = true;
+  lang_opts.LineComment = true;
 
   // Don't get whitespace.
-  lang_opts->TraditionalCPP = false;
+  lang_opts.TraditionalCPP = false;
 
   clang::FrontendOptions &frontend_opts = invocation.getFrontendOpts();
   frontend_opts.StatsFile.clear();
@@ -299,7 +302,7 @@ Result<AST, std::string> CompileJob::Run(void) const {
   clang::TargetInfo &invocation_target = ci.getTarget();
 
   // Create TargetInfo for the other side of CUDA and OpenMP compilation.
-  if ((lang_opts->CUDA || lang_opts->OpenMPIsDevice) &&
+  if ((lang_opts.CUDA || lang_opts.OpenMPIsTargetDevice) &&
       !frontend_opts.AuxTriple.empty()) {
     auto aux_target = std::make_shared<clang::TargetOptions>();
     aux_target->Triple = llvm::Triple::normalize(frontend_opts.AuxTriple);
@@ -308,7 +311,7 @@ Result<AST, std::string> CompileJob::Run(void) const {
         clang::TargetInfo::CreateTargetInfo(*diagnostics_engine, aux_target));
   }
 
-  invocation_target.adjust(*diagnostics_engine, *lang_opts);
+  invocation_target.adjust(*diagnostics_engine, lang_opts);
   invocation_target.adjustTargetOptions(ci.getCodeGenOpts(),
                                         ci.getTargetOpts());
 
@@ -337,7 +340,7 @@ Result<AST, std::string> CompileJob::Run(void) const {
   }
 
   ParsedFileTracker *file_tracker_ptr = new ParsedFileTracker(
-      sm, *lang_opts, impl->file_manager, WorkingDirectory(), ast.get());
+      sm, lang_opts, impl->file_manager, WorkingDirectory(), ast.get());
   {
     std::unique_ptr<clang::PPCallbacks> file_tracker(file_tracker_ptr);
     pp.addPPCallbacks(std::move(file_tracker));
@@ -417,7 +420,7 @@ Result<AST, std::string> CompileJob::Run(void) const {
   ast->token_per_line_pp = ci.getPreprocessorPtr();
 
   assert(pp2.getLangOpts().EmitAllDecls);
-  assert(lang_opts->EmitAllDecls);
+  assert(lang_opts.EmitAllDecls);
 
   std::unique_ptr<clang::Parser> parser(
       new clang::Parser(pp2, sema, false /* SkipFunctionBodies */));
@@ -471,7 +474,7 @@ Result<AST, std::string> CompileJob::Run(void) const {
   ast->mem_fs = std::move(mem_vfs);
   ast->fm = std::move(fm);
   ast->tu = ast_context.getTranslationUnitDecl();
-  ast->printing_policy.reset(new clang::PrintingPolicy(*lang_opts));
+  ast->printing_policy.reset(new clang::PrintingPolicy(lang_opts));
 
   // Initialize the policy to print tokens as closely as possible to what is
   // written in the original code.

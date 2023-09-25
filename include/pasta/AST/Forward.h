@@ -62,7 +62,13 @@ class AnyX86NoCfCheckAttr;
 class ArcWeakrefUnavailableAttr;
 class ArgumentWithTypeTagAttr;
 class ArmBuiltinAliasAttr;
+class ArmLocallyStreamingAttr;
 class ArmMveStrictPolymorphismAttr;
+class ArmNewZAAttr;
+class ArmPreservesZAAttr;
+class ArmSharedZAAttr;
+class ArmStreamingAttr;
+class ArmStreamingCompatibleAttr;
 class ArrayInitIndexExpr;
 class ArrayInitLoopExpr;
 class ArraySubscriptExpr;
@@ -84,6 +90,7 @@ class AttributedStmt;
 class AttributedType;
 class AutoType;
 class AvailabilityAttr;
+class AvailableOnlyInDefaultEvalMethodAttr;
 class BPFPreserveAccessIndexAttr;
 class BTFDeclTagAttr;
 class BTFTagAttributedType;
@@ -391,6 +398,7 @@ class NSErrorDomainAttr;
 class NSReturnsAutoreleasedAttr;
 class NSReturnsNotRetainedAttr;
 class NSReturnsRetainedAttr;
+class NVPTXKernelAttr;
 class NakedAttr;
 class NamedDecl;
 class NamespaceAliasDecl;
@@ -481,6 +489,7 @@ class OMPParallelSectionsDirective;
 class OMPReferencedVarAttr;
 class OMPRequiresDecl;
 class OMPScanDirective;
+class OMPScopeDirective;
 class OMPSectionDirective;
 class OMPSectionsDirective;
 class OMPSimdDirective;
@@ -775,6 +784,7 @@ class UnresolvedUsingIfExistsDecl;
 class UnresolvedUsingType;
 class UnresolvedUsingTypenameDecl;
 class UnresolvedUsingValueDecl;
+class UnsafeBufferUsageAttr;
 class UnusedAttr;
 class UseHandleAttr;
 class UsedAttr;
@@ -806,6 +816,7 @@ class WeakAttr;
 class WeakImportAttr;
 class WeakRefAttr;
 class WebAssemblyExportNameAttr;
+class WebAssemblyFuncrefAttr;
 class WebAssemblyImportModuleAttr;
 class WebAssemblyImportNameAttr;
 class WhileStmt;
@@ -1085,6 +1096,7 @@ class TypeBuilder;
     d(OMPParallelMasterTaskLoopSimdDirective) \
     d(OMPParallelSectionsDirective) \
     d(OMPScanDirective) \
+    d(OMPScopeDirective) \
     d(OMPSectionDirective) \
     d(OMPSectionsDirective) \
     d(OMPSimdDirective) \
@@ -1279,7 +1291,13 @@ class TypeBuilder;
     m(ArcWeakrefUnavailable) \
     m(ArgumentWithTypeTag) \
     m(ArmBuiltinAlias) \
+    m(ArmLocallyStreaming) \
     m(ArmMveStrictPolymorphism) \
+    m(ArmNewZA) \
+    m(ArmPreservesZA) \
+    m(ArmSharedZA) \
+    m(ArmStreaming) \
+    m(ArmStreamingCompatible) \
     m(Artificial) \
     m(AsmLabel) \
     m(AssertCapability) \
@@ -1289,6 +1307,7 @@ class TypeBuilder;
     m(Assumption) \
     a(Attr) \
     m(Availability) \
+    m(AvailableOnlyInDefaultEvalMethod) \
     m(BPFPreserveAccessIndex) \
     m(BTFDeclTag) \
     m(BTFTypeTag) \
@@ -1422,6 +1441,7 @@ class TypeBuilder;
     m(NSReturnsAutoreleased) \
     m(NSReturnsNotRetained) \
     m(NSReturnsRetained) \
+    m(NVPTXKernel) \
     m(Naked) \
     m(NoAlias) \
     m(NoBuiltin) \
@@ -1598,6 +1618,7 @@ class TypeBuilder;
     m(Unavailable) \
     m(Uninitialized) \
     m(Unlikely) \
+    m(UnsafeBufferUsage) \
     m(Unused) \
     m(UseHandle) \
     m(Used) \
@@ -1613,6 +1634,7 @@ class TypeBuilder;
     m(WeakImport) \
     m(WeakRef) \
     m(WebAssemblyExportName) \
+    m(WebAssemblyFuncref) \
     m(WebAssemblyImportModule) \
     m(WebAssemblyImportName) \
     m(WorkGroupSizeHint) \
@@ -1636,14 +1658,14 @@ enum class AttrKind : unsigned int {
 enum class AArch64SVEPcsAttrSpelling : unsigned int {
   kGNUAarch64SvePcs = 0,
   kCXX11ClangAarch64SvePcs = 1,
-  kC2xClangAarch64SvePcs = 2,
+  kC23ClangAarch64SvePcs = 2,
   kSpellingNotCalculated = 15,
 };
 
 enum class AArch64VectorPcsAttrSpelling : unsigned int {
   kGNUAarch64VectorPcs = 0,
   kCXX11ClangAarch64VectorPcs = 1,
-  kC2xClangAarch64VectorPcs = 2,
+  kC23ClangAarch64VectorPcs = 2,
   kSpellingNotCalculated = 15,
 };
 
@@ -1656,7 +1678,7 @@ enum class AMDGPUFlatWorkGroupSizeAttrSpelling : unsigned int {
 enum class AMDGPUKernelCallAttrSpelling : unsigned int {
   kGNUAmdgpuKernel = 0,
   kCXX11ClangAmdgpuKernel = 1,
-  kC2xClangAmdgpuKernel = 2,
+  kC23ClangAmdgpuKernel = 2,
   kSpellingNotCalculated = 15,
 };
 
@@ -1690,21 +1712,21 @@ enum class ARMInterruptAttrInterruptType : unsigned int {
 enum class ARMInterruptAttrSpelling : unsigned int {
   kGNUInterrupt = 0,
   kCXX11GnuInterrupt = 1,
-  kC2xGnuInterrupt = 2,
+  kC23GnuInterrupt = 2,
   kSpellingNotCalculated = 15,
 };
 
 enum class AVRInterruptAttrSpelling : unsigned int {
   kGNUInterrupt = 0,
   kCXX11GnuInterrupt = 1,
-  kC2xGnuInterrupt = 2,
+  kC23GnuInterrupt = 2,
   kSpellingNotCalculated = 15,
 };
 
 enum class AVRSignalAttrSpelling : unsigned int {
   kGNUSignal = 0,
   kCXX11GnuSignal = 1,
-  kC2xGnuSignal = 2,
+  kC23GnuSignal = 2,
   kSpellingNotCalculated = 15,
 };
 
@@ -1727,28 +1749,28 @@ enum class AcquireCapabilityAttrSpelling : unsigned int {
 enum class AcquireHandleAttrSpelling : unsigned int {
   kGNUAcquireHandle = 0,
   kCXX11ClangAcquireHandle = 1,
-  kC2xClangAcquireHandle = 2,
+  kC23ClangAcquireHandle = 2,
   kSpellingNotCalculated = 15,
 };
 
 enum class AddressSpaceAttrSpelling : unsigned int {
   kGNUAddressSpace = 0,
   kCXX11ClangAddressSpace = 1,
-  kC2xClangAddressSpace = 2,
+  kC23ClangAddressSpace = 2,
   kSpellingNotCalculated = 15,
 };
 
 enum class AliasAttrSpelling : unsigned int {
   kGNUAlias = 0,
   kCXX11GnuAlias = 1,
-  kC2xGnuAlias = 2,
+  kC23GnuAlias = 2,
   kSpellingNotCalculated = 15,
 };
 
 enum class AlignedAttrSpelling : unsigned int {
   kGNUAligned = 0,
   kCXX11GnuAligned = 1,
-  kC2xGnuAligned = 2,
+  kC23GnuAligned = 2,
   kDeclspecAlign = 3,
   kKeywordAlignas = 4,
   kKeyword_Alignas = 5,
@@ -1758,14 +1780,14 @@ enum class AlignedAttrSpelling : unsigned int {
 enum class AllocAlignAttrSpelling : unsigned int {
   kGNUAllocAlign = 0,
   kCXX11GnuAllocAlign = 1,
-  kC2xGnuAllocAlign = 2,
+  kC23GnuAllocAlign = 2,
   kSpellingNotCalculated = 15,
 };
 
 enum class AllocSizeAttrSpelling : unsigned int {
   kGNUAllocSize = 0,
   kCXX11GnuAllocSize = 1,
-  kC2xGnuAllocSize = 2,
+  kC23GnuAllocSize = 2,
   kSpellingNotCalculated = 15,
 };
 
@@ -1778,9 +1800,9 @@ enum class AlwaysDestroyAttrSpelling : unsigned int {
 enum class AlwaysInlineAttrSpelling : unsigned int {
   kGNUAlwaysInline = 0,
   kCXX11GnuAlwaysInline = 1,
-  kC2xGnuAlwaysInline = 2,
+  kC23GnuAlwaysInline = 2,
   kCXX11ClangAlwaysInline = 3,
-  kC2xClangAlwaysInline = 4,
+  kC23ClangAlwaysInline = 4,
   kKeywordForceinline = 5,
   kSpellingNotCalculated = 15,
 };
@@ -1788,65 +1810,65 @@ enum class AlwaysInlineAttrSpelling : unsigned int {
 enum class AnnotateAttrSpelling : unsigned int {
   kGNUAnnotate = 0,
   kCXX11ClangAnnotate = 1,
-  kC2xClangAnnotate = 2,
+  kC23ClangAnnotate = 2,
   kSpellingNotCalculated = 15,
 };
 
 enum class AnnotateTypeAttrSpelling : unsigned int {
   kCXX11ClangAnnotateType = 0,
-  kC2xClangAnnotateType = 1,
+  kC23ClangAnnotateType = 1,
   kSpellingNotCalculated = 15,
 };
 
 enum class AnyX86InterruptAttrSpelling : unsigned int {
   kGNUInterrupt = 0,
   kCXX11GnuInterrupt = 1,
-  kC2xGnuInterrupt = 2,
+  kC23GnuInterrupt = 2,
   kSpellingNotCalculated = 15,
 };
 
 enum class AnyX86NoCallerSavedRegistersAttrSpelling : unsigned int {
   kGNUNoCallerSavedRegisters = 0,
   kCXX11GnuNoCallerSavedRegisters = 1,
-  kC2xGnuNoCallerSavedRegisters = 2,
+  kC23GnuNoCallerSavedRegisters = 2,
   kSpellingNotCalculated = 15,
 };
 
 enum class AnyX86NoCfCheckAttrSpelling : unsigned int {
   kGNUNocfCheck = 0,
   kCXX11GnuNocfCheck = 1,
-  kC2xGnuNocfCheck = 2,
+  kC23GnuNocfCheck = 2,
   kSpellingNotCalculated = 15,
 };
 
 enum class ArcWeakrefUnavailableAttrSpelling : unsigned int {
   kGNUObjcArcWeakReferenceUnavailable = 0,
   kCXX11ClangObjcArcWeakReferenceUnavailable = 1,
-  kC2xClangObjcArcWeakReferenceUnavailable = 2,
+  kC23ClangObjcArcWeakReferenceUnavailable = 2,
   kSpellingNotCalculated = 15,
 };
 
 enum class ArgumentWithTypeTagAttrSpelling : unsigned int {
   kGNUArgumentWithTypeTag = 0,
   kCXX11ClangArgumentWithTypeTag = 1,
-  kC2xClangArgumentWithTypeTag = 2,
+  kC23ClangArgumentWithTypeTag = 2,
   kGNUPointerWithTypeTag = 3,
   kCXX11ClangPointerWithTypeTag = 4,
-  kC2xClangPointerWithTypeTag = 5,
+  kC23ClangPointerWithTypeTag = 5,
   kSpellingNotCalculated = 15,
 };
 
 enum class ArmBuiltinAliasAttrSpelling : unsigned int {
   kGNUClangArmBuiltinAlias = 0,
   kCXX11ClangClangArmBuiltinAlias = 1,
-  kC2xClangClangArmBuiltinAlias = 2,
+  kC23ClangClangArmBuiltinAlias = 2,
   kSpellingNotCalculated = 15,
 };
 
 enum class ArmMveStrictPolymorphismAttrSpelling : unsigned int {
   kGNUClangArmMveStrictPolymorphism = 0,
   kCXX11ClangClangArmMveStrictPolymorphism = 1,
-  kC2xClangClangArmMveStrictPolymorphism = 2,
+  kC23ClangClangArmMveStrictPolymorphism = 2,
   kSpellingNotCalculated = 15,
 };
 
@@ -1859,7 +1881,7 @@ enum class ArrayTypeArraySizeModifier : unsigned int {
 enum class ArtificialAttrSpelling : unsigned int {
   kGNUArtificial = 0,
   kCXX11GnuArtificial = 1,
-  kC2xGnuArtificial = 2,
+  kC23GnuArtificial = 2,
   kSpellingNotCalculated = 15,
 };
 
@@ -1879,14 +1901,14 @@ enum class AssertCapabilityAttrSpelling : unsigned int {
 enum class AssumeAlignedAttrSpelling : unsigned int {
   kGNUAssumeAligned = 0,
   kCXX11GnuAssumeAligned = 1,
-  kC2xGnuAssumeAligned = 2,
+  kC23GnuAssumeAligned = 2,
   kSpellingNotCalculated = 15,
 };
 
 enum class AssumptionAttrSpelling : unsigned int {
   kGNUAssume = 0,
   kCXX11ClangAssume = 1,
-  kC2xClangAssume = 2,
+  kC23ClangAssume = 2,
   kSpellingNotCalculated = 15,
 };
 
@@ -1948,38 +1970,46 @@ enum class AtomicExprAtomicOp : unsigned int {
   kHipAtomicCompareExchangeStrong = 54,
   kHipAtomicExchange = 55,
   kHipAtomicFetchAdd = 56,
-  kHipAtomicFetchAnd = 57,
-  kHipAtomicFetchOr = 58,
-  kHipAtomicFetchXor = 59,
-  kHipAtomicFetchMin = 60,
-  kHipAtomicFetchMax = 61,
+  kHipAtomicFetchSub = 57,
+  kHipAtomicFetchAnd = 58,
+  kHipAtomicFetchOr = 59,
+  kHipAtomicFetchXor = 60,
+  kHipAtomicFetchMin = 61,
+  kHipAtomicFetchMax = 62,
 };
 
 enum class AvailabilityAttrSpelling : unsigned int {
   kGNUAvailability = 0,
   kCXX11ClangAvailability = 1,
-  kC2xClangAvailability = 2,
+  kC23ClangAvailability = 2,
+  kSpellingNotCalculated = 15,
+};
+
+enum class AvailableOnlyInDefaultEvalMethodAttrSpelling : unsigned int {
+  kGNUAvailableOnlyInDefaultEvalMethod = 0,
+  kCXX11ClangAvailableOnlyInDefaultEvalMethod = 1,
+  kC23ClangAvailableOnlyInDefaultEvalMethod = 2,
   kSpellingNotCalculated = 15,
 };
 
 enum class BPFPreserveAccessIndexAttrSpelling : unsigned int {
   kGNUPreserveAccessIndex = 0,
   kCXX11ClangPreserveAccessIndex = 1,
-  kC2xClangPreserveAccessIndex = 2,
+  kC23ClangPreserveAccessIndex = 2,
   kSpellingNotCalculated = 15,
 };
 
 enum class BTFDeclTagAttrSpelling : unsigned int {
   kGNUBtfDeclarationTag = 0,
   kCXX11ClangBtfDeclarationTag = 1,
-  kC2xClangBtfDeclarationTag = 2,
+  kC23ClangBtfDeclarationTag = 2,
   kSpellingNotCalculated = 15,
 };
 
 enum class BTFTypeTagAttrSpelling : unsigned int {
   kGNUBtfTypeTag = 0,
   kCXX11ClangBtfTypeTag = 1,
-  kC2xClangBtfTypeTag = 2,
+  kC23ClangBtfTypeTag = 2,
   kSpellingNotCalculated = 15,
 };
 
@@ -1990,13 +2020,13 @@ enum class BlocksAttrBlockType : unsigned int {
 enum class BlocksAttrSpelling : unsigned int {
   kGNUBlocks = 0,
   kCXX11ClangBlocks = 1,
-  kC2xClangBlocks = 2,
+  kC23ClangBlocks = 2,
   kSpellingNotCalculated = 15,
 };
 
 enum class BuiltinAliasAttrSpelling : unsigned int {
   kCXX11ClangBuiltinAlias = 0,
-  kC2xClangBuiltinAlias = 1,
+  kC23ClangBuiltinAlias = 1,
   kGNUClangBuiltinAlias = 2,
   kSpellingNotCalculated = 15,
 };
@@ -2099,153 +2129,383 @@ enum class BuiltinTypeKind : unsigned int {
   kSveFloat64x4 = 94,
   kSveBFloat16x4 = 95,
   kSveBoolean = 96,
-  kVectorQuad = 97,
-  kVectorPair = 98,
-  kRvvInt8mf8 = 99,
-  kRvvInt8mf4 = 100,
-  kRvvInt8mf2 = 101,
-  kRvvInt8m1 = 102,
-  kRvvInt8m2 = 103,
-  kRvvInt8m4 = 104,
-  kRvvInt8m8 = 105,
-  kRvvUint8mf8 = 106,
-  kRvvUint8mf4 = 107,
-  kRvvUint8mf2 = 108,
-  kRvvUint8m1 = 109,
-  kRvvUint8m2 = 110,
-  kRvvUint8m4 = 111,
-  kRvvUint8m8 = 112,
-  kRvvInt16mf4 = 113,
-  kRvvInt16mf2 = 114,
-  kRvvInt16m1 = 115,
-  kRvvInt16m2 = 116,
-  kRvvInt16m4 = 117,
-  kRvvInt16m8 = 118,
-  kRvvUint16mf4 = 119,
-  kRvvUint16mf2 = 120,
-  kRvvUint16m1 = 121,
-  kRvvUint16m2 = 122,
-  kRvvUint16m4 = 123,
-  kRvvUint16m8 = 124,
-  kRvvInt32mf2 = 125,
-  kRvvInt32m1 = 126,
-  kRvvInt32m2 = 127,
-  kRvvInt32m4 = 128,
-  kRvvInt32m8 = 129,
-  kRvvUint32mf2 = 130,
-  kRvvUint32m1 = 131,
-  kRvvUint32m2 = 132,
-  kRvvUint32m4 = 133,
-  kRvvUint32m8 = 134,
-  kRvvInt64m1 = 135,
-  kRvvInt64m2 = 136,
-  kRvvInt64m4 = 137,
-  kRvvInt64m8 = 138,
-  kRvvUint64m1 = 139,
-  kRvvUint64m2 = 140,
-  kRvvUint64m4 = 141,
-  kRvvUint64m8 = 142,
-  kRvvFloat16mf4 = 143,
-  kRvvFloat16mf2 = 144,
-  kRvvFloat16m1 = 145,
-  kRvvFloat16m2 = 146,
-  kRvvFloat16m4 = 147,
-  kRvvFloat16m8 = 148,
-  kRvvFloat32mf2 = 149,
-  kRvvFloat32m1 = 150,
-  kRvvFloat32m2 = 151,
-  kRvvFloat32m4 = 152,
-  kRvvFloat32m8 = 153,
-  kRvvFloat64m1 = 154,
-  kRvvFloat64m2 = 155,
-  kRvvFloat64m4 = 156,
-  kRvvFloat64m8 = 157,
-  kRvvBool1 = 158,
-  kRvvBool2 = 159,
-  kRvvBool4 = 160,
-  kRvvBool8 = 161,
-  kRvvBool16 = 162,
-  kRvvBool32 = 163,
-  kRvvBool64 = 164,
-  kVoid = 165,
-  kBoolean = 166,
-  kCharacterU = 167,
-  kUChar = 168,
-  kWCharU = 169,
-  kChar8 = 170,
-  kChar16 = 171,
-  kChar32 = 172,
-  kUShort = 173,
-  kUInt = 174,
-  kULong = 175,
-  kULongLong = 176,
-  kUInt128 = 177,
-  kCharacterS = 178,
-  kSChar = 179,
-  kWCharS = 180,
-  kShort = 181,
-  kInt = 182,
-  kLong = 183,
-  kLongLong = 184,
-  kInt128 = 185,
-  kShortAccum = 186,
-  kAccum = 187,
-  kLongAccum = 188,
-  kUShortAccum = 189,
-  kUAccum = 190,
-  kULongAccum = 191,
-  kShortFract = 192,
-  kFract = 193,
-  kLongFract = 194,
-  kUShortFract = 195,
-  kUFract = 196,
-  kULongFract = 197,
-  kSatShortAccum = 198,
-  kSatAccum = 199,
-  kSatLongAccum = 200,
-  kSatUShortAccum = 201,
-  kSatUAccum = 202,
-  kSatULongAccum = 203,
-  kSatShortFract = 204,
-  kSatFract = 205,
-  kSatLongFract = 206,
-  kSatUShortFract = 207,
-  kSatUFract = 208,
-  kSatULongFract = 209,
-  kHalf = 210,
-  kFloat = 211,
-  kDouble = 212,
-  kLongDouble = 213,
-  kFloat16 = 214,
-  kBFloat16 = 215,
-  kFloat128 = 216,
-  kIbm128 = 217,
-  kNullPointer = 218,
-  kObjCId = 219,
-  kObjCClass = 220,
-  kObjCSel = 221,
-  kOCLSampler = 222,
-  kOCLEvent = 223,
-  kOCLClkEvent = 224,
-  kOCLQueue = 225,
-  kOCLReserveID = 226,
-  kDependent = 227,
-  kOverload = 228,
-  kBoundMember = 229,
-  kPseudoObject = 230,
-  kUnknownAny = 231,
-  kBuiltinFn = 232,
-  kARCUnbridgedCast = 233,
-  kIncompleteMatrixIndex = 234,
-  kOMPArraySection = 235,
-  kOMPArrayShaping = 236,
-  kOMPIterator = 237,
+  kSveBoolx2 = 97,
+  kSveBoolx4 = 98,
+  kSveCount = 99,
+  kVectorQuad = 100,
+  kVectorPair = 101,
+  kRvvInt8mf8 = 102,
+  kRvvInt8mf4 = 103,
+  kRvvInt8mf2 = 104,
+  kRvvInt8m1 = 105,
+  kRvvInt8m2 = 106,
+  kRvvInt8m4 = 107,
+  kRvvInt8m8 = 108,
+  kRvvUint8mf8 = 109,
+  kRvvUint8mf4 = 110,
+  kRvvUint8mf2 = 111,
+  kRvvUint8m1 = 112,
+  kRvvUint8m2 = 113,
+  kRvvUint8m4 = 114,
+  kRvvUint8m8 = 115,
+  kRvvInt16mf4 = 116,
+  kRvvInt16mf2 = 117,
+  kRvvInt16m1 = 118,
+  kRvvInt16m2 = 119,
+  kRvvInt16m4 = 120,
+  kRvvInt16m8 = 121,
+  kRvvUint16mf4 = 122,
+  kRvvUint16mf2 = 123,
+  kRvvUint16m1 = 124,
+  kRvvUint16m2 = 125,
+  kRvvUint16m4 = 126,
+  kRvvUint16m8 = 127,
+  kRvvInt32mf2 = 128,
+  kRvvInt32m1 = 129,
+  kRvvInt32m2 = 130,
+  kRvvInt32m4 = 131,
+  kRvvInt32m8 = 132,
+  kRvvUint32mf2 = 133,
+  kRvvUint32m1 = 134,
+  kRvvUint32m2 = 135,
+  kRvvUint32m4 = 136,
+  kRvvUint32m8 = 137,
+  kRvvInt64m1 = 138,
+  kRvvInt64m2 = 139,
+  kRvvInt64m4 = 140,
+  kRvvInt64m8 = 141,
+  kRvvUint64m1 = 142,
+  kRvvUint64m2 = 143,
+  kRvvUint64m4 = 144,
+  kRvvUint64m8 = 145,
+  kRvvFloat16mf4 = 146,
+  kRvvFloat16mf2 = 147,
+  kRvvFloat16m1 = 148,
+  kRvvFloat16m2 = 149,
+  kRvvFloat16m4 = 150,
+  kRvvFloat16m8 = 151,
+  kRvvFloat32mf2 = 152,
+  kRvvFloat32m1 = 153,
+  kRvvFloat32m2 = 154,
+  kRvvFloat32m4 = 155,
+  kRvvFloat32m8 = 156,
+  kRvvFloat64m1 = 157,
+  kRvvFloat64m2 = 158,
+  kRvvFloat64m4 = 159,
+  kRvvFloat64m8 = 160,
+  kRvvBool1 = 161,
+  kRvvBool2 = 162,
+  kRvvBool4 = 163,
+  kRvvBool8 = 164,
+  kRvvBool16 = 165,
+  kRvvBool32 = 166,
+  kRvvBool64 = 167,
+  kRvvInt8mf8x2 = 168,
+  kRvvInt8mf8x3 = 169,
+  kRvvInt8mf8x4 = 170,
+  kRvvInt8mf8x5 = 171,
+  kRvvInt8mf8x6 = 172,
+  kRvvInt8mf8x7 = 173,
+  kRvvInt8mf8x8 = 174,
+  kRvvInt8mf4x2 = 175,
+  kRvvInt8mf4x3 = 176,
+  kRvvInt8mf4x4 = 177,
+  kRvvInt8mf4x5 = 178,
+  kRvvInt8mf4x6 = 179,
+  kRvvInt8mf4x7 = 180,
+  kRvvInt8mf4x8 = 181,
+  kRvvInt8mf2x2 = 182,
+  kRvvInt8mf2x3 = 183,
+  kRvvInt8mf2x4 = 184,
+  kRvvInt8mf2x5 = 185,
+  kRvvInt8mf2x6 = 186,
+  kRvvInt8mf2x7 = 187,
+  kRvvInt8mf2x8 = 188,
+  kRvvInt8m1x2 = 189,
+  kRvvInt8m1x3 = 190,
+  kRvvInt8m1x4 = 191,
+  kRvvInt8m1x5 = 192,
+  kRvvInt8m1x6 = 193,
+  kRvvInt8m1x7 = 194,
+  kRvvInt8m1x8 = 195,
+  kRvvInt8m2x2 = 196,
+  kRvvInt8m2x3 = 197,
+  kRvvInt8m2x4 = 198,
+  kRvvInt8m4x2 = 199,
+  kRvvUint8mf8x2 = 200,
+  kRvvUint8mf8x3 = 201,
+  kRvvUint8mf8x4 = 202,
+  kRvvUint8mf8x5 = 203,
+  kRvvUint8mf8x6 = 204,
+  kRvvUint8mf8x7 = 205,
+  kRvvUint8mf8x8 = 206,
+  kRvvUint8mf4x2 = 207,
+  kRvvUint8mf4x3 = 208,
+  kRvvUint8mf4x4 = 209,
+  kRvvUint8mf4x5 = 210,
+  kRvvUint8mf4x6 = 211,
+  kRvvUint8mf4x7 = 212,
+  kRvvUint8mf4x8 = 213,
+  kRvvUint8mf2x2 = 214,
+  kRvvUint8mf2x3 = 215,
+  kRvvUint8mf2x4 = 216,
+  kRvvUint8mf2x5 = 217,
+  kRvvUint8mf2x6 = 218,
+  kRvvUint8mf2x7 = 219,
+  kRvvUint8mf2x8 = 220,
+  kRvvUint8m1x2 = 221,
+  kRvvUint8m1x3 = 222,
+  kRvvUint8m1x4 = 223,
+  kRvvUint8m1x5 = 224,
+  kRvvUint8m1x6 = 225,
+  kRvvUint8m1x7 = 226,
+  kRvvUint8m1x8 = 227,
+  kRvvUint8m2x2 = 228,
+  kRvvUint8m2x3 = 229,
+  kRvvUint8m2x4 = 230,
+  kRvvUint8m4x2 = 231,
+  kRvvInt16mf4x2 = 232,
+  kRvvInt16mf4x3 = 233,
+  kRvvInt16mf4x4 = 234,
+  kRvvInt16mf4x5 = 235,
+  kRvvInt16mf4x6 = 236,
+  kRvvInt16mf4x7 = 237,
+  kRvvInt16mf4x8 = 238,
+  kRvvInt16mf2x2 = 239,
+  kRvvInt16mf2x3 = 240,
+  kRvvInt16mf2x4 = 241,
+  kRvvInt16mf2x5 = 242,
+  kRvvInt16mf2x6 = 243,
+  kRvvInt16mf2x7 = 244,
+  kRvvInt16mf2x8 = 245,
+  kRvvInt16m1x2 = 246,
+  kRvvInt16m1x3 = 247,
+  kRvvInt16m1x4 = 248,
+  kRvvInt16m1x5 = 249,
+  kRvvInt16m1x6 = 250,
+  kRvvInt16m1x7 = 251,
+  kRvvInt16m1x8 = 252,
+  kRvvInt16m2x2 = 253,
+  kRvvInt16m2x3 = 254,
+  kRvvInt16m2x4 = 255,
+  kRvvInt16m4x2 = 256,
+  kRvvUint16mf4x2 = 257,
+  kRvvUint16mf4x3 = 258,
+  kRvvUint16mf4x4 = 259,
+  kRvvUint16mf4x5 = 260,
+  kRvvUint16mf4x6 = 261,
+  kRvvUint16mf4x7 = 262,
+  kRvvUint16mf4x8 = 263,
+  kRvvUint16mf2x2 = 264,
+  kRvvUint16mf2x3 = 265,
+  kRvvUint16mf2x4 = 266,
+  kRvvUint16mf2x5 = 267,
+  kRvvUint16mf2x6 = 268,
+  kRvvUint16mf2x7 = 269,
+  kRvvUint16mf2x8 = 270,
+  kRvvUint16m1x2 = 271,
+  kRvvUint16m1x3 = 272,
+  kRvvUint16m1x4 = 273,
+  kRvvUint16m1x5 = 274,
+  kRvvUint16m1x6 = 275,
+  kRvvUint16m1x7 = 276,
+  kRvvUint16m1x8 = 277,
+  kRvvUint16m2x2 = 278,
+  kRvvUint16m2x3 = 279,
+  kRvvUint16m2x4 = 280,
+  kRvvUint16m4x2 = 281,
+  kRvvInt32mf2x2 = 282,
+  kRvvInt32mf2x3 = 283,
+  kRvvInt32mf2x4 = 284,
+  kRvvInt32mf2x5 = 285,
+  kRvvInt32mf2x6 = 286,
+  kRvvInt32mf2x7 = 287,
+  kRvvInt32mf2x8 = 288,
+  kRvvInt32m1x2 = 289,
+  kRvvInt32m1x3 = 290,
+  kRvvInt32m1x4 = 291,
+  kRvvInt32m1x5 = 292,
+  kRvvInt32m1x6 = 293,
+  kRvvInt32m1x7 = 294,
+  kRvvInt32m1x8 = 295,
+  kRvvInt32m2x2 = 296,
+  kRvvInt32m2x3 = 297,
+  kRvvInt32m2x4 = 298,
+  kRvvInt32m4x2 = 299,
+  kRvvUint32mf2x2 = 300,
+  kRvvUint32mf2x3 = 301,
+  kRvvUint32mf2x4 = 302,
+  kRvvUint32mf2x5 = 303,
+  kRvvUint32mf2x6 = 304,
+  kRvvUint32mf2x7 = 305,
+  kRvvUint32mf2x8 = 306,
+  kRvvUint32m1x2 = 307,
+  kRvvUint32m1x3 = 308,
+  kRvvUint32m1x4 = 309,
+  kRvvUint32m1x5 = 310,
+  kRvvUint32m1x6 = 311,
+  kRvvUint32m1x7 = 312,
+  kRvvUint32m1x8 = 313,
+  kRvvUint32m2x2 = 314,
+  kRvvUint32m2x3 = 315,
+  kRvvUint32m2x4 = 316,
+  kRvvUint32m4x2 = 317,
+  kRvvInt64m1x2 = 318,
+  kRvvInt64m1x3 = 319,
+  kRvvInt64m1x4 = 320,
+  kRvvInt64m1x5 = 321,
+  kRvvInt64m1x6 = 322,
+  kRvvInt64m1x7 = 323,
+  kRvvInt64m1x8 = 324,
+  kRvvInt64m2x2 = 325,
+  kRvvInt64m2x3 = 326,
+  kRvvInt64m2x4 = 327,
+  kRvvInt64m4x2 = 328,
+  kRvvUint64m1x2 = 329,
+  kRvvUint64m1x3 = 330,
+  kRvvUint64m1x4 = 331,
+  kRvvUint64m1x5 = 332,
+  kRvvUint64m1x6 = 333,
+  kRvvUint64m1x7 = 334,
+  kRvvUint64m1x8 = 335,
+  kRvvUint64m2x2 = 336,
+  kRvvUint64m2x3 = 337,
+  kRvvUint64m2x4 = 338,
+  kRvvUint64m4x2 = 339,
+  kRvvFloat16mf4x2 = 340,
+  kRvvFloat16mf4x3 = 341,
+  kRvvFloat16mf4x4 = 342,
+  kRvvFloat16mf4x5 = 343,
+  kRvvFloat16mf4x6 = 344,
+  kRvvFloat16mf4x7 = 345,
+  kRvvFloat16mf4x8 = 346,
+  kRvvFloat16mf2x2 = 347,
+  kRvvFloat16mf2x3 = 348,
+  kRvvFloat16mf2x4 = 349,
+  kRvvFloat16mf2x5 = 350,
+  kRvvFloat16mf2x6 = 351,
+  kRvvFloat16mf2x7 = 352,
+  kRvvFloat16mf2x8 = 353,
+  kRvvFloat16m1x2 = 354,
+  kRvvFloat16m1x3 = 355,
+  kRvvFloat16m1x4 = 356,
+  kRvvFloat16m1x5 = 357,
+  kRvvFloat16m1x6 = 358,
+  kRvvFloat16m1x7 = 359,
+  kRvvFloat16m1x8 = 360,
+  kRvvFloat16m2x2 = 361,
+  kRvvFloat16m2x3 = 362,
+  kRvvFloat16m2x4 = 363,
+  kRvvFloat16m4x2 = 364,
+  kRvvFloat32mf2x2 = 365,
+  kRvvFloat32mf2x3 = 366,
+  kRvvFloat32mf2x4 = 367,
+  kRvvFloat32mf2x5 = 368,
+  kRvvFloat32mf2x6 = 369,
+  kRvvFloat32mf2x7 = 370,
+  kRvvFloat32mf2x8 = 371,
+  kRvvFloat32m1x2 = 372,
+  kRvvFloat32m1x3 = 373,
+  kRvvFloat32m1x4 = 374,
+  kRvvFloat32m1x5 = 375,
+  kRvvFloat32m1x6 = 376,
+  kRvvFloat32m1x7 = 377,
+  kRvvFloat32m1x8 = 378,
+  kRvvFloat32m2x2 = 379,
+  kRvvFloat32m2x3 = 380,
+  kRvvFloat32m2x4 = 381,
+  kRvvFloat32m4x2 = 382,
+  kRvvFloat64m1x2 = 383,
+  kRvvFloat64m1x3 = 384,
+  kRvvFloat64m1x4 = 385,
+  kRvvFloat64m1x5 = 386,
+  kRvvFloat64m1x6 = 387,
+  kRvvFloat64m1x7 = 388,
+  kRvvFloat64m1x8 = 389,
+  kRvvFloat64m2x2 = 390,
+  kRvvFloat64m2x3 = 391,
+  kRvvFloat64m2x4 = 392,
+  kRvvFloat64m4x2 = 393,
+  kWasmExternReference = 394,
+  kVoid = 395,
+  kBoolean = 396,
+  kCharacterU = 397,
+  kUChar = 398,
+  kWCharU = 399,
+  kChar8 = 400,
+  kChar16 = 401,
+  kChar32 = 402,
+  kUShort = 403,
+  kUInt = 404,
+  kULong = 405,
+  kULongLong = 406,
+  kUInt128 = 407,
+  kCharacterS = 408,
+  kSChar = 409,
+  kWCharS = 410,
+  kShort = 411,
+  kInt = 412,
+  kLong = 413,
+  kLongLong = 414,
+  kInt128 = 415,
+  kShortAccum = 416,
+  kAccum = 417,
+  kLongAccum = 418,
+  kUShortAccum = 419,
+  kUAccum = 420,
+  kULongAccum = 421,
+  kShortFract = 422,
+  kFract = 423,
+  kLongFract = 424,
+  kUShortFract = 425,
+  kUFract = 426,
+  kULongFract = 427,
+  kSatShortAccum = 428,
+  kSatAccum = 429,
+  kSatLongAccum = 430,
+  kSatUShortAccum = 431,
+  kSatUAccum = 432,
+  kSatULongAccum = 433,
+  kSatShortFract = 434,
+  kSatFract = 435,
+  kSatLongFract = 436,
+  kSatUShortFract = 437,
+  kSatUFract = 438,
+  kSatULongFract = 439,
+  kHalf = 440,
+  kFloat = 441,
+  kDouble = 442,
+  kLongDouble = 443,
+  kFloat16 = 444,
+  kBFloat16 = 445,
+  kFloat128 = 446,
+  kIbm128 = 447,
+  kNullPointer = 448,
+  kObjCId = 449,
+  kObjCClass = 450,
+  kObjCSel = 451,
+  kOCLSampler = 452,
+  kOCLEvent = 453,
+  kOCLClkEvent = 454,
+  kOCLQueue = 455,
+  kOCLReserveID = 456,
+  kDependent = 457,
+  kOverload = 458,
+  kBoundMember = 459,
+  kPseudoObject = 460,
+  kUnknownAny = 461,
+  kBuiltinFn = 462,
+  kARCUnbridgedCast = 463,
+  kIncompleteMatrixIndex = 464,
+  kOMPArraySection = 465,
+  kOMPArrayShaping = 466,
+  kOMPIterator = 467,
 };
 
 enum class CDeclAttrSpelling : unsigned int {
   kGNUCdecl = 0,
   kCXX11GnuCdecl = 1,
-  kC2xGnuCdecl = 2,
+  kC23GnuCdecl = 2,
   kKeywordCdecl = 3,
   kSpellingNotCalculated = 15,
 };
@@ -2253,14 +2513,14 @@ enum class CDeclAttrSpelling : unsigned int {
 enum class CFAuditedTransferAttrSpelling : unsigned int {
   kGNUCfAuditedTransfer = 0,
   kCXX11ClangCfAuditedTransfer = 1,
-  kC2xClangCfAuditedTransfer = 2,
+  kC23ClangCfAuditedTransfer = 2,
   kSpellingNotCalculated = 15,
 };
 
 enum class CFConsumedAttrSpelling : unsigned int {
   kGNUCfConsumed = 0,
   kCXX11ClangCfConsumed = 1,
-  kC2xClangCfConsumed = 2,
+  kC23ClangCfConsumed = 2,
   kSpellingNotCalculated = 15,
 };
 
@@ -2272,42 +2532,42 @@ enum class CFGuardAttrSpelling : unsigned int {
   kDeclspecGuard = 0,
   kGNUGuard = 1,
   kCXX11ClangGuard = 2,
-  kC2xClangGuard = 3,
+  kC23ClangGuard = 3,
   kSpellingNotCalculated = 15,
 };
 
 enum class CFICanonicalJumpTableAttrSpelling : unsigned int {
   kGNUCfiCanonicalJumpTable = 0,
   kCXX11ClangCfiCanonicalJumpTable = 1,
-  kC2xClangCfiCanonicalJumpTable = 2,
+  kC23ClangCfiCanonicalJumpTable = 2,
   kSpellingNotCalculated = 15,
 };
 
 enum class CFReturnsNotRetainedAttrSpelling : unsigned int {
   kGNUCfReturnsNotRetained = 0,
   kCXX11ClangCfReturnsNotRetained = 1,
-  kC2xClangCfReturnsNotRetained = 2,
+  kC23ClangCfReturnsNotRetained = 2,
   kSpellingNotCalculated = 15,
 };
 
 enum class CFReturnsRetainedAttrSpelling : unsigned int {
   kGNUCfReturnsRetained = 0,
   kCXX11ClangCfReturnsRetained = 1,
-  kC2xClangCfReturnsRetained = 2,
+  kC23ClangCfReturnsRetained = 2,
   kSpellingNotCalculated = 15,
 };
 
 enum class CFUnknownTransferAttrSpelling : unsigned int {
   kGNUCfUnknownTransfer = 0,
   kCXX11ClangCfUnknownTransfer = 1,
-  kC2xClangCfUnknownTransfer = 2,
+  kC23ClangCfUnknownTransfer = 2,
   kSpellingNotCalculated = 15,
 };
 
 enum class CPUDispatchAttrSpelling : unsigned int {
   kGNUCpuDispatch = 0,
   kCXX11ClangCpuDispatch = 1,
-  kC2xClangCpuDispatch = 2,
+  kC23ClangCpuDispatch = 2,
   kDeclspecCpuDispatch = 3,
   kSpellingNotCalculated = 15,
 };
@@ -2315,7 +2575,7 @@ enum class CPUDispatchAttrSpelling : unsigned int {
 enum class CPUSpecificAttrSpelling : unsigned int {
   kGNUCpuSpecific = 0,
   kCXX11ClangCpuSpecific = 1,
-  kC2xClangCpuSpecific = 2,
+  kC23ClangCpuSpecific = 2,
   kDeclspecCpuSpecific = 3,
   kSpellingNotCalculated = 15,
 };
@@ -2370,8 +2630,8 @@ enum class CUDASharedAttrSpelling : unsigned int {
 
 enum class CXX11NoReturnAttrSpelling : unsigned int {
   kCXX11Noreturn = 0,
-  kC2xnoreturn = 1,
-  kC2xNoreturn = 2,
+  kC23Noreturn = 1,
+  kC23_Noreturn = 2,
   kSpellingNotCalculated = 15,
 };
 
@@ -2414,14 +2674,14 @@ enum class CallableWhenAttrSpelling : unsigned int {
 enum class CallbackAttrSpelling : unsigned int {
   kGNUCallback = 0,
   kCXX11ClangCallback = 1,
-  kC2xClangCallback = 2,
+  kC23ClangCallback = 2,
   kSpellingNotCalculated = 15,
 };
 
 enum class CalledOnceAttrSpelling : unsigned int {
   kGNUCalledOnce = 0,
   kCXX11ClangCalledOnce = 1,
-  kC2xClangCalledOnce = 2,
+  kC23ClangCalledOnce = 2,
   kSpellingNotCalculated = 15,
 };
 
@@ -2457,28 +2717,28 @@ enum class CharacterLiteralCharacterKind : unsigned int {
 enum class CleanupAttrSpelling : unsigned int {
   kGNUCleanup = 0,
   kCXX11GnuCleanup = 1,
-  kC2xGnuCleanup = 2,
+  kC23GnuCleanup = 2,
   kSpellingNotCalculated = 15,
 };
 
 enum class ColdAttrSpelling : unsigned int {
   kGNUCold = 0,
   kCXX11GnuCold = 1,
-  kC2xGnuCold = 2,
+  kC23GnuCold = 2,
   kSpellingNotCalculated = 15,
 };
 
 enum class CommonAttrSpelling : unsigned int {
   kGNUCommon = 0,
   kCXX11GnuCommon = 1,
-  kC2xGnuCommon = 2,
+  kC23GnuCommon = 2,
   kSpellingNotCalculated = 15,
 };
 
 enum class ConstAttrSpelling : unsigned int {
   kGNUConst = 0,
   kCXX11GnuConst = 1,
-  kC2xGnuConst = 2,
+  kC23GnuConst = 2,
   kSpellingNotCalculated = 15,
 };
 
@@ -2498,7 +2758,7 @@ enum class ConstantExprResultStorageKind : unsigned int {
 enum class ConstructorAttrSpelling : unsigned int {
   kGNUConstructor = 0,
   kCXX11GnuConstructor = 1,
-  kC2xGnuConstructor = 2,
+  kC23GnuConstructor = 2,
   kSpellingNotCalculated = 15,
 };
 
@@ -2529,7 +2789,7 @@ enum class ConsumableSetOnReadAttrSpelling : unsigned int {
 enum class ConvergentAttrSpelling : unsigned int {
   kGNUConvergent = 0,
   kCXX11ClangConvergent = 1,
-  kC2xClangConvergent = 2,
+  kC23ClangConvergent = 2,
   kSpellingNotCalculated = 15,
 };
 
@@ -2537,7 +2797,7 @@ enum class DLLExportAttrSpelling : unsigned int {
   kDeclspecDllexport = 0,
   kGNUDllexport = 1,
   kCXX11GnuDllexport = 2,
-  kC2xGnuDllexport = 3,
+  kC23GnuDllexport = 3,
   kSpellingNotCalculated = 15,
 };
 
@@ -2545,7 +2805,7 @@ enum class DLLImportAttrSpelling : unsigned int {
   kDeclspecDllimport = 0,
   kGNUDllimport = 1,
   kCXX11GnuDllimport = 2,
-  kC2xGnuDllimport = 3,
+  kC23GnuDllimport = 3,
   kSpellingNotCalculated = 15,
 };
 
@@ -2594,24 +2854,24 @@ enum class DeclObjCDeclQualifier : unsigned int {
 enum class DeprecatedAttrSpelling : unsigned int {
   kGNUDeprecated = 0,
   kCXX11GnuDeprecated = 1,
-  kC2xGnuDeprecated = 2,
+  kC23GnuDeprecated = 2,
   kDeclspecDeprecated = 3,
   kCXX11Deprecated = 4,
-  kC2xDeprecated = 5,
+  kC23Deprecated = 5,
   kSpellingNotCalculated = 15,
 };
 
 enum class DestructorAttrSpelling : unsigned int {
   kGNUDestructor = 0,
   kCXX11GnuDestructor = 1,
-  kC2xGnuDestructor = 2,
+  kC23GnuDestructor = 2,
   kSpellingNotCalculated = 15,
 };
 
 enum class DiagnoseAsBuiltinAttrSpelling : unsigned int {
   kGNUDiagnoseAsBuiltin = 0,
   kCXX11ClangDiagnoseAsBuiltin = 1,
-  kC2xClangDiagnoseAsBuiltin = 2,
+  kC23ClangDiagnoseAsBuiltin = 2,
   kSpellingNotCalculated = 15,
 };
 
@@ -2623,28 +2883,28 @@ enum class DiagnoseIfAttrDiagnosticType : unsigned int {
 enum class DisableSanitizerInstrumentationAttrSpelling : unsigned int {
   kGNUDisableSanitizerInstrumentation = 0,
   kCXX11ClangDisableSanitizerInstrumentation = 1,
-  kC2xClangDisableSanitizerInstrumentation = 2,
+  kC23ClangDisableSanitizerInstrumentation = 2,
   kSpellingNotCalculated = 15,
 };
 
 enum class DisableTailCallsAttrSpelling : unsigned int {
   kGNUDisableTailCalls = 0,
   kCXX11ClangDisableTailCalls = 1,
-  kC2xClangDisableTailCalls = 2,
+  kC23ClangDisableTailCalls = 2,
   kSpellingNotCalculated = 15,
 };
 
 enum class EnforceTCBAttrSpelling : unsigned int {
   kGNUEnforceTcb = 0,
   kCXX11ClangEnforceTcb = 1,
-  kC2xClangEnforceTcb = 2,
+  kC23ClangEnforceTcb = 2,
   kSpellingNotCalculated = 15,
 };
 
 enum class EnforceTCBLeafAttrSpelling : unsigned int {
   kGNUEnforceTcbLeaf = 0,
   kCXX11ClangEnforceTcbLeaf = 1,
-  kC2xClangEnforceTcbLeaf = 2,
+  kC23ClangEnforceTcbLeaf = 2,
   kSpellingNotCalculated = 15,
 };
 
@@ -2656,24 +2916,24 @@ enum class EnumExtensibilityAttrKind : unsigned int {
 enum class EnumExtensibilityAttrSpelling : unsigned int {
   kGNUEnumExtensibility = 0,
   kCXX11ClangEnumExtensibility = 1,
-  kC2xClangEnumExtensibility = 2,
+  kC23ClangEnumExtensibility = 2,
   kSpellingNotCalculated = 15,
 };
 
 enum class ErrorAttrSpelling : unsigned int {
   kGNUError = 0,
   kCXX11GnuError = 1,
-  kC2xGnuError = 2,
+  kC23GnuError = 2,
   kGNUWarning = 3,
   kCXX11GnuWarning = 4,
-  kC2xGnuWarning = 5,
+  kC23GnuWarning = 5,
   kSpellingNotCalculated = 15,
 };
 
 enum class ExcludeFromExplicitInstantiationAttrSpelling : unsigned int {
   kGNUExcludeFromExplicitInstantiation = 0,
   kCXX11ClangExcludeFromExplicitInstantiation = 1,
-  kC2xClangExcludeFromExplicitInstantiation = 2,
+  kC23ClangExcludeFromExplicitInstantiation = 2,
   kSpellingNotCalculated = 15,
 };
 
@@ -2740,24 +3000,24 @@ enum class ExprisModifiableLvalueResult : unsigned int {
 enum class ExternalSourceSymbolAttrSpelling : unsigned int {
   kGNUExternalSourceSymbol = 0,
   kCXX11ClangExternalSourceSymbol = 1,
-  kC2xClangExternalSourceSymbol = 2,
+  kC23ClangExternalSourceSymbol = 2,
   kSpellingNotCalculated = 15,
 };
 
 enum class FallThroughAttrSpelling : unsigned int {
   kCXX11Fallthrough = 0,
-  kC2xFallthrough = 1,
+  kC23Fallthrough = 1,
   kCXX11ClangFallthrough = 2,
   kGNUFallthrough = 3,
   kCXX11GnuFallthrough = 4,
-  kC2xGnuFallthrough = 5,
+  kC23GnuFallthrough = 5,
   kSpellingNotCalculated = 15,
 };
 
 enum class FastCallAttrSpelling : unsigned int {
   kGNUFastcall = 0,
   kCXX11GnuFastcall = 1,
-  kC2xGnuFastcall = 2,
+  kC23GnuFastcall = 2,
   kKeywordFastcall = 3,
   kSpellingNotCalculated = 15,
 };
@@ -2771,28 +3031,28 @@ enum class FinalAttrSpelling : unsigned int {
 enum class FlagEnumAttrSpelling : unsigned int {
   kGNUFlagEnum = 0,
   kCXX11ClangFlagEnum = 1,
-  kC2xClangFlagEnum = 2,
+  kC23ClangFlagEnum = 2,
   kSpellingNotCalculated = 15,
 };
 
 enum class FlattenAttrSpelling : unsigned int {
   kGNUFlatten = 0,
   kCXX11GnuFlatten = 1,
-  kC2xGnuFlatten = 2,
+  kC23GnuFlatten = 2,
   kSpellingNotCalculated = 15,
 };
 
 enum class FormatArgAttrSpelling : unsigned int {
   kGNUFormatArgument = 0,
   kCXX11GnuFormatArgument = 1,
-  kC2xGnuFormatArgument = 2,
+  kC23GnuFormatArgument = 2,
   kSpellingNotCalculated = 15,
 };
 
 enum class FormatAttrSpelling : unsigned int {
   kGNUFormat = 0,
   kCXX11GnuFormat = 1,
-  kC2xGnuFormat = 2,
+  kC23GnuFormat = 2,
   kSpellingNotCalculated = 15,
 };
 
@@ -2813,14 +3073,23 @@ enum class FunctionReturnThunksAttrKind : unsigned int {
 enum class FunctionReturnThunksAttrSpelling : unsigned int {
   kGNUFunctionReturn = 0,
   kCXX11GnuFunctionReturn = 1,
-  kC2xGnuFunctionReturn = 2,
+  kC23GnuFunctionReturn = 2,
   kSpellingNotCalculated = 15,
+};
+
+enum class FunctionTypeAArch64SMETypeAttributes : unsigned int {
+  kSMENormalFunction = 0,
+  kSMEPStateSMEnabledMask = 1,
+  kSMEPStateSMCompatibleMask = 2,
+  kSMEPStateZASharedMask = 4,
+  kSMEPStateZAPreservedMask = 8,
+  kSMEAttributeMask = 63,
 };
 
 enum class GNUInlineAttrSpelling : unsigned int {
   kGNUGnuInline = 0,
   kCXX11GnuGnuInline = 1,
-  kC2xGnuGnuInline = 2,
+  kC23GnuGnuInline = 2,
   kSpellingNotCalculated = 15,
 };
 
@@ -2871,49 +3140,48 @@ enum class HLSLShaderAttrShaderType : unsigned int {
   kHull = 3,
   kDomain = 4,
   kCompute = 5,
-  kLibrary = 6,
-  kRayGeneration = 7,
-  kIntersection = 8,
-  kAnyHit = 9,
-  kClosestHit = 10,
-  kMiss = 11,
-  kCallable = 12,
-  kMesh = 13,
-  kAmplification = 14,
+  kRayGeneration = 6,
+  kIntersection = 7,
+  kAnyHit = 8,
+  kClosestHit = 9,
+  kMiss = 10,
+  kCallable = 11,
+  kMesh = 12,
+  kAmplification = 13,
 };
 
 enum class HotAttrSpelling : unsigned int {
   kGNUHot = 0,
   kCXX11GnuHot = 1,
-  kC2xGnuHot = 2,
+  kC23GnuHot = 2,
   kSpellingNotCalculated = 15,
 };
 
 enum class IBActionAttrSpelling : unsigned int {
   kGNUIbaction = 0,
   kCXX11ClangIbaction = 1,
-  kC2xClangIbaction = 2,
+  kC23ClangIbaction = 2,
   kSpellingNotCalculated = 15,
 };
 
 enum class IBOutletAttrSpelling : unsigned int {
   kGNUIboutlet = 0,
   kCXX11ClangIboutlet = 1,
-  kC2xClangIboutlet = 2,
+  kC23ClangIboutlet = 2,
   kSpellingNotCalculated = 15,
 };
 
 enum class IBOutletCollectionAttrSpelling : unsigned int {
   kGNUIboutletcollection = 0,
   kCXX11ClangIboutletcollection = 1,
-  kC2xClangIboutletcollection = 2,
+  kC23ClangIboutletcollection = 2,
   kSpellingNotCalculated = 15,
 };
 
 enum class IFuncAttrSpelling : unsigned int {
   kGNUIfunc = 0,
   kCXX11GnuIfunc = 1,
-  kC2xGnuIfunc = 2,
+  kC23GnuIfunc = 2,
   kSpellingNotCalculated = 15,
 };
 
@@ -2946,21 +3214,21 @@ enum class IntelOclBiccAttrSpelling : unsigned int {
 enum class InternalLinkageAttrSpelling : unsigned int {
   kGNUInternalLinkage = 0,
   kCXX11ClangInternalLinkage = 1,
-  kC2xClangInternalLinkage = 2,
+  kC23ClangInternalLinkage = 2,
   kSpellingNotCalculated = 15,
 };
 
 enum class LTOVisibilityPublicAttrSpelling : unsigned int {
   kGNULtoVisibilityPublic = 0,
   kCXX11ClangLtoVisibilityPublic = 1,
-  kC2xClangLtoVisibilityPublic = 2,
+  kC23ClangLtoVisibilityPublic = 2,
   kSpellingNotCalculated = 15,
 };
 
 enum class LeafAttrSpelling : unsigned int {
   kGNULeaf = 0,
   kCXX11GnuLeaf = 1,
-  kC2xGnuLeaf = 2,
+  kC23GnuLeaf = 2,
   kSpellingNotCalculated = 15,
 };
 
@@ -2972,7 +3240,7 @@ enum class LifetimeBoundAttrSpelling : unsigned int {
 
 enum class LikelyAttrSpelling : unsigned int {
   kCXX11Likely = 0,
-  kC2xClangLikely = 1,
+  kC23ClangLikely = 1,
   kSpellingNotCalculated = 15,
 };
 
@@ -2984,7 +3252,7 @@ enum class LinkageSpecDeclLanguageIDs : unsigned int {
 enum class LoaderUninitializedAttrSpelling : unsigned int {
   kGNULoaderUninitialized = 0,
   kCXX11ClangLoaderUninitialized = 1,
-  kC2xClangLoaderUninitialized = 2,
+  kC23ClangLoaderUninitialized = 2,
   kSpellingNotCalculated = 15,
 };
 
@@ -3025,14 +3293,14 @@ enum class LoopHintAttrSpelling : unsigned int {
 enum class MIGServerRoutineAttrSpelling : unsigned int {
   kGNUMigServerRoutine = 0,
   kCXX11ClangMigServerRoutine = 1,
-  kC2xClangMigServerRoutine = 2,
+  kC23ClangMigServerRoutine = 2,
   kSpellingNotCalculated = 15,
 };
 
 enum class MSABIAttrSpelling : unsigned int {
   kGNUMsAbi = 0,
   kCXX11GnuMsAbi = 1,
-  kC2xGnuMsAbi = 2,
+  kC23GnuMsAbi = 2,
   kSpellingNotCalculated = 15,
 };
 
@@ -3047,56 +3315,56 @@ enum class MSInheritanceAttrSpelling : unsigned int {
 enum class MSP430InterruptAttrSpelling : unsigned int {
   kGNUInterrupt = 0,
   kCXX11GnuInterrupt = 1,
-  kC2xGnuInterrupt = 2,
+  kC23GnuInterrupt = 2,
   kSpellingNotCalculated = 15,
 };
 
 enum class MSStructAttrSpelling : unsigned int {
   kGNUMsStruct = 0,
   kCXX11GnuMsStruct = 1,
-  kC2xGnuMsStruct = 2,
+  kC23GnuMsStruct = 2,
   kSpellingNotCalculated = 15,
 };
 
 enum class MayAliasAttrSpelling : unsigned int {
   kGNUMayAlias = 0,
   kCXX11GnuMayAlias = 1,
-  kC2xGnuMayAlias = 2,
+  kC23GnuMayAlias = 2,
   kSpellingNotCalculated = 15,
 };
 
 enum class MaybeUndefAttrSpelling : unsigned int {
   kGNUMaybeUndef = 0,
   kCXX11ClangMaybeUndef = 1,
-  kC2xClangMaybeUndef = 2,
+  kC23ClangMaybeUndef = 2,
   kSpellingNotCalculated = 15,
 };
 
 enum class MicroMipsAttrSpelling : unsigned int {
   kGNUMicromips = 0,
   kCXX11GnuMicromips = 1,
-  kC2xGnuMicromips = 2,
+  kC23GnuMicromips = 2,
   kSpellingNotCalculated = 15,
 };
 
 enum class MinSizeAttrSpelling : unsigned int {
   kGNUMinsize = 0,
   kCXX11ClangMinsize = 1,
-  kC2xClangMinsize = 2,
+  kC23ClangMinsize = 2,
   kSpellingNotCalculated = 15,
 };
 
 enum class MinVectorWidthAttrSpelling : unsigned int {
   kGNUMinVectorWidth = 0,
   kCXX11ClangMinVectorWidth = 1,
-  kC2xClangMinVectorWidth = 2,
+  kC23ClangMinVectorWidth = 2,
   kSpellingNotCalculated = 15,
 };
 
 enum class Mips16AttrSpelling : unsigned int {
   kGNUMips16 = 0,
   kCXX11GnuMips16 = 1,
-  kC2xGnuMips16 = 2,
+  kC23GnuMips16 = 2,
   kSpellingNotCalculated = 15,
 };
 
@@ -3115,83 +3383,90 @@ enum class MipsInterruptAttrInterruptType : unsigned int {
 enum class MipsInterruptAttrSpelling : unsigned int {
   kGNUInterrupt = 0,
   kCXX11GnuInterrupt = 1,
-  kC2xGnuInterrupt = 2,
+  kC23GnuInterrupt = 2,
   kSpellingNotCalculated = 15,
 };
 
 enum class MipsLongCallAttrSpelling : unsigned int {
   kGNULongCall = 0,
   kCXX11GnuLongCall = 1,
-  kC2xGnuLongCall = 2,
+  kC23GnuLongCall = 2,
   kGNUFar = 3,
   kCXX11GnuFar = 4,
-  kC2xGnuFar = 5,
+  kC23GnuFar = 5,
   kSpellingNotCalculated = 15,
 };
 
 enum class MipsShortCallAttrSpelling : unsigned int {
   kGNUShortCall = 0,
   kCXX11GnuShortCall = 1,
-  kC2xGnuShortCall = 2,
+  kC23GnuShortCall = 2,
   kGNUNear = 3,
   kCXX11GnuNear = 4,
-  kC2xGnuNear = 5,
+  kC23GnuNear = 5,
   kSpellingNotCalculated = 15,
 };
 
 enum class ModeAttrSpelling : unsigned int {
   kGNUMode = 0,
   kCXX11GnuMode = 1,
-  kC2xGnuMode = 2,
+  kC23GnuMode = 2,
   kSpellingNotCalculated = 15,
 };
 
 enum class MustTailAttrSpelling : unsigned int {
   kGNUMusttail = 0,
   kCXX11ClangMusttail = 1,
-  kC2xClangMusttail = 2,
+  kC23ClangMusttail = 2,
   kSpellingNotCalculated = 15,
 };
 
 enum class NSConsumedAttrSpelling : unsigned int {
   kGNUNsConsumed = 0,
   kCXX11ClangNsConsumed = 1,
-  kC2xClangNsConsumed = 2,
+  kC23ClangNsConsumed = 2,
   kSpellingNotCalculated = 15,
 };
 
 enum class NSConsumesSelfAttrSpelling : unsigned int {
   kGNUNsConsumesSelf = 0,
   kCXX11ClangNsConsumesSelf = 1,
-  kC2xClangNsConsumesSelf = 2,
+  kC23ClangNsConsumesSelf = 2,
   kSpellingNotCalculated = 15,
 };
 
 enum class NSReturnsAutoreleasedAttrSpelling : unsigned int {
   kGNUNsReturnsAutoreleased = 0,
   kCXX11ClangNsReturnsAutoreleased = 1,
-  kC2xClangNsReturnsAutoreleased = 2,
+  kC23ClangNsReturnsAutoreleased = 2,
   kSpellingNotCalculated = 15,
 };
 
 enum class NSReturnsNotRetainedAttrSpelling : unsigned int {
   kGNUNsReturnsNotRetained = 0,
   kCXX11ClangNsReturnsNotRetained = 1,
-  kC2xClangNsReturnsNotRetained = 2,
+  kC23ClangNsReturnsNotRetained = 2,
   kSpellingNotCalculated = 15,
 };
 
 enum class NSReturnsRetainedAttrSpelling : unsigned int {
   kGNUNsReturnsRetained = 0,
   kCXX11ClangNsReturnsRetained = 1,
-  kC2xClangNsReturnsRetained = 2,
+  kC23ClangNsReturnsRetained = 2,
+  kSpellingNotCalculated = 15,
+};
+
+enum class NVPTXKernelAttrSpelling : unsigned int {
+  kGNUNvptxKernel = 0,
+  kCXX11ClangNvptxKernel = 1,
+  kC23ClangNvptxKernel = 2,
   kSpellingNotCalculated = 15,
 };
 
 enum class NakedAttrSpelling : unsigned int {
   kGNUNaked = 0,
   kCXX11GnuNaked = 1,
-  kC2xGnuNaked = 2,
+  kC23GnuNaked = 2,
   kDeclspecNaked = 3,
   kSpellingNotCalculated = 15,
 };
@@ -3204,28 +3479,28 @@ enum class NamedDeclExplicitVisibilityKind : unsigned int {
 enum class NoBuiltinAttrSpelling : unsigned int {
   kGNUNoBuiltin = 0,
   kCXX11ClangNoBuiltin = 1,
-  kC2xClangNoBuiltin = 2,
+  kC23ClangNoBuiltin = 2,
   kSpellingNotCalculated = 15,
 };
 
 enum class NoCommonAttrSpelling : unsigned int {
   kGNUNocommon = 0,
   kCXX11GnuNocommon = 1,
-  kC2xGnuNocommon = 2,
+  kC23GnuNocommon = 2,
   kSpellingNotCalculated = 15,
 };
 
 enum class NoDebugAttrSpelling : unsigned int {
   kGNUNodebug = 0,
   kCXX11GnuNodebug = 1,
-  kC2xGnuNodebug = 2,
+  kC23GnuNodebug = 2,
   kSpellingNotCalculated = 15,
 };
 
 enum class NoDerefAttrSpelling : unsigned int {
   kGNUNoderef = 0,
   kCXX11ClangNoderef = 1,
-  kC2xClangNoderef = 2,
+  kC23ClangNoderef = 2,
   kSpellingNotCalculated = 15,
 };
 
@@ -3238,14 +3513,14 @@ enum class NoDestroyAttrSpelling : unsigned int {
 enum class NoDuplicateAttrSpelling : unsigned int {
   kGNUNoduplicate = 0,
   kCXX11ClangNoduplicate = 1,
-  kC2xClangNoduplicate = 2,
+  kC23ClangNoduplicate = 2,
   kSpellingNotCalculated = 15,
 };
 
 enum class NoEscapeAttrSpelling : unsigned int {
   kGNUNoescape = 0,
   kCXX11ClangNoescape = 1,
-  kC2xClangNoescape = 2,
+  kC23ClangNoescape = 2,
   kSpellingNotCalculated = 15,
 };
 
@@ -3253,9 +3528,9 @@ enum class NoInlineAttrSpelling : unsigned int {
   kKeywordNoinline = 0,
   kGNUNoinline = 1,
   kCXX11GnuNoinline = 2,
-  kC2xGnuNoinline = 3,
+  kC23GnuNoinline = 3,
   kCXX11ClangNoinline = 4,
-  kC2xClangNoinline = 5,
+  kC23ClangNoinline = 5,
   kDeclspecNoinline = 6,
   kSpellingNotCalculated = 15,
 };
@@ -3263,49 +3538,49 @@ enum class NoInlineAttrSpelling : unsigned int {
 enum class NoInstrumentFunctionAttrSpelling : unsigned int {
   kGNUNoInstrumentFunction = 0,
   kCXX11GnuNoInstrumentFunction = 1,
-  kC2xGnuNoInstrumentFunction = 2,
+  kC23GnuNoInstrumentFunction = 2,
   kSpellingNotCalculated = 15,
 };
 
 enum class NoMergeAttrSpelling : unsigned int {
   kGNUNomerge = 0,
   kCXX11ClangNomerge = 1,
-  kC2xClangNomerge = 2,
+  kC23ClangNomerge = 2,
   kSpellingNotCalculated = 15,
 };
 
 enum class NoMicroMipsAttrSpelling : unsigned int {
   kGNUNomicromips = 0,
   kCXX11GnuNomicromips = 1,
-  kC2xGnuNomicromips = 2,
+  kC23GnuNomicromips = 2,
   kSpellingNotCalculated = 15,
 };
 
 enum class NoMips16AttrSpelling : unsigned int {
   kGNUNomips16 = 0,
   kCXX11GnuNomips16 = 1,
-  kC2xGnuNomips16 = 2,
+  kC23GnuNomips16 = 2,
   kSpellingNotCalculated = 15,
 };
 
 enum class NoProfileFunctionAttrSpelling : unsigned int {
   kGNUNoProfileInstrumentFunction = 0,
   kCXX11GnuNoProfileInstrumentFunction = 1,
-  kC2xGnuNoProfileInstrumentFunction = 2,
+  kC23GnuNoProfileInstrumentFunction = 2,
   kSpellingNotCalculated = 15,
 };
 
 enum class NoRandomizeLayoutAttrSpelling : unsigned int {
   kGNUNoRandomizeLayout = 0,
   kCXX11GnuNoRandomizeLayout = 1,
-  kC2xGnuNoRandomizeLayout = 2,
+  kC23GnuNoRandomizeLayout = 2,
   kSpellingNotCalculated = 15,
 };
 
 enum class NoReturnAttrSpelling : unsigned int {
   kGNUNoreturn = 0,
   kCXX11GnuNoreturn = 1,
-  kC2xGnuNoreturn = 2,
+  kC23GnuNoreturn = 2,
   kDeclspecNoreturn = 3,
   kSpellingNotCalculated = 15,
 };
@@ -3313,28 +3588,28 @@ enum class NoReturnAttrSpelling : unsigned int {
 enum class NoSanitizeAttrSpelling : unsigned int {
   kGNUNoSanitize = 0,
   kCXX11ClangNoSanitize = 1,
-  kC2xClangNoSanitize = 2,
+  kC23ClangNoSanitize = 2,
   kSpellingNotCalculated = 15,
 };
 
 enum class NoSpeculativeLoadHardeningAttrSpelling : unsigned int {
   kGNUNoSpeculativeLoadHardening = 0,
   kCXX11ClangNoSpeculativeLoadHardening = 1,
-  kC2xClangNoSpeculativeLoadHardening = 2,
+  kC23ClangNoSpeculativeLoadHardening = 2,
   kSpellingNotCalculated = 15,
 };
 
 enum class NoSplitStackAttrSpelling : unsigned int {
   kGNUNoSplitStack = 0,
   kCXX11GnuNoSplitStack = 1,
-  kC2xGnuNoSplitStack = 2,
+  kC23GnuNoSplitStack = 2,
   kSpellingNotCalculated = 15,
 };
 
 enum class NoStackProtectorAttrSpelling : unsigned int {
   kGNUNoStackProtector = 0,
   kCXX11ClangNoStackProtector = 1,
-  kC2xClangNoStackProtector = 2,
+  kC23ClangNoStackProtector = 2,
   kDeclspecSafebuffers = 3,
   kSpellingNotCalculated = 15,
 };
@@ -3342,14 +3617,14 @@ enum class NoStackProtectorAttrSpelling : unsigned int {
 enum class NoThreadSafetyAnalysisAttrSpelling : unsigned int {
   kGNUNoThreadSafetyAnalysis = 0,
   kCXX11ClangNoThreadSafetyAnalysis = 1,
-  kC2xClangNoThreadSafetyAnalysis = 2,
+  kC23ClangNoThreadSafetyAnalysis = 2,
   kSpellingNotCalculated = 15,
 };
 
 enum class NoThrowAttrSpelling : unsigned int {
   kGNUNothrow = 0,
   kCXX11GnuNothrow = 1,
-  kC2xGnuNothrow = 2,
+  kC23GnuNothrow = 2,
   kDeclspecNothrow = 3,
   kSpellingNotCalculated = 15,
 };
@@ -3357,21 +3632,21 @@ enum class NoThrowAttrSpelling : unsigned int {
 enum class NoUwtableAttrSpelling : unsigned int {
   kGNUNouwtable = 0,
   kCXX11ClangNouwtable = 1,
-  kC2xClangNouwtable = 2,
+  kC23ClangNouwtable = 2,
   kSpellingNotCalculated = 15,
 };
 
 enum class NonNullAttrSpelling : unsigned int {
   kGNUNonnull = 0,
   kCXX11GnuNonnull = 1,
-  kC2xGnuNonnull = 2,
+  kC23GnuNonnull = 2,
   kSpellingNotCalculated = 15,
 };
 
 enum class NotTailCalledAttrSpelling : unsigned int {
   kGNUNotTailCalled = 0,
   kCXX11ClangNotTailCalled = 1,
-  kC2xClangNotTailCalled = 2,
+  kC23ClangNotTailCalled = 2,
   kSpellingNotCalculated = 15,
 };
 
@@ -3415,133 +3690,133 @@ enum class OMPDeclareTargetDeclAttrMapTypeTy : unsigned int {
 enum class OSConsumedAttrSpelling : unsigned int {
   kGNUOsConsumed = 0,
   kCXX11ClangOsConsumed = 1,
-  kC2xClangOsConsumed = 2,
+  kC23ClangOsConsumed = 2,
   kSpellingNotCalculated = 15,
 };
 
 enum class OSConsumesThisAttrSpelling : unsigned int {
   kGNUOsConsumesThis = 0,
   kCXX11ClangOsConsumesThis = 1,
-  kC2xClangOsConsumesThis = 2,
+  kC23ClangOsConsumesThis = 2,
   kSpellingNotCalculated = 15,
 };
 
 enum class OSReturnsNotRetainedAttrSpelling : unsigned int {
   kGNUOsReturnsNotRetained = 0,
   kCXX11ClangOsReturnsNotRetained = 1,
-  kC2xClangOsReturnsNotRetained = 2,
+  kC23ClangOsReturnsNotRetained = 2,
   kSpellingNotCalculated = 15,
 };
 
 enum class OSReturnsRetainedAttrSpelling : unsigned int {
   kGNUOsReturnsRetained = 0,
   kCXX11ClangOsReturnsRetained = 1,
-  kC2xClangOsReturnsRetained = 2,
+  kC23ClangOsReturnsRetained = 2,
   kSpellingNotCalculated = 15,
 };
 
 enum class OSReturnsRetainedOnNonZeroAttrSpelling : unsigned int {
   kGNUOsReturnsRetainedOnNonZero = 0,
   kCXX11ClangOsReturnsRetainedOnNonZero = 1,
-  kC2xClangOsReturnsRetainedOnNonZero = 2,
+  kC23ClangOsReturnsRetainedOnNonZero = 2,
   kSpellingNotCalculated = 15,
 };
 
 enum class OSReturnsRetainedOnZeroAttrSpelling : unsigned int {
   kGNUOsReturnsRetainedOnZero = 0,
   kCXX11ClangOsReturnsRetainedOnZero = 1,
-  kC2xClangOsReturnsRetainedOnZero = 2,
+  kC23ClangOsReturnsRetainedOnZero = 2,
   kSpellingNotCalculated = 15,
 };
 
 enum class ObjCBoxableAttrSpelling : unsigned int {
   kGNUObjcBoxable = 0,
   kCXX11ClangObjcBoxable = 1,
-  kC2xClangObjcBoxable = 2,
+  kC23ClangObjcBoxable = 2,
   kSpellingNotCalculated = 15,
 };
 
 enum class ObjCBridgeAttrSpelling : unsigned int {
   kGNUObjcBridge = 0,
   kCXX11ClangObjcBridge = 1,
-  kC2xClangObjcBridge = 2,
+  kC23ClangObjcBridge = 2,
   kSpellingNotCalculated = 15,
 };
 
 enum class ObjCBridgeMutableAttrSpelling : unsigned int {
   kGNUObjcBridgeMutable = 0,
   kCXX11ClangObjcBridgeMutable = 1,
-  kC2xClangObjcBridgeMutable = 2,
+  kC23ClangObjcBridgeMutable = 2,
   kSpellingNotCalculated = 15,
 };
 
 enum class ObjCBridgeRelatedAttrSpelling : unsigned int {
   kGNUObjcBridgeRelated = 0,
   kCXX11ClangObjcBridgeRelated = 1,
-  kC2xClangObjcBridgeRelated = 2,
+  kC23ClangObjcBridgeRelated = 2,
   kSpellingNotCalculated = 15,
 };
 
 enum class ObjCClassStubAttrSpelling : unsigned int {
   kGNUObjcClassStub = 0,
   kCXX11ClangObjcClassStub = 1,
-  kC2xClangObjcClassStub = 2,
+  kC23ClangObjcClassStub = 2,
   kSpellingNotCalculated = 15,
 };
 
 enum class ObjCDesignatedInitializerAttrSpelling : unsigned int {
   kGNUObjcDesignatedInitializer = 0,
   kCXX11ClangObjcDesignatedInitializer = 1,
-  kC2xClangObjcDesignatedInitializer = 2,
+  kC23ClangObjcDesignatedInitializer = 2,
   kSpellingNotCalculated = 15,
 };
 
 enum class ObjCDirectAttrSpelling : unsigned int {
   kGNUObjcDirect = 0,
   kCXX11ClangObjcDirect = 1,
-  kC2xClangObjcDirect = 2,
+  kC23ClangObjcDirect = 2,
   kSpellingNotCalculated = 15,
 };
 
 enum class ObjCDirectMembersAttrSpelling : unsigned int {
   kGNUObjcDirectMembers = 0,
   kCXX11ClangObjcDirectMembers = 1,
-  kC2xClangObjcDirectMembers = 2,
+  kC23ClangObjcDirectMembers = 2,
   kSpellingNotCalculated = 15,
 };
 
 enum class ObjCExceptionAttrSpelling : unsigned int {
   kGNUObjcException = 0,
   kCXX11ClangObjcException = 1,
-  kC2xClangObjcException = 2,
+  kC23ClangObjcException = 2,
   kSpellingNotCalculated = 15,
 };
 
 enum class ObjCExplicitProtocolImplAttrSpelling : unsigned int {
   kGNUObjcProtocolRequiresExplicitImplementation = 0,
   kCXX11ClangObjcProtocolRequiresExplicitImplementation = 1,
-  kC2xClangObjcProtocolRequiresExplicitImplementation = 2,
+  kC23ClangObjcProtocolRequiresExplicitImplementation = 2,
   kSpellingNotCalculated = 15,
 };
 
 enum class ObjCExternallyRetainedAttrSpelling : unsigned int {
   kGNUObjcExternallyRetained = 0,
   kCXX11ClangObjcExternallyRetained = 1,
-  kC2xClangObjcExternallyRetained = 2,
+  kC23ClangObjcExternallyRetained = 2,
   kSpellingNotCalculated = 15,
 };
 
 enum class ObjCGCAttrSpelling : unsigned int {
   kGNUObjcGc = 0,
   kCXX11ClangObjcGc = 1,
-  kC2xClangObjcGc = 2,
+  kC23ClangObjcGc = 2,
   kSpellingNotCalculated = 15,
 };
 
 enum class ObjCIndependentClassAttrSpelling : unsigned int {
   kGNUObjcIndependentClass = 0,
   kCXX11ClangObjcIndependentClass = 1,
-  kC2xClangObjcIndependentClass = 2,
+  kC23ClangObjcIndependentClass = 2,
   kSpellingNotCalculated = 15,
 };
 
@@ -3578,42 +3853,42 @@ enum class ObjCMethodFamilyAttrFamilyKind : unsigned int {
 enum class ObjCMethodFamilyAttrSpelling : unsigned int {
   kGNUObjcMethodFamily = 0,
   kCXX11ClangObjcMethodFamily = 1,
-  kC2xClangObjcMethodFamily = 2,
+  kC23ClangObjcMethodFamily = 2,
   kSpellingNotCalculated = 15,
 };
 
 enum class ObjCNSObjectAttrSpelling : unsigned int {
   kGNUNSObject = 0,
   kCXX11ClangNSObject = 1,
-  kC2xClangNSObject = 2,
+  kC23ClangNSObject = 2,
   kSpellingNotCalculated = 15,
 };
 
 enum class ObjCNonLazyClassAttrSpelling : unsigned int {
   kGNUObjcNonlazyClass = 0,
   kCXX11ClangObjcNonlazyClass = 1,
-  kC2xClangObjcNonlazyClass = 2,
+  kC23ClangObjcNonlazyClass = 2,
   kSpellingNotCalculated = 15,
 };
 
 enum class ObjCNonRuntimeProtocolAttrSpelling : unsigned int {
   kGNUObjcNonRuntimeProtocol = 0,
   kCXX11ClangObjcNonRuntimeProtocol = 1,
-  kC2xClangObjcNonRuntimeProtocol = 2,
+  kC23ClangObjcNonRuntimeProtocol = 2,
   kSpellingNotCalculated = 15,
 };
 
 enum class ObjCOwnershipAttrSpelling : unsigned int {
   kGNUObjcOwnership = 0,
   kCXX11ClangObjcOwnership = 1,
-  kC2xClangObjcOwnership = 2,
+  kC23ClangObjcOwnership = 2,
   kSpellingNotCalculated = 15,
 };
 
 enum class ObjCPreciseLifetimeAttrSpelling : unsigned int {
   kGNUObjcPreciseLifetime = 0,
   kCXX11ClangObjcPreciseLifetime = 1,
-  kC2xClangObjcPreciseLifetime = 2,
+  kC23ClangObjcPreciseLifetime = 2,
   kSpellingNotCalculated = 15,
 };
 
@@ -3638,49 +3913,49 @@ enum class ObjCPropertyImplDeclKind : unsigned int {
 enum class ObjCRequiresPropertyDefsAttrSpelling : unsigned int {
   kGNUObjcRequiresPropertyDefinitions = 0,
   kCXX11ClangObjcRequiresPropertyDefinitions = 1,
-  kC2xClangObjcRequiresPropertyDefinitions = 2,
+  kC23ClangObjcRequiresPropertyDefinitions = 2,
   kSpellingNotCalculated = 15,
 };
 
 enum class ObjCRequiresSuperAttrSpelling : unsigned int {
   kGNUObjcRequiresSuper = 0,
   kCXX11ClangObjcRequiresSuper = 1,
-  kC2xClangObjcRequiresSuper = 2,
+  kC23ClangObjcRequiresSuper = 2,
   kSpellingNotCalculated = 15,
 };
 
 enum class ObjCReturnsInnerPointerAttrSpelling : unsigned int {
   kGNUObjcReturnsInnerPointer = 0,
   kCXX11ClangObjcReturnsInnerPointer = 1,
-  kC2xClangObjcReturnsInnerPointer = 2,
+  kC23ClangObjcReturnsInnerPointer = 2,
   kSpellingNotCalculated = 15,
 };
 
 enum class ObjCRootClassAttrSpelling : unsigned int {
   kGNUObjcRootClass = 0,
   kCXX11ClangObjcRootClass = 1,
-  kC2xClangObjcRootClass = 2,
+  kC23ClangObjcRootClass = 2,
   kSpellingNotCalculated = 15,
 };
 
 enum class ObjCRuntimeNameAttrSpelling : unsigned int {
   kGNUObjcRuntimeName = 0,
   kCXX11ClangObjcRuntimeName = 1,
-  kC2xClangObjcRuntimeName = 2,
+  kC23ClangObjcRuntimeName = 2,
   kSpellingNotCalculated = 15,
 };
 
 enum class ObjCRuntimeVisibleAttrSpelling : unsigned int {
   kGNUObjcRuntimeVisible = 0,
   kCXX11ClangObjcRuntimeVisible = 1,
-  kC2xClangObjcRuntimeVisible = 2,
+  kC23ClangObjcRuntimeVisible = 2,
   kSpellingNotCalculated = 15,
 };
 
 enum class ObjCSubclassingRestrictedAttrSpelling : unsigned int {
   kGNUObjcSubclassingRestricted = 0,
   kCXX11ClangObjcSubclassingRestricted = 1,
-  kC2xClangObjcSubclassingRestricted = 2,
+  kC23ClangObjcSubclassingRestricted = 2,
   kSpellingNotCalculated = 15,
 };
 
@@ -3695,7 +3970,7 @@ enum class OpenCLConstantAddressSpaceAttrSpelling : unsigned int {
   kKeywordConstant = 0,
   kGNUOpenclConstant = 2,
   kCXX11ClangOpenclConstant = 3,
-  kC2xClangOpenclConstant = 4,
+  kC23ClangOpenclConstant = 4,
   kSpellingNotCalculated = 15,
 };
 
@@ -3703,7 +3978,7 @@ enum class OpenCLGenericAddressSpaceAttrSpelling : unsigned int {
   kKeywordGeneric = 0,
   kGNUOpenclGeneric = 2,
   kCXX11ClangOpenclGeneric = 3,
-  kC2xClangOpenclGeneric = 4,
+  kC23ClangOpenclGeneric = 4,
   kSpellingNotCalculated = 15,
 };
 
@@ -3711,21 +3986,21 @@ enum class OpenCLGlobalAddressSpaceAttrSpelling : unsigned int {
   kKeywordGlobal = 0,
   kGNUOpenclGlobal = 2,
   kCXX11ClangOpenclGlobal = 3,
-  kC2xClangOpenclGlobal = 4,
+  kC23ClangOpenclGlobal = 4,
   kSpellingNotCalculated = 15,
 };
 
 enum class OpenCLGlobalDeviceAddressSpaceAttrSpelling : unsigned int {
   kGNUOpenclGlobalDevice = 0,
   kCXX11ClangOpenclGlobalDevice = 1,
-  kC2xClangOpenclGlobalDevice = 2,
+  kC23ClangOpenclGlobalDevice = 2,
   kSpellingNotCalculated = 15,
 };
 
 enum class OpenCLGlobalHostAddressSpaceAttrSpelling : unsigned int {
   kGNUOpenclGlobalHost = 0,
   kCXX11ClangOpenclGlobalHost = 1,
-  kC2xClangOpenclGlobalHost = 2,
+  kC23ClangOpenclGlobalHost = 2,
   kSpellingNotCalculated = 15,
 };
 
@@ -3738,7 +4013,7 @@ enum class OpenCLLocalAddressSpaceAttrSpelling : unsigned int {
   kKeywordLocal = 0,
   kGNUOpenclLocal = 2,
   kCXX11ClangOpenclLocal = 3,
-  kC2xClangOpenclLocal = 4,
+  kC23ClangOpenclLocal = 4,
   kSpellingNotCalculated = 15,
 };
 
@@ -3746,21 +4021,21 @@ enum class OpenCLPrivateAddressSpaceAttrSpelling : unsigned int {
   kKeywordPrivate = 0,
   kGNUOpenclPrivate = 2,
   kCXX11ClangOpenclPrivate = 3,
-  kC2xClangOpenclPrivate = 4,
+  kC23ClangOpenclPrivate = 4,
   kSpellingNotCalculated = 15,
 };
 
 enum class OptimizeNoneAttrSpelling : unsigned int {
   kGNUOptnone = 0,
   kCXX11ClangOptnone = 1,
-  kC2xClangOptnone = 2,
+  kC23ClangOptnone = 2,
   kSpellingNotCalculated = 15,
 };
 
 enum class OverloadableAttrSpelling : unsigned int {
   kGNUOverloadable = 0,
   kCXX11ClangOverloadable = 1,
-  kC2xClangOverloadable = 2,
+  kC23ClangOverloadable = 2,
   kSpellingNotCalculated = 15,
 };
 
@@ -3773,20 +4048,20 @@ enum class OwnershipAttrOwnershipKind : unsigned int {
 enum class OwnershipAttrSpelling : unsigned int {
   kGNUOwnershipHolds = 0,
   kCXX11ClangOwnershipHolds = 1,
-  kC2xClangOwnershipHolds = 2,
+  kC23ClangOwnershipHolds = 2,
   kGNUOwnershipReturns = 3,
   kCXX11ClangOwnershipReturns = 4,
-  kC2xClangOwnershipReturns = 5,
+  kC23ClangOwnershipReturns = 5,
   kGNUOwnershipTakes = 6,
   kCXX11ClangOwnershipTakes = 7,
-  kC2xClangOwnershipTakes = 8,
+  kC23ClangOwnershipTakes = 8,
   kSpellingNotCalculated = 15,
 };
 
 enum class PackedAttrSpelling : unsigned int {
   kGNUPacked = 0,
   kCXX11GnuPacked = 1,
-  kC2xGnuPacked = 2,
+  kC23GnuPacked = 2,
   kSpellingNotCalculated = 15,
 };
 
@@ -3805,7 +4080,7 @@ enum class ParamTypestateAttrSpelling : unsigned int {
 enum class PascalAttrSpelling : unsigned int {
   kGNUPascal = 0,
   kCXX11ClangPascal = 1,
-  kC2xClangPascal = 2,
+  kC23ClangPascal = 2,
   kKeywordPascal = 3,
   kSpellingNotCalculated = 15,
 };
@@ -3813,17 +4088,17 @@ enum class PascalAttrSpelling : unsigned int {
 enum class PassObjectSizeAttrSpelling : unsigned int {
   kGNUPassObjectSize = 0,
   kCXX11ClangPassObjectSize = 1,
-  kC2xClangPassObjectSize = 2,
+  kC23ClangPassObjectSize = 2,
   kGNUPassDynamicObjectSize = 3,
   kCXX11ClangPassDynamicObjectSize = 4,
-  kC2xClangPassDynamicObjectSize = 5,
+  kC23ClangPassDynamicObjectSize = 5,
   kSpellingNotCalculated = 15,
 };
 
 enum class PatchableFunctionEntryAttrSpelling : unsigned int {
   kGNUPatchableFunctionEntry = 0,
   kCXX11GnuPatchableFunctionEntry = 1,
-  kC2xGnuPatchableFunctionEntry = 2,
+  kC23GnuPatchableFunctionEntry = 2,
   kSpellingNotCalculated = 15,
 };
 
@@ -3835,7 +4110,7 @@ enum class PcsAttrPCSType : unsigned int {
 enum class PcsAttrSpelling : unsigned int {
   kGNUPcs = 0,
   kCXX11GnuPcs = 1,
-  kC2xGnuPcs = 2,
+  kC23GnuPcs = 2,
   kSpellingNotCalculated = 15,
 };
 
@@ -3859,14 +4134,14 @@ enum class PreferredNameAttrSpelling : unsigned int {
 enum class PreserveAllAttrSpelling : unsigned int {
   kGNUPreserveAll = 0,
   kCXX11ClangPreserveAll = 1,
-  kC2xClangPreserveAll = 2,
+  kC23ClangPreserveAll = 2,
   kSpellingNotCalculated = 15,
 };
 
 enum class PreserveMostAttrSpelling : unsigned int {
   kGNUPreserveMost = 0,
   kCXX11ClangPreserveMost = 1,
-  kC2xClangPreserveMost = 2,
+  kC23ClangPreserveMost = 2,
   kSpellingNotCalculated = 15,
 };
 
@@ -3879,7 +4154,7 @@ enum class PtGuardedVarAttrSpelling : unsigned int {
 enum class PureAttrSpelling : unsigned int {
   kGNUPure = 0,
   kCXX11GnuPure = 1,
-  kC2xGnuPure = 2,
+  kC23GnuPure = 2,
   kSpellingNotCalculated = 15,
 };
 
@@ -3889,6 +4164,13 @@ enum class QualifiedTypeDestructionKind : unsigned int {
   kObjcStrongLifetime = 2,
   kObjcWeakLifetime = 3,
   kNontrivialCStruct = 4,
+};
+
+enum class QualifiedTypeNonConstantStorageReason : int {
+  kMutableField = 0,
+  kNonConstNonReferenceType = 1,
+  kNonTrivialConstructor = 2,
+  kNonTrivialDestructor = 3,
 };
 
 enum class QualifiedTypePrimitiveCopyKind : unsigned int {
@@ -3907,29 +4189,28 @@ enum class QualifiedTypePrimitiveDefaultInitializeKind : unsigned int {
 };
 
 enum class RISCVInterruptAttrInterruptType : unsigned int {
-  kUser = 0,
-  kSupervisor = 1,
-  kMachine = 2,
+  kSupervisor = 0,
+  kMachine = 1,
 };
 
 enum class RISCVInterruptAttrSpelling : unsigned int {
   kGNUInterrupt = 0,
   kCXX11GnuInterrupt = 1,
-  kC2xGnuInterrupt = 2,
+  kC23GnuInterrupt = 2,
   kSpellingNotCalculated = 15,
 };
 
 enum class RandomizeLayoutAttrSpelling : unsigned int {
   kGNURandomizeLayout = 0,
   kCXX11GnuRandomizeLayout = 1,
-  kC2xGnuRandomizeLayout = 2,
+  kC23GnuRandomizeLayout = 2,
   kSpellingNotCalculated = 15,
 };
 
 enum class ReadOnlyPlacementAttrSpelling : unsigned int {
   kGNUEnforceReadOnlyPlacement = 0,
   kCXX11ClangEnforceReadOnlyPlacement = 1,
-  kC2xClangEnforceReadOnlyPlacement = 2,
+  kC23ClangEnforceReadOnlyPlacement = 2,
   kSpellingNotCalculated = 15,
 };
 
@@ -3942,7 +4223,7 @@ enum class RecordDeclArgPassingKind : unsigned int {
 enum class RegCallAttrSpelling : unsigned int {
   kGNURegcall = 0,
   kCXX11GnuRegcall = 1,
-  kC2xGnuRegcall = 2,
+  kC23GnuRegcall = 2,
   kKeywordRegcall = 3,
   kSpellingNotCalculated = 15,
 };
@@ -3968,7 +4249,7 @@ enum class ReleaseCapabilityAttrSpelling : unsigned int {
 enum class ReleaseHandleAttrSpelling : unsigned int {
   kGNUReleaseHandle = 0,
   kCXX11ClangReleaseHandle = 1,
-  kC2xClangReleaseHandle = 2,
+  kC23ClangReleaseHandle = 2,
   kSpellingNotCalculated = 15,
 };
 
@@ -3988,14 +4269,14 @@ enum class RestrictAttrSpelling : unsigned int {
   kDeclspecRestrict = 0,
   kGNUMalloc = 1,
   kCXX11GnuMalloc = 2,
-  kC2xGnuMalloc = 3,
+  kC23GnuMalloc = 3,
   kSpellingNotCalculated = 15,
 };
 
 enum class RetainAttrSpelling : unsigned int {
   kGNURetain = 0,
   kCXX11GnuRetain = 1,
-  kC2xGnuRetain = 2,
+  kC23GnuRetain = 2,
   kSpellingNotCalculated = 15,
 };
 
@@ -4014,28 +4295,28 @@ enum class ReturnTypestateAttrSpelling : unsigned int {
 enum class ReturnsNonNullAttrSpelling : unsigned int {
   kGNUReturnsNonnull = 0,
   kCXX11GnuReturnsNonnull = 1,
-  kC2xGnuReturnsNonnull = 2,
+  kC23GnuReturnsNonnull = 2,
   kSpellingNotCalculated = 15,
 };
 
 enum class ReturnsTwiceAttrSpelling : unsigned int {
   kGNUReturnsTwice = 0,
   kCXX11GnuReturnsTwice = 1,
-  kC2xGnuReturnsTwice = 2,
+  kC23GnuReturnsTwice = 2,
   kSpellingNotCalculated = 15,
 };
 
 enum class SYCLKernelAttrSpelling : unsigned int {
   kGNUSyclKernel = 0,
   kCXX11ClangSyclKernel = 1,
-  kC2xClangSyclKernel = 2,
+  kC23ClangSyclKernel = 2,
   kSpellingNotCalculated = 15,
 };
 
 enum class SYCLSpecialClassAttrSpelling : unsigned int {
   kGNUSyclSpecialClass = 0,
   kCXX11ClangSyclSpecialClass = 1,
-  kC2xClangSyclSpecialClass = 2,
+  kC23ClangSyclSpecialClass = 2,
   kSpellingNotCalculated = 15,
 };
 
@@ -4048,7 +4329,7 @@ enum class ScopedLockableAttrSpelling : unsigned int {
 enum class SectionAttrSpelling : unsigned int {
   kGNUSection = 0,
   kCXX11GnuSection = 1,
-  kC2xGnuSection = 2,
+  kC23GnuSection = 2,
   kDeclspecAllocate = 3,
   kSpellingNotCalculated = 15,
 };
@@ -4057,14 +4338,14 @@ enum class SelectAnyAttrSpelling : unsigned int {
   kDeclspecSelectany = 0,
   kGNUSelectany = 1,
   kCXX11GnuSelectany = 2,
-  kC2xGnuSelectany = 3,
+  kC23GnuSelectany = 3,
   kSpellingNotCalculated = 15,
 };
 
 enum class SentinelAttrSpelling : unsigned int {
   kGNUSentinel = 0,
   kCXX11GnuSentinel = 1,
-  kC2xGnuSentinel = 2,
+  kC23GnuSentinel = 2,
   kSpellingNotCalculated = 15,
 };
 
@@ -4082,16 +4363,18 @@ enum class SetTypestateAttrSpelling : unsigned int {
 
 enum class SourceLocExprIdentKind : unsigned int {
   kFunction = 0,
-  kFile = 1,
-  kLine = 2,
-  kColumn = 3,
-  kSourceTokenStruct = 4,
+  kFuncSig = 1,
+  kFile = 2,
+  kFileName = 3,
+  kLine = 4,
+  kColumn = 5,
+  kSourceTokenStruct = 6,
 };
 
 enum class SpeculativeLoadHardeningAttrSpelling : unsigned int {
   kGNUSpeculativeLoadHardening = 0,
   kCXX11ClangSpeculativeLoadHardening = 1,
-  kC2xClangSpeculativeLoadHardening = 2,
+  kC23ClangSpeculativeLoadHardening = 2,
   kSpellingNotCalculated = 15,
 };
 
@@ -4104,7 +4387,7 @@ enum class StandaloneDebugAttrSpelling : unsigned int {
 enum class StdCallAttrSpelling : unsigned int {
   kGNUStdcall = 0,
   kCXX11GnuStdcall = 1,
-  kC2xGnuStdcall = 2,
+  kC23GnuStdcall = 2,
   kKeywordStdcall = 3,
   kSpellingNotCalculated = 15,
 };
@@ -4191,164 +4474,165 @@ enum class StmtKind : unsigned int {
   kOMPParallelMasterDirective = 73,
   kOMPParallelSectionsDirective = 74,
   kOMPScanDirective = 75,
-  kOMPSectionDirective = 76,
-  kOMPSectionsDirective = 77,
-  kOMPSingleDirective = 78,
-  kOMPTargetDataDirective = 79,
-  kOMPTargetDirective = 80,
-  kOMPTargetEnterDataDirective = 81,
-  kOMPTargetExitDataDirective = 82,
-  kOMPTargetParallelDirective = 83,
-  kOMPTargetParallelForDirective = 84,
-  kOMPTargetTeamsDirective = 85,
-  kOMPTargetUpdateDirective = 86,
-  kOMPTaskDirective = 87,
-  kOMPTaskgroupDirective = 88,
-  kOMPTaskwaitDirective = 89,
-  kOMPTaskyieldDirective = 90,
-  kOMPTeamsDirective = 91,
-  kObjCAtCatchStmt = 92,
-  kObjCAtFinallyStmt = 93,
-  kObjCAtSynchronizedStmt = 94,
-  kObjCAtThrowStmt = 95,
-  kObjCAtTryStmt = 96,
-  kObjCAutoreleasePoolStmt = 97,
-  kObjCForCollectionStmt = 98,
-  kReturnStmt = 99,
-  kSEHExceptStmt = 100,
-  kSEHFinallyStmt = 101,
-  kSEHLeaveStmt = 102,
-  kSEHTryStmt = 103,
-  kCaseStmt = 104,
-  kDefaultStmt = 105,
-  kSwitchStmt = 106,
-  kAttributedStmt = 107,
-  kBinaryConditionalOperator = 108,
-  kConditionalOperator = 109,
-  kAddrLabelExpr = 110,
-  kArrayInitIndexExpr = 111,
-  kArrayInitLoopExpr = 112,
-  kArraySubscriptExpr = 113,
-  kArrayTypeTraitExpr = 114,
-  kAsTypeExpr = 115,
-  kAtomicExpr = 116,
-  kBinaryOperator = 117,
-  kCompoundAssignOperator = 118,
-  kBlockExpr = 119,
-  kCXXBindTemporaryExpr = 120,
-  kCXXBoolLiteralExpr = 121,
-  kCXXConstructExpr = 122,
-  kCXXTemporaryObjectExpr = 123,
-  kCXXDefaultArgExpr = 124,
-  kCXXDefaultInitExpr = 125,
-  kCXXDeleteExpr = 126,
-  kCXXDependentScopeMemberExpr = 127,
-  kCXXFoldExpr = 128,
-  kCXXInheritedCtorInitExpr = 129,
-  kCXXNewExpr = 130,
-  kCXXNoexceptExpr = 131,
-  kCXXNullPtrLiteralExpr = 132,
-  kCXXParenListInitExpr = 133,
-  kCXXPseudoDestructorExpr = 134,
-  kCXXRewrittenBinaryOperator = 135,
-  kCXXScalarValueInitExpr = 136,
-  kCXXStdInitializerListExpr = 137,
-  kCXXThisExpr = 138,
-  kCXXThrowExpr = 139,
-  kCXXTypeidExpr = 140,
-  kCXXUnresolvedConstructExpr = 141,
-  kCXXUuidofExpr = 142,
-  kCallExpr = 143,
-  kCUDAKernelCallExpr = 144,
-  kCXXMemberCallExpr = 145,
-  kCXXOperatorCallExpr = 146,
-  kUserDefinedLiteral = 147,
-  kBuiltinBitCastExpr = 148,
-  kCStyleCastExpr = 149,
-  kCXXFunctionalCastExpr = 150,
-  kCXXAddrspaceCastExpr = 151,
-  kCXXConstCastExpr = 152,
-  kCXXDynamicCastExpr = 153,
-  kCXXReinterpretCastExpr = 154,
-  kCXXStaticCastExpr = 155,
-  kObjCBridgedCastExpr = 156,
-  kImplicitCastExpr = 157,
-  kCharacterLiteral = 158,
-  kChooseExpr = 159,
-  kCompoundLiteralExpr = 160,
-  kConceptSpecializationExpr = 161,
-  kConvertVectorExpr = 162,
-  kCoawaitExpr = 163,
-  kCoyieldExpr = 164,
-  kDeclRefExpr = 165,
-  kDependentCoawaitExpr = 166,
-  kDependentScopeDeclRefExpr = 167,
-  kDesignatedInitExpr = 168,
-  kDesignatedInitUpdateExpr = 169,
-  kExpressionTraitExpr = 170,
-  kExtVectorElementExpr = 171,
-  kFixedPointLiteral = 172,
-  kFloatingLiteral = 173,
-  kConstantExpr = 174,
-  kExprWithCleanups = 175,
-  kFunctionParmPackExpr = 176,
-  kGNUNullExpr = 177,
-  kGenericSelectionExpr = 178,
-  kImaginaryLiteral = 179,
-  kImplicitValueInitExpr = 180,
-  kInitListExpr = 181,
-  kIntegerLiteral = 182,
-  kLambdaExpr = 183,
-  kMSPropertyRefExpr = 184,
-  kMSPropertySubscriptExpr = 185,
-  kMaterializeTemporaryExpr = 186,
-  kMatrixSubscriptExpr = 187,
-  kMemberExpr = 188,
-  kNoInitExpr = 189,
-  kOMPArraySectionExpr = 190,
-  kOMPArrayShapingExpr = 191,
-  kOMPIteratorExpr = 192,
-  kObjCArrayLiteral = 193,
-  kObjCAvailabilityCheckExpr = 194,
-  kObjCBoolLiteralExpr = 195,
-  kObjCBoxedExpr = 196,
-  kObjCDictionaryLiteral = 197,
-  kObjCEncodeExpr = 198,
-  kObjCIndirectCopyRestoreExpr = 199,
-  kObjCIsaExpr = 200,
-  kObjCIvarRefExpr = 201,
-  kObjCMessageExpr = 202,
-  kObjCPropertyRefExpr = 203,
-  kObjCProtocolExpr = 204,
-  kObjCSelectorExpr = 205,
-  kObjCStringLiteral = 206,
-  kObjCSubscriptRefExpr = 207,
-  kOffsetOfExpr = 208,
-  kOpaqueValueExpr = 209,
-  kUnresolvedLookupExpr = 210,
-  kUnresolvedMemberExpr = 211,
-  kPackExpansionExpr = 212,
-  kParenExpr = 213,
-  kParenListExpr = 214,
-  kPredefinedExpr = 215,
-  kPseudoObjectExpr = 216,
-  kRecoveryExpr = 217,
-  kRequiresExpr = 218,
-  kSYCLUniqueStableNameExpr = 219,
-  kShuffleVectorExpr = 220,
-  kSizeOfPackExpr = 221,
-  kSourceLocExpr = 222,
-  kStmtExpr = 223,
-  kStringLiteral = 224,
-  kSubstNonTypeTemplateParmExpr = 225,
-  kSubstNonTypeTemplateParmPackExpr = 226,
-  kTypeTraitExpr = 227,
-  kTypoExpr = 228,
-  kUnaryExprOrTypeTraitExpr = 229,
-  kUnaryOperator = 230,
-  kVAArgExpr = 231,
-  kLabelStmt = 232,
-  kWhileStmt = 233,
+  kOMPScopeDirective = 76,
+  kOMPSectionDirective = 77,
+  kOMPSectionsDirective = 78,
+  kOMPSingleDirective = 79,
+  kOMPTargetDataDirective = 80,
+  kOMPTargetDirective = 81,
+  kOMPTargetEnterDataDirective = 82,
+  kOMPTargetExitDataDirective = 83,
+  kOMPTargetParallelDirective = 84,
+  kOMPTargetParallelForDirective = 85,
+  kOMPTargetTeamsDirective = 86,
+  kOMPTargetUpdateDirective = 87,
+  kOMPTaskDirective = 88,
+  kOMPTaskgroupDirective = 89,
+  kOMPTaskwaitDirective = 90,
+  kOMPTaskyieldDirective = 91,
+  kOMPTeamsDirective = 92,
+  kObjCAtCatchStmt = 93,
+  kObjCAtFinallyStmt = 94,
+  kObjCAtSynchronizedStmt = 95,
+  kObjCAtThrowStmt = 96,
+  kObjCAtTryStmt = 97,
+  kObjCAutoreleasePoolStmt = 98,
+  kObjCForCollectionStmt = 99,
+  kReturnStmt = 100,
+  kSEHExceptStmt = 101,
+  kSEHFinallyStmt = 102,
+  kSEHLeaveStmt = 103,
+  kSEHTryStmt = 104,
+  kCaseStmt = 105,
+  kDefaultStmt = 106,
+  kSwitchStmt = 107,
+  kAttributedStmt = 108,
+  kBinaryConditionalOperator = 109,
+  kConditionalOperator = 110,
+  kAddrLabelExpr = 111,
+  kArrayInitIndexExpr = 112,
+  kArrayInitLoopExpr = 113,
+  kArraySubscriptExpr = 114,
+  kArrayTypeTraitExpr = 115,
+  kAsTypeExpr = 116,
+  kAtomicExpr = 117,
+  kBinaryOperator = 118,
+  kCompoundAssignOperator = 119,
+  kBlockExpr = 120,
+  kCXXBindTemporaryExpr = 121,
+  kCXXBoolLiteralExpr = 122,
+  kCXXConstructExpr = 123,
+  kCXXTemporaryObjectExpr = 124,
+  kCXXDefaultArgExpr = 125,
+  kCXXDefaultInitExpr = 126,
+  kCXXDeleteExpr = 127,
+  kCXXDependentScopeMemberExpr = 128,
+  kCXXFoldExpr = 129,
+  kCXXInheritedCtorInitExpr = 130,
+  kCXXNewExpr = 131,
+  kCXXNoexceptExpr = 132,
+  kCXXNullPtrLiteralExpr = 133,
+  kCXXParenListInitExpr = 134,
+  kCXXPseudoDestructorExpr = 135,
+  kCXXRewrittenBinaryOperator = 136,
+  kCXXScalarValueInitExpr = 137,
+  kCXXStdInitializerListExpr = 138,
+  kCXXThisExpr = 139,
+  kCXXThrowExpr = 140,
+  kCXXTypeidExpr = 141,
+  kCXXUnresolvedConstructExpr = 142,
+  kCXXUuidofExpr = 143,
+  kCallExpr = 144,
+  kCUDAKernelCallExpr = 145,
+  kCXXMemberCallExpr = 146,
+  kCXXOperatorCallExpr = 147,
+  kUserDefinedLiteral = 148,
+  kBuiltinBitCastExpr = 149,
+  kCStyleCastExpr = 150,
+  kCXXFunctionalCastExpr = 151,
+  kCXXAddrspaceCastExpr = 152,
+  kCXXConstCastExpr = 153,
+  kCXXDynamicCastExpr = 154,
+  kCXXReinterpretCastExpr = 155,
+  kCXXStaticCastExpr = 156,
+  kObjCBridgedCastExpr = 157,
+  kImplicitCastExpr = 158,
+  kCharacterLiteral = 159,
+  kChooseExpr = 160,
+  kCompoundLiteralExpr = 161,
+  kConceptSpecializationExpr = 162,
+  kConvertVectorExpr = 163,
+  kCoawaitExpr = 164,
+  kCoyieldExpr = 165,
+  kDeclRefExpr = 166,
+  kDependentCoawaitExpr = 167,
+  kDependentScopeDeclRefExpr = 168,
+  kDesignatedInitExpr = 169,
+  kDesignatedInitUpdateExpr = 170,
+  kExpressionTraitExpr = 171,
+  kExtVectorElementExpr = 172,
+  kFixedPointLiteral = 173,
+  kFloatingLiteral = 174,
+  kConstantExpr = 175,
+  kExprWithCleanups = 176,
+  kFunctionParmPackExpr = 177,
+  kGNUNullExpr = 178,
+  kGenericSelectionExpr = 179,
+  kImaginaryLiteral = 180,
+  kImplicitValueInitExpr = 181,
+  kInitListExpr = 182,
+  kIntegerLiteral = 183,
+  kLambdaExpr = 184,
+  kMSPropertyRefExpr = 185,
+  kMSPropertySubscriptExpr = 186,
+  kMaterializeTemporaryExpr = 187,
+  kMatrixSubscriptExpr = 188,
+  kMemberExpr = 189,
+  kNoInitExpr = 190,
+  kOMPArraySectionExpr = 191,
+  kOMPArrayShapingExpr = 192,
+  kOMPIteratorExpr = 193,
+  kObjCArrayLiteral = 194,
+  kObjCAvailabilityCheckExpr = 195,
+  kObjCBoolLiteralExpr = 196,
+  kObjCBoxedExpr = 197,
+  kObjCDictionaryLiteral = 198,
+  kObjCEncodeExpr = 199,
+  kObjCIndirectCopyRestoreExpr = 200,
+  kObjCIsaExpr = 201,
+  kObjCIvarRefExpr = 202,
+  kObjCMessageExpr = 203,
+  kObjCPropertyRefExpr = 204,
+  kObjCProtocolExpr = 205,
+  kObjCSelectorExpr = 206,
+  kObjCStringLiteral = 207,
+  kObjCSubscriptRefExpr = 208,
+  kOffsetOfExpr = 209,
+  kOpaqueValueExpr = 210,
+  kUnresolvedLookupExpr = 211,
+  kUnresolvedMemberExpr = 212,
+  kPackExpansionExpr = 213,
+  kParenExpr = 214,
+  kParenListExpr = 215,
+  kPredefinedExpr = 216,
+  kPseudoObjectExpr = 217,
+  kRecoveryExpr = 218,
+  kRequiresExpr = 219,
+  kSYCLUniqueStableNameExpr = 220,
+  kShuffleVectorExpr = 221,
+  kSizeOfPackExpr = 222,
+  kSourceLocExpr = 223,
+  kStmtExpr = 224,
+  kStringLiteral = 225,
+  kSubstNonTypeTemplateParmExpr = 226,
+  kSubstNonTypeTemplateParmPackExpr = 227,
+  kTypeTraitExpr = 228,
+  kTypoExpr = 229,
+  kUnaryExprOrTypeTraitExpr = 230,
+  kUnaryOperator = 231,
+  kVAArgExpr = 232,
+  kLabelStmt = 233,
+  kWhileStmt = 234,
 };
 
 enum class StringLiteralStringKind : unsigned int {
@@ -4357,6 +4641,7 @@ enum class StringLiteralStringKind : unsigned int {
   kUTF8 = 2,
   kUTF16 = 3,
   kUTF32 = 4,
+  kUnevaluated = 5,
 };
 
 enum class SwiftAsyncAttrKind : unsigned int {
@@ -4368,21 +4653,21 @@ enum class SwiftAsyncAttrKind : unsigned int {
 enum class SwiftAsyncAttrSpelling : unsigned int {
   kGNUSwiftAsync = 0,
   kCXX11ClangSwiftAsync = 1,
-  kC2xClangSwiftAsync = 2,
+  kC23ClangSwiftAsync = 2,
   kSpellingNotCalculated = 15,
 };
 
 enum class SwiftAsyncCallAttrSpelling : unsigned int {
   kGNUSwiftasynccall = 0,
   kCXX11ClangSwiftasynccall = 1,
-  kC2xClangSwiftasynccall = 2,
+  kC23ClangSwiftasynccall = 2,
   kSpellingNotCalculated = 15,
 };
 
 enum class SwiftAsyncContextAttrSpelling : unsigned int {
   kGNUSwiftAsyncContext = 0,
   kCXX11ClangSwiftAsyncContext = 1,
-  kC2xClangSwiftAsyncContext = 2,
+  kC23ClangSwiftAsyncContext = 2,
   kSpellingNotCalculated = 15,
 };
 
@@ -4396,21 +4681,21 @@ enum class SwiftAsyncErrorAttrConventionKind : unsigned int {
 enum class SwiftAsyncErrorAttrSpelling : unsigned int {
   kGNUSwiftAsyncError = 0,
   kCXX11ClangSwiftAsyncError = 1,
-  kC2xClangSwiftAsyncError = 2,
+  kC23ClangSwiftAsyncError = 2,
   kSpellingNotCalculated = 15,
 };
 
 enum class SwiftCallAttrSpelling : unsigned int {
   kGNUSwiftcall = 0,
   kCXX11ClangSwiftcall = 1,
-  kC2xClangSwiftcall = 2,
+  kC23ClangSwiftcall = 2,
   kSpellingNotCalculated = 15,
 };
 
 enum class SwiftContextAttrSpelling : unsigned int {
   kGNUSwiftContext = 0,
   kCXX11ClangSwiftContext = 1,
-  kC2xClangSwiftContext = 2,
+  kC23ClangSwiftContext = 2,
   kSpellingNotCalculated = 15,
 };
 
@@ -4425,14 +4710,14 @@ enum class SwiftErrorAttrConventionKind : unsigned int {
 enum class SwiftErrorResultAttrSpelling : unsigned int {
   kGNUSwiftErrorResult = 0,
   kCXX11ClangSwiftErrorResult = 1,
-  kC2xClangSwiftErrorResult = 2,
+  kC23ClangSwiftErrorResult = 2,
   kSpellingNotCalculated = 15,
 };
 
 enum class SwiftIndirectResultAttrSpelling : unsigned int {
   kGNUSwiftIndirectResult = 0,
   kCXX11ClangSwiftIndirectResult = 1,
-  kC2xClangSwiftIndirectResult = 2,
+  kC23ClangSwiftIndirectResult = 2,
   kSpellingNotCalculated = 15,
 };
 
@@ -4450,35 +4735,35 @@ enum class SwiftNewTypeAttrSpelling : unsigned int {
 enum class SysVABIAttrSpelling : unsigned int {
   kGNUSysvAbi = 0,
   kCXX11GnuSysvAbi = 1,
-  kC2xGnuSysvAbi = 2,
+  kC23GnuSysvAbi = 2,
   kSpellingNotCalculated = 15,
 };
 
 enum class TLSModelAttrSpelling : unsigned int {
   kGNUTlsModel = 0,
   kCXX11GnuTlsModel = 1,
-  kC2xGnuTlsModel = 2,
+  kC23GnuTlsModel = 2,
   kSpellingNotCalculated = 15,
 };
 
 enum class TargetAttrSpelling : unsigned int {
   kGNUTarget = 0,
   kCXX11GnuTarget = 1,
-  kC2xGnuTarget = 2,
+  kC23GnuTarget = 2,
   kSpellingNotCalculated = 15,
 };
 
 enum class TargetClonesAttrSpelling : unsigned int {
   kGNUTargetClones = 0,
   kCXX11GnuTargetClones = 1,
-  kC2xGnuTargetClones = 2,
+  kC23GnuTargetClones = 2,
   kSpellingNotCalculated = 15,
 };
 
 enum class TargetVersionAttrSpelling : unsigned int {
   kGNUTargetVersion = 0,
   kCXX11GnuTargetVersion = 1,
-  kC2xGnuTargetVersion = 2,
+  kC23GnuTargetVersion = 2,
   kSpellingNotCalculated = 15,
 };
 
@@ -4508,7 +4793,7 @@ enum class TestTypestateAttrSpelling : unsigned int {
 enum class ThisCallAttrSpelling : unsigned int {
   kGNUThiscall = 0,
   kCXX11GnuThiscall = 1,
-  kC2xGnuThiscall = 2,
+  kC23GnuThiscall = 2,
   kKeywordThiscall = 3,
   kSpellingNotCalculated = 15,
 };
@@ -4516,7 +4801,7 @@ enum class ThisCallAttrSpelling : unsigned int {
 enum class TransparentUnionAttrSpelling : unsigned int {
   kGNUTransparentUnion = 0,
   kCXX11GnuTransparentUnion = 1,
-  kC2xGnuTransparentUnion = 2,
+  kC23GnuTransparentUnion = 2,
   kSpellingNotCalculated = 15,
 };
 
@@ -4608,14 +4893,14 @@ enum class TypeKind : unsigned int {
 enum class TypeTagForDatatypeAttrSpelling : unsigned int {
   kGNUTypeTagForDatatype = 0,
   kCXX11ClangTypeTagForDatatype = 1,
-  kC2xClangTypeTagForDatatype = 2,
+  kC23ClangTypeTagForDatatype = 2,
   kSpellingNotCalculated = 15,
 };
 
 enum class TypeVisibilityAttrSpelling : unsigned int {
   kGNUTypeVisibility = 0,
   kCXX11ClangTypeVisibility = 1,
-  kC2xClangTypeVisibility = 2,
+  kC23ClangTypeVisibility = 2,
   kSpellingNotCalculated = 15,
 };
 
@@ -4656,7 +4941,7 @@ enum class UnavailableAttrImplicitReason : unsigned int {
 enum class UnavailableAttrSpelling : unsigned int {
   kGNUUnavailable = 0,
   kCXX11ClangUnavailable = 1,
-  kC2xClangUnavailable = 2,
+  kC23ClangUnavailable = 2,
   kSpellingNotCalculated = 15,
 };
 
@@ -4668,7 +4953,14 @@ enum class UninitializedAttrSpelling : unsigned int {
 
 enum class UnlikelyAttrSpelling : unsigned int {
   kCXX11Unlikely = 0,
-  kC2xClangUnlikely = 1,
+  kC23ClangUnlikely = 1,
+  kSpellingNotCalculated = 15,
+};
+
+enum class UnsafeBufferUsageAttrSpelling : unsigned int {
+  kGNUUnsafeBufferUsage = 0,
+  kCXX11ClangUnsafeBufferUsage = 1,
+  kC23ClangUnsafeBufferUsage = 2,
   kSpellingNotCalculated = 15,
 };
 
@@ -4676,22 +4968,22 @@ enum class UnusedAttrSpelling : unsigned int {
   kCXX11MaybeUnused = 0,
   kGNUUnused = 1,
   kCXX11GnuUnused = 2,
-  kC2xGnuUnused = 3,
-  kC2xMaybeUnused = 4,
+  kC23GnuUnused = 3,
+  kC23MaybeUnused = 4,
   kSpellingNotCalculated = 15,
 };
 
 enum class UseHandleAttrSpelling : unsigned int {
   kGNUUseHandle = 0,
   kCXX11ClangUseHandle = 1,
-  kC2xClangUseHandle = 2,
+  kC23ClangUseHandle = 2,
   kSpellingNotCalculated = 15,
 };
 
 enum class UsedAttrSpelling : unsigned int {
   kGNUUsed = 0,
   kCXX11GnuUsed = 1,
-  kC2xGnuUsed = 2,
+  kC23GnuUsed = 2,
   kSpellingNotCalculated = 15,
 };
 
@@ -4744,7 +5036,7 @@ enum class VecReturnAttrSpelling : unsigned int {
 enum class VectorCallAttrSpelling : unsigned int {
   kGNUVectorcall = 0,
   kCXX11ClangVectorcall = 1,
-  kC2xClangVectorcall = 2,
+  kC23ClangVectorcall = 2,
   kKeywordVectorcall = 3,
   kSpellingNotCalculated = 15,
 };
@@ -4758,12 +5050,13 @@ enum class VectorTypeVectorKind : unsigned int {
   kNeonPolyVector = 5,
   kSveFixedLengthDataVector = 6,
   kSveFixedLengthPredicateVector = 7,
+  kRVVFixedLengthDataVector = 8,
 };
 
 enum class VisibilityAttrSpelling : unsigned int {
   kGNUVisibility = 0,
   kCXX11GnuVisibility = 1,
-  kC2xGnuVisibility = 2,
+  kC23GnuVisibility = 2,
   kSpellingNotCalculated = 15,
 };
 
@@ -4776,90 +5069,90 @@ enum class VisibilityAttrVisibilityType : unsigned int {
 enum class WarnUnusedAttrSpelling : unsigned int {
   kGNUWarnUnused = 0,
   kCXX11GnuWarnUnused = 1,
-  kC2xGnuWarnUnused = 2,
+  kC23GnuWarnUnused = 2,
   kSpellingNotCalculated = 15,
 };
 
 enum class WarnUnusedResultAttrSpelling : unsigned int {
   kCXX11Nodiscard = 0,
-  kC2xNodiscard = 1,
+  kC23Nodiscard = 1,
   kCXX11ClangWarnUnusedResult = 2,
   kGNUWarnUnusedResult = 3,
   kCXX11GnuWarnUnusedResult = 4,
-  kC2xGnuWarnUnusedResult = 5,
+  kC23GnuWarnUnusedResult = 5,
   kSpellingNotCalculated = 15,
 };
 
 enum class WeakAttrSpelling : unsigned int {
   kGNUWeak = 0,
   kCXX11GnuWeak = 1,
-  kC2xGnuWeak = 2,
+  kC23GnuWeak = 2,
   kSpellingNotCalculated = 15,
 };
 
 enum class WeakImportAttrSpelling : unsigned int {
   kGNUWeakImport = 0,
   kCXX11ClangWeakImport = 1,
-  kC2xClangWeakImport = 2,
+  kC23ClangWeakImport = 2,
   kSpellingNotCalculated = 15,
 };
 
 enum class WeakRefAttrSpelling : unsigned int {
   kGNUWeakref = 0,
   kCXX11GnuWeakref = 1,
-  kC2xGnuWeakref = 2,
+  kC23GnuWeakref = 2,
   kSpellingNotCalculated = 15,
 };
 
 enum class WebAssemblyExportNameAttrSpelling : unsigned int {
   kGNUExportName = 0,
   kCXX11ClangExportName = 1,
-  kC2xClangExportName = 2,
+  kC23ClangExportName = 2,
   kSpellingNotCalculated = 15,
 };
 
 enum class WebAssemblyImportModuleAttrSpelling : unsigned int {
   kGNUImportModule = 0,
   kCXX11ClangImportModule = 1,
-  kC2xClangImportModule = 2,
+  kC23ClangImportModule = 2,
   kSpellingNotCalculated = 15,
 };
 
 enum class WebAssemblyImportNameAttrSpelling : unsigned int {
   kGNUImportName = 0,
   kCXX11ClangImportName = 1,
-  kC2xClangImportName = 2,
+  kC23ClangImportName = 2,
   kSpellingNotCalculated = 15,
 };
 
 enum class X86ForceAlignArgPointerAttrSpelling : unsigned int {
   kGNUForceAlignArgumentPointer = 0,
   kCXX11GnuForceAlignArgumentPointer = 1,
-  kC2xGnuForceAlignArgumentPointer = 2,
+  kC23GnuForceAlignArgumentPointer = 2,
   kSpellingNotCalculated = 15,
 };
 
 enum class XRayInstrumentAttrSpelling : unsigned int {
   kGNUXrayAlwaysInstrument = 0,
   kCXX11ClangXrayAlwaysInstrument = 1,
-  kC2xClangXrayAlwaysInstrument = 2,
+  kC23ClangXrayAlwaysInstrument = 2,
   kGNUXrayNeverInstrument = 3,
   kCXX11ClangXrayNeverInstrument = 4,
-  kC2xClangXrayNeverInstrument = 5,
+  kC23ClangXrayNeverInstrument = 5,
   kSpellingNotCalculated = 15,
 };
 
 enum class XRayLogArgsAttrSpelling : unsigned int {
   kGNUXrayLogArguments = 0,
   kCXX11ClangXrayLogArguments = 1,
-  kC2xClangXrayLogArguments = 2,
+  kC23ClangXrayLogArguments = 2,
   kSpellingNotCalculated = 15,
 };
 
 enum class ZeroCallUsedRegsAttrSpelling : unsigned int {
   kGNUZeroCallUsedRegs = 0,
   kCXX11GnuZeroCallUsedRegs = 1,
-  kC2xGnuZeroCallUsedRegs = 2,
+  kC23GnuZeroCallUsedRegs = 2,
   kSpellingNotCalculated = 15,
 };
 
@@ -5174,10 +5467,10 @@ enum class DataPositionTy : unsigned long {
   kPOSR = 6,
 };
 
-enum class DebugSrcHashKind : unsigned int {
-  kDSHMD5 = 0,
-  kDSHSHA1 = 1,
-  kDSHSHA256 = 2,
+enum class DeductionCandidate : unsigned char {
+  kNormal = 0,
+  kCopy = 1,
+  kAggregate = 2,
 };
 
 enum class DefaultArgKind : unsigned int {
@@ -5202,6 +5495,12 @@ enum class DefaultVisiblityExportMapping : int {
   kAll = 2,
 };
 
+enum class DesignatorKind : unsigned int {
+  kFieldDesignator = 0,
+  kArrayDesignator = 1,
+  kArrayRangeDesignator = 2,
+};
+
 enum class DiagnosticLevelMask : unsigned int {
   kNone = 0,
   kNote = 1,
@@ -5219,13 +5518,6 @@ enum class ElaboratedTypeKeyword : unsigned int {
   kEnum = 4,
   kTypename = 5,
   kNone = 6,
-};
-
-enum class EmbedBitcodeKind : unsigned int {
-  kEmbedOff = 0,
-  kEmbedAll = 1,
-  kEmbedBitcode = 2,
-  kEmbedMarker = 3,
 };
 
 enum class EscapeChar : int {
@@ -5261,12 +5553,6 @@ enum class ExcessPrecisionKind : unsigned int {
   kFPPStandard = 0,
   kFPPFast = 1,
   kFPPNone = 2,
-};
-
-enum class ExclusionType : unsigned int {
-  kAllow = 0,
-  kSkip = 1,
-  kForbid = 2,
 };
 
 enum class ExplicitSpecKind : unsigned int {
@@ -5349,21 +5635,9 @@ enum class FPModeKind : unsigned int {
   kFastHonorPragmas = 3,
 };
 
-enum class FiniteLoopsKind : unsigned int {
-  kLanguage = 0,
-  kAlways = 1,
-  kNever = 2,
-};
-
 enum class Flags : unsigned int {
   kFInline = 1,
   kFNested = 2,
-};
-
-enum class FramePointerKind : int {
-  kNone = 0,
-  kNonLeaf = 1,
-  kAll = 2,
 };
 
 enum class GC : unsigned int {
@@ -5430,13 +5704,6 @@ enum class IfStatementKind : unsigned int {
   kConstevalNegated = 3,
 };
 
-enum class ImbueAttribute : int {
-  kNONE = 0,
-  kALWAYS = 1,
-  kNEVER = 2,
-  kALWAYSARG1 = 3,
-};
-
 enum class InClassInitStyle : unsigned int {
   kNoInitializer = 0,
   kCopyInitializer = 1,
@@ -5456,11 +5723,6 @@ enum class InitStorageKind : unsigned int {
   kCapturedVLAType = 3,
 };
 
-enum class InlineAsmDialectKind : unsigned int {
-  kIADATT = 0,
-  kIADIntel = 1,
-};
-
 enum class InlineVariableDefinitionKind : int {
   kNone = 0,
   kWeak = 1,
@@ -5468,10 +5730,15 @@ enum class InlineVariableDefinitionKind : int {
   kStrong = 3,
 };
 
-enum class InliningMethod : unsigned int {
-  kNormalInlining = 0,
-  kOnlyHintInlining = 1,
-  kOnlyAlwaysInlining = 2,
+enum class InterestingIdentifierKind : unsigned int {
+  kNotInteresting = 0,
+  kFILE = 1,
+  kJmpBuf = 2,
+  kSigjmpBuf = 3,
+  kUcontextT = 4,
+  kFloatT = 5,
+  kDoubleT = 6,
+  kNUMINTERESTINGIDENTIFIERS = 7,
 };
 
 enum class Kinds : unsigned int {
@@ -5524,6 +5791,7 @@ enum class LangAS : unsigned int {
   kPtr32Uptr = 17,
   kPtr64 = 18,
   kHlslGroupshared = 19,
+  kWasmFuncref = 20,
 };
 
 enum class LangFeatures : unsigned int {
@@ -5531,18 +5799,19 @@ enum class LangFeatures : unsigned int {
   kC99 = 2,
   kC11 = 4,
   kC17 = 8,
-  kC2x = 16,
+  kC23 = 16,
   kCPlusPlus = 32,
   kCPlusPlus11 = 64,
   kCPlusPlus14 = 128,
   kCPlusPlus17 = 256,
   kCPlusPlus20 = 512,
-  kCPlusPlus2b = 1024,
-  kDigraphs = 2048,
-  kGNUMode = 4096,
-  kHexFloat = 8192,
-  kOpenCL = 16384,
-  kHLSL = 32768,
+  kCPlusPlus23 = 1024,
+  kCPlusPlus26 = 2048,
+  kDigraphs = 4096,
+  kGNUMode = 8192,
+  kHexFloat = 16384,
+  kOpenCL = 32768,
+  kHLSL = 65536,
 };
 
 enum class Language : unsigned char {
@@ -5587,9 +5856,8 @@ enum class Linkage : unsigned char {
   kInternalLinkage = 1,
   kUniqueExternalLinkage = 2,
   kVisibleNoLinkage = 3,
-  kModuleInternalLinkage = 4,
-  kModuleLinkage = 5,
-  kExternalLinkage = 6,
+  kModuleLinkage = 4,
+  kExternalLinkage = 5,
 };
 
 enum class MSInheritanceModel : int {
@@ -5694,12 +5962,6 @@ enum class ObjCBridgeCastKind : unsigned int {
   kBridge = 0,
   kBridgeTransfer = 1,
   kBridgeRetained = 2,
-};
-
-enum class ObjCDispatchMethodKind : unsigned int {
-  kLegacy = 0,
-  kNonLegacy = 1,
-  kMixed = 2,
 };
 
 enum class ObjCInstanceTypeFamily : unsigned int {
@@ -5877,6 +6139,14 @@ enum class OpenMPDeviceType : unsigned int {
 enum class OpenMPDistScheduleClauseKind : unsigned int {
   kStatic = 0,
   kUnknown = 1,
+};
+
+enum class OpenMPDoacrossClauseModifier : unsigned int {
+  kDOACROSSSource = 0,
+  kDOACROSSSink = 1,
+  kDOACROSSSinkOmpCurIteration = 2,
+  kDOACROSSSourceOmpCurIteration = 3,
+  kDOACROSSUnknown = 4,
 };
 
 enum class OpenMPGrainsizeClauseModifier : unsigned int {
@@ -6106,13 +6376,6 @@ enum class PragmaSectionFlag : unsigned int {
   kInvalid = 2147483648,
 };
 
-enum class ProfileInstrKind : unsigned int {
-  kProfileNone = 0,
-  kProfileClangInstr = 1,
-  kProfileIRInstr = 2,
-  kProfileCSIRInstr = 3,
-};
-
 enum class Qualified : int {
   kNone = 0,
   kAsWritten = 1,
@@ -6138,15 +6401,6 @@ enum class RefQualifierKind : unsigned int {
   kRValue = 2,
 };
 
-enum class RemarkKind : unsigned int {
-  kMissing = 0,
-  kEnabled = 1,
-  kEnabledEverything = 2,
-  kDisabled = 3,
-  kDisabledEverything = 4,
-  kWithPattern = 5,
-};
-
 enum class ReservedIdentifierStatus : int {
   kNotReserved = 0,
   kStartsWithUnderscoreAtGlobalScope = 1,
@@ -6154,6 +6408,12 @@ enum class ReservedIdentifierStatus : int {
   kStartsWithDoubleUnderscore = 3,
   kStartsWithUnderscoreFollowedByCapitalLetter = 4,
   kContainsDoubleUnderscore = 5,
+};
+
+enum class ReservedLiteralSuffixIdStatus : int {
+  kNotReserved = 0,
+  kNotStartsWithUnderscore = 1,
+  kContainsDoubleUnderscore = 2,
 };
 
 enum class SFINAEResponse : unsigned int {
@@ -6170,7 +6430,7 @@ enum class SYCLMajorVersion : unsigned int {
   kDefault = 2,
 };
 
-enum class SanitizerOrdinal : unsigned long {
+enum class SanitizerOrdinal : unsigned long long {
   kAddress = 0,
   kPointerCompare = 1,
   kPointerSubtract = 2,
@@ -6357,12 +6617,6 @@ enum class StrictFlexArraysLevelKind : int {
   kIncompleteOnly = 3,
 };
 
-enum class StructReturnConventionKind : unsigned int {
-  kDefault = 0,
-  kOnStack = 1,
-  kInRegs = 2,
-};
-
 enum class SubExpr : unsigned int {
   kCallee = 0,
   kLHS = 1,
@@ -6379,16 +6633,10 @@ enum class SubStmt : unsigned int {
   kOnFallthrough = 5,
   kAllocate = 6,
   kDeallocate = 7,
-  kReturnValue = 8,
-  kReturnStatement = 9,
-  kReturnStatementOnAllocFailure = 10,
-};
-
-enum class SwiftAsyncFramePointerKind : int {
-  kAuto = 0,
-  kAlways = 1,
-  kNever = 2,
-  kDefault = 1,
+  kResultDeclaration = 8,
+  kReturnValue = 9,
+  kReturnStatement = 10,
+  kReturnStatementOnAllocFailure = 11,
 };
 
 enum class SyncScope : int {
@@ -6404,22 +6652,16 @@ enum class SyncScope : int {
 };
 
 enum class Syntax : unsigned int {
-  kGNU = 0,
-  kCXX11 = 1,
-  kC2x = 2,
-  kDeclspec = 3,
-  kMicrosoft = 4,
-  kKeyword = 5,
-  kPragma = 6,
-  kContextSensitiveKeyword = 7,
-  kHLSLSemantic = 8,
-};
-
-enum class TLSModel : unsigned int {
-  kGeneralDynamicTLSModel = 0,
-  kLocalDynamicTLSModel = 1,
-  kInitialExecTLSModel = 2,
-  kLocalExecTLSModel = 3,
+  kGNU = 1,
+  kCXX11 = 2,
+  kC23 = 3,
+  kDeclspec = 4,
+  kMicrosoft = 5,
+  kKeyword = 6,
+  kPragma = 7,
+  kContextSensitiveKeyword = 8,
+  kHLSLSemantic = 9,
+  kImplicit = 10,
 };
 
 enum class TQ : unsigned int {
@@ -6681,241 +6923,254 @@ enum class TokenKind : unsigned short {
   kKeyword__BuiltinChooseExpression = 187,
   kKeyword__BuiltinOffsetof = 188,
   kKeyword__BuiltinFILE = 189,
-  kKeyword__BuiltinFUNCTION = 190,
-  kKeyword__BuiltinLINE = 191,
-  kKeyword__BuiltinCOLUMN = 192,
-  kKeyword__BuiltinSourceToken = 193,
-  kKeyword__BuiltinTypesCompatibleP = 194,
-  kKeyword__BuiltinVaArgument = 195,
-  kKeyword__Extension__ = 196,
-  kKeyword__Float128 = 197,
-  kKeyword__Ibm128 = 198,
-  kKeyword__Imag = 199,
-  kKeyword__Int128 = 200,
-  kKeyword__Label__ = 201,
-  kKeyword__Real = 202,
-  kKeyword__Thread = 203,
-  kKeyword__FUNCTION__ = 204,
-  kKeyword__PRETTYFUNCTION__ = 205,
-  kKeyword__AutoType = 206,
-  kKeyword__FUNCDNAME__ = 207,
-  kKeyword__FUNCSIG__ = 208,
-  kKeywordLFUNCTION__ = 209,
-  kKeywordLFUNCSIG__ = 210,
-  kKeyword__IsInterfaceClass = 211,
-  kKeyword__IsSealed = 212,
-  kKeyword__IsDestructible = 213,
-  kKeyword__IsTriviallyDestructible = 214,
-  kKeyword__IsNothrowDestructible = 215,
-  kKeyword__IsNothrowAssignable = 216,
-  kKeyword__IsConstructible = 217,
-  kKeyword__IsNothrowConstructible = 218,
-  kKeyword__IsAssignable = 219,
-  kKeyword__HasNothrowMoveAssign = 220,
-  kKeyword__HasTrivialMoveAssign = 221,
-  kKeyword__HasTrivialMoveConstructor = 222,
-  kKeyword__HasNothrowAssign = 223,
-  kKeyword__HasNothrowCopy = 224,
-  kKeyword__HasNothrowConstructor = 225,
-  kKeyword__HasTrivialAssign = 226,
-  kKeyword__HasTrivialCopy = 227,
-  kKeyword__HasTrivialConstructor = 228,
-  kKeyword__HasTrivialDestructor = 229,
-  kKeyword__HasVirtualDestructor = 230,
-  kKeyword__IsAbstract = 231,
-  kKeyword__IsAggregate = 232,
-  kKeyword__IsBaseOf = 233,
-  kKeyword__IsClass = 234,
-  kKeyword__IsConvertibleTo = 235,
-  kKeyword__IsEmpty = 236,
-  kKeyword__IsEnum = 237,
-  kKeyword__IsFinal = 238,
-  kKeyword__IsLiteral = 239,
-  kKeyword__IsPod = 240,
-  kKeyword__IsPolymorphic = 241,
-  kKeyword__IsStandardLayout = 242,
-  kKeyword__IsTrivial = 243,
-  kKeyword__IsTriviallyAssignable = 244,
-  kKeyword__IsTriviallyConstructible = 245,
-  kKeyword__IsTriviallyCopyable = 246,
-  kKeyword__IsUnion = 247,
-  kKeyword__HasUniqueObjectRepresentations = 248,
-  kKeyword__AddLvalueReference = 249,
-  kKeyword__AddPointer = 250,
-  kKeyword__AddRvalueReference = 251,
-  kKeyword__Decay = 252,
-  kKeyword__MakeSigned = 253,
-  kKeyword__MakeUnsigned = 254,
-  kKeyword__RemoveAllExtents = 255,
-  kKeyword__RemoveConst = 256,
-  kKeyword__RemoveCv = 257,
-  kKeyword__RemoveCvref = 258,
-  kKeyword__RemoveExtent = 259,
-  kKeyword__RemovePointer = 260,
-  kKeyword__RemoveReferenceT = 261,
-  kKeyword__RemoveRestrict = 262,
-  kKeyword__RemoveVolatile = 263,
-  kKeyword__UnderlyingType = 264,
-  kKeyword__IsTriviallyRelocatable = 265,
-  kKeyword__IsBoundedArray = 266,
-  kKeyword__IsUnboundedArray = 267,
-  kKeyword__IsNullptr = 268,
-  kKeyword__IsScopedEnum = 269,
-  kKeyword__IsReferenceable = 270,
-  kKeyword__ReferenceBindsToTemporary = 271,
-  kKeyword__IsLvalueExpression = 272,
-  kKeyword__IsRvalueExpression = 273,
-  kKeyword__IsArithmetic = 274,
-  kKeyword__IsFloatingPoint = 275,
-  kKeyword__IsIntegral = 276,
-  kKeyword__IsCompleteType = 277,
-  kKeyword__IsVoid = 278,
-  kKeyword__IsArray = 279,
-  kKeyword__IsFunction = 280,
-  kKeyword__IsReference = 281,
-  kKeyword__IsLvalueReference = 282,
-  kKeyword__IsRvalueReference = 283,
-  kKeyword__IsFundamental = 284,
-  kKeyword__IsObject = 285,
-  kKeyword__IsScalar = 286,
-  kKeyword__IsCompound = 287,
-  kKeyword__IsPointer = 288,
-  kKeyword__IsMemberObjectPointer = 289,
-  kKeyword__IsMemberFunctionPointer = 290,
-  kKeyword__IsMemberPointer = 291,
-  kKeyword__IsConst = 292,
-  kKeyword__IsVolatile = 293,
-  kKeyword__IsSigned = 294,
-  kKeyword__IsUnsigned = 295,
-  kKeyword__IsSame = 296,
-  kKeyword__IsConvertible = 297,
-  kKeyword__ArrayRank = 298,
-  kKeyword__ArrayExtent = 299,
-  kKeyword__PrivateExtern__ = 300,
-  kKeyword__ModulePrivate__ = 301,
-  kKeyword__BuiltinPtrauthTypeDiscriminator = 302,
-  kKeyword__BuiltinXnuTypeSignature = 303,
-  kKeyword__BuiltinXnuTypeSummary = 304,
-  kKeyword__BuiltinTmoTypeMetadata = 305,
-  kKeyword__BuiltinXnuTypesCompatible = 306,
-  kKeyword__Declspec = 307,
-  kKeyword__Cdecl = 308,
-  kKeyword__Stdcall = 309,
-  kKeyword__Fastcall = 310,
-  kKeyword__Thiscall = 311,
-  kKeyword__Regcall = 312,
-  kKeyword__Vectorcall = 313,
-  kKeyword__Forceinline = 314,
-  kKeyword__Unaligned = 315,
-  kKeyword__Super = 316,
-  kKeyword__Global = 317,
-  kKeyword__Local = 318,
-  kKeyword__Constant = 319,
-  kKeyword__Private = 320,
-  kKeyword__Generic = 321,
-  kKeyword__Kernel = 322,
-  kKeyword__ReadOnly = 323,
-  kKeyword__WriteOnly = 324,
-  kKeyword__ReadWrite = 325,
-  kKeyword__BuiltinAstype = 326,
-  kKeywordVecStep = 327,
-  kKeywordImage1dT = 328,
-  kKeywordImage1dArrayT = 329,
-  kKeywordImage1dBufferT = 330,
-  kKeywordImage2dT = 331,
-  kKeywordImage2dArrayT = 332,
-  kKeywordImage2dDepthT = 333,
-  kKeywordImage2dArrayDepthT = 334,
-  kKeywordImage2dMsaaT = 335,
-  kKeywordImage2dArrayMsaaT = 336,
-  kKeywordImage2dMsaaDepthT = 337,
-  kKeywordImage2dArrayMsaaDepthT = 338,
-  kKeywordImage3dT = 339,
-  kKeywordPipe = 340,
-  kKeywordAddrspaceCast = 341,
-  kKeyword__Noinline__ = 342,
-  kKeywordCbuffer = 343,
-  kKeywordTbuffer = 344,
-  kKeywordGroupshared = 345,
-  kKeyword__BuiltinOmpRequiredSimdAlign = 346,
-  kKeyword__Pascal = 347,
-  kKeyword__Vector = 348,
-  kKeyword__Pixel = 349,
-  kKeyword__Boolean = 350,
-  kKeyword__Bf16 = 351,
-  kKeywordHalf = 352,
-  kKeyword__Bridge = 353,
-  kKeyword__BridgeTransfer = 354,
-  kKeyword__BridgeRetained = 355,
-  kKeyword__BridgeRetain = 356,
-  kKeyword__Covariant = 357,
-  kKeyword__Contravariant = 358,
-  kKeyword__Kindof = 359,
-  kKeyword_Nonnull = 360,
-  kKeyword_Nullable = 361,
-  kKeyword_NullableResult = 362,
-  kKeyword_NullUnspecified = 363,
-  kKeyword__Ptr64 = 364,
-  kKeyword__Ptr32 = 365,
-  kKeyword__Sptr = 366,
-  kKeyword__Uptr = 367,
-  kKeyword__W64 = 368,
-  kKeyword__Uuidof = 369,
-  kKeyword__Try = 370,
-  kKeyword__Finally = 371,
-  kKeyword__Leave = 372,
-  kKeyword__Int64 = 373,
-  kKeyword__IfExists = 374,
-  kKeyword__IfNotExists = 375,
-  kKeyword__SingleInheritance = 376,
-  kKeyword__MultipleInheritance = 377,
-  kKeyword__VirtualInheritance = 378,
-  kKeyword__Interface = 379,
-  kKeyword__BuiltinConvertvector = 380,
-  kKeyword__BuiltinBitCast = 381,
-  kKeyword__BuiltinAvailable = 382,
-  kKeyword__BuiltinSyclUniqueStableName = 383,
-  kKeyword__UnknownAnytype = 384,
-  kAnnotCxxscope = 385,
-  kAnnotTypename = 386,
-  kAnnotTemplateId = 387,
-  kAnnotNonType = 388,
-  kAnnotNonTypeUndeclared = 389,
-  kAnnotNonTypeDependent = 390,
-  kAnnotOverload = 391,
-  kAnnotPrimaryExpression = 392,
-  kAnnotDecltype = 393,
-  kAnnotPragmaUnused = 394,
-  kAnnotPragmaVis = 395,
-  kAnnotPragmaPack = 396,
-  kAnnotPragmaParserCrash = 397,
-  kAnnotPragmaCaptured = 398,
-  kAnnotPragmaDump = 399,
-  kAnnotPragmaMsstruct = 400,
-  kAnnotPragmaAlign = 401,
-  kAnnotPragmaWeak = 402,
-  kAnnotPragmaWeakalias = 403,
-  kAnnotPragmaRedefineExtname = 404,
-  kAnnotPragmaFpContract = 405,
-  kAnnotPragmaFenvAccess = 406,
-  kAnnotPragmaFenvAccessMs = 407,
-  kAnnotPragmaFenvRound = 408,
-  kAnnotPragmaFloatControl = 409,
-  kAnnotPragmaMsPointersToMembers = 410,
-  kAnnotPragmaMsVtordisp = 411,
-  kAnnotPragmaMsPragma = 412,
-  kAnnotPragmaOpenclExtension = 413,
-  kAnnotAttributeOpenmp = 414,
-  kAnnotPragmaOpenmp = 415,
-  kAnnotPragmaOpenmpEnd = 416,
-  kAnnotPragmaLoopHint = 417,
-  kAnnotPragmaFp = 418,
-  kAnnotPragmaAttribute = 419,
-  kAnnotPragmaRiscv = 420,
-  kAnnotModuleInclude = 421,
-  kAnnotModuleBegin = 422,
-  kAnnotModuleEnd = 423,
-  kAnnotHeaderUnit = 424,
+  kKeyword__BuiltinFILENAME = 190,
+  kKeyword__BuiltinFUNCTION = 191,
+  kKeyword__BuiltinFUNCSIG = 192,
+  kKeyword__BuiltinLINE = 193,
+  kKeyword__BuiltinCOLUMN = 194,
+  kKeyword__BuiltinSourceToken = 195,
+  kKeyword__BuiltinTypesCompatibleP = 196,
+  kKeyword__BuiltinVaArgument = 197,
+  kKeyword__Extension__ = 198,
+  kKeyword__Float128 = 199,
+  kKeyword__Ibm128 = 200,
+  kKeyword__Imag = 201,
+  kKeyword__Int128 = 202,
+  kKeyword__Label__ = 203,
+  kKeyword__Real = 204,
+  kKeyword__Thread = 205,
+  kKeyword__FUNCTION__ = 206,
+  kKeyword__PRETTYFUNCTION__ = 207,
+  kKeyword__AutoType = 208,
+  kKeyword__FUNCDNAME__ = 209,
+  kKeyword__FUNCSIG__ = 210,
+  kKeywordLFUNCTION__ = 211,
+  kKeywordLFUNCSIG__ = 212,
+  kKeyword__IsInterfaceClass = 213,
+  kKeyword__IsSealed = 214,
+  kKeyword__IsDestructible = 215,
+  kKeyword__IsTriviallyDestructible = 216,
+  kKeyword__IsNothrowDestructible = 217,
+  kKeyword__IsNothrowAssignable = 218,
+  kKeyword__IsConstructible = 219,
+  kKeyword__IsNothrowConstructible = 220,
+  kKeyword__IsAssignable = 221,
+  kKeyword__HasNothrowMoveAssign = 222,
+  kKeyword__HasTrivialMoveAssign = 223,
+  kKeyword__HasTrivialMoveConstructor = 224,
+  kKeyword__HasNothrowAssign = 225,
+  kKeyword__HasNothrowCopy = 226,
+  kKeyword__HasNothrowConstructor = 227,
+  kKeyword__HasTrivialAssign = 228,
+  kKeyword__HasTrivialCopy = 229,
+  kKeyword__HasTrivialConstructor = 230,
+  kKeyword__HasTrivialDestructor = 231,
+  kKeyword__HasVirtualDestructor = 232,
+  kKeyword__IsAbstract = 233,
+  kKeyword__IsAggregate = 234,
+  kKeyword__IsBaseOf = 235,
+  kKeyword__IsClass = 236,
+  kKeyword__IsConvertibleTo = 237,
+  kKeyword__IsEmpty = 238,
+  kKeyword__IsEnum = 239,
+  kKeyword__IsFinal = 240,
+  kKeyword__IsLiteral = 241,
+  kKeyword__IsPod = 242,
+  kKeyword__IsPolymorphic = 243,
+  kKeyword__IsStandardLayout = 244,
+  kKeyword__IsTrivial = 245,
+  kKeyword__IsTriviallyAssignable = 246,
+  kKeyword__IsTriviallyConstructible = 247,
+  kKeyword__IsTriviallyCopyable = 248,
+  kKeyword__IsUnion = 249,
+  kKeyword__HasUniqueObjectRepresentations = 250,
+  kKeyword__AddLvalueReference = 251,
+  kKeyword__AddPointer = 252,
+  kKeyword__AddRvalueReference = 253,
+  kKeyword__Decay = 254,
+  kKeyword__MakeSigned = 255,
+  kKeyword__MakeUnsigned = 256,
+  kKeyword__RemoveAllExtents = 257,
+  kKeyword__RemoveConst = 258,
+  kKeyword__RemoveCv = 259,
+  kKeyword__RemoveCvref = 260,
+  kKeyword__RemoveExtent = 261,
+  kKeyword__RemovePointer = 262,
+  kKeyword__RemoveReferenceT = 263,
+  kKeyword__RemoveRestrict = 264,
+  kKeyword__RemoveVolatile = 265,
+  kKeyword__UnderlyingType = 266,
+  kKeyword__IsTriviallyRelocatable = 267,
+  kKeyword__IsTriviallyEqualityComparable = 268,
+  kKeyword__IsBoundedArray = 269,
+  kKeyword__IsUnboundedArray = 270,
+  kKeyword__IsNullptr = 271,
+  kKeyword__IsScopedEnum = 272,
+  kKeyword__IsReferenceable = 273,
+  kKeyword__CanPassInRegs = 274,
+  kKeyword__ReferenceBindsToTemporary = 275,
+  kKeyword__ReferenceConstructsFromTemporary = 276,
+  kKeyword__IsLvalueExpression = 277,
+  kKeyword__IsRvalueExpression = 278,
+  kKeyword__IsArithmetic = 279,
+  kKeyword__IsFloatingPoint = 280,
+  kKeyword__IsIntegral = 281,
+  kKeyword__IsCompleteType = 282,
+  kKeyword__IsVoid = 283,
+  kKeyword__IsArray = 284,
+  kKeyword__IsFunction = 285,
+  kKeyword__IsReference = 286,
+  kKeyword__IsLvalueReference = 287,
+  kKeyword__IsRvalueReference = 288,
+  kKeyword__IsFundamental = 289,
+  kKeyword__IsObject = 290,
+  kKeyword__IsScalar = 291,
+  kKeyword__IsCompound = 292,
+  kKeyword__IsPointer = 293,
+  kKeyword__IsMemberObjectPointer = 294,
+  kKeyword__IsMemberFunctionPointer = 295,
+  kKeyword__IsMemberPointer = 296,
+  kKeyword__IsConst = 297,
+  kKeyword__IsVolatile = 298,
+  kKeyword__IsSigned = 299,
+  kKeyword__IsUnsigned = 300,
+  kKeyword__IsSame = 301,
+  kKeyword__IsConvertible = 302,
+  kKeyword__ArrayRank = 303,
+  kKeyword__ArrayExtent = 304,
+  kKeyword__PrivateExtern__ = 305,
+  kKeyword__ModulePrivate__ = 306,
+  kKeyword__BuiltinPtrauthTypeDiscriminator = 307,
+  kKeyword__BuiltinXnuTypeSignature = 308,
+  kKeyword__BuiltinXnuTypeSummary = 309,
+  kKeyword__BuiltinTmoTypeMetadata = 310,
+  kKeyword__BuiltinXnuTypesCompatible = 311,
+  kKeyword__Declspec = 312,
+  kKeyword__Cdecl = 313,
+  kKeyword__Stdcall = 314,
+  kKeyword__Fastcall = 315,
+  kKeyword__Thiscall = 316,
+  kKeyword__Regcall = 317,
+  kKeyword__Vectorcall = 318,
+  kKeyword__Forceinline = 319,
+  kKeyword__Unaligned = 320,
+  kKeyword__Super = 321,
+  kKeyword__Global = 322,
+  kKeyword__Local = 323,
+  kKeyword__Constant = 324,
+  kKeyword__Private = 325,
+  kKeyword__Generic = 326,
+  kKeyword__Kernel = 327,
+  kKeyword__ReadOnly = 328,
+  kKeyword__WriteOnly = 329,
+  kKeyword__ReadWrite = 330,
+  kKeyword__BuiltinAstype = 331,
+  kKeywordVecStep = 332,
+  kKeywordImage1dT = 333,
+  kKeywordImage1dArrayT = 334,
+  kKeywordImage1dBufferT = 335,
+  kKeywordImage2dT = 336,
+  kKeywordImage2dArrayT = 337,
+  kKeywordImage2dDepthT = 338,
+  kKeywordImage2dArrayDepthT = 339,
+  kKeywordImage2dMsaaT = 340,
+  kKeywordImage2dArrayMsaaT = 341,
+  kKeywordImage2dMsaaDepthT = 342,
+  kKeywordImage2dArrayMsaaDepthT = 343,
+  kKeywordImage3dT = 344,
+  kKeywordPipe = 345,
+  kKeywordAddrspaceCast = 346,
+  kKeyword__Noinline__ = 347,
+  kKeywordCbuffer = 348,
+  kKeywordTbuffer = 349,
+  kKeywordGroupshared = 350,
+  kKeyword__BuiltinOmpRequiredSimdAlign = 351,
+  kKeyword__Pascal = 352,
+  kKeyword__Vector = 353,
+  kKeyword__Pixel = 354,
+  kKeyword__Boolean = 355,
+  kKeyword__Bf16 = 356,
+  kKeywordHalf = 357,
+  kKeyword__Bridge = 358,
+  kKeyword__BridgeTransfer = 359,
+  kKeyword__BridgeRetained = 360,
+  kKeyword__BridgeRetain = 361,
+  kKeyword__Covariant = 362,
+  kKeyword__Contravariant = 363,
+  kKeyword__Kindof = 364,
+  kKeyword_Nonnull = 365,
+  kKeyword_Nullable = 366,
+  kKeyword_NullableResult = 367,
+  kKeyword_NullUnspecified = 368,
+  kKeyword__Funcref = 369,
+  kKeyword__Ptr64 = 370,
+  kKeyword__Ptr32 = 371,
+  kKeyword__Sptr = 372,
+  kKeyword__Uptr = 373,
+  kKeyword__W64 = 374,
+  kKeyword__Uuidof = 375,
+  kKeyword__Try = 376,
+  kKeyword__Finally = 377,
+  kKeyword__Leave = 378,
+  kKeyword__Int64 = 379,
+  kKeyword__IfExists = 380,
+  kKeyword__IfNotExists = 381,
+  kKeyword__SingleInheritance = 382,
+  kKeyword__MultipleInheritance = 383,
+  kKeyword__VirtualInheritance = 384,
+  kKeyword__Interface = 385,
+  kKeyword__BuiltinConvertvector = 386,
+  kKeyword__BuiltinBitCast = 387,
+  kKeyword__BuiltinAvailable = 388,
+  kKeyword__BuiltinSyclUniqueStableName = 389,
+  kKeyword__ArmLocallyStreaming = 390,
+  kKeyword__ArmNewZa = 391,
+  kKeyword__ArmPreservesZa = 392,
+  kKeyword__ArmSharedZa = 393,
+  kKeyword__ArmStreaming = 394,
+  kKeyword__ArmStreamingCompatible = 395,
+  kKeyword__UnknownAnytype = 396,
+  kAnnotCxxscope = 397,
+  kAnnotTypename = 398,
+  kAnnotTemplateId = 399,
+  kAnnotNonType = 400,
+  kAnnotNonTypeUndeclared = 401,
+  kAnnotNonTypeDependent = 402,
+  kAnnotOverload = 403,
+  kAnnotPrimaryExpression = 404,
+  kAnnotDecltype = 405,
+  kAnnotPragmaUnused = 406,
+  kAnnotPragmaVis = 407,
+  kAnnotPragmaPack = 408,
+  kAnnotPragmaParserCrash = 409,
+  kAnnotPragmaCaptured = 410,
+  kAnnotPragmaDump = 411,
+  kAnnotPragmaMsstruct = 412,
+  kAnnotPragmaAlign = 413,
+  kAnnotPragmaWeak = 414,
+  kAnnotPragmaWeakalias = 415,
+  kAnnotPragmaRedefineExtname = 416,
+  kAnnotPragmaFpContract = 417,
+  kAnnotPragmaFenvAccess = 418,
+  kAnnotPragmaFenvAccessMs = 419,
+  kAnnotPragmaFenvRound = 420,
+  kAnnotPragmaFloatControl = 421,
+  kAnnotPragmaMsPointersToMembers = 422,
+  kAnnotPragmaMsVtordisp = 423,
+  kAnnotPragmaMsPragma = 424,
+  kAnnotPragmaOpenclExtension = 425,
+  kAnnotAttributeOpenmp = 426,
+  kAnnotPragmaOpenmp = 427,
+  kAnnotPragmaOpenmpEnd = 428,
+  kAnnotPragmaLoopHint = 429,
+  kAnnotPragmaFp = 430,
+  kAnnotPragmaAttribute = 431,
+  kAnnotPragmaRiscv = 432,
+  kAnnotModuleInclude = 433,
+  kAnnotModuleBegin = 434,
+  kAnnotModuleEnd = 435,
+  kAnnotHeaderUnit = 436,
+  kAnnotReplInputEnd = 437,
 };
 
 enum class TrailingAllocKind : unsigned int {
@@ -7131,46 +7386,49 @@ enum class TypeTrait : unsigned int {
   kIsUnion = 28,
   kHasUniqueObjectRepresentations = 29,
   kIsTriviallyRelocatable = 30,
-  kIsBoundedArray = 31,
-  kIsUnboundedArray = 32,
-  kIsNullPointer = 33,
-  kIsScopedEnum = 34,
-  kIsReferenceable = 35,
-  kIsArithmetic = 36,
-  kIsFloatingPoint = 37,
-  kIsIntegral = 38,
-  kIsCompleteType = 39,
-  kIsVoid = 40,
-  kIsArray = 41,
-  kIsFunction = 42,
-  kIsReference = 43,
-  kIsLvalueReference = 44,
-  kIsRvalueReference = 45,
-  kIsFundamental = 46,
-  kIsObject = 47,
-  kIsScalar = 48,
-  kIsCompound = 49,
-  kIsPointer = 50,
-  kIsMemberObjectPointer = 51,
-  kIsMemberFunctionPointer = 52,
-  kIsMemberPointer = 53,
-  kIsConst = 54,
-  kIsVolatile = 55,
-  kIsSigned = 56,
-  kIsUnsigned = 57,
-  kTypeCompatible = 58,
-  kIsNothrowAssignable = 59,
-  kIsAssignable = 60,
-  kIsBaseOf = 61,
-  kIsConvertibleTo = 62,
-  kIsTriviallyAssignable = 63,
-  kReferenceBindsToTemporary = 64,
-  kIsSame = 65,
-  kIsConvertible = 66,
-  kXNUTypeCompatible = 67,
-  kIsConstructible = 68,
-  kIsNothrowConstructible = 69,
-  kIsTriviallyConstructible = 70,
+  kIsTriviallyEqualityComparable = 31,
+  kIsBoundedArray = 32,
+  kIsUnboundedArray = 33,
+  kIsNullPointer = 34,
+  kIsScopedEnum = 35,
+  kIsReferenceable = 36,
+  kCanPassInRegs = 37,
+  kIsArithmetic = 38,
+  kIsFloatingPoint = 39,
+  kIsIntegral = 40,
+  kIsCompleteType = 41,
+  kIsVoid = 42,
+  kIsArray = 43,
+  kIsFunction = 44,
+  kIsReference = 45,
+  kIsLvalueReference = 46,
+  kIsRvalueReference = 47,
+  kIsFundamental = 48,
+  kIsObject = 49,
+  kIsScalar = 50,
+  kIsCompound = 51,
+  kIsPointer = 52,
+  kIsMemberObjectPointer = 53,
+  kIsMemberFunctionPointer = 54,
+  kIsMemberPointer = 55,
+  kIsConst = 56,
+  kIsVolatile = 57,
+  kIsSigned = 58,
+  kIsUnsigned = 59,
+  kTypeCompatible = 60,
+  kIsNothrowAssignable = 61,
+  kIsAssignable = 62,
+  kIsBaseOf = 63,
+  kIsConvertibleTo = 64,
+  kIsTriviallyAssignable = 65,
+  kReferenceBindsToTemporary = 66,
+  kReferenceConstructsFromTemporary = 67,
+  kIsSame = 68,
+  kIsConvertible = 69,
+  kXNUTypeCompatible = 70,
+  kIsConstructible = 71,
+  kIsNothrowConstructible = 72,
+  kIsTriviallyConstructible = 73,
 };
 
 enum class UnaryExprOrTypeTrait : unsigned int {
@@ -7217,16 +7475,6 @@ enum class APValueKind : unsigned int {
   kUnion = 11,
   kMemberPointer = 12,
   kAddressLabelDiff = 13,
-};
-
-enum class VectorLibrary : unsigned int {
-  kNoLibrary = 0,
-  kAccelerate = 1,
-  kLIBMVEC = 2,
-  kMASSV = 3,
-  kSVML = 4,
-  kSLEEF = 5,
-  kDarwinLibsystemM = 6,
 };
 
 enum class Visibility : unsigned int {
@@ -7311,6 +7559,7 @@ enum class Visibility : unsigned int {
     m(OMPParallelMasterDirective) \
     m(OMPParallelSectionsDirective) \
     m(OMPScanDirective) \
+    m(OMPScopeDirective) \
     m(OMPSectionDirective) \
     m(OMPSectionsDirective) \
     m(OMPSingleDirective) \
@@ -7517,7 +7766,13 @@ class AnyX86NoCfCheckAttr;
 class ArcWeakrefUnavailableAttr;
 class ArgumentWithTypeTagAttr;
 class ArmBuiltinAliasAttr;
+class ArmLocallyStreamingAttr;
 class ArmMveStrictPolymorphismAttr;
+class ArmNewZAAttr;
+class ArmPreservesZAAttr;
+class ArmSharedZAAttr;
+class ArmStreamingAttr;
+class ArmStreamingCompatibleAttr;
 class ArrayInitIndexExpr;
 class ArrayInitLoopExpr;
 class ArraySubscriptExpr;
@@ -7539,6 +7794,7 @@ class AttributedStmt;
 class AttributedType;
 class AutoType;
 class AvailabilityAttr;
+class AvailableOnlyInDefaultEvalMethodAttr;
 class BPFPreserveAccessIndexAttr;
 class BTFDeclTagAttr;
 class BTFTagAttributedType;
@@ -7846,6 +8102,7 @@ class NSErrorDomainAttr;
 class NSReturnsAutoreleasedAttr;
 class NSReturnsNotRetainedAttr;
 class NSReturnsRetainedAttr;
+class NVPTXKernelAttr;
 class NakedAttr;
 class NamedDecl;
 class NamespaceAliasDecl;
@@ -7936,6 +8193,7 @@ class OMPParallelSectionsDirective;
 class OMPReferencedVarAttr;
 class OMPRequiresDecl;
 class OMPScanDirective;
+class OMPScopeDirective;
 class OMPSectionDirective;
 class OMPSectionsDirective;
 class OMPSimdDirective;
@@ -8231,6 +8489,7 @@ class UnresolvedUsingIfExistsDecl;
 class UnresolvedUsingType;
 class UnresolvedUsingTypenameDecl;
 class UnresolvedUsingValueDecl;
+class UnsafeBufferUsageAttr;
 class UnusedAttr;
 class UseHandleAttr;
 class UsedAttr;
@@ -8262,6 +8521,7 @@ class WeakAttr;
 class WeakImportAttr;
 class WeakRefAttr;
 class WebAssemblyExportNameAttr;
+class WebAssemblyFuncrefAttr;
 class WebAssemblyImportModuleAttr;
 class WebAssemblyImportNameAttr;
 class WhileStmt;

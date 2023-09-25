@@ -17,7 +17,7 @@ namespace nb = nanobind;
 
 void RegisterObjCMethodDecl(nb::module_ &m) {
   nb::class_<ObjCMethodDecl, NamedDecl>(m, "ObjCMethodDecl")
-    .def("__hash__", [](const ObjCMethodDecl &decl) { return (intptr_t)decl.RawDecl(); })
+    .def("__hash__", [](const ObjCMethodDecl &decl) { return reinterpret_cast<intptr_t>(decl.RawDecl()); })
     .def("__eq__", [](const Decl &a, const Decl &b) { return a.RawDecl() == b.RawDecl(); })
     .def_prop_ro("defined_in_ns_object", &ObjCMethodDecl::DefinedInNSObject)
     .def_prop_ro("find_property_declaration", &ObjCMethodDecl::FindPropertyDeclaration)

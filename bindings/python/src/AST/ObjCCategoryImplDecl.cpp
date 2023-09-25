@@ -17,7 +17,7 @@ namespace nb = nanobind;
 
 void RegisterObjCCategoryImplDecl(nb::module_ &m) {
   nb::class_<ObjCCategoryImplDecl, ObjCImplDecl>(m, "ObjCCategoryImplDecl")
-    .def("__hash__", [](const ObjCCategoryImplDecl &decl) { return (intptr_t)decl.RawDecl(); })
+    .def("__hash__", [](const ObjCCategoryImplDecl &decl) { return reinterpret_cast<intptr_t>(decl.RawDecl()); })
     .def("__eq__", [](const Decl &a, const Decl &b) { return a.RawDecl() == b.RawDecl(); })
     .def_prop_ro("category_declaration", &ObjCCategoryImplDecl::CategoryDeclaration)
     .def_prop_ro("category_name_token", &ObjCCategoryImplDecl::CategoryNameToken);

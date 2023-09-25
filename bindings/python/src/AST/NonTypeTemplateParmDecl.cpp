@@ -17,7 +17,7 @@ namespace nb = nanobind;
 
 void RegisterNonTypeTemplateParmDecl(nb::module_ &m) {
   nb::class_<NonTypeTemplateParmDecl, DeclaratorDecl>(m, "NonTypeTemplateParmDecl")
-    .def("__hash__", [](const NonTypeTemplateParmDecl &decl) { return (intptr_t)decl.RawDecl(); })
+    .def("__hash__", [](const NonTypeTemplateParmDecl &decl) { return reinterpret_cast<intptr_t>(decl.RawDecl()); })
     .def("__eq__", [](const Decl &a, const Decl &b) { return a.RawDecl() == b.RawDecl(); })
     .def_prop_ro("default_argument_was_inherited", &NonTypeTemplateParmDecl::DefaultArgumentWasInherited)
     .def_prop_ro("default_argument", &NonTypeTemplateParmDecl::DefaultArgument)

@@ -66,6 +66,20 @@ class ParsedFileTracker : public clang::PPCallbacks {
     fs.reset();
   }
 
+  void AddEOF(File &file, clang::FileID file_id, clang::SourceManager &sm) {
+    clang::Token tok;
+    tok.startToken();
+    tok.setKind(clang::tok::eof);
+    tok.setLocation(sm.getLocForEndOfFile(file_id));
+
+    assert(!file.impl->data.empty());
+    assert(file.impl->data.back() == '\0');
+    const auto tok_loc = tok.getLocation();
+    file.impl->tokens.emplace_back(
+        file.impl->data.size() - 1u, 0u, sm.getSpellingLineNumber(tok_loc),
+        sm.getSpellingColumnNumber(tok_loc), clang::tok::eof);
+  }
+
   // Each time we enter a source file, try to keep track of it.
   void FileChanged(clang::SourceLocation loc,
                    clang::PPCallbacks::FileChangeReason reason,
@@ -145,8 +159,14 @@ class ParsedFileTracker : public clang::PPCallbacks {
     }
 
     const size_t buff_size = data.size();
+    if (!buff_size) {
+      file.impl->data.push_back('\0');
+      AddEOF(file, file_id, sm);
+      return;
+    }
+
     const char * const buff_begin = &(data.front());
-    const char * const buff_end = &(data[buff_size]);
+    const char * const buff_end = &(buff_begin[buff_size]);
     clang::Lexer lexer(loc, lang_opts, buff_begin, buff_begin, buff_end);
     lexer.SetKeepWhitespaceMode(true);  // Implies keep comments.
 
@@ -260,16 +280,7 @@ class ParsedFileTracker : public clang::PPCallbacks {
 #pragma GCC diagnostic pop
     } while (has_more_buffer);
 
-    tok.startToken();
-    tok.setKind(clang::tok::eof);
-    tok.setLocation(sm.getLocForEndOfFile(file_id));
-
-    assert(!file.impl->data.empty());
-    assert(file.impl->data.back() == '\0');
-    const auto tok_loc = tok.getLocation();
-    file.impl->tokens.emplace_back(
-        file.impl->data.size() - 1u, 0u, sm.getSpellingLineNumber(tok_loc),
-        sm.getSpellingColumnNumber(tok_loc), clang::tok::eof);
+    AddEOF(file, file_id, sm);
   }
 };
 

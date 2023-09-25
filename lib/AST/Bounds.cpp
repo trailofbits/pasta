@@ -298,11 +298,11 @@ class DeclBoundsFinder : public clang::DeclVisitor<DeclBoundsFinder>,
 
           if (0 > nesting) {
             return r_brace;
-          
+
           } else if (!nesting) {
             if (can_have_semi) {
               r_brace = tok;
-            
+
             } else {
               return tok;
             }
@@ -685,7 +685,7 @@ class DeclBoundsFinder : public clang::DeclVisitor<DeclBoundsFinder>,
       }
       // [[...]]
       case clang::AttributeCommonInfo::AS_CXX11:
-      case clang::AttributeCommonInfo::AS_C2x: {
+      case clang::AttributeCommonInfo::AS_C23: {
         if (auto punc = FindPrev(tok, clang::tok::TokenKind::l_square)) {
           Expand(punc);
           if (punc[-1].Kind() == clang::tok::TokenKind::l_square) {
@@ -793,13 +793,22 @@ class DeclBoundsFinder : public clang::DeclVisitor<DeclBoundsFinder>,
     // `inline static constexpr`.
     for (auto changed = true; lower_bound && changed; ) {
       changed = false;
+      changed = ExpandLeadingKeyword(clang::tok::kw_typeof) || changed;
+      changed = ExpandLeadingKeyword(clang::tok::kw_typeof_unqual) || changed;
+      changed = ExpandLeadingKeyword(clang::tok::kw__Accum) || changed;
+      changed = ExpandLeadingKeyword(clang::tok::kw__Fract) || changed;
+      changed = ExpandLeadingKeyword(clang::tok::kw__Sat) || changed;
+      changed = ExpandLeadingKeyword(clang::tok::kw__Complex) || changed;
+      changed = ExpandLeadingKeyword(clang::tok::kw__Imaginary) || changed;
+      changed = ExpandLeadingKeyword(clang::tok::kw___thread) || changed;
+      changed = ExpandLeadingKeyword(clang::tok::kw__Thread_local) || changed;
       changed = ExpandLeadingKeyword(clang::tok::kw_auto) || changed;
       changed = ExpandLeadingKeyword(clang::tok::kw_static) || changed;
       changed = ExpandLeadingKeyword(clang::tok::kw___attribute) || changed;
       changed = ExpandLeadingKeyword(clang::tok::kw___declspec) || changed;
-      changed = ExpandLeadingKeyword(clang::tok::kw_extern, true) || changed;
       changed = ExpandLeadingKeyword(clang::tok::kw__ExtInt) || changed;
       changed = ExpandLeadingKeyword(clang::tok::kw__BitInt) || changed;
+      changed = ExpandLeadingKeyword(clang::tok::kw_extern, true) || changed;
       changed = ExpandLeadingKeyword(clang::tok::kw_unsigned) || changed;
       changed = ExpandLeadingKeyword(clang::tok::kw_signed) || changed;
       changed = ExpandLeadingKeyword(clang::tok::kw_short) || changed;
@@ -821,11 +830,29 @@ class DeclBoundsFinder : public clang::DeclVisitor<DeclBoundsFinder>,
       changed = ExpandLeadingKeyword(clang::tok::kw___private_extern__, true) || changed;
       changed = ExpandLeadingKeyword(clang::tok::kw___module_private__, true) || changed;
       changed = ExpandLeadingKeyword(clang::tok::kw___extension__, true) || changed;
+
+      if (lower_bound <= first_tok) {
+        break;
+      }
+
+      // If the previous token is a `]` or a `)`, then go find the matching one.
+      // This helps us expand past leading attributes when we fail to find them.
+      auto prev_tok = &(lower_bound[-1]);
+      if (prev_tok->Kind() == clang::tok::r_paren ||
+          prev_tok->Kind() == clang::tok::r_square) {
+
+        // NOTE(pag): This may fail if `prev_tok` is a macro token, e.g. the
+        //            `)` of a macro function call.
+        if (auto matching_tok = GetMatching(prev_tok).first) {
+          lower_bound = matching_tok;
+          changed = true;
+        }
+      }
     }
   }
 
-
   void VisitCommonFunctionDecl(clang::FunctionDecl *decl) {
+
     if (clang::FunctionTypeLoc ftl = decl->getFunctionTypeLoc()) {
       this->TypeLocVisitor::Visit(ftl);
 
@@ -838,7 +865,7 @@ class DeclBoundsFinder : public clang::DeclVisitor<DeclBoundsFinder>,
     VisitCommonDeclaratorDecl(decl);
 
     TokenImpl *tok_loc = ast.RawTokenAt(decl->getLocation());
-    
+
     const clang::FunctionDecl *def = nullptr;
     auto body = decl->getBody(def);
     if (def == decl) {
@@ -976,7 +1003,7 @@ class DeclBoundsFinder : public clang::DeclVisitor<DeclBoundsFinder>,
       if (!params_begin || params_begin < func_name_tok) {
         auto next_semicolon = FindNext(func_name_tok, clang::tok::semi);
         params_begin = FindNext(func_name_tok, clang::tok::l_paren);
-        
+
         // Watch out for `foo_t foo; int bar() {}`, that we don't find
         // `(` from `bar` and associate it with `foo`.
         if (next_semicolon && next_semicolon < params_begin) {
@@ -1333,6 +1360,32 @@ class DeclBoundsFinder : public clang::DeclVisitor<DeclBoundsFinder>,
     }
   }
 
+  void VisitAutoTypeLoc(clang::AutoTypeLoc loc) {
+    Expand(loc.getNameLoc());
+    if (loc.isDecltypeAuto()) {
+      Expand(loc.getRParenLoc());
+    }
+  }
+
+  void VisitDecltypeTypeLoc(clang::DecltypeTypeLoc loc) {
+    Expand(loc.getDecltypeLoc());
+    Expand(loc.getRParenLoc());
+  }
+
+  // NOTE(pag): Don't enter the referenced expression.
+  void VisitTypeOfExprTypeLoc(clang::TypeOfExprTypeLoc loc) {
+    Expand(loc.getTypeofLoc());
+    Expand(loc.getLParenLoc());
+    Expand(loc.getRParenLoc());
+  }
+
+  // NOTE(pag): Don't enter the referenced type.
+  void VisitTypeOfTypeLoc(clang::TypeOfTypeLoc loc) {
+    Expand(loc.getTypeofLoc());
+    Expand(loc.getLParenLoc());
+    Expand(loc.getRParenLoc());
+  }
+
   void VisitBuiltinTypeLoc(clang::BuiltinTypeLoc loc) {
     Expand(loc.getLocalSourceRange());
   }
@@ -1380,14 +1433,12 @@ class DeclBoundsFinder : public clang::DeclVisitor<DeclBoundsFinder>,
 
   void VisitTagTypeLoc(clang::TagTypeLoc loc) {
     Expand(loc.getNameLoc());
-    if (auto decl = loc.getDecl(); decl && loc.isDefinition()) {
-      Visit(decl);
-    }
   }
 
   void VisitEnumTypeLoc(clang::EnumTypeLoc loc) {
     return VisitTagTypeLoc(loc);
   }
+
   void VisitRecordTypeLoc(clang::RecordTypeLoc loc) {
     return VisitTagTypeLoc(loc);
   }
@@ -1620,7 +1671,8 @@ std::pair<TokenImpl *, TokenImpl *> ASTImpl::DeclBounds(clang::Decl *decl) {
     return ret;
   }
 
-  return DeclBoundsFinder(*this).GetBounds(decl);
+  ret = DeclBoundsFinder(*this).GetBounds(decl);
+  return ret;
 }
 
 TokenRange ASTImpl::DeclTokenRange(const clang::Decl *decl_,

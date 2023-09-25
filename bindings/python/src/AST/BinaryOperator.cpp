@@ -17,7 +17,7 @@ namespace nb = nanobind;
 
 void RegisterBinaryOperator(nb::module_ &m) {
   nb::class_<BinaryOperator, Expr>(m, "BinaryOperator")
-    .def("__hash__", [](const BinaryOperator& stmt) { return (intptr_t)stmt.RawStmt(); })
+    .def("__hash__", [](const BinaryOperator& stmt) { return reinterpret_cast<intptr_t>(stmt.RawStmt()); })
     .def("__eq__", [](const Stmt& a, const Stmt& b) { return a.RawStmt() == b.RawStmt(); })
     .def_prop_ro("children", &BinaryOperator::Children)
     .def_prop_ro("begin_token", &BinaryOperator::BeginToken)

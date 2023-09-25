@@ -25,8 +25,8 @@
 #include <clang/Lex/PreprocessorOptions.h>
 #include <clang/Parse/Parser.h>
 #include <clang/Sema/Sema.h>
-#include <llvm/Support/Host.h>
 #include <llvm/Support/raw_ostream.h>
+#include <llvm/TargetParser/Host.h>
 #pragma GCC diagnostic pop
 
 #include "Compiler.h"
@@ -50,43 +50,43 @@ static constexpr auto kNoHeaderName =
     clang::HeaderDesc(clang::HeaderDesc::NO_HEADER);
 
 static constexpr clang::Builtin::Info kXNUBuiltins[] = {
-  {"__builtin_tmo_type_get_alignment", "zv*", "nU",
+  {"__builtin_tmo_type_get_alignment", "zv*", "~nU",
    kNoFeatures, kNoHeaderName, clang::LanguageID::ALL_LANGUAGES},
 
-  {"__builtin_tmo_type_get_size", "zv*", "nU",
+  {"__builtin_tmo_type_get_size", "zv*", "~nU",
    kNoFeatures, kNoHeaderName, clang::LanguageID::ALL_LANGUAGES},
 
-  {"__builtin_ptrauth_strip", "v*v*i", "tnc",
+  {"__builtin_ptrauth_strip", "v*v*i", "~tnc",
    kNoFeatures, kNoHeaderName, clang::LanguageID::ALL_LANGUAGES},
 
-  {"__builtin_ptrauth_blend_discriminator", "zv*i", "tnc",
+  {"__builtin_ptrauth_blend_discriminator", "zv*i", "~tnc",
    kNoFeatures, kNoHeaderName, clang::LanguageID::ALL_LANGUAGES},
 
-  {"__builtin_ptrauth_sign_constant", "v*v*iv*", "tnc",
+  {"__builtin_ptrauth_sign_constant", "v*v*iv*", "~tnc",
    kNoFeatures, kNoHeaderName, clang::LanguageID::ALL_LANGUAGES},
 
-  {"__builtin_ptrauth_sign_unauthenticated", "v*v*iv*", "tnc",
+  {"__builtin_ptrauth_sign_unauthenticated", "v*v*iv*", "~tnc",
    kNoFeatures, kNoHeaderName, clang::LanguageID::ALL_LANGUAGES},
 
-  {"__builtin_ptrauth_sign_generic_data", "zv*v*", "tnc",
+  {"__builtin_ptrauth_sign_generic_data", "zv*v*", "~tnc",
    kNoFeatures, kNoHeaderName, clang::LanguageID::ALL_LANGUAGES},
 
-  {"__builtin_ptrauth_auth_and_resign", "v*v*iv*iv*", "tn",
+  {"__builtin_ptrauth_auth_and_resign", "v*v*iv*iv*", "~tn",
    kNoFeatures, kNoHeaderName, clang::LanguageID::ALL_LANGUAGES},
 
-  {"__builtin_ptrauth_auth", "v*v*iv*", "tn",
+  {"__builtin_ptrauth_auth", "v*v*iv*", "~tn",
    kNoFeatures, kNoHeaderName, clang::LanguageID::ALL_LANGUAGES},
 
-  {"__builtin_ptrauth_string_discriminator", "zcC*", "nc",
+  {"__builtin_ptrauth_string_discriminator", "zcC*", "~nc",
    kNoFeatures, kNoHeaderName, clang::LanguageID::ALL_LANGUAGES},
 
-  {"__builtin_virtual_member_address", "v*v*v*", "tnc",
+  {"__builtin_virtual_member_address", "v*v*v*", "~tnc",
    kNoFeatures, kNoHeaderName, clang::LanguageID::ALL_LANGUAGES},
 
-  {"__builtin_load_member_function_pointer", "v*v*v*", "tnc",
+  {"__builtin_load_member_function_pointer", "v*v*v*", "~tnc",
    kNoFeatures, kNoHeaderName, clang::LanguageID::ALL_LANGUAGES},
 
-  {"__builtin_coro_param", "bv*v*", "n",
+  {"__builtin_coro_param", "bv*v*", "~n",
    kNoFeatures, kNoHeaderName, clang::LanguageID::OCL_PIPE},
 };
 

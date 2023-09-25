@@ -7,8 +7,8 @@
 #pragma clang diagnostic ignored "-Wsign-conversion"
 #pragma clang diagnostic ignored "-Wshorten-64-to-32"
 #include <llvm/ADT/StringRef.h>
-#include <llvm/ADT/Triple.h>
 #include <llvm/Support/Error.h>
+#include <llvm/TargetParser/Triple.h>
 #pragma clang diagnostic pop
 
 #include <pasta/Util/ArgumentVector.h>
@@ -191,6 +191,9 @@ static void ParseOutputInto(FileSystemView &fs, std::stringstream &ss,
       find_sysroots(line);
       ParseClangCompilerExe(fs, info, line);
 
+    } else if (line.startswith("ignoring ")) {
+      // Something didn't work.
+
     } else if (line.startswith("#include \"...\"")) {
       state = kInUserIncludeList;
 
@@ -322,7 +325,13 @@ static void FindSystemRootRelPaths(
     const std::vector<IncludePath> &sysroot_rel,
     std::vector<std::filesystem::path> &sysroot_rel_paths) {
 
-  for (auto &orig_entry : orig) {
+  for (IncludePath &orig_entry : orig) {
+
+    // Try to match up an entry from the original list, which doesn't specify
+    // an `-isysroot`, with the `sysroot_rel` list, which specifies a non-
+    // existent `-isysroot` directory. If we find a matching entry in both, then
+    // that entry was never relative to the `-isysroot` to begin with, so we
+    // don't do anything with it.
     auto found = false;
     for (const IncludePath &sysroot_entry : sysroot_rel) {
       if (orig_entry.Path() == sysroot_entry.Path()) {
@@ -331,11 +340,15 @@ static void FindSystemRootRelPaths(
       }
     }
 
-    if (!found) {
-      auto include_dir = fs.Stat(orig_entry.Path());
-      if (include_dir.Succeeded() && include_dir->IsDirectory()) {
-        sysroot_rel_paths.emplace_back(std::move(include_dir->real_path));
-      }
+    if (found) {
+      continue;
+    }
+
+    // If `orig` is NOT found in `sysroot_rel`, then `orig` was actually
+    // relative to whatever default value is in `-isysroot`.
+    auto include_dir = fs.Stat(orig_entry.Path());
+    if (include_dir.Succeeded() && include_dir->IsDirectory()) {
+      sysroot_rel_paths.emplace_back(std::move(include_dir->real_path));
     }
   }
 }
@@ -361,9 +374,20 @@ static std::filesystem::path FindRealSystemRoot(
   //            (absent the next line) actually solved that problem.
   path_iterators.emplace_back(sysroot_dir.begin(), sysroot_dir.end());
 
+
+  std::filesystem::path new_sysroot_dir;
   for (auto &path : sysroot_rel_paths) {
     if (path.empty()) {
       return sysroot_dir;
+    }
+
+    // Figure out the root to share among all sysroot directories.
+    auto rp = path.root_path();
+    if (new_sysroot_dir.empty()) {
+      new_sysroot_dir = std::move(rp);
+
+    } else {
+      assert(new_sysroot_dir == rp);
     }
 
     path_iterators.emplace_back(path.begin(), path.end());
@@ -372,7 +396,6 @@ static std::filesystem::path FindRealSystemRoot(
   // Go find the common pieces of all of the path parts. This steps through
   // each of the iterators one path part at a time until one of the iterators
   // runs out or one of the path parts disagrees.
-  std::filesystem::path new_sysroot_dir;
   for (auto done = false; !done ;) {
 
     std::filesystem::path part;

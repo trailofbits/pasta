@@ -17,7 +17,7 @@ namespace nb = nanobind;
 
 void RegisterSubstNonTypeTemplateParmPackExpr(nb::module_ &m) {
   nb::class_<SubstNonTypeTemplateParmPackExpr, Expr>(m, "SubstNonTypeTemplateParmPackExpr")
-    .def("__hash__", [](const SubstNonTypeTemplateParmPackExpr& stmt) { return (intptr_t)stmt.RawStmt(); })
+    .def("__hash__", [](const SubstNonTypeTemplateParmPackExpr& stmt) { return reinterpret_cast<intptr_t>(stmt.RawStmt()); })
     .def("__eq__", [](const Stmt& a, const Stmt& b) { return a.RawStmt() == b.RawStmt(); })
     .def_prop_ro("children", &SubstNonTypeTemplateParmPackExpr::Children)
     .def_prop_ro("associated_declaration", &SubstNonTypeTemplateParmPackExpr::AssociatedDeclaration)

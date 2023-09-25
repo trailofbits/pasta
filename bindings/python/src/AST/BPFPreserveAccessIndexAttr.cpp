@@ -17,7 +17,7 @@ namespace nb = nanobind;
 
 void RegisterBPFPreserveAccessIndexAttr(nb::module_ &m) {
   nb::class_<BPFPreserveAccessIndexAttr, InheritableAttr>(m, "BPFPreserveAccessIndexAttr")
-    .def("__hash__", [](const BPFPreserveAccessIndexAttr &attr) { return (intptr_t)attr.RawAttr(); })
+    .def("__hash__", [](const BPFPreserveAccessIndexAttr &attr) { return reinterpret_cast<intptr_t>(attr.RawAttr()); })
     .def("__eq__", [](const Attr &a, const Attr &b) { return a.RawAttr() == b.RawAttr(); })
     .def_prop_ro("spelling", &BPFPreserveAccessIndexAttr::Spelling);
 }

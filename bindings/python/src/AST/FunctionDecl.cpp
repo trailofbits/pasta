@@ -17,8 +17,9 @@ namespace nb = nanobind;
 
 void RegisterFunctionDecl(nb::module_ &m) {
   nb::class_<FunctionDecl, DeclaratorDecl>(m, "FunctionDecl")
-    .def("__hash__", [](const FunctionDecl &decl) { return (intptr_t)decl.RawDecl(); })
+    .def("__hash__", [](const FunctionDecl &decl) { return reinterpret_cast<intptr_t>(decl.RawDecl()); })
     .def("__eq__", [](const Decl &a, const Decl &b) { return a.RawDecl() == b.RawDecl(); })
+    .def_prop_ro("body_contains_immediate_escalating_expressions", &FunctionDecl::BodyContainsImmediateEscalatingExpressions)
     .def_prop_ro("friend_constraint_refers_to_enclosing_template", &FunctionDecl::FriendConstraintRefersToEnclosingTemplate)
     .def_prop_ro("uses_fp_intrin", &FunctionDecl::UsesFPIntrin)
     .def_prop_ro("does_declaration_force_externally_visible_definition", &FunctionDecl::DoesDeclarationForceExternallyVisibleDefinition)
@@ -71,6 +72,8 @@ void RegisterFunctionDecl(nb::module_ &m) {
     .def_prop_ro("is_extern_c", &FunctionDecl::IsExternC)
     .def_prop_ro("is_function_template_specialization", &FunctionDecl::IsFunctionTemplateSpecialization)
     .def_prop_ro("is_global", &FunctionDecl::IsGlobal)
+    .def_prop_ro("is_immediate_escalating", &FunctionDecl::IsImmediateEscalating)
+    .def_prop_ro("is_immediate_function", &FunctionDecl::IsImmediateFunction)
     .def_prop_ro("is_implicitly_instantiable", &FunctionDecl::IsImplicitlyInstantiable)
     .def_prop_ro("is_in_extern_c_context", &FunctionDecl::IsInExternCContext)
     .def_prop_ro("is_in_extern_cxx_context", &FunctionDecl::IsInExternCXXContext)
@@ -83,6 +86,7 @@ void RegisterFunctionDecl(nb::module_ &m) {
     .def_prop_ro("is_ms_extern_inline", &FunctionDecl::IsMSExternInline)
     .def_prop_ro("is_msvcrt_entry_point", &FunctionDecl::IsMSVCRTEntryPoint)
     .def_prop_ro("is_main", &FunctionDecl::IsMain)
+    .def_prop_ro("is_member_like_constrained_friend", &FunctionDecl::IsMemberLikeConstrainedFriend)
     .def_prop_ro("is_multi_version", &FunctionDecl::IsMultiVersion)
     .def_prop_ro("is_no_return", &FunctionDecl::IsNoReturn)
     .def_prop_ro("is_overloaded_operator", &FunctionDecl::IsOverloadedOperator)

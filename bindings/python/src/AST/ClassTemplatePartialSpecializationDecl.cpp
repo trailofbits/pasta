@@ -17,7 +17,7 @@ namespace nb = nanobind;
 
 void RegisterClassTemplatePartialSpecializationDecl(nb::module_ &m) {
   nb::class_<ClassTemplatePartialSpecializationDecl, ClassTemplateSpecializationDecl>(m, "ClassTemplatePartialSpecializationDecl")
-    .def("__hash__", [](const ClassTemplatePartialSpecializationDecl &decl) { return (intptr_t)decl.RawDecl(); })
+    .def("__hash__", [](const ClassTemplatePartialSpecializationDecl &decl) { return reinterpret_cast<intptr_t>(decl.RawDecl()); })
     .def("__eq__", [](const Decl &a, const Decl &b) { return a.RawDecl() == b.RawDecl(); })
     .def_prop_ro("injected_specialization_type", &ClassTemplatePartialSpecializationDecl::InjectedSpecializationType)
     .def_prop_ro("instantiated_from_member", &ClassTemplatePartialSpecializationDecl::InstantiatedFromMember)

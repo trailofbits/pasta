@@ -17,7 +17,7 @@ namespace nb = nanobind;
 
 void RegisterExportDecl(nb::module_ &m) {
   nb::class_<ExportDecl, Decl>(m, "ExportDecl")
-    .def("__hash__", [](const ExportDecl &decl) { return (intptr_t)decl.RawDecl(); })
+    .def("__hash__", [](const ExportDecl &decl) { return reinterpret_cast<intptr_t>(decl.RawDecl()); })
     .def("__eq__", [](const Decl &a, const Decl &b) { return a.RawDecl() == b.RawDecl(); })
     .def_prop_ro("end_token", &ExportDecl::EndToken)
     .def_prop_ro("export_token", &ExportDecl::ExportToken)

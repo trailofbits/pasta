@@ -17,7 +17,7 @@ namespace nb = nanobind;
 
 void RegisterCXXNullPtrLiteralExpr(nb::module_ &m) {
   nb::class_<CXXNullPtrLiteralExpr, Expr>(m, "CXXNullPtrLiteralExpr")
-    .def("__hash__", [](const CXXNullPtrLiteralExpr& stmt) { return (intptr_t)stmt.RawStmt(); })
+    .def("__hash__", [](const CXXNullPtrLiteralExpr& stmt) { return reinterpret_cast<intptr_t>(stmt.RawStmt()); })
     .def("__eq__", [](const Stmt& a, const Stmt& b) { return a.RawStmt() == b.RawStmt(); })
     .def_prop_ro("children", &CXXNullPtrLiteralExpr::Children)
     .def_prop_ro("begin_token", &CXXNullPtrLiteralExpr::BeginToken)

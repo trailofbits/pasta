@@ -17,7 +17,7 @@ namespace nb = nanobind;
 
 void RegisterCoawaitExpr(nb::module_ &m) {
   nb::class_<CoawaitExpr, CoroutineSuspendExpr>(m, "CoawaitExpr")
-    .def("__hash__", [](const CoawaitExpr& stmt) { return (intptr_t)stmt.RawStmt(); })
+    .def("__hash__", [](const CoawaitExpr& stmt) { return reinterpret_cast<intptr_t>(stmt.RawStmt()); })
     .def("__eq__", [](const Stmt& a, const Stmt& b) { return a.RawStmt() == b.RawStmt(); })
     .def_prop_ro("is_implicit", &CoawaitExpr::IsImplicit);
 }

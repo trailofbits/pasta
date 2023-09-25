@@ -17,7 +17,7 @@ namespace nb = nanobind;
 
 void RegisterOMPTargetParallelForSimdDirective(nb::module_ &m) {
   nb::class_<OMPTargetParallelForSimdDirective, OMPLoopDirective>(m, "OMPTargetParallelForSimdDirective")
-    .def("__hash__", [](const OMPTargetParallelForSimdDirective& stmt) { return (intptr_t)stmt.RawStmt(); })
+    .def("__hash__", [](const OMPTargetParallelForSimdDirective& stmt) { return reinterpret_cast<intptr_t>(stmt.RawStmt()); })
     .def("__eq__", [](const Stmt& a, const Stmt& b) { return a.RawStmt() == b.RawStmt(); });
 }
 } // namespace pasta

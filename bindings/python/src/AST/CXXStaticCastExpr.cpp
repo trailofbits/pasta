@@ -17,7 +17,7 @@ namespace nb = nanobind;
 
 void RegisterCXXStaticCastExpr(nb::module_ &m) {
   nb::class_<CXXStaticCastExpr, CXXNamedCastExpr>(m, "CXXStaticCastExpr")
-    .def("__hash__", [](const CXXStaticCastExpr& stmt) { return (intptr_t)stmt.RawStmt(); })
+    .def("__hash__", [](const CXXStaticCastExpr& stmt) { return reinterpret_cast<intptr_t>(stmt.RawStmt()); })
     .def("__eq__", [](const Stmt& a, const Stmt& b) { return a.RawStmt() == b.RawStmt(); });
 }
 } // namespace pasta

@@ -17,7 +17,7 @@ namespace nb = nanobind;
 
 void RegisterOMPForDirective(nb::module_ &m) {
   nb::class_<OMPForDirective, OMPLoopDirective>(m, "OMPForDirective")
-    .def("__hash__", [](const OMPForDirective& stmt) { return (intptr_t)stmt.RawStmt(); })
+    .def("__hash__", [](const OMPForDirective& stmt) { return reinterpret_cast<intptr_t>(stmt.RawStmt()); })
     .def("__eq__", [](const Stmt& a, const Stmt& b) { return a.RawStmt() == b.RawStmt(); })
     .def_prop_ro("task_reduction_reference_expression", &OMPForDirective::TaskReductionReferenceExpression)
     .def_prop_ro("has_cancel", &OMPForDirective::HasCancel);

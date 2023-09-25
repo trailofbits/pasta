@@ -17,7 +17,7 @@ namespace nb = nanobind;
 
 void RegisterPtr32Attr(nb::module_ &m) {
   nb::class_<Ptr32Attr, TypeAttr>(m, "Ptr32Attr")
-    .def("__hash__", [](const Ptr32Attr &attr) { return (intptr_t)attr.RawAttr(); })
+    .def("__hash__", [](const Ptr32Attr &attr) { return reinterpret_cast<intptr_t>(attr.RawAttr()); })
     .def("__eq__", [](const Attr &a, const Attr &b) { return a.RawAttr() == b.RawAttr(); })
     .def_prop_ro("spelling", &Ptr32Attr::Spelling);
 }

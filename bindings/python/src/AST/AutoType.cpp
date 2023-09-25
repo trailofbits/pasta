@@ -17,7 +17,7 @@ namespace nb = nanobind;
 
 void RegisterAutoType(nb::module_ &m) {
   nb::class_<AutoType, DeducedType>(m, "AutoType")
-    .def("__hash__", [](const AutoType &type) { return (intptr_t)type.RawType(); })
+    .def("__hash__", [](const AutoType &type) { return reinterpret_cast<intptr_t>(type.RawType()); })
     .def("__eq__", [](const Type &a, const Type &b) { return a.RawType() == b.RawType(); })
     .def_prop_ro("keyword", &AutoType::Keyword)
     .def_prop_ro("type_constraint_arguments", &AutoType::TypeConstraintArguments)

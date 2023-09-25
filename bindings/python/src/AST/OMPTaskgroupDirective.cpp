@@ -17,7 +17,7 @@ namespace nb = nanobind;
 
 void RegisterOMPTaskgroupDirective(nb::module_ &m) {
   nb::class_<OMPTaskgroupDirective, OMPExecutableDirective>(m, "OMPTaskgroupDirective")
-    .def("__hash__", [](const OMPTaskgroupDirective& stmt) { return (intptr_t)stmt.RawStmt(); })
+    .def("__hash__", [](const OMPTaskgroupDirective& stmt) { return reinterpret_cast<intptr_t>(stmt.RawStmt()); })
     .def("__eq__", [](const Stmt& a, const Stmt& b) { return a.RawStmt() == b.RawStmt(); })
     .def_prop_ro("reduction_reference", &OMPTaskgroupDirective::ReductionReference);
 }

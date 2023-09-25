@@ -89,6 +89,7 @@ class AttrVisitor {
   virtual void VisitNSReturnsAutoreleasedAttr(const NSReturnsAutoreleasedAttr &);
   virtual void VisitNSReturnsNotRetainedAttr(const NSReturnsNotRetainedAttr &);
   virtual void VisitNSReturnsRetainedAttr(const NSReturnsRetainedAttr &);
+  virtual void VisitNVPTXKernelAttr(const NVPTXKernelAttr &);
   virtual void VisitNakedAttr(const NakedAttr &);
   virtual void VisitNoAliasAttr(const NoAliasAttr &);
   virtual void VisitNoBuiltinAttr(const NoBuiltinAttr &);
@@ -248,6 +249,7 @@ class AttrVisitor {
   virtual void VisitUnavailableAttr(const UnavailableAttr &);
   virtual void VisitUninitializedAttr(const UninitializedAttr &);
   virtual void VisitUnlikelyAttr(const UnlikelyAttr &);
+  virtual void VisitUnsafeBufferUsageAttr(const UnsafeBufferUsageAttr &);
   virtual void VisitUnusedAttr(const UnusedAttr &);
   virtual void VisitUseHandleAttr(const UseHandleAttr &);
   virtual void VisitUsedAttr(const UsedAttr &);
@@ -263,6 +265,7 @@ class AttrVisitor {
   virtual void VisitWeakImportAttr(const WeakImportAttr &);
   virtual void VisitWeakRefAttr(const WeakRefAttr &);
   virtual void VisitWebAssemblyExportNameAttr(const WebAssemblyExportNameAttr &);
+  virtual void VisitWebAssemblyFuncrefAttr(const WebAssemblyFuncrefAttr &);
   virtual void VisitWebAssemblyImportModuleAttr(const WebAssemblyImportModuleAttr &);
   virtual void VisitWebAssemblyImportNameAttr(const WebAssemblyImportNameAttr &);
   virtual void VisitWorkGroupSizeHintAttr(const WorkGroupSizeHintAttr &);
@@ -303,7 +306,13 @@ class AttrVisitor {
   virtual void VisitArcWeakrefUnavailableAttr(const ArcWeakrefUnavailableAttr &);
   virtual void VisitArgumentWithTypeTagAttr(const ArgumentWithTypeTagAttr &);
   virtual void VisitArmBuiltinAliasAttr(const ArmBuiltinAliasAttr &);
+  virtual void VisitArmLocallyStreamingAttr(const ArmLocallyStreamingAttr &);
   virtual void VisitArmMveStrictPolymorphismAttr(const ArmMveStrictPolymorphismAttr &);
+  virtual void VisitArmNewZAAttr(const ArmNewZAAttr &);
+  virtual void VisitArmPreservesZAAttr(const ArmPreservesZAAttr &);
+  virtual void VisitArmSharedZAAttr(const ArmSharedZAAttr &);
+  virtual void VisitArmStreamingAttr(const ArmStreamingAttr &);
+  virtual void VisitArmStreamingCompatibleAttr(const ArmStreamingCompatibleAttr &);
   virtual void VisitArtificialAttr(const ArtificialAttr &);
   virtual void VisitAsmLabelAttr(const AsmLabelAttr &);
   virtual void VisitAssertCapabilityAttr(const AssertCapabilityAttr &);
@@ -312,6 +321,7 @@ class AttrVisitor {
   virtual void VisitAssumeAlignedAttr(const AssumeAlignedAttr &);
   virtual void VisitAssumptionAttr(const AssumptionAttr &);
   virtual void VisitAvailabilityAttr(const AvailabilityAttr &);
+  virtual void VisitAvailableOnlyInDefaultEvalMethodAttr(const AvailableOnlyInDefaultEvalMethodAttr &);
   virtual void VisitBPFPreserveAccessIndexAttr(const BPFPreserveAccessIndexAttr &);
   virtual void VisitBTFDeclTagAttr(const BTFDeclTagAttr &);
   virtual void VisitBTFTypeTagAttr(const BTFTypeTagAttr &);
@@ -460,7 +470,13 @@ class Attr {
   PASTA_DECLARE_DERIVED_OPERATORS(Attr, ArcWeakrefUnavailableAttr)
   PASTA_DECLARE_DERIVED_OPERATORS(Attr, ArgumentWithTypeTagAttr)
   PASTA_DECLARE_DERIVED_OPERATORS(Attr, ArmBuiltinAliasAttr)
+  PASTA_DECLARE_DERIVED_OPERATORS(Attr, ArmLocallyStreamingAttr)
   PASTA_DECLARE_DERIVED_OPERATORS(Attr, ArmMveStrictPolymorphismAttr)
+  PASTA_DECLARE_DERIVED_OPERATORS(Attr, ArmNewZAAttr)
+  PASTA_DECLARE_DERIVED_OPERATORS(Attr, ArmPreservesZAAttr)
+  PASTA_DECLARE_DERIVED_OPERATORS(Attr, ArmSharedZAAttr)
+  PASTA_DECLARE_DERIVED_OPERATORS(Attr, ArmStreamingAttr)
+  PASTA_DECLARE_DERIVED_OPERATORS(Attr, ArmStreamingCompatibleAttr)
   PASTA_DECLARE_DERIVED_OPERATORS(Attr, ArtificialAttr)
   PASTA_DECLARE_DERIVED_OPERATORS(Attr, AsmLabelAttr)
   PASTA_DECLARE_DERIVED_OPERATORS(Attr, AssertCapabilityAttr)
@@ -469,6 +485,7 @@ class Attr {
   PASTA_DECLARE_DERIVED_OPERATORS(Attr, AssumeAlignedAttr)
   PASTA_DECLARE_DERIVED_OPERATORS(Attr, AssumptionAttr)
   PASTA_DECLARE_DERIVED_OPERATORS(Attr, AvailabilityAttr)
+  PASTA_DECLARE_DERIVED_OPERATORS(Attr, AvailableOnlyInDefaultEvalMethodAttr)
   PASTA_DECLARE_DERIVED_OPERATORS(Attr, BPFPreserveAccessIndexAttr)
   PASTA_DECLARE_DERIVED_OPERATORS(Attr, BTFDeclTagAttr)
   PASTA_DECLARE_DERIVED_OPERATORS(Attr, BTFTypeTagAttr)
@@ -602,6 +619,7 @@ class Attr {
   PASTA_DECLARE_DERIVED_OPERATORS(Attr, NSReturnsAutoreleasedAttr)
   PASTA_DECLARE_DERIVED_OPERATORS(Attr, NSReturnsNotRetainedAttr)
   PASTA_DECLARE_DERIVED_OPERATORS(Attr, NSReturnsRetainedAttr)
+  PASTA_DECLARE_DERIVED_OPERATORS(Attr, NVPTXKernelAttr)
   PASTA_DECLARE_DERIVED_OPERATORS(Attr, NakedAttr)
   PASTA_DECLARE_DERIVED_OPERATORS(Attr, NoAliasAttr)
   PASTA_DECLARE_DERIVED_OPERATORS(Attr, NoBuiltinAttr)
@@ -778,6 +796,7 @@ class Attr {
   PASTA_DECLARE_DERIVED_OPERATORS(Attr, UnavailableAttr)
   PASTA_DECLARE_DERIVED_OPERATORS(Attr, UninitializedAttr)
   PASTA_DECLARE_DERIVED_OPERATORS(Attr, UnlikelyAttr)
+  PASTA_DECLARE_DERIVED_OPERATORS(Attr, UnsafeBufferUsageAttr)
   PASTA_DECLARE_DERIVED_OPERATORS(Attr, UnusedAttr)
   PASTA_DECLARE_DERIVED_OPERATORS(Attr, UseHandleAttr)
   PASTA_DECLARE_DERIVED_OPERATORS(Attr, UsedAttr)
@@ -793,6 +812,7 @@ class Attr {
   PASTA_DECLARE_DERIVED_OPERATORS(Attr, WeakImportAttr)
   PASTA_DECLARE_DERIVED_OPERATORS(Attr, WeakRefAttr)
   PASTA_DECLARE_DERIVED_OPERATORS(Attr, WebAssemblyExportNameAttr)
+  PASTA_DECLARE_DERIVED_OPERATORS(Attr, WebAssemblyFuncrefAttr)
   PASTA_DECLARE_DERIVED_OPERATORS(Attr, WebAssemblyImportModuleAttr)
   PASTA_DECLARE_DERIVED_OPERATORS(Attr, WebAssemblyImportNameAttr)
   PASTA_DECLARE_DERIVED_OPERATORS(Attr, WorkGroupSizeHintAttr)
@@ -859,7 +879,13 @@ class Attr {
     const ::clang::ArcWeakrefUnavailableAttr *ArcWeakrefUnavailableAttr;
     const ::clang::ArgumentWithTypeTagAttr *ArgumentWithTypeTagAttr;
     const ::clang::ArmBuiltinAliasAttr *ArmBuiltinAliasAttr;
+    const ::clang::ArmLocallyStreamingAttr *ArmLocallyStreamingAttr;
     const ::clang::ArmMveStrictPolymorphismAttr *ArmMveStrictPolymorphismAttr;
+    const ::clang::ArmNewZAAttr *ArmNewZAAttr;
+    const ::clang::ArmPreservesZAAttr *ArmPreservesZAAttr;
+    const ::clang::ArmSharedZAAttr *ArmSharedZAAttr;
+    const ::clang::ArmStreamingAttr *ArmStreamingAttr;
+    const ::clang::ArmStreamingCompatibleAttr *ArmStreamingCompatibleAttr;
     const ::clang::ArtificialAttr *ArtificialAttr;
     const ::clang::AsmLabelAttr *AsmLabelAttr;
     const ::clang::AssertCapabilityAttr *AssertCapabilityAttr;
@@ -869,6 +895,7 @@ class Attr {
     const ::clang::AssumptionAttr *AssumptionAttr;
     const ::clang::Attr *Attr;
     const ::clang::AvailabilityAttr *AvailabilityAttr;
+    const ::clang::AvailableOnlyInDefaultEvalMethodAttr *AvailableOnlyInDefaultEvalMethodAttr;
     const ::clang::BPFPreserveAccessIndexAttr *BPFPreserveAccessIndexAttr;
     const ::clang::BTFDeclTagAttr *BTFDeclTagAttr;
     const ::clang::BTFTypeTagAttr *BTFTypeTagAttr;
@@ -1002,6 +1029,7 @@ class Attr {
     const ::clang::NSReturnsAutoreleasedAttr *NSReturnsAutoreleasedAttr;
     const ::clang::NSReturnsNotRetainedAttr *NSReturnsNotRetainedAttr;
     const ::clang::NSReturnsRetainedAttr *NSReturnsRetainedAttr;
+    const ::clang::NVPTXKernelAttr *NVPTXKernelAttr;
     const ::clang::NakedAttr *NakedAttr;
     const ::clang::NoAliasAttr *NoAliasAttr;
     const ::clang::NoBuiltinAttr *NoBuiltinAttr;
@@ -1178,6 +1206,7 @@ class Attr {
     const ::clang::UnavailableAttr *UnavailableAttr;
     const ::clang::UninitializedAttr *UninitializedAttr;
     const ::clang::UnlikelyAttr *UnlikelyAttr;
+    const ::clang::UnsafeBufferUsageAttr *UnsafeBufferUsageAttr;
     const ::clang::UnusedAttr *UnusedAttr;
     const ::clang::UseHandleAttr *UseHandleAttr;
     const ::clang::UsedAttr *UsedAttr;
@@ -1193,6 +1222,7 @@ class Attr {
     const ::clang::WeakImportAttr *WeakImportAttr;
     const ::clang::WeakRefAttr *WeakRefAttr;
     const ::clang::WebAssemblyExportNameAttr *WebAssemblyExportNameAttr;
+    const ::clang::WebAssemblyFuncrefAttr *WebAssemblyFuncrefAttr;
     const ::clang::WebAssemblyImportModuleAttr *WebAssemblyImportModuleAttr;
     const ::clang::WebAssemblyImportNameAttr *WebAssemblyImportNameAttr;
     const ::clang::WorkGroupSizeHintAttr *WorkGroupSizeHintAttr;
@@ -1294,6 +1324,8 @@ class InheritableAttr : public Attr {
   PASTA_DECLARE_DERIVED_OPERATORS(InheritableAttr, ArcWeakrefUnavailableAttr)
   PASTA_DECLARE_DERIVED_OPERATORS(InheritableAttr, ArgumentWithTypeTagAttr)
   PASTA_DECLARE_DERIVED_OPERATORS(InheritableAttr, ArmBuiltinAliasAttr)
+  PASTA_DECLARE_DERIVED_OPERATORS(InheritableAttr, ArmLocallyStreamingAttr)
+  PASTA_DECLARE_DERIVED_OPERATORS(InheritableAttr, ArmNewZAAttr)
   PASTA_DECLARE_DERIVED_OPERATORS(InheritableAttr, ArtificialAttr)
   PASTA_DECLARE_DERIVED_OPERATORS(InheritableAttr, AsmLabelAttr)
   PASTA_DECLARE_DERIVED_OPERATORS(InheritableAttr, AssertCapabilityAttr)
@@ -1302,6 +1334,7 @@ class InheritableAttr : public Attr {
   PASTA_DECLARE_DERIVED_OPERATORS(InheritableAttr, AssumeAlignedAttr)
   PASTA_DECLARE_DERIVED_OPERATORS(InheritableAttr, AssumptionAttr)
   PASTA_DECLARE_DERIVED_OPERATORS(InheritableAttr, AvailabilityAttr)
+  PASTA_DECLARE_DERIVED_OPERATORS(InheritableAttr, AvailableOnlyInDefaultEvalMethodAttr)
   PASTA_DECLARE_DERIVED_OPERATORS(InheritableAttr, BPFPreserveAccessIndexAttr)
   PASTA_DECLARE_DERIVED_OPERATORS(InheritableAttr, BTFDeclTagAttr)
   PASTA_DECLARE_DERIVED_OPERATORS(InheritableAttr, BlocksAttr)
@@ -1421,6 +1454,7 @@ class InheritableAttr : public Attr {
   PASTA_DECLARE_DERIVED_OPERATORS(InheritableAttr, NSReturnsAutoreleasedAttr)
   PASTA_DECLARE_DERIVED_OPERATORS(InheritableAttr, NSReturnsNotRetainedAttr)
   PASTA_DECLARE_DERIVED_OPERATORS(InheritableAttr, NSReturnsRetainedAttr)
+  PASTA_DECLARE_DERIVED_OPERATORS(InheritableAttr, NVPTXKernelAttr)
   PASTA_DECLARE_DERIVED_OPERATORS(InheritableAttr, NakedAttr)
   PASTA_DECLARE_DERIVED_OPERATORS(InheritableAttr, NoAliasAttr)
   PASTA_DECLARE_DERIVED_OPERATORS(InheritableAttr, NoCommonAttr)
@@ -1554,6 +1588,7 @@ class InheritableAttr : public Attr {
   PASTA_DECLARE_DERIVED_OPERATORS(InheritableAttr, TypeVisibilityAttr)
   PASTA_DECLARE_DERIVED_OPERATORS(InheritableAttr, UnavailableAttr)
   PASTA_DECLARE_DERIVED_OPERATORS(InheritableAttr, UninitializedAttr)
+  PASTA_DECLARE_DERIVED_OPERATORS(InheritableAttr, UnsafeBufferUsageAttr)
   PASTA_DECLARE_DERIVED_OPERATORS(InheritableAttr, UnusedAttr)
   PASTA_DECLARE_DERIVED_OPERATORS(InheritableAttr, UseHandleAttr)
   PASTA_DECLARE_DERIVED_OPERATORS(InheritableAttr, UsedAttr)
@@ -1774,13 +1809,13 @@ class LoopHintAttr : public Attr {
  public:
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(LoopHintAttr)
   PASTA_DECLARE_BASE_OPERATORS(Attr, LoopHintAttr)
-  // DiagnosticName: (std::basic_string<char, std::char_traits<char>, std::allocator<char>>)
+  // DiagnosticName: (std::string)
   enum LoopHintAttrOptionType Option(void) const;
   enum LoopHintAttrSpelling SemanticSpelling(void) const;
   std::string_view Spelling(void) const;
   enum LoopHintAttrLoopHintState State(void) const;
   std::optional<::pasta::Expr> Value(void) const;
-  // ValueString: (std::basic_string<char, std::char_traits<char>, std::allocator<char>>)
+  // ValueString: (std::string)
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(LoopHintAttr)
 };
@@ -2164,6 +2199,20 @@ class NSReturnsRetainedAttr : public InheritableAttr {
 };
 
 static_assert(sizeof(Attr) == sizeof(NSReturnsRetainedAttr));
+
+class NVPTXKernelAttr : public InheritableAttr {
+ private:
+  using InheritableAttr::From;
+ public:
+  PASTA_DECLARE_DEFAULT_CONSTRUCTORS(NVPTXKernelAttr)
+  PASTA_DECLARE_BASE_OPERATORS(Attr, NVPTXKernelAttr)
+  PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, NVPTXKernelAttr)
+  std::string_view Spelling(void) const;
+ protected:
+  PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(NVPTXKernelAttr)
+};
+
+static_assert(sizeof(Attr) == sizeof(NVPTXKernelAttr));
 
 class NakedAttr : public InheritableAttr {
  private:
@@ -2955,7 +3004,7 @@ class ObjCOwnershipAttr : public InheritableAttr {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(ObjCOwnershipAttr)
   PASTA_DECLARE_BASE_OPERATORS(Attr, ObjCOwnershipAttr)
   PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, ObjCOwnershipAttr)
-  // Kind: (clang::IdentifierInfo *)
+  // OwnershipKind: (clang::IdentifierInfo *)
   std::string_view Spelling(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(ObjCOwnershipAttr)
@@ -4382,6 +4431,10 @@ class TypeAttr : public Attr {
   PASTA_DECLARE_DERIVED_OPERATORS(TypeAttr, AddressSpaceAttr)
   PASTA_DECLARE_DERIVED_OPERATORS(TypeAttr, AnnotateTypeAttr)
   PASTA_DECLARE_DERIVED_OPERATORS(TypeAttr, ArmMveStrictPolymorphismAttr)
+  PASTA_DECLARE_DERIVED_OPERATORS(TypeAttr, ArmPreservesZAAttr)
+  PASTA_DECLARE_DERIVED_OPERATORS(TypeAttr, ArmSharedZAAttr)
+  PASTA_DECLARE_DERIVED_OPERATORS(TypeAttr, ArmStreamingAttr)
+  PASTA_DECLARE_DERIVED_OPERATORS(TypeAttr, ArmStreamingCompatibleAttr)
   PASTA_DECLARE_DERIVED_OPERATORS(TypeAttr, BTFTypeTagAttr)
   PASTA_DECLARE_DERIVED_OPERATORS(TypeAttr, CmseNSCallAttr)
   PASTA_DECLARE_DERIVED_OPERATORS(TypeAttr, HLSLGroupSharedAddressSpaceAttr)
@@ -4404,6 +4457,7 @@ class TypeAttr : public Attr {
   PASTA_DECLARE_DERIVED_OPERATORS(TypeAttr, TypeNullableAttr)
   PASTA_DECLARE_DERIVED_OPERATORS(TypeAttr, TypeNullableResultAttr)
   PASTA_DECLARE_DERIVED_OPERATORS(TypeAttr, UPtrAttr)
+  PASTA_DECLARE_DERIVED_OPERATORS(TypeAttr, WebAssemblyFuncrefAttr)
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(TypeAttr)
 };
@@ -4558,6 +4612,20 @@ class UnlikelyAttr : public StmtAttr {
 };
 
 static_assert(sizeof(Attr) == sizeof(UnlikelyAttr));
+
+class UnsafeBufferUsageAttr : public InheritableAttr {
+ private:
+  using InheritableAttr::From;
+ public:
+  PASTA_DECLARE_DEFAULT_CONSTRUCTORS(UnsafeBufferUsageAttr)
+  PASTA_DECLARE_BASE_OPERATORS(Attr, UnsafeBufferUsageAttr)
+  PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, UnsafeBufferUsageAttr)
+  std::string_view Spelling(void) const;
+ protected:
+  PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(UnsafeBufferUsageAttr)
+};
+
+static_assert(sizeof(Attr) == sizeof(UnsafeBufferUsageAttr));
 
 class UnusedAttr : public InheritableAttr {
  private:
@@ -4786,6 +4854,20 @@ class WebAssemblyExportNameAttr : public InheritableAttr {
 };
 
 static_assert(sizeof(Attr) == sizeof(WebAssemblyExportNameAttr));
+
+class WebAssemblyFuncrefAttr : public TypeAttr {
+ private:
+  using TypeAttr::From;
+ public:
+  PASTA_DECLARE_DEFAULT_CONSTRUCTORS(WebAssemblyFuncrefAttr)
+  PASTA_DECLARE_BASE_OPERATORS(Attr, WebAssemblyFuncrefAttr)
+  PASTA_DECLARE_BASE_OPERATORS(TypeAttr, WebAssemblyFuncrefAttr)
+  std::string_view Spelling(void) const;
+ protected:
+  PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(WebAssemblyFuncrefAttr)
+};
+
+static_assert(sizeof(Attr) == sizeof(WebAssemblyFuncrefAttr));
 
 class WebAssemblyImportModuleAttr : public InheritableAttr {
  private:
@@ -5203,6 +5285,7 @@ class AlignedAttr : public InheritableAttr {
   uint32_t Alignment(void) const;
   std::optional<::pasta::Expr> AlignmentExpression(void) const;
   std::optional<::pasta::Type> AlignmentType(void) const;
+  std::optional<unsigned> CachedAlignmentValue(void) const;
   enum AlignedAttrSpelling SemanticSpelling(void) const;
   std::string_view Spelling(void) const;
   bool IsAlignas(void) const;
@@ -5404,6 +5487,20 @@ class ArmBuiltinAliasAttr : public InheritableAttr {
 
 static_assert(sizeof(Attr) == sizeof(ArmBuiltinAliasAttr));
 
+class ArmLocallyStreamingAttr : public InheritableAttr {
+ private:
+  using InheritableAttr::From;
+ public:
+  PASTA_DECLARE_DEFAULT_CONSTRUCTORS(ArmLocallyStreamingAttr)
+  PASTA_DECLARE_BASE_OPERATORS(Attr, ArmLocallyStreamingAttr)
+  PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, ArmLocallyStreamingAttr)
+  std::string_view Spelling(void) const;
+ protected:
+  PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(ArmLocallyStreamingAttr)
+};
+
+static_assert(sizeof(Attr) == sizeof(ArmLocallyStreamingAttr));
+
 class ArmMveStrictPolymorphismAttr : public TypeAttr {
  private:
   using TypeAttr::From;
@@ -5417,6 +5514,76 @@ class ArmMveStrictPolymorphismAttr : public TypeAttr {
 };
 
 static_assert(sizeof(Attr) == sizeof(ArmMveStrictPolymorphismAttr));
+
+class ArmNewZAAttr : public InheritableAttr {
+ private:
+  using InheritableAttr::From;
+ public:
+  PASTA_DECLARE_DEFAULT_CONSTRUCTORS(ArmNewZAAttr)
+  PASTA_DECLARE_BASE_OPERATORS(Attr, ArmNewZAAttr)
+  PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, ArmNewZAAttr)
+  std::string_view Spelling(void) const;
+ protected:
+  PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(ArmNewZAAttr)
+};
+
+static_assert(sizeof(Attr) == sizeof(ArmNewZAAttr));
+
+class ArmPreservesZAAttr : public TypeAttr {
+ private:
+  using TypeAttr::From;
+ public:
+  PASTA_DECLARE_DEFAULT_CONSTRUCTORS(ArmPreservesZAAttr)
+  PASTA_DECLARE_BASE_OPERATORS(Attr, ArmPreservesZAAttr)
+  PASTA_DECLARE_BASE_OPERATORS(TypeAttr, ArmPreservesZAAttr)
+  std::string_view Spelling(void) const;
+ protected:
+  PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(ArmPreservesZAAttr)
+};
+
+static_assert(sizeof(Attr) == sizeof(ArmPreservesZAAttr));
+
+class ArmSharedZAAttr : public TypeAttr {
+ private:
+  using TypeAttr::From;
+ public:
+  PASTA_DECLARE_DEFAULT_CONSTRUCTORS(ArmSharedZAAttr)
+  PASTA_DECLARE_BASE_OPERATORS(Attr, ArmSharedZAAttr)
+  PASTA_DECLARE_BASE_OPERATORS(TypeAttr, ArmSharedZAAttr)
+  std::string_view Spelling(void) const;
+ protected:
+  PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(ArmSharedZAAttr)
+};
+
+static_assert(sizeof(Attr) == sizeof(ArmSharedZAAttr));
+
+class ArmStreamingAttr : public TypeAttr {
+ private:
+  using TypeAttr::From;
+ public:
+  PASTA_DECLARE_DEFAULT_CONSTRUCTORS(ArmStreamingAttr)
+  PASTA_DECLARE_BASE_OPERATORS(Attr, ArmStreamingAttr)
+  PASTA_DECLARE_BASE_OPERATORS(TypeAttr, ArmStreamingAttr)
+  std::string_view Spelling(void) const;
+ protected:
+  PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(ArmStreamingAttr)
+};
+
+static_assert(sizeof(Attr) == sizeof(ArmStreamingAttr));
+
+class ArmStreamingCompatibleAttr : public TypeAttr {
+ private:
+  using TypeAttr::From;
+ public:
+  PASTA_DECLARE_DEFAULT_CONSTRUCTORS(ArmStreamingCompatibleAttr)
+  PASTA_DECLARE_BASE_OPERATORS(Attr, ArmStreamingCompatibleAttr)
+  PASTA_DECLARE_BASE_OPERATORS(TypeAttr, ArmStreamingCompatibleAttr)
+  std::string_view Spelling(void) const;
+ protected:
+  PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(ArmStreamingCompatibleAttr)
+};
+
+static_assert(sizeof(Attr) == sizeof(ArmStreamingCompatibleAttr));
 
 class ArtificialAttr : public InheritableAttr {
  private:
@@ -5553,6 +5720,20 @@ class AvailabilityAttr : public InheritableAttr {
 };
 
 static_assert(sizeof(Attr) == sizeof(AvailabilityAttr));
+
+class AvailableOnlyInDefaultEvalMethodAttr : public InheritableAttr {
+ private:
+  using InheritableAttr::From;
+ public:
+  PASTA_DECLARE_DEFAULT_CONSTRUCTORS(AvailableOnlyInDefaultEvalMethodAttr)
+  PASTA_DECLARE_BASE_OPERATORS(Attr, AvailableOnlyInDefaultEvalMethodAttr)
+  PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, AvailableOnlyInDefaultEvalMethodAttr)
+  std::string_view Spelling(void) const;
+ protected:
+  PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(AvailableOnlyInDefaultEvalMethodAttr)
+};
+
+static_assert(sizeof(Attr) == sizeof(AvailableOnlyInDefaultEvalMethodAttr));
 
 class BPFPreserveAccessIndexAttr : public InheritableAttr {
  private:
@@ -6509,6 +6690,8 @@ class ExternalSourceSymbolAttr : public InheritableAttr {
   std::string_view Language(void) const;
   uint32_t LanguageLength(void) const;
   std::string_view Spelling(void) const;
+  std::string_view USR(void) const;
+  uint32_t USRLength(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(ExternalSourceSymbolAttr)
 };
@@ -6954,7 +7137,7 @@ class ObjCGCAttr : public TypeAttr {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(ObjCGCAttr)
   PASTA_DECLARE_BASE_OPERATORS(Attr, ObjCGCAttr)
   PASTA_DECLARE_BASE_OPERATORS(TypeAttr, ObjCGCAttr)
-  // Kind: (clang::IdentifierInfo *)
+  // GarbageCollectionKind: (clang::IdentifierInfo *)
   std::string_view Spelling(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(ObjCGCAttr)

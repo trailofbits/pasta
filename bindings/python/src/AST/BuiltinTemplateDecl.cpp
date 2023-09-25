@@ -17,7 +17,7 @@ namespace nb = nanobind;
 
 void RegisterBuiltinTemplateDecl(nb::module_ &m) {
   nb::class_<BuiltinTemplateDecl, TemplateDecl>(m, "BuiltinTemplateDecl")
-    .def("__hash__", [](const BuiltinTemplateDecl &decl) { return (intptr_t)decl.RawDecl(); })
+    .def("__hash__", [](const BuiltinTemplateDecl &decl) { return reinterpret_cast<intptr_t>(decl.RawDecl()); })
     .def("__eq__", [](const Decl &a, const Decl &b) { return a.RawDecl() == b.RawDecl(); });
 }
 } // namespace pasta

@@ -17,7 +17,7 @@ namespace nb = nanobind;
 
 void RegisterCaseStmt(nb::module_ &m) {
   nb::class_<CaseStmt, SwitchCase>(m, "CaseStmt")
-    .def("__hash__", [](const CaseStmt& stmt) { return (intptr_t)stmt.RawStmt(); })
+    .def("__hash__", [](const CaseStmt& stmt) { return reinterpret_cast<intptr_t>(stmt.RawStmt()); })
     .def("__eq__", [](const Stmt& a, const Stmt& b) { return a.RawStmt() == b.RawStmt(); })
     .def_prop_ro("case_statement_is_gnu_range", &CaseStmt::CaseStatementIsGNURange)
     .def_prop_ro("children", &CaseStmt::Children)

@@ -17,7 +17,7 @@ namespace nb = nanobind;
 
 void RegisterNamespaceAliasDecl(nb::module_ &m) {
   nb::class_<NamespaceAliasDecl, NamedDecl>(m, "NamespaceAliasDecl")
-    .def("__hash__", [](const NamespaceAliasDecl &decl) { return (intptr_t)decl.RawDecl(); })
+    .def("__hash__", [](const NamespaceAliasDecl &decl) { return reinterpret_cast<intptr_t>(decl.RawDecl()); })
     .def("__eq__", [](const Decl &a, const Decl &b) { return a.RawDecl() == b.RawDecl(); })
     .def_prop_ro("alias_token", &NamespaceAliasDecl::AliasToken)
     .def_prop_ro("aliased_namespace", &NamespaceAliasDecl::AliasedNamespace)

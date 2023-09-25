@@ -649,6 +649,18 @@ std::optional<::pasta::Type> Type::PointeeType(void) const {
   return TypeBuilder::Build(ast, val);
 }
 
+std::optional<::pasta::Type> Type::RVVElementType(void) const {
+  auto &self = *(u.Type);
+  if (!self.isRVVVLSBuiltinType()) {
+    return std::nullopt;
+  }
+  decltype(auto) val = self.getRVVEltType(ast->ci->getASTContext());
+  if (val.isNull()) {
+    return std::nullopt;
+  }
+  return TypeBuilder::Build(ast, val);
+}
+
 std::optional<enum TypeScalarTypeKind> Type::ScalarTypeKind(void) const {
   auto &self = *const_cast<clang::Type *>(u.Type);
   if (!self.isScalarType()) {
@@ -667,7 +679,7 @@ std::optional<enum TypeScalarTypeKind> Type::ScalarTypeKind(void) const {
 
 std::optional<::pasta::Type> Type::SveElementType(void) const {
   auto &self = *(u.Type);
-  if (!self.isVLSTBuiltinType()) {
+  if (!self.isSveVLSBuiltinType()) {
     return std::nullopt;
   }
   decltype(auto) val = self.getSveEltType(ast->ci->getASTContext());
@@ -1429,7 +1441,7 @@ bool Type::IsOCLImage3dWOType(void) const {
 
 bool Type::IsOCLIntelSubgroupAVCImeDualReferenceStreaminType(void) const {
   auto &self = *const_cast<clang::Type *>(u.Type);
-  decltype(auto) val = self.isOCLIntelSubgroupAVCImeDualRefStreaminType();
+  decltype(auto) val = self.isOCLIntelSubgroupAVCImeDualReferenceStreaminType();
   return val;
 }
 
@@ -1441,13 +1453,13 @@ bool Type::IsOCLIntelSubgroupAVCImePayloadType(void) const {
 
 bool Type::IsOCLIntelSubgroupAVCImeResultDualReferenceStreamoutType(void) const {
   auto &self = *const_cast<clang::Type *>(u.Type);
-  decltype(auto) val = self.isOCLIntelSubgroupAVCImeResultDualRefStreamoutType();
+  decltype(auto) val = self.isOCLIntelSubgroupAVCImeResultDualReferenceStreamoutType();
   return val;
 }
 
 bool Type::IsOCLIntelSubgroupAVCImeResultSingleReferenceStreamoutType(void) const {
   auto &self = *const_cast<clang::Type *>(u.Type);
-  decltype(auto) val = self.isOCLIntelSubgroupAVCImeResultSingleRefStreamoutType();
+  decltype(auto) val = self.isOCLIntelSubgroupAVCImeResultSingleReferenceStreamoutType();
   return val;
 }
 
@@ -1459,7 +1471,7 @@ bool Type::IsOCLIntelSubgroupAVCImeResultType(void) const {
 
 bool Type::IsOCLIntelSubgroupAVCImeSingleReferenceStreaminType(void) const {
   auto &self = *const_cast<clang::Type *>(u.Type);
-  decltype(auto) val = self.isOCLIntelSubgroupAVCImeSingleRefStreaminType();
+  decltype(auto) val = self.isOCLIntelSubgroupAVCImeSingleReferenceStreaminType();
   return val;
 }
 
@@ -1677,9 +1689,15 @@ bool Type::IsQueueT(void) const {
   return val;
 }
 
-bool Type::IsRVVType(void) const {
+bool Type::IsRVVSizelessBuiltinType(void) const {
   auto &self = *const_cast<clang::Type *>(u.Type);
-  decltype(auto) val = self.isRVVType();
+  decltype(auto) val = self.isRVVSizelessBuiltinType();
+  return val;
+}
+
+bool Type::IsRVVVLSBuiltinType(void) const {
+  auto &self = *const_cast<clang::Type *>(u.Type);
+  decltype(auto) val = self.isRVVVLSBuiltinType();
   return val;
 }
 
@@ -1827,6 +1845,12 @@ bool Type::IsStructureType(void) const {
   return val;
 }
 
+bool Type::IsSveVLSBuiltinType(void) const {
+  auto &self = *const_cast<clang::Type *>(u.Type);
+  decltype(auto) val = self.isSveVLSBuiltinType();
+  return val;
+}
+
 bool Type::IsTemplateTypeParmType(void) const {
   auto &self = *const_cast<clang::Type *>(u.Type);
   decltype(auto) val = self.isTemplateTypeParmType();
@@ -1887,12 +1911,6 @@ bool Type::IsUnsignedIntegerType(void) const {
   return val;
 }
 
-bool Type::IsVLSTBuiltinType(void) const {
-  auto &self = *const_cast<clang::Type *>(u.Type);
-  decltype(auto) val = self.isVLSTBuiltinType();
-  return val;
-}
-
 bool Type::IsVariableArrayType(void) const {
   auto &self = *const_cast<clang::Type *>(u.Type);
   decltype(auto) val = self.isVariableArrayType();
@@ -1926,6 +1944,18 @@ bool Type::IsVoidPointerType(void) const {
 bool Type::IsVoidType(void) const {
   auto &self = *const_cast<clang::Type *>(u.Type);
   decltype(auto) val = self.isVoidType();
+  return val;
+}
+
+bool Type::IsWebAssemblyExternrefType(void) const {
+  auto &self = *const_cast<clang::Type *>(u.Type);
+  decltype(auto) val = self.isWebAssemblyExternrefType();
+  return val;
+}
+
+bool Type::IsWebAssemblyTableType(void) const {
+  auto &self = *const_cast<clang::Type *>(u.Type);
+  decltype(auto) val = self.isWebAssemblyTableType();
   return val;
 }
 
@@ -2322,6 +2352,12 @@ bool AttributedType::IsSugared(void) const {
   return val;
 }
 
+bool AttributedType::IsWebAssemblyFuncrefSpec(void) const {
+  auto &self = *const_cast<clang::AttributedType *>(u.AttributedType);
+  decltype(auto) val = self.isWebAssemblyFuncrefSpec();
+  return val;
+}
+
 PASTA_DEFINE_BASE_OPERATORS(Type, BTFTagAttributedType)
 ::pasta::Type BTFTagAttributedType::Desugar(void) const {
   auto &self = *const_cast<clang::BTFTagAttributedType *>(u.BTFTagAttributedType);
@@ -2451,6 +2487,12 @@ bool BuiltinType::IsSVEBool(void) const {
   return val;
 }
 
+bool BuiltinType::IsSVECount(void) const {
+  auto &self = *const_cast<clang::BuiltinType *>(u.BuiltinType);
+  decltype(auto) val = self.isSVECount();
+  return val;
+}
+
 bool BuiltinType::IsSignedInteger(void) const {
   auto &self = *const_cast<clang::BuiltinType *>(u.BuiltinType);
   decltype(auto) val = self.isSignedInteger();
@@ -2497,6 +2539,12 @@ PASTA_DEFINE_BASE_OPERATORS(Type, ConstantArrayType)
   decltype(auto) val = self.desugar();
   assert(!val.isNull());
   return TypeBuilder::Build(ast, val);
+}
+
+uint32_t ConstantArrayType::NumAddressingBits(void) const {
+  auto &self = *(u.ConstantArrayType);
+  decltype(auto) val = self.getNumAddressingBits(ast->ci->getASTContext());
+  return val;
 }
 
 llvm::APInt ConstantArrayType::Size(void) const {
@@ -3832,6 +3880,12 @@ bool QualifiedType::IsTriviallyCopyableType(void) const {
   return val;
 }
 
+bool QualifiedType::IsTriviallyEqualityComparableType(void) const {
+  auto self = RawQualType();
+  decltype(auto) val = self.isTriviallyEqualityComparableType(ast->ci->getASTContext());
+  return val;
+}
+
 bool QualifiedType::IsTriviallyRelocatableType(void) const {
   auto self = RawQualType();
   decltype(auto) val = self.isTriviallyRelocatableType(ast->ci->getASTContext());
@@ -3841,6 +3895,24 @@ bool QualifiedType::IsTriviallyRelocatableType(void) const {
 bool QualifiedType::IsVolatileQualified(void) const {
   auto self = RawQualType();
   decltype(auto) val = self.isVolatileQualified();
+  return val;
+}
+
+bool QualifiedType::IsWebAssemblyExternrefType(void) const {
+  auto self = RawQualType();
+  decltype(auto) val = self.isWebAssemblyExternrefType();
+  return val;
+}
+
+bool QualifiedType::IsWebAssemblyFuncrefType(void) const {
+  auto self = RawQualType();
+  decltype(auto) val = self.isWebAssemblyFuncrefType();
+  return val;
+}
+
+bool QualifiedType::IsWebAssemblyReferenceType(void) const {
+  auto self = RawQualType();
+  decltype(auto) val = self.isWebAssemblyReferenceType();
   return val;
 }
 
@@ -4354,6 +4426,12 @@ std::vector<::pasta::Type> FunctionProtoType::Exceptions(void) const {
     ret.emplace_back(TypeBuilder::Create<::pasta::Type>(ast, qual_type));
   }
   return ret;
+}
+
+uint32_t FunctionProtoType::AArch64SMEAttributes(void) const {
+  auto &self = *const_cast<clang::FunctionProtoType *>(u.FunctionProtoType);
+  decltype(auto) val = self.getAArch64SMEAttributes();
+  return val;
 }
 
 ::pasta::Token FunctionProtoType::EllipsisToken(void) const {

@@ -17,7 +17,7 @@ namespace nb = nanobind;
 
 void RegisterOMPForSimdDirective(nb::module_ &m) {
   nb::class_<OMPForSimdDirective, OMPLoopDirective>(m, "OMPForSimdDirective")
-    .def("__hash__", [](const OMPForSimdDirective& stmt) { return (intptr_t)stmt.RawStmt(); })
+    .def("__hash__", [](const OMPForSimdDirective& stmt) { return reinterpret_cast<intptr_t>(stmt.RawStmt()); })
     .def("__eq__", [](const Stmt& a, const Stmt& b) { return a.RawStmt() == b.RawStmt(); });
 }
 } // namespace pasta

@@ -70,118 +70,27 @@ target_link_libraries(pasta_cxx_settings INTERFACE std::filesystem)
 # Clang/LLVM dependencies --------------------
 # --------------------------------------------
 
-find_package(zstd CONFIG REQUIRED)
-find_package(Z3 CONFIG REQUIRED)
+add_subdirectory(vendor)
+
 find_package(LLVM CONFIG REQUIRED)
 find_package(Clang CONFIG REQUIRED)
+
 add_library(pasta_thirdparty_llvm INTERFACE)
 if(PASTA_ENABLE_TESTING)
     list(APPEND CMAKE_MODULE_PATH "${LLVM_CMAKE_DIR}")
     include(AddLLVM)  # For LLVM lit test suite stuff.
 endif(PASTA_ENABLE_TESTING)
 
-if (CMAKE_SYSTEM_NAME STREQUAL "Darwin")
-    set(_PASTA_PLATFORM_MACOS true)
-    add_library(pasta_thirdparty_llvm_force_load INTERFACE)
-else()
-    add_library(pasta_thirdparty_llvm_force_load ALIAS pasta_thirdparty_llvm)
-endif()
-
-# https://github.com/JonathanSalwan/Triton/issues/1082#issuecomment-1030826696
-if(LLVM_LINK_LLVM_DYLIB)
-  set(llvm_libs LLVM)
-else()
-  if (_PASTA_PLATFORM_MACOS)
-    llvm_map_components_to_libnames(llvm_libs_force_load
-      aarch64asmparser aarch64codegen aarch64desc
-      aarch64disassembler aarch64info aarch64utils
-      aggressiveinstcombine analysis armasmparser armcodegen
-      armdesc armdisassembler arminfo armutils asmparser
-      asmprinter binaryformat bitreader bitstreamreader
-      bitwriter cfguard codegen core coroutines coverage
-      debuginfocodeview debuginfodwarf debuginfogsym
-      debuginfologicalview debuginfomsf debuginfopdb demangle
-      dlltooldriver executionengine extensions frontendhlsl
-      frontendopenacc frontendopenmp globalisel instcombine
-      instrumentation interfacestub interpreter ipo irprinter
-      irreader jitlink libdriver linker mc mcdisassembler
-      mcjit mcparser mirparser native nativecodegen
-      nvptxcodegen nvptxdesc nvptxinfo objcarcopts object
-      objectyaml option orcjit orcshared orctargetprocess
-      passes profiledata remarks runtimedyld scalaropts
-      selectiondag sparcasmparser sparccodegen sparcdesc
-      sparcdisassembler sparcinfo support symbolize target
-      targetparser textapi transformutils vectorize
-      webassemblyasmparser webassemblycodegen webassemblydesc
-      webassemblydisassembler webassemblyinfo webassemblyutils
-      windowsdriver windowsmanifest x86asmparser x86codegen
-      x86desc x86disassembler x86info x86targetmca)
-  endif()
-  llvm_map_components_to_libnames(llvm_libs
-    support core
-    irreader
-    bitreader bitwriter
-    passes asmprinter
-    aarch64desc aarch64codegen aarch64asmparser
-    armdesc armcodegen armasmparser
-    interpreter mcjit
-    nvptxdesc nvptxcodegen
-    x86desc x86codegen x86asmparser
-    sparcdesc sparccodegen sparcasmparser
-    webassemblydesc webassemblycodegen webassemblyasmparser)
-endif()
-
 target_link_libraries(pasta_thirdparty_llvm INTERFACE
-    ${llvm_libs}
-    
-    clang
-    clangFrontend
-    clangDriver
-    clangSerialization
-    clangParse
-    clangAnalysis
-    clangEdit
     clangAST
-    clangLex
+    clangASTMatchers
     clangBasic
+    clangCodeGen
+    clangDriver
+    clangFrontend
+    clangSerialization
     clangTooling
-    clangIndex
 )
-
-if (_PASTA_PLATFORM_MACOS)
-    target_link_libraries(pasta_thirdparty_llvm_force_load INTERFACE "clang")
-    
-    set(libs
-        "clangFrontend"
-        "clangDriver"
-        "clangSerialization"
-        "clangParse"
-        "clangAnalysis"
-        "clangEdit"
-        "clangAST"
-        "clangLex"
-        "clangBasic"
-        "clangSema"
-        "clangASTMatchers"
-        "clangSupport"
-        "z3::libz3"
-        "zstd::libzstd_static"
-        "ZLIB::ZLIB")
-
-  foreach(lib IN LISTS libs llvm_libs_force_load)
-      target_link_options(pasta_thirdparty_llvm_force_load INTERFACE "SHELL:-force_load $<TARGET_FILE:${lib}>")
-  endforeach()
-
-  target_include_directories(pasta_thirdparty_llvm_force_load INTERFACE
-      "$<BUILD_INTERFACE:${LLVM_INCLUDE_DIRS};${LLVM_INCLUDE_DIR};${CLANG_INCLUDE_DIRS}>"
-      $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
-  )
-
-  target_compile_definitions(pasta_thirdparty_llvm_force_load INTERFACE
-      ${LLVM_DEFINITIONS}
-      ${Clang_DEFINITIONS}
-  )
-endif()
 
 target_include_directories(pasta_thirdparty_llvm INTERFACE
     "$<BUILD_INTERFACE:${LLVM_INCLUDE_DIRS};${LLVM_INCLUDE_DIR};${CLANG_INCLUDE_DIRS}>"
@@ -263,12 +172,12 @@ set(HOST_H_FILE "${CMAKE_CURRENT_BINARY_DIR}/lib/Compile/Host.h")
 get_compiler_paths(
     COMPILER "${CMAKE_C_COMPILER}"
     OUT_VAR CSTR_HOST_CC_VERSION_INFO
-    ARGS -x c -std=c18
+    ARGS -x c -std=c23
 )
 get_compiler_paths(
     COMPILER "${CMAKE_C_COMPILER}"
     OUT_VAR CSTR_HOST_CC_VERSION_INFO_FAKE_SYSROOT
-    ARGS -x c -std=c18 -isysroot "${CMAKE_CURRENT_BINARY_DIR}/xyz/" -Wno-missing-sysroot
+    ARGS -x c -std=c23 -isysroot "/xyz" -Wno-missing-sysroot
 )
 
 get_compiler_paths(
@@ -279,7 +188,7 @@ get_compiler_paths(
 get_compiler_paths(
     COMPILER "${CMAKE_CXX_COMPILER}"
     OUT_VAR CSTR_HOST_CXX_VERSION_INFO_FAKE_SYSROOT
-    ARGS -x c++ -std=c++20 -isysroot "${CMAKE_CURRENT_BINARY_DIR}/xyz" -Wno-missing-sysroot
+    ARGS -x c++ -std=c++20 -isysroot "/xyz" -Wno-missing-sysroot
 )
 
 configure_file("${HOST_H_IN_FILE}" "${HOST_H_FILE}" @ONLY)
@@ -381,7 +290,6 @@ add_library(pasta_compiler STATIC
     "lib/Compile/Job.h"
     "lib/Compile/PatchedMacroTracker.h"
     "lib/Compile/ParsedFileTracker.h"
-    "lib/Compile/Version.h"
     
     "lib/Compile/Builtins.cpp"
     "lib/Compile/Command.cpp"
@@ -415,14 +323,6 @@ add_library("pasta" INTERFACE)
 target_link_libraries("pasta" INTERFACE
     pasta_cxx_settings
     pasta_thirdparty_llvm
-    pasta_util
-    pasta_compiler
-)
-
-add_library("pasta_force_load" INTERFACE)
-target_link_libraries("pasta_force_load" INTERFACE
-    pasta_cxx_settings
-    pasta_thirdparty_llvm_force_load
     pasta_util
     pasta_compiler
 )
@@ -463,7 +363,6 @@ endif()
 
 set(PASTA_INCLUDE_SOURCE_PATH "${PROJECT_SOURCE_DIR}/include")
 set(PASTA_BINARY_PATH "${CMAKE_CURRENT_BINARY_DIR}")
-set(PASTA_VCPKG_INCLUDE_PATH "${VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}/include")
 set(PASTA_BIN_BOOTSTRAP_MACROS_MACRO_GENERATOR_CPP_PATH "${PROJECT_SOURCE_DIR}/bin/BootstrapMacros/MacroGenerator.cpp")
 set(PASTA_BIN_BOOTSTRAP_TYPES_GENERATED_H_PATH "${PROJECT_SOURCE_DIR}/bin/BootstrapTypes/Generated.h")
 set(PASTA_INCLUDE_AST_FORWARD_H_PATH "${PROJECT_SOURCE_DIR}/include/pasta/AST/Forward.h")
@@ -512,7 +411,6 @@ if(PASTA_ENABLE_INSTALL AND NOT PASTA_BOOTSTRAP_MACROS AND NOT PASTA_BOOTSTRAP_T
     TARGETS
       "pasta" "pasta_compiler" "pasta_util"
       "pasta_thirdparty_llvm" "pasta_cxx_settings"
-      "pasta_thirdparty_llvm_force_load" "pasta_force_load"
       ${PASTA_PY_BINDING_LIB_NAME}
     EXPORT
       "${PROJECT_NAME}Targets"

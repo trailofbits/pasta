@@ -17,7 +17,7 @@ namespace nb = nanobind;
 
 void RegisterOMPTargetTeamsGenericLoopDirective(nb::module_ &m) {
   nb::class_<OMPTargetTeamsGenericLoopDirective, OMPLoopDirective>(m, "OMPTargetTeamsGenericLoopDirective")
-    .def("__hash__", [](const OMPTargetTeamsGenericLoopDirective& stmt) { return (intptr_t)stmt.RawStmt(); })
+    .def("__hash__", [](const OMPTargetTeamsGenericLoopDirective& stmt) { return reinterpret_cast<intptr_t>(stmt.RawStmt()); })
     .def("__eq__", [](const Stmt& a, const Stmt& b) { return a.RawStmt() == b.RawStmt(); });
 }
 } // namespace pasta

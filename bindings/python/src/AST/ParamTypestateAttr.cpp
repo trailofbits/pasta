@@ -17,7 +17,7 @@ namespace nb = nanobind;
 
 void RegisterParamTypestateAttr(nb::module_ &m) {
   nb::class_<ParamTypestateAttr, InheritableAttr>(m, "ParamTypestateAttr")
-    .def("__hash__", [](const ParamTypestateAttr &attr) { return (intptr_t)attr.RawAttr(); })
+    .def("__hash__", [](const ParamTypestateAttr &attr) { return reinterpret_cast<intptr_t>(attr.RawAttr()); })
     .def("__eq__", [](const Attr &a, const Attr &b) { return a.RawAttr() == b.RawAttr(); })
     .def_prop_ro("parameter_state", &ParamTypestateAttr::ParameterState)
     .def_prop_ro("spelling", &ParamTypestateAttr::Spelling);

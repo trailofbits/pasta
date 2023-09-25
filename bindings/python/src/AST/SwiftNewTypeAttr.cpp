@@ -17,7 +17,7 @@ namespace nb = nanobind;
 
 void RegisterSwiftNewTypeAttr(nb::module_ &m) {
   nb::class_<SwiftNewTypeAttr, InheritableAttr>(m, "SwiftNewTypeAttr")
-    .def("__hash__", [](const SwiftNewTypeAttr &attr) { return (intptr_t)attr.RawAttr(); })
+    .def("__hash__", [](const SwiftNewTypeAttr &attr) { return reinterpret_cast<intptr_t>(attr.RawAttr()); })
     .def("__eq__", [](const Attr &a, const Attr &b) { return a.RawAttr() == b.RawAttr(); })
     .def_prop_ro("newtype_kind", &SwiftNewTypeAttr::NewtypeKind)
     .def_prop_ro("semantic_spelling", &SwiftNewTypeAttr::SemanticSpelling)

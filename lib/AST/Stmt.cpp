@@ -391,6 +391,10 @@ void StmtVisitor::VisitOMPScanDirective(const OMPScanDirective &stmt) {
   VisitOMPExecutableDirective(stmt);
 }
 
+void StmtVisitor::VisitOMPScopeDirective(const OMPScopeDirective &stmt) {
+  VisitOMPExecutableDirective(stmt);
+}
+
 void StmtVisitor::VisitOMPSectionDirective(const OMPSectionDirective &stmt) {
   VisitOMPExecutableDirective(stmt);
 }
@@ -1232,6 +1236,7 @@ PASTA_DEFINE_DERIVED_OPERATORS(Stmt, OMPParallelMasterTaskLoopDirective)
 PASTA_DEFINE_DERIVED_OPERATORS(Stmt, OMPParallelMasterTaskLoopSimdDirective)
 PASTA_DEFINE_DERIVED_OPERATORS(Stmt, OMPParallelSectionsDirective)
 PASTA_DEFINE_DERIVED_OPERATORS(Stmt, OMPScanDirective)
+PASTA_DEFINE_DERIVED_OPERATORS(Stmt, OMPScopeDirective)
 PASTA_DEFINE_DERIVED_OPERATORS(Stmt, OMPSectionDirective)
 PASTA_DEFINE_DERIVED_OPERATORS(Stmt, OMPSectionsDirective)
 PASTA_DEFINE_DERIVED_OPERATORS(Stmt, OMPSimdDirective)
@@ -2736,6 +2741,18 @@ std::vector<::pasta::Stmt> CoroutineBodyStmt::Children(void) const {
   return ret;
 }
 
+std::vector<::pasta::Stmt> CoroutineBodyStmt::ChildrenExclBody(void) const {
+  auto &self = *const_cast<clang::CoroutineBodyStmt *>(u.CoroutineBodyStmt);
+  decltype(auto) val = self.childrenExclBody();
+  std::vector<::pasta::Stmt> ret;
+  for (auto stmt_ptr : val) {
+    if (stmt_ptr) {
+      ret.emplace_back(StmtBuilder::Create<::pasta::Stmt>(ast, stmt_ptr));
+    }
+  }
+  return ret;
+}
+
 ::pasta::Expr CoroutineBodyStmt::Allocate(void) const {
   auto &self = *const_cast<clang::CoroutineBodyStmt *>(u.CoroutineBodyStmt);
   decltype(auto) val = self.getAllocate();
@@ -2751,11 +2768,11 @@ std::vector<::pasta::Stmt> CoroutineBodyStmt::Children(void) const {
   return ast->TokenAt(val);
 }
 
-::pasta::Stmt CoroutineBodyStmt::Body(void) const {
+::pasta::CompoundStmt CoroutineBodyStmt::Body(void) const {
   auto &self = *const_cast<clang::CoroutineBodyStmt *>(u.CoroutineBodyStmt);
   decltype(auto) val = self.getBody();
   if (val) {
-    return StmtBuilder::Create<::pasta::Stmt>(ast, val);
+    return StmtBuilder::Create<::pasta::CompoundStmt>(ast, val);
   }
   throw std::runtime_error("CoroutineBodyStmt::Body can return nullptr!");
 }
@@ -2839,6 +2856,15 @@ std::vector<::pasta::Stmt> CoroutineBodyStmt::ParameterMoves(void) const {
     return StmtBuilder::Create<::pasta::Stmt>(ast, val);
   }
   throw std::runtime_error("CoroutineBodyStmt::PromiseDeclarationStatement can return nullptr!");
+}
+
+::pasta::Stmt CoroutineBodyStmt::ResultDeclaration(void) const {
+  auto &self = *const_cast<clang::CoroutineBodyStmt *>(u.CoroutineBodyStmt);
+  decltype(auto) val = self.getResultDecl();
+  if (val) {
+    return StmtBuilder::Create<::pasta::Stmt>(ast, val);
+  }
+  throw std::runtime_error("CoroutineBodyStmt::ResultDeclaration can return nullptr!");
 }
 
 ::pasta::Stmt CoroutineBodyStmt::ReturnStatement(void) const {
@@ -3214,9 +3240,10 @@ enum ExprLValueClassification Expr::ClassifyLValue(void) const {
 // 2: EvaluateAsInt
 // 2: EvaluateAsLValue
 // 2: EvaluateAsRValue
+// 5: Expr::EvaluateCharacterRangeAsString
 std::optional<llvm::APSInt> Expr::EvaluateKnownConstInt(void) const {
   auto &self = *(u.Expr);
-  if (self.isValueDependent()) {
+  if (self.getType().isNull() || self.isValueDependent()) {
     return std::nullopt;
   } else {
     auto &ac = ast->ci->getASTContext();
@@ -3228,7 +3255,7 @@ std::optional<llvm::APSInt> Expr::EvaluateKnownConstInt(void) const {
 
 std::optional<llvm::APSInt> Expr::EvaluateKnownConstIntCheckOverflow(void) const {
   auto &self = *(u.Expr);
-  if (self.isValueDependent()) {
+  if (self.getType().isNull() || self.isValueDependent()) {
     return std::nullopt;
   } else {
     auto &ac = ast->ci->getASTContext();
@@ -3488,7 +3515,7 @@ bool Expr::IsBoundMemberFunction(void) const {
 
 std::optional<bool> Expr::IsCXX11ConstantExpression(void) const {
   auto &self = *(u.Expr);
-  if (self.isValueDependent()) {
+  if (self.getType().isNull() || self.isValueDependent()) {
     return std::nullopt;
   }
   auto &ac = ast->ci->getASTContext();
@@ -3503,7 +3530,7 @@ std::optional<bool> Expr::IsCXX11ConstantExpression(void) const {
 
 std::optional<bool> Expr::IsCXX98IntegralConstantExpression(void) const {
   auto &self = *(u.Expr);
-  if (self.isValueDependent()) {
+  if (self.getType().isNull() || self.isValueDependent()) {
     return std::nullopt;
   } else {
     auto &ac = ast->ci->getASTContext();
@@ -3522,7 +3549,7 @@ bool Expr::IsDefaultArgument(void) const {
 
 std::optional<bool> Expr::IsEvaluatable(void) const {
   auto &self = *(u.Expr);
-  if (self.isValueDependent()) {
+  if (self.getType().isNull() || self.isValueDependent()) {
     return std::nullopt;
   } else {
     auto &ac = ast->ci->getASTContext();
@@ -3553,7 +3580,7 @@ bool Expr::IsInstantiationDependent(void) const {
 
 std::optional<bool> Expr::IsIntegerConstantExpression(void) const {
   auto &self = *(u.Expr);
-  if (self.isValueDependent()) {
+  if (self.getType().isNull() || self.isValueDependent()) {
     return std::nullopt;
   } else {
     auto &ac = ast->ci->getASTContext();
@@ -3563,8 +3590,11 @@ std::optional<bool> Expr::IsIntegerConstantExpression(void) const {
   return val;
 }
 
-bool Expr::IsKnownToHaveBooleanValue(void) const {
+std::optional<bool> Expr::IsKnownToHaveBooleanValue(void) const {
   auto &self = *const_cast<clang::Expr *>(u.Expr);
+  if (self.getType().isNull()) {
+    return std::nullopt;
+  }
   decltype(auto) val = self.isKnownToHaveBooleanValue();
   return val;
 }
@@ -3606,8 +3636,11 @@ bool Expr::IsPRValue(void) const {
   return val;
 }
 
-bool Expr::IsReadIfDiscardedInCPlusPlus11(void) const {
+std::optional<bool> Expr::IsReadIfDiscardedInCPlusPlus11(void) const {
   auto &self = *const_cast<clang::Expr *>(u.Expr);
+  if (self.getType().isNull()) {
+    return std::nullopt;
+  }
   decltype(auto) val = self.isReadIfDiscardedInCPlusPlus11();
   return val;
 }
@@ -4453,6 +4486,13 @@ std::vector<::pasta::Expr> GenericSelectionExpr::AssociationExpressions(void) co
   throw std::runtime_error("GenericSelectionExpr::ControllingExpression can return nullptr!");
 }
 
+::pasta::Type GenericSelectionExpr::ControllingType(void) const {
+  auto &self = *const_cast<clang::GenericSelectionExpr *>(u.GenericSelectionExpr);
+  decltype(auto) val = self.getControllingType();
+  return TypeBuilder::Build(ast, val->getType());
+  throw std::runtime_error("GenericSelectionExpr::ControllingType can return nullptr!");
+}
+
 ::pasta::Token GenericSelectionExpr::DefaultToken(void) const {
   auto &self = *const_cast<clang::GenericSelectionExpr *>(u.GenericSelectionExpr);
   decltype(auto) val = self.getDefaultLoc();
@@ -4498,9 +4538,21 @@ uint32_t GenericSelectionExpr::ResultIndex(void) const {
   return val;
 }
 
+bool GenericSelectionExpr::IsExpressionPredicate(void) const {
+  auto &self = *const_cast<clang::GenericSelectionExpr *>(u.GenericSelectionExpr);
+  decltype(auto) val = self.isExprPredicate();
+  return val;
+}
+
 bool GenericSelectionExpr::IsResultDependent(void) const {
   auto &self = *const_cast<clang::GenericSelectionExpr *>(u.GenericSelectionExpr);
   decltype(auto) val = self.isResultDependent();
+  return val;
+}
+
+bool GenericSelectionExpr::IsTypePredicate(void) const {
+  auto &self = *const_cast<clang::GenericSelectionExpr *>(u.GenericSelectionExpr);
+  decltype(auto) val = self.isTypePredicate();
   return val;
 }
 
@@ -4977,6 +5029,12 @@ bool InitListExpr::HadArrayRangeDesignator(void) const {
 bool InitListExpr::HasArrayFiller(void) const {
   auto &self = *const_cast<clang::InitListExpr *>(u.InitListExpr);
   decltype(auto) val = self.hasArrayFiller();
+  return val;
+}
+
+bool InitListExpr::HasDesignatedInitializer(void) const {
+  auto &self = *const_cast<clang::InitListExpr *>(u.InitListExpr);
+  decltype(auto) val = self.hasDesignatedInit();
   return val;
 }
 
@@ -6330,6 +6388,7 @@ PASTA_DEFINE_DERIVED_OPERATORS(OMPExecutableDirective, OMPParallelMasterTaskLoop
 PASTA_DEFINE_DERIVED_OPERATORS(OMPExecutableDirective, OMPParallelMasterTaskLoopSimdDirective)
 PASTA_DEFINE_DERIVED_OPERATORS(OMPExecutableDirective, OMPParallelSectionsDirective)
 PASTA_DEFINE_DERIVED_OPERATORS(OMPExecutableDirective, OMPScanDirective)
+PASTA_DEFINE_DERIVED_OPERATORS(OMPExecutableDirective, OMPScopeDirective)
 PASTA_DEFINE_DERIVED_OPERATORS(OMPExecutableDirective, OMPSectionDirective)
 PASTA_DEFINE_DERIVED_OPERATORS(OMPExecutableDirective, OMPSectionsDirective)
 PASTA_DEFINE_DERIVED_OPERATORS(OMPExecutableDirective, OMPSimdDirective)
@@ -6410,6 +6469,7 @@ std::vector<::pasta::Stmt> OMPExecutableDirective::Children(void) const {
   throw std::runtime_error("OMPExecutableDirective::InnermostCapturedStatement can return nullptr!");
 }
 
+// 0: OMPExecutableDirective::MappedDirective
 uint32_t OMPExecutableDirective::NumClauses(void) const {
   auto &self = *const_cast<clang::OMPExecutableDirective *>(u.OMPExecutableDirective);
   decltype(auto) val = self.getNumClauses();
@@ -7275,6 +7335,13 @@ OMPScanDirective::OMPScanDirective(
 
 PASTA_DEFINE_BASE_OPERATORS(OMPExecutableDirective, OMPScanDirective)
 PASTA_DEFINE_BASE_OPERATORS(Stmt, OMPScanDirective)
+OMPScopeDirective::OMPScopeDirective(
+    std::shared_ptr<ASTImpl> ast_,
+    const ::clang::Stmt *stmt_)
+    : OMPExecutableDirective(std::move(ast_), stmt_) {}
+
+PASTA_DEFINE_BASE_OPERATORS(OMPExecutableDirective, OMPScopeDirective)
+PASTA_DEFINE_BASE_OPERATORS(Stmt, OMPScopeDirective)
 OMPSectionDirective::OMPSectionDirective(
     std::shared_ptr<ASTImpl> ast_,
     const ::clang::Stmt *stmt_)
@@ -9646,6 +9713,12 @@ std::string_view PredefinedExpr::IdentifierKindName(void) const {
   return ast->TokenAt(val);
 }
 
+bool PredefinedExpr::IsTransparent(void) const {
+  auto &self = *const_cast<clang::PredefinedExpr *>(u.PredefinedExpr);
+  decltype(auto) val = self.isTransparent();
+  return val;
+}
+
 PseudoObjectExpr::PseudoObjectExpr(
     std::shared_ptr<ASTImpl> ast_,
     const ::clang::Stmt *stmt_)
@@ -10584,6 +10657,12 @@ bool StringLiteral::IsUTF32(void) const {
 bool StringLiteral::IsUTF8(void) const {
   auto &self = *const_cast<clang::StringLiteral *>(u.StringLiteral);
   decltype(auto) val = self.isUTF8();
+  return val;
+}
+
+bool StringLiteral::IsUnevaluated(void) const {
+  auto &self = *const_cast<clang::StringLiteral *>(u.StringLiteral);
+  decltype(auto) val = self.isUnevaluated();
   return val;
 }
 
@@ -11704,6 +11783,16 @@ enum AtomicExprAtomicOp AtomicExpr::Operation(void) const {
   return static_cast<::pasta::AtomicExprAtomicOp>(val);
 }
 
+std::string_view AtomicExpr::OperationAsString(void) const {
+  auto &self = *const_cast<clang::AtomicExpr *>(u.AtomicExpr);
+  decltype(auto) val = self.getOpAsString();
+  if (auto size = val.size()) {
+    return std::string_view(val.data(), size);
+  } else {
+    return std::string_view();
+  }
+}
+
 ::pasta::Expr AtomicExpr::Order(void) const {
   auto &self = *const_cast<clang::AtomicExpr *>(u.AtomicExpr);
   decltype(auto) val = self.getOrder();
@@ -12333,6 +12422,12 @@ bool CXXConstructExpr::HadMultipleCandidates(void) const {
 bool CXXConstructExpr::IsElidable(void) const {
   auto &self = *const_cast<clang::CXXConstructExpr *>(u.CXXConstructExpr);
   decltype(auto) val = self.isElidable();
+  return val;
+}
+
+bool CXXConstructExpr::IsImmediateEscalating(void) const {
+  auto &self = *const_cast<clang::CXXConstructExpr *>(u.CXXConstructExpr);
+  decltype(auto) val = self.isImmediateEscalating();
   return val;
 }
 
@@ -14480,12 +14575,45 @@ std::vector<::pasta::Stmt> ConceptSpecializationExpr::Children(void) const {
   return ast->TokenAt(val);
 }
 
+// 0: ConceptSpecializationExpr::ConceptNameInfo
+::pasta::Token ConceptSpecializationExpr::ConceptNameToken(void) const {
+  auto &self = *const_cast<clang::ConceptSpecializationExpr *>(u.ConceptSpecializationExpr);
+  decltype(auto) val = self.getConceptNameLoc();
+  return ast->TokenAt(val);
+}
+
+// 0: ConceptSpecializationExpr::ConceptReference
 ::pasta::Token ConceptSpecializationExpr::EndToken(void) const {
   auto &self = *const_cast<clang::ConceptSpecializationExpr *>(u.ConceptSpecializationExpr);
   decltype(auto) val = self.getEndLoc();
   return ast->TokenAt(val);
 }
 
+::pasta::Token ConceptSpecializationExpr::ExpressionToken(void) const {
+  auto &self = *const_cast<clang::ConceptSpecializationExpr *>(u.ConceptSpecializationExpr);
+  decltype(auto) val = self.getExprLoc();
+  return ast->TokenAt(val);
+}
+
+::pasta::NamedDecl ConceptSpecializationExpr::FoundDeclaration(void) const {
+  auto &self = *const_cast<clang::ConceptSpecializationExpr *>(u.ConceptSpecializationExpr);
+  decltype(auto) val = self.getFoundDecl();
+  if (val) {
+    return DeclBuilder::Create<::pasta::NamedDecl>(ast, val);
+  }
+  throw std::runtime_error("ConceptSpecializationExpr::FoundDeclaration can return nullptr!");
+}
+
+::pasta::ConceptDecl ConceptSpecializationExpr::NamedConcept(void) const {
+  auto &self = *const_cast<clang::ConceptSpecializationExpr *>(u.ConceptSpecializationExpr);
+  decltype(auto) val = self.getNamedConcept();
+  if (val) {
+    return DeclBuilder::Create<::pasta::ConceptDecl>(ast, val);
+  }
+  throw std::runtime_error("ConceptSpecializationExpr::NamedConcept can return nullptr!");
+}
+
+// 0: ConceptSpecializationExpr::NestedNameSpecifierToken
 // 0: ConceptSpecializationExpr::Satisfaction
 ::pasta::ImplicitConceptSpecializationDecl ConceptSpecializationExpr::SpecializationDeclaration(void) const {
   auto &self = *const_cast<clang::ConceptSpecializationExpr *>(u.ConceptSpecializationExpr);
@@ -14496,6 +14624,7 @@ std::vector<::pasta::Stmt> ConceptSpecializationExpr::Children(void) const {
   throw std::runtime_error("ConceptSpecializationExpr::SpecializationDeclaration can return nullptr!");
 }
 
+// 0: ConceptSpecializationExpr::TemplateArgumentsAsWritten
 std::vector<::pasta::TemplateArgument> ConceptSpecializationExpr::TemplateArguments(void) const {
   auto &self = *const_cast<clang::ConceptSpecializationExpr *>(u.ConceptSpecializationExpr);
   decltype(auto) val = self.getTemplateArguments();
@@ -14504,6 +14633,18 @@ std::vector<::pasta::TemplateArgument> ConceptSpecializationExpr::TemplateArgume
     ret.emplace_back(ast, arg);
   }
   return ret;
+}
+
+::pasta::Token ConceptSpecializationExpr::TemplateKeywordToken(void) const {
+  auto &self = *const_cast<clang::ConceptSpecializationExpr *>(u.ConceptSpecializationExpr);
+  decltype(auto) val = self.getTemplateKWLoc();
+  return ast->TokenAt(val);
+}
+
+bool ConceptSpecializationExpr::HasExplicitTemplateArguments(void) const {
+  auto &self = *const_cast<clang::ConceptSpecializationExpr *>(u.ConceptSpecializationExpr);
+  decltype(auto) val = self.hasExplicitTemplateArgs();
+  return val;
 }
 
 bool ConceptSpecializationExpr::IsSatisfied(void) const {
@@ -14918,6 +15059,12 @@ bool DeclRefExpr::HasTemplateKeywordAndArgumentsInfo(void) const {
 bool DeclRefExpr::HasTemplateKeyword(void) const {
   auto &self = *const_cast<clang::DeclRefExpr *>(u.DeclRefExpr);
   decltype(auto) val = self.hasTemplateKeyword();
+  return val;
+}
+
+bool DeclRefExpr::IsImmediateEscalating(void) const {
+  auto &self = *const_cast<clang::DeclRefExpr *>(u.DeclRefExpr);
+  decltype(auto) val = self.isImmediateEscalating();
   return val;
 }
 

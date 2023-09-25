@@ -225,7 +225,8 @@ def run_on_function(func: FunctionDecl, allow_builtins: bool,
 
   # `n` for nothrow
   # `c` for const
-  print(f"TARGET_BUILTIN({func.name}, \"{proto}\", \"n{const_enc}{rt_enc}{vec_enc}\", \"\")")
+  # `~` for PASTA!
+  print(f"TARGET_BUILTIN({func.name}, \"{proto}\", \"~n{const_enc}{rt_enc}{vec_enc}\", \"\")")
 
 def run_on_ast(ast: AST, allow_builtins: bool, treat_as_runtime_functions: bool):
   dc: DeclContext = DeclContext.cast(ast.translation_unit)

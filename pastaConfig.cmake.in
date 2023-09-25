@@ -2,11 +2,10 @@
 
 include(CMakeFindDependencyMacro)
 list(PREPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}")
-find_dependency(Filesystem)
-
-find_dependency(Z3)
-find_dependency(LLVM)
-find_dependency(Clang)
 
 include("${CMAKE_CURRENT_LIST_DIR}/@PROJECT_NAME@Targets.cmake")
 check_required_components("@PROJECT_NAME@")
+
+if(NOT DEFINED MX_FIND_QUIETLY)
+  message(STATUS "Found PASTA: ${CMAKE_CURRENT_LIST_DIR}")
+endif()

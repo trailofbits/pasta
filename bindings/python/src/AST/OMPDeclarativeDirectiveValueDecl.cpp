@@ -17,7 +17,7 @@ namespace nb = nanobind;
 
 void RegisterOMPDeclarativeDirectiveValueDecl(nb::module_ &m) {
   nb::class_<OMPDeclarativeDirectiveValueDecl, ValueDecl>(m, "OMPDeclarativeDirectiveValueDecl")
-    .def("__hash__", [](const OMPDeclarativeDirectiveValueDecl &decl) { return (intptr_t)decl.RawDecl(); })
+    .def("__hash__", [](const OMPDeclarativeDirectiveValueDecl &decl) { return reinterpret_cast<intptr_t>(decl.RawDecl()); })
     .def("__eq__", [](const Decl &a, const Decl &b) { return a.RawDecl() == b.RawDecl(); });
 }
 } // namespace pasta

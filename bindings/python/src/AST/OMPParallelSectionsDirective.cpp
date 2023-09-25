@@ -17,7 +17,7 @@ namespace nb = nanobind;
 
 void RegisterOMPParallelSectionsDirective(nb::module_ &m) {
   nb::class_<OMPParallelSectionsDirective, OMPExecutableDirective>(m, "OMPParallelSectionsDirective")
-    .def("__hash__", [](const OMPParallelSectionsDirective& stmt) { return (intptr_t)stmt.RawStmt(); })
+    .def("__hash__", [](const OMPParallelSectionsDirective& stmt) { return reinterpret_cast<intptr_t>(stmt.RawStmt()); })
     .def("__eq__", [](const Stmt& a, const Stmt& b) { return a.RawStmt() == b.RawStmt(); })
     .def_prop_ro("task_reduction_reference_expression", &OMPParallelSectionsDirective::TaskReductionReferenceExpression)
     .def_prop_ro("has_cancel", &OMPParallelSectionsDirective::HasCancel);

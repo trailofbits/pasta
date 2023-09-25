@@ -17,7 +17,7 @@ namespace nb = nanobind;
 
 void RegisterObjCDesignatedInitializerAttr(nb::module_ &m) {
   nb::class_<ObjCDesignatedInitializerAttr, Attr>(m, "ObjCDesignatedInitializerAttr")
-    .def("__hash__", [](const ObjCDesignatedInitializerAttr &attr) { return (intptr_t)attr.RawAttr(); })
+    .def("__hash__", [](const ObjCDesignatedInitializerAttr &attr) { return reinterpret_cast<intptr_t>(attr.RawAttr()); })
     .def("__eq__", [](const Attr &a, const Attr &b) { return a.RawAttr() == b.RawAttr(); })
     .def_prop_ro("spelling", &ObjCDesignatedInitializerAttr::Spelling);
 }

@@ -149,7 +149,7 @@ std::optional<FileToken> File::TokenAtOffset(unsigned offset) const noexcept {
   {
     std::unique_lock<std::mutex> locker(impl->tokens_lock);
     auto tokens = impl->tokens.data();
-    auto end_tokens = &(impl->tokens[impl->tokens.size()]);
+    auto end_tokens = &(tokens[impl->tokens.size()]);
     auto ret = std::lower_bound(
         tokens, end_tokens, fake_tok,
         [] (const FileTokenImpl &a, const FileTokenImpl &b) {

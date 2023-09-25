@@ -1139,6 +1139,7 @@ uint32_t Decl::IdentifierNamespace(void) const {
 }
 
 // 0: Decl::ImportedOwningModule
+// 0: Decl::
 // 0: Decl::LangOpts
 std::optional<::pasta::DeclContext> Decl::LexicalDeclarationContext(void) const {
   auto &self = *const_cast<clang::Decl *>(u.Decl);
@@ -1339,9 +1340,21 @@ bool Decl::IsFunctionOrFunctionTemplate(void) const {
   return val;
 }
 
+bool Decl::IsFunctionPointerType(void) const {
+  auto &self = *const_cast<clang::Decl *>(u.Decl);
+  decltype(auto) val = self.isFunctionPointerType();
+  return val;
+}
+
 bool Decl::IsInAnonymousNamespace(void) const {
   auto &self = *const_cast<clang::Decl *>(u.Decl);
   decltype(auto) val = self.isInAnonymousNamespace();
+  return val;
+}
+
+bool Decl::IsInAnotherModuleUnit(void) const {
+  auto &self = *const_cast<clang::Decl *>(u.Decl);
+  decltype(auto) val = self.isInAnotherModuleUnit();
   return val;
 }
 
@@ -1979,6 +1992,7 @@ bool NamedDecl::IsLinkageValid(void) const {
   return val;
 }
 
+// 1: NamedDecl::IsPlaceholderVariable
 // 1: NamedDecl::IsReserved
 NamespaceAliasDecl::NamespaceAliasDecl(
     std::shared_ptr<ASTImpl> ast_,
@@ -2421,13 +2435,15 @@ bool ObjCInterfaceDecl::DeclaresOrInheritsDesignatedInitializers(void) const {
 }
 
 // 2: CategoryMethod
-::pasta::ObjCInterfaceDecl ObjCInterfaceDecl::Definition(void) const {
+std::optional<::pasta::ObjCInterfaceDecl> ObjCInterfaceDecl::Definition(void) const {
   auto &self = *const_cast<clang::ObjCInterfaceDecl *>(u.ObjCInterfaceDecl);
   decltype(auto) val = self.getDefinition();
+  if (!val) {
+    return std::nullopt;
+  }
   if (val) {
     return DeclBuilder::Create<::pasta::ObjCInterfaceDecl>(ast, val);
   }
-  throw std::runtime_error("ObjCInterfaceDecl::Definition can return nullptr!");
 }
 
 ::pasta::Token ObjCInterfaceDecl::EndOfDefinitionToken(void) const {
@@ -3153,13 +3169,15 @@ PASTA_DEFINE_BASE_OPERATORS(ObjCContainerDecl, ObjCProtocolDecl)
   throw std::runtime_error("ObjCProtocolDecl::CanonicalDeclaration can return nullptr!");
 }
 
-::pasta::ObjCProtocolDecl ObjCProtocolDecl::Definition(void) const {
+std::optional<::pasta::ObjCProtocolDecl> ObjCProtocolDecl::Definition(void) const {
   auto &self = *const_cast<clang::ObjCProtocolDecl *>(u.ObjCProtocolDecl);
   decltype(auto) val = self.getDefinition();
+  if (!val) {
+    return std::nullopt;
+  }
   if (val) {
     return DeclBuilder::Create<::pasta::ObjCProtocolDecl>(ast, val);
   }
-  throw std::runtime_error("ObjCProtocolDecl::Definition can return nullptr!");
 }
 
 std::string_view ObjCProtocolDecl::ObjCRuntimeNameAsString(void) const {
@@ -3293,11 +3311,11 @@ PASTA_DEFINE_BASE_OPERATORS(Decl, StaticAssertDecl)
   throw std::runtime_error("StaticAssertDecl::AssertExpression can return nullptr!");
 }
 
-::pasta::StringLiteral StaticAssertDecl::Message(void) const {
+::pasta::Expr StaticAssertDecl::Message(void) const {
   auto &self = *const_cast<clang::StaticAssertDecl *>(u.StaticAssertDecl);
   decltype(auto) val = self.getMessage();
   if (val) {
-    return StmtBuilder::Create<::pasta::StringLiteral>(ast, val);
+    return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
   throw std::runtime_error("StaticAssertDecl::Message can return nullptr!");
 }
@@ -3423,6 +3441,12 @@ PASTA_DEFINE_BASE_OPERATORS(Decl, TopLevelStmtDecl)
     return StmtBuilder::Create<::pasta::Stmt>(ast, val);
   }
   throw std::runtime_error("TopLevelStmtDecl::Statement can return nullptr!");
+}
+
+bool TopLevelStmtDecl::IsSemiMissing(void) const {
+  auto &self = *const_cast<clang::TopLevelStmtDecl *>(u.TopLevelStmtDecl);
+  decltype(auto) val = self.isSemiMissing();
+  return val;
 }
 
 TranslationUnitDecl::TranslationUnitDecl(
@@ -4478,6 +4502,12 @@ bool FieldDecl::HasInClassInitializer(void) const {
   return val;
 }
 
+bool FieldDecl::HasNonNullInClassInitializer(void) const {
+  auto &self = *const_cast<clang::FieldDecl *>(u.FieldDecl);
+  decltype(auto) val = self.hasNonNullInClassInitializer();
+  return val;
+}
+
 bool FieldDecl::IsAnonymousStructOrUnion(void) const {
   auto &self = *const_cast<clang::FieldDecl *>(u.FieldDecl);
   decltype(auto) val = self.isAnonymousStructOrUnion();
@@ -4493,6 +4523,12 @@ bool FieldDecl::IsBitField(void) const {
 bool FieldDecl::IsMutable(void) const {
   auto &self = *const_cast<clang::FieldDecl *>(u.FieldDecl);
   decltype(auto) val = self.isMutable();
+  return val;
+}
+
+bool FieldDecl::IsPotentiallyOverlapping(void) const {
+  auto &self = *const_cast<clang::FieldDecl *>(u.FieldDecl);
+  decltype(auto) val = self.isPotentiallyOverlapping();
   return val;
 }
 
@@ -4542,6 +4578,12 @@ PASTA_DEFINE_DERIVED_OPERATORS(FunctionDecl, CXXConversionDecl)
 PASTA_DEFINE_DERIVED_OPERATORS(FunctionDecl, CXXDeductionGuideDecl)
 PASTA_DEFINE_DERIVED_OPERATORS(FunctionDecl, CXXDestructorDecl)
 PASTA_DEFINE_DERIVED_OPERATORS(FunctionDecl, CXXMethodDecl)
+bool FunctionDecl::BodyContainsImmediateEscalatingExpressions(void) const {
+  auto &self = *const_cast<clang::FunctionDecl *>(u.FunctionDecl);
+  decltype(auto) val = self.BodyContainsImmediateEscalatingExpressions();
+  return val;
+}
+
 bool FunctionDecl::FriendConstraintRefersToEnclosingTemplate(void) const {
   auto &self = *const_cast<clang::FunctionDecl *>(u.FunctionDecl);
   decltype(auto) val = self.FriendConstraintRefersToEnclosingTemplate();
@@ -4911,6 +4953,18 @@ bool FunctionDecl::IsGlobal(void) const {
   return val;
 }
 
+bool FunctionDecl::IsImmediateEscalating(void) const {
+  auto &self = *const_cast<clang::FunctionDecl *>(u.FunctionDecl);
+  decltype(auto) val = self.isImmediateEscalating();
+  return val;
+}
+
+bool FunctionDecl::IsImmediateFunction(void) const {
+  auto &self = *const_cast<clang::FunctionDecl *>(u.FunctionDecl);
+  decltype(auto) val = self.isImmediateFunction();
+  return val;
+}
+
 bool FunctionDecl::IsImplicitlyInstantiable(void) const {
   auto &self = *const_cast<clang::FunctionDecl *>(u.FunctionDecl);
   decltype(auto) val = self.isImplicitlyInstantiable();
@@ -4999,6 +5053,12 @@ bool FunctionDecl::IsMSVCRTEntryPoint(void) const {
 bool FunctionDecl::IsMain(void) const {
   auto &self = *const_cast<clang::FunctionDecl *>(u.FunctionDecl);
   decltype(auto) val = self.isMain();
+  return val;
+}
+
+bool FunctionDecl::IsMemberLikeConstrainedFriend(void) const {
+  auto &self = *const_cast<clang::FunctionDecl *>(u.FunctionDecl);
+  decltype(auto) val = self.isMemberLikeConstrainedFriend();
   return val;
 }
 
@@ -7131,13 +7191,13 @@ PASTA_DEFINE_BASE_OPERATORS(ValueDecl, CXXDeductionGuideDecl)
   throw std::runtime_error("CXXDeductionGuideDecl::DeducedTemplate can return nullptr!");
 }
 
-// 0: CXXDeductionGuideDecl::ExplicitSpecifier
-bool CXXDeductionGuideDecl::IsCopyDeductionCandidate(void) const {
+enum DeductionCandidate CXXDeductionGuideDecl::DeductionCandidateKind(void) const {
   auto &self = *const_cast<clang::CXXDeductionGuideDecl *>(u.CXXDeductionGuideDecl);
-  decltype(auto) val = self.isCopyDeductionCandidate();
-  return val;
+  decltype(auto) val = self.getDeductionCandidateKind();
+  return static_cast<::pasta::DeductionCandidate>(val);
 }
 
+// 0: CXXDeductionGuideDecl::ExplicitSpecifier
 bool CXXDeductionGuideDecl::IsExplicit(void) const {
   auto &self = *const_cast<clang::CXXDeductionGuideDecl *>(u.CXXDeductionGuideDecl);
   decltype(auto) val = self.isExplicit();
@@ -7484,13 +7544,15 @@ PASTA_DEFINE_BASE_OPERATORS(TypeDecl, EnumDecl)
   throw std::runtime_error("EnumDecl::CanonicalDeclaration can return nullptr!");
 }
 
-::pasta::EnumDecl EnumDecl::Definition(void) const {
+std::optional<::pasta::EnumDecl> EnumDecl::Definition(void) const {
   auto &self = *const_cast<clang::EnumDecl *>(u.EnumDecl);
   decltype(auto) val = self.getDefinition();
+  if (!val) {
+    return std::nullopt;
+  }
   if (val) {
     return DeclBuilder::Create<::pasta::EnumDecl>(ast, val);
   }
-  throw std::runtime_error("EnumDecl::Definition can return nullptr!");
 }
 
 std::optional<::pasta::EnumDecl> EnumDecl::InstantiatedFromMemberEnum(void) const {
@@ -8556,6 +8618,7 @@ std::optional<std::vector<::pasta::FriendDecl>> CXXRecordDecl::Friends(void) con
   throw std::runtime_error("CXXRecordDecl::CanonicalDeclaration can return nullptr!");
 }
 
+// 1: CXXRecordDecl::Capture
 std::optional<::pasta::CXXRecordDecl> CXXRecordDecl::Definition(void) const {
   auto &self = *const_cast<clang::CXXRecordDecl *>(u.CXXRecordDecl);
   decltype(auto) val = self.getDefinition();
@@ -8687,6 +8750,12 @@ std::optional<std::vector<::pasta::NamedDecl>> CXXRecordDecl::LambdaExplicitTemp
   return ret;
 }
 
+uint32_t CXXRecordDecl::LambdaIndexInContext(void) const {
+  auto &self = *const_cast<clang::CXXRecordDecl *>(u.CXXRecordDecl);
+  decltype(auto) val = self.getLambdaIndexInContext();
+  return val;
+}
+
 std::optional<uint32_t> CXXRecordDecl::LambdaManglingNumber(void) const {
   auto &self = *const_cast<clang::CXXRecordDecl *>(u.CXXRecordDecl);
   if (!self.isLambda()) {
@@ -8696,6 +8765,7 @@ std::optional<uint32_t> CXXRecordDecl::LambdaManglingNumber(void) const {
   return val;
 }
 
+// 0: CXXRecordDecl::LambdaNumbering
 std::optional<::pasta::Type> CXXRecordDecl::LambdaType(void) const {
   auto &self = *const_cast<clang::CXXRecordDecl *>(u.CXXRecordDecl);
   if (!self.isLambda()) {

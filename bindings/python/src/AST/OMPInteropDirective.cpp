@@ -17,7 +17,7 @@ namespace nb = nanobind;
 
 void RegisterOMPInteropDirective(nb::module_ &m) {
   nb::class_<OMPInteropDirective, OMPExecutableDirective>(m, "OMPInteropDirective")
-    .def("__hash__", [](const OMPInteropDirective& stmt) { return (intptr_t)stmt.RawStmt(); })
+    .def("__hash__", [](const OMPInteropDirective& stmt) { return reinterpret_cast<intptr_t>(stmt.RawStmt()); })
     .def("__eq__", [](const Stmt& a, const Stmt& b) { return a.RawStmt() == b.RawStmt(); });
 }
 } // namespace pasta

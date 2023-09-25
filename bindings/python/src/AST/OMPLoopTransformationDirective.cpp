@@ -17,7 +17,7 @@ namespace nb = nanobind;
 
 void RegisterOMPLoopTransformationDirective(nb::module_ &m) {
   nb::class_<OMPLoopTransformationDirective, OMPLoopBasedDirective>(m, "OMPLoopTransformationDirective")
-    .def("__hash__", [](const OMPLoopTransformationDirective& stmt) { return (intptr_t)stmt.RawStmt(); })
+    .def("__hash__", [](const OMPLoopTransformationDirective& stmt) { return reinterpret_cast<intptr_t>(stmt.RawStmt()); })
     .def("__eq__", [](const Stmt& a, const Stmt& b) { return a.RawStmt() == b.RawStmt(); })
     .def_prop_ro("num_associated_loops", &OMPLoopTransformationDirective::NumAssociatedLoops)
     .def_prop_ro("pre_initializers", &OMPLoopTransformationDirective::PreInitializers)

@@ -17,7 +17,7 @@ namespace nb = nanobind;
 
 void RegisterArrayTypeTraitExpr(nb::module_ &m) {
   nb::class_<ArrayTypeTraitExpr, Expr>(m, "ArrayTypeTraitExpr")
-    .def("__hash__", [](const ArrayTypeTraitExpr& stmt) { return (intptr_t)stmt.RawStmt(); })
+    .def("__hash__", [](const ArrayTypeTraitExpr& stmt) { return reinterpret_cast<intptr_t>(stmt.RawStmt()); })
     .def("__eq__", [](const Stmt& a, const Stmt& b) { return a.RawStmt() == b.RawStmt(); })
     .def_prop_ro("children", &ArrayTypeTraitExpr::Children)
     .def_prop_ro("begin_token", &ArrayTypeTraitExpr::BeginToken)

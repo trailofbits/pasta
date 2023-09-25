@@ -17,9 +17,10 @@ namespace nb = nanobind;
 
 void RegisterCoroutineBodyStmt(nb::module_ &m) {
   nb::class_<CoroutineBodyStmt, Stmt>(m, "CoroutineBodyStmt")
-    .def("__hash__", [](const CoroutineBodyStmt& stmt) { return (intptr_t)stmt.RawStmt(); })
+    .def("__hash__", [](const CoroutineBodyStmt& stmt) { return reinterpret_cast<intptr_t>(stmt.RawStmt()); })
     .def("__eq__", [](const Stmt& a, const Stmt& b) { return a.RawStmt() == b.RawStmt(); })
     .def_prop_ro("children", &CoroutineBodyStmt::Children)
+    .def_prop_ro("children_excl_body", &CoroutineBodyStmt::ChildrenExclBody)
     .def_prop_ro("allocate", &CoroutineBodyStmt::Allocate)
     .def_prop_ro("begin_token", &CoroutineBodyStmt::BeginToken)
     .def_prop_ro("body", &CoroutineBodyStmt::Body)
@@ -32,6 +33,7 @@ void RegisterCoroutineBodyStmt(nb::module_ &m) {
     .def_prop_ro("parameter_moves", &CoroutineBodyStmt::ParameterMoves)
     .def_prop_ro("promise_declaration", &CoroutineBodyStmt::PromiseDeclaration)
     .def_prop_ro("promise_declaration_statement", &CoroutineBodyStmt::PromiseDeclarationStatement)
+    .def_prop_ro("result_declaration", &CoroutineBodyStmt::ResultDeclaration)
     .def_prop_ro("return_statement", &CoroutineBodyStmt::ReturnStatement)
     .def_prop_ro("return_statement_on_alloc_failure", &CoroutineBodyStmt::ReturnStatementOnAllocFailure)
     .def_prop_ro("return_value", &CoroutineBodyStmt::ReturnValue)

@@ -17,7 +17,7 @@ namespace nb = nanobind;
 
 void RegisterSysVABIAttr(nb::module_ &m) {
   nb::class_<SysVABIAttr, InheritableAttr>(m, "SysVABIAttr")
-    .def("__hash__", [](const SysVABIAttr &attr) { return (intptr_t)attr.RawAttr(); })
+    .def("__hash__", [](const SysVABIAttr &attr) { return reinterpret_cast<intptr_t>(attr.RawAttr()); })
     .def("__eq__", [](const Attr &a, const Attr &b) { return a.RawAttr() == b.RawAttr(); })
     .def_prop_ro("spelling", &SysVABIAttr::Spelling);
 }

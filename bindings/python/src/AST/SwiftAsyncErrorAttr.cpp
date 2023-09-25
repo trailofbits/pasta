@@ -17,7 +17,7 @@ namespace nb = nanobind;
 
 void RegisterSwiftAsyncErrorAttr(nb::module_ &m) {
   nb::class_<SwiftAsyncErrorAttr, InheritableAttr>(m, "SwiftAsyncErrorAttr")
-    .def("__hash__", [](const SwiftAsyncErrorAttr &attr) { return (intptr_t)attr.RawAttr(); })
+    .def("__hash__", [](const SwiftAsyncErrorAttr &attr) { return reinterpret_cast<intptr_t>(attr.RawAttr()); })
     .def("__eq__", [](const Attr &a, const Attr &b) { return a.RawAttr() == b.RawAttr(); })
     .def_prop_ro("convention", &SwiftAsyncErrorAttr::Convention)
     .def_prop_ro("handler_parameter_index", &SwiftAsyncErrorAttr::HandlerParameterIndex)

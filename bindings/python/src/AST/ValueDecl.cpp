@@ -17,7 +17,7 @@ namespace nb = nanobind;
 
 void RegisterValueDecl(nb::module_ &m) {
   nb::class_<ValueDecl, NamedDecl>(m, "ValueDecl")
-    .def("__hash__", [](const ValueDecl &decl) { return (intptr_t)decl.RawDecl(); })
+    .def("__hash__", [](const ValueDecl &decl) { return reinterpret_cast<intptr_t>(decl.RawDecl()); })
     .def("__eq__", [](const Decl &a, const Decl &b) { return a.RawDecl() == b.RawDecl(); })
     .def_prop_ro("potentially_decomposed_variable_declaration", &ValueDecl::PotentiallyDecomposedVariableDeclaration)
     .def_prop_ro("type", &ValueDecl::Type)

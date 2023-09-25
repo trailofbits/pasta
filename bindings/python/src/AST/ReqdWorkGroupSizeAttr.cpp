@@ -17,7 +17,7 @@ namespace nb = nanobind;
 
 void RegisterReqdWorkGroupSizeAttr(nb::module_ &m) {
   nb::class_<ReqdWorkGroupSizeAttr, InheritableAttr>(m, "ReqdWorkGroupSizeAttr")
-    .def("__hash__", [](const ReqdWorkGroupSizeAttr &attr) { return (intptr_t)attr.RawAttr(); })
+    .def("__hash__", [](const ReqdWorkGroupSizeAttr &attr) { return reinterpret_cast<intptr_t>(attr.RawAttr()); })
     .def("__eq__", [](const Attr &a, const Attr &b) { return a.RawAttr() == b.RawAttr(); })
     .def_prop_ro("spelling", &ReqdWorkGroupSizeAttr::Spelling)
     .def_prop_ro("x_dim", &ReqdWorkGroupSizeAttr::XDim)

@@ -17,7 +17,7 @@ namespace nb = nanobind;
 
 void RegisterImplicitCastExpr(nb::module_ &m) {
   nb::class_<ImplicitCastExpr, CastExpr>(m, "ImplicitCastExpr")
-    .def("__hash__", [](const ImplicitCastExpr& stmt) { return (intptr_t)stmt.RawStmt(); })
+    .def("__hash__", [](const ImplicitCastExpr& stmt) { return reinterpret_cast<intptr_t>(stmt.RawStmt()); })
     .def("__eq__", [](const Stmt& a, const Stmt& b) { return a.RawStmt() == b.RawStmt(); })
     .def_prop_ro("begin_token", &ImplicitCastExpr::BeginToken)
     .def_prop_ro("end_token", &ImplicitCastExpr::EndToken)

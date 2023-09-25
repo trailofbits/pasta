@@ -17,7 +17,7 @@ namespace nb = nanobind;
 
 void RegisterDefaultStmt(nb::module_ &m) {
   nb::class_<DefaultStmt, SwitchCase>(m, "DefaultStmt")
-    .def("__hash__", [](const DefaultStmt& stmt) { return (intptr_t)stmt.RawStmt(); })
+    .def("__hash__", [](const DefaultStmt& stmt) { return reinterpret_cast<intptr_t>(stmt.RawStmt()); })
     .def("__eq__", [](const Stmt& a, const Stmt& b) { return a.RawStmt() == b.RawStmt(); })
     .def_prop_ro("children", &DefaultStmt::Children)
     .def_prop_ro("begin_token", &DefaultStmt::BeginToken)

@@ -17,7 +17,7 @@ namespace nb = nanobind;
 
 void RegisterConstInitAttr(nb::module_ &m) {
   nb::class_<ConstInitAttr, InheritableAttr>(m, "ConstInitAttr")
-    .def("__hash__", [](const ConstInitAttr &attr) { return (intptr_t)attr.RawAttr(); })
+    .def("__hash__", [](const ConstInitAttr &attr) { return reinterpret_cast<intptr_t>(attr.RawAttr()); })
     .def("__eq__", [](const Attr &a, const Attr &b) { return a.RawAttr() == b.RawAttr(); })
     .def_prop_ro("semantic_spelling", &ConstInitAttr::SemanticSpelling)
     .def_prop_ro("spelling", &ConstInitAttr::Spelling)

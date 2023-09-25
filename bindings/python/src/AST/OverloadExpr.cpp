@@ -17,7 +17,7 @@ namespace nb = nanobind;
 
 void RegisterOverloadExpr(nb::module_ &m) {
   nb::class_<OverloadExpr, Expr>(m, "OverloadExpr")
-    .def("__hash__", [](const OverloadExpr& stmt) { return (intptr_t)stmt.RawStmt(); })
+    .def("__hash__", [](const OverloadExpr& stmt) { return reinterpret_cast<intptr_t>(stmt.RawStmt()); })
     .def("__eq__", [](const Stmt& a, const Stmt& b) { return a.RawStmt() == b.RawStmt(); })
     .def_prop_ro("l_angle_token", &OverloadExpr::LAngleToken)
     .def_prop_ro("name_token", &OverloadExpr::NameToken)

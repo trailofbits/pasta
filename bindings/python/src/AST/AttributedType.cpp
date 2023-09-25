@@ -17,7 +17,7 @@ namespace nb = nanobind;
 
 void RegisterAttributedType(nb::module_ &m) {
   nb::class_<AttributedType, Type>(m, "AttributedType")
-    .def("__hash__", [](const AttributedType &type) { return (intptr_t)type.RawType(); })
+    .def("__hash__", [](const AttributedType &type) { return reinterpret_cast<intptr_t>(type.RawType()); })
     .def("__eq__", [](const Type &a, const Type &b) { return a.RawType() == b.RawType(); })
     .def_prop_ro("desugar", &AttributedType::Desugar)
     .def_prop_ro("attribute", &AttributedType::Attribute)
@@ -29,6 +29,7 @@ void RegisterAttributedType(nb::module_ &m) {
     .def_prop_ro("is_calling_conv", &AttributedType::IsCallingConv)
     .def_prop_ro("is_ms_type_spec", &AttributedType::IsMSTypeSpec)
     .def_prop_ro("is_qualifier", &AttributedType::IsQualifier)
-    .def_prop_ro("is_sugared", &AttributedType::IsSugared);
+    .def_prop_ro("is_sugared", &AttributedType::IsSugared)
+    .def_prop_ro("is_web_assembly_funcref_spec", &AttributedType::IsWebAssemblyFuncrefSpec);
 }
 } // namespace pasta

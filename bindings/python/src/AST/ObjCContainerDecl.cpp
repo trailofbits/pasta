@@ -17,7 +17,7 @@ namespace nb = nanobind;
 
 void RegisterObjCContainerDecl(nb::module_ &m) {
   nb::class_<ObjCContainerDecl, NamedDecl>(m, "ObjCContainerDecl")
-    .def("__hash__", [](const ObjCContainerDecl &decl) { return (intptr_t)decl.RawDecl(); })
+    .def("__hash__", [](const ObjCContainerDecl &decl) { return reinterpret_cast<intptr_t>(decl.RawDecl()); })
     .def("__eq__", [](const Decl &a, const Decl &b) { return a.RawDecl() == b.RawDecl(); })
     .def_prop_ro("class_methods", &ObjCContainerDecl::ClassMethods)
     .def_prop_ro("class_properties", &ObjCContainerDecl::ClassProperties)

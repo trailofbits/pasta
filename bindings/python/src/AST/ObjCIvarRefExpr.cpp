@@ -17,7 +17,7 @@ namespace nb = nanobind;
 
 void RegisterObjCIvarRefExpr(nb::module_ &m) {
   nb::class_<ObjCIvarRefExpr, Expr>(m, "ObjCIvarRefExpr")
-    .def("__hash__", [](const ObjCIvarRefExpr& stmt) { return (intptr_t)stmt.RawStmt(); })
+    .def("__hash__", [](const ObjCIvarRefExpr& stmt) { return reinterpret_cast<intptr_t>(stmt.RawStmt()); })
     .def("__eq__", [](const Stmt& a, const Stmt& b) { return a.RawStmt() == b.RawStmt(); })
     .def_prop_ro("children", &ObjCIvarRefExpr::Children)
     .def_prop_ro("base", &ObjCIvarRefExpr::Base)

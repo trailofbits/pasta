@@ -17,7 +17,7 @@ namespace nb = nanobind;
 
 void RegisterObjCArrayLiteral(nb::module_ &m) {
   nb::class_<ObjCArrayLiteral, Expr>(m, "ObjCArrayLiteral")
-    .def("__hash__", [](const ObjCArrayLiteral& stmt) { return (intptr_t)stmt.RawStmt(); })
+    .def("__hash__", [](const ObjCArrayLiteral& stmt) { return reinterpret_cast<intptr_t>(stmt.RawStmt()); })
     .def("__eq__", [](const Stmt& a, const Stmt& b) { return a.RawStmt() == b.RawStmt(); })
     .def_prop_ro("children", &ObjCArrayLiteral::Children)
     .def_prop_ro("array_with_objects_method", &ObjCArrayLiteral::ArrayWithObjectsMethod)

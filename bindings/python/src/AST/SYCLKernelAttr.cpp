@@ -17,7 +17,7 @@ namespace nb = nanobind;
 
 void RegisterSYCLKernelAttr(nb::module_ &m) {
   nb::class_<SYCLKernelAttr, InheritableAttr>(m, "SYCLKernelAttr")
-    .def("__hash__", [](const SYCLKernelAttr &attr) { return (intptr_t)attr.RawAttr(); })
+    .def("__hash__", [](const SYCLKernelAttr &attr) { return reinterpret_cast<intptr_t>(attr.RawAttr()); })
     .def("__eq__", [](const Attr &a, const Attr &b) { return a.RawAttr() == b.RawAttr(); })
     .def_prop_ro("spelling", &SYCLKernelAttr::Spelling);
 }

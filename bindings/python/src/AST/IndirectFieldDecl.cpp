@@ -17,7 +17,7 @@ namespace nb = nanobind;
 
 void RegisterIndirectFieldDecl(nb::module_ &m) {
   nb::class_<IndirectFieldDecl, ValueDecl>(m, "IndirectFieldDecl")
-    .def("__hash__", [](const IndirectFieldDecl &decl) { return (intptr_t)decl.RawDecl(); })
+    .def("__hash__", [](const IndirectFieldDecl &decl) { return reinterpret_cast<intptr_t>(decl.RawDecl()); })
     .def("__eq__", [](const Decl &a, const Decl &b) { return a.RawDecl() == b.RawDecl(); })
     .def_prop_ro("chain", &IndirectFieldDecl::Chain)
     .def_prop_ro("anonymous_field", &IndirectFieldDecl::AnonymousField)

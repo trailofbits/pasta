@@ -17,7 +17,7 @@ namespace nb = nanobind;
 
 void RegisterAMDGPUWavesPerEUAttr(nb::module_ &m) {
   nb::class_<AMDGPUWavesPerEUAttr, InheritableAttr>(m, "AMDGPUWavesPerEUAttr")
-    .def("__hash__", [](const AMDGPUWavesPerEUAttr &attr) { return (intptr_t)attr.RawAttr(); })
+    .def("__hash__", [](const AMDGPUWavesPerEUAttr &attr) { return reinterpret_cast<intptr_t>(attr.RawAttr()); })
     .def("__eq__", [](const Attr &a, const Attr &b) { return a.RawAttr() == b.RawAttr(); })
     .def_prop_ro("max", &AMDGPUWavesPerEUAttr::Max)
     .def_prop_ro("min", &AMDGPUWavesPerEUAttr::Min)

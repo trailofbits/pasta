@@ -17,7 +17,7 @@ namespace nb = nanobind;
 
 void RegisterArraySubscriptExpr(nb::module_ &m) {
   nb::class_<ArraySubscriptExpr, Expr>(m, "ArraySubscriptExpr")
-    .def("__hash__", [](const ArraySubscriptExpr& stmt) { return (intptr_t)stmt.RawStmt(); })
+    .def("__hash__", [](const ArraySubscriptExpr& stmt) { return reinterpret_cast<intptr_t>(stmt.RawStmt()); })
     .def("__eq__", [](const Stmt& a, const Stmt& b) { return a.RawStmt() == b.RawStmt(); })
     .def_prop_ro("children", &ArraySubscriptExpr::Children)
     .def_prop_ro("base", &ArraySubscriptExpr::Base)

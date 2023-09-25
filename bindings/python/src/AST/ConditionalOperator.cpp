@@ -17,7 +17,7 @@ namespace nb = nanobind;
 
 void RegisterConditionalOperator(nb::module_ &m) {
   nb::class_<ConditionalOperator, AbstractConditionalOperator>(m, "ConditionalOperator")
-    .def("__hash__", [](const ConditionalOperator& stmt) { return (intptr_t)stmt.RawStmt(); })
+    .def("__hash__", [](const ConditionalOperator& stmt) { return reinterpret_cast<intptr_t>(stmt.RawStmt()); })
     .def("__eq__", [](const Stmt& a, const Stmt& b) { return a.RawStmt() == b.RawStmt(); })
     .def_prop_ro("children", &ConditionalOperator::Children)
     .def_prop_ro("begin_token", &ConditionalOperator::BeginToken)

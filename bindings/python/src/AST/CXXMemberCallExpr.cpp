@@ -17,7 +17,7 @@ namespace nb = nanobind;
 
 void RegisterCXXMemberCallExpr(nb::module_ &m) {
   nb::class_<CXXMemberCallExpr, CallExpr>(m, "CXXMemberCallExpr")
-    .def("__hash__", [](const CXXMemberCallExpr& stmt) { return (intptr_t)stmt.RawStmt(); })
+    .def("__hash__", [](const CXXMemberCallExpr& stmt) { return reinterpret_cast<intptr_t>(stmt.RawStmt()); })
     .def("__eq__", [](const Stmt& a, const Stmt& b) { return a.RawStmt() == b.RawStmt(); })
     .def_prop_ro("expression_token", &CXXMemberCallExpr::ExpressionToken)
     .def_prop_ro("implicit_object_argument", &CXXMemberCallExpr::ImplicitObjectArgument)

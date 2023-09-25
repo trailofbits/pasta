@@ -17,7 +17,7 @@ namespace nb = nanobind;
 
 void RegisterFriendDecl(nb::module_ &m) {
   nb::class_<FriendDecl, Decl>(m, "FriendDecl")
-    .def("__hash__", [](const FriendDecl &decl) { return (intptr_t)decl.RawDecl(); })
+    .def("__hash__", [](const FriendDecl &decl) { return reinterpret_cast<intptr_t>(decl.RawDecl()); })
     .def("__eq__", [](const Decl &a, const Decl &b) { return a.RawDecl() == b.RawDecl(); })
     .def_prop_ro("friend_declaration", &FriendDecl::FriendDeclaration)
     .def_prop_ro("friend_token", &FriendDecl::FriendToken)

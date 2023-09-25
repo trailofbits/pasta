@@ -17,7 +17,7 @@ namespace nb = nanobind;
 
 void RegisterOMPFlushDirective(nb::module_ &m) {
   nb::class_<OMPFlushDirective, OMPExecutableDirective>(m, "OMPFlushDirective")
-    .def("__hash__", [](const OMPFlushDirective& stmt) { return (intptr_t)stmt.RawStmt(); })
+    .def("__hash__", [](const OMPFlushDirective& stmt) { return reinterpret_cast<intptr_t>(stmt.RawStmt()); })
     .def("__eq__", [](const Stmt& a, const Stmt& b) { return a.RawStmt() == b.RawStmt(); });
 }
 } // namespace pasta

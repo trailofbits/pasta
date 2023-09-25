@@ -17,7 +17,7 @@ namespace nb = nanobind;
 
 void RegisterCallExpr(nb::module_ &m) {
   nb::class_<CallExpr, Expr>(m, "CallExpr")
-    .def("__hash__", [](const CallExpr& stmt) { return (intptr_t)stmt.RawStmt(); })
+    .def("__hash__", [](const CallExpr& stmt) { return reinterpret_cast<intptr_t>(stmt.RawStmt()); })
     .def("__eq__", [](const Stmt& a, const Stmt& b) { return a.RawStmt() == b.RawStmt(); })
     .def_prop_ro("arguments", &CallExpr::Arguments)
     .def_prop_ro("children", &CallExpr::Children)

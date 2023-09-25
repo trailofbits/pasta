@@ -17,7 +17,7 @@ namespace nb = nanobind;
 
 void RegisterFullExpr(nb::module_ &m) {
   nb::class_<FullExpr, Expr>(m, "FullExpr")
-    .def("__hash__", [](const FullExpr& stmt) { return (intptr_t)stmt.RawStmt(); })
+    .def("__hash__", [](const FullExpr& stmt) { return reinterpret_cast<intptr_t>(stmt.RawStmt()); })
     .def("__eq__", [](const Stmt& a, const Stmt& b) { return a.RawStmt() == b.RawStmt(); })
     .def_prop_ro("sub_expression", &FullExpr::SubExpression);
 }

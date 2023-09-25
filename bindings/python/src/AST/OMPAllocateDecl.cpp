@@ -17,7 +17,7 @@ namespace nb = nanobind;
 
 void RegisterOMPAllocateDecl(nb::module_ &m) {
   nb::class_<OMPAllocateDecl, OMPDeclarativeDirectiveDecl>(m, "OMPAllocateDecl")
-    .def("__hash__", [](const OMPAllocateDecl &decl) { return (intptr_t)decl.RawDecl(); })
+    .def("__hash__", [](const OMPAllocateDecl &decl) { return reinterpret_cast<intptr_t>(decl.RawDecl()); })
     .def("__eq__", [](const Decl &a, const Decl &b) { return a.RawDecl() == b.RawDecl(); })
     .def_prop_ro("varlists", &OMPAllocateDecl::Varlists);
 }

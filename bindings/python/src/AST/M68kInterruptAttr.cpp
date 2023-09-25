@@ -17,7 +17,7 @@ namespace nb = nanobind;
 
 void RegisterM68kInterruptAttr(nb::module_ &m) {
   nb::class_<M68kInterruptAttr, InheritableAttr>(m, "M68kInterruptAttr")
-    .def("__hash__", [](const M68kInterruptAttr &attr) { return (intptr_t)attr.RawAttr(); })
+    .def("__hash__", [](const M68kInterruptAttr &attr) { return reinterpret_cast<intptr_t>(attr.RawAttr()); })
     .def("__eq__", [](const Attr &a, const Attr &b) { return a.RawAttr() == b.RawAttr(); })
     .def_prop_ro("number", &M68kInterruptAttr::Number)
     .def_prop_ro("spelling", &M68kInterruptAttr::Spelling);

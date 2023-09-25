@@ -15,13 +15,13 @@ void RegisterEnums(nb::module_ &m) {
   nb::enum_<pasta::AArch64SVEPcsAttrSpelling>(m, "AArch64SVEPcsAttrSpelling")
     .value("GNU_AARCH64_SVE_PCS", pasta::AArch64SVEPcsAttrSpelling::kGNUAarch64SvePcs)
     .value("CXX11_CLANG_AARCH64_SVE_PCS", pasta::AArch64SVEPcsAttrSpelling::kCXX11ClangAarch64SvePcs)
-    .value("C2X_CLANG_AARCH64_SVE_PCS", pasta::AArch64SVEPcsAttrSpelling::kC2xClangAarch64SvePcs)
+    .value("C23_CLANG_AARCH64_SVE_PCS", pasta::AArch64SVEPcsAttrSpelling::kC23ClangAarch64SvePcs)
     .value("SPELLING_NOT_CALCULATED", pasta::AArch64SVEPcsAttrSpelling::kSpellingNotCalculated);
 
   nb::enum_<pasta::AArch64VectorPcsAttrSpelling>(m, "AArch64VectorPcsAttrSpelling")
     .value("GNU_AARCH64_VECTOR_PCS", pasta::AArch64VectorPcsAttrSpelling::kGNUAarch64VectorPcs)
     .value("CXX11_CLANG_AARCH64_VECTOR_PCS", pasta::AArch64VectorPcsAttrSpelling::kCXX11ClangAarch64VectorPcs)
-    .value("C2X_CLANG_AARCH64_VECTOR_PCS", pasta::AArch64VectorPcsAttrSpelling::kC2xClangAarch64VectorPcs)
+    .value("C23_CLANG_AARCH64_VECTOR_PCS", pasta::AArch64VectorPcsAttrSpelling::kC23ClangAarch64VectorPcs)
     .value("SPELLING_NOT_CALCULATED", pasta::AArch64VectorPcsAttrSpelling::kSpellingNotCalculated);
 
   nb::enum_<pasta::AMDGPUFlatWorkGroupSizeAttrSpelling>(m, "AMDGPUFlatWorkGroupSizeAttrSpelling")
@@ -32,7 +32,7 @@ void RegisterEnums(nb::module_ &m) {
   nb::enum_<pasta::AMDGPUKernelCallAttrSpelling>(m, "AMDGPUKernelCallAttrSpelling")
     .value("GNU_AMDGPU_KERNEL", pasta::AMDGPUKernelCallAttrSpelling::kGNUAmdgpuKernel)
     .value("CXX11_CLANG_AMDGPU_KERNEL", pasta::AMDGPUKernelCallAttrSpelling::kCXX11ClangAmdgpuKernel)
-    .value("C2X_CLANG_AMDGPU_KERNEL", pasta::AMDGPUKernelCallAttrSpelling::kC2xClangAmdgpuKernel)
+    .value("C23_CLANG_AMDGPU_KERNEL", pasta::AMDGPUKernelCallAttrSpelling::kC23ClangAmdgpuKernel)
     .value("SPELLING_NOT_CALCULATED", pasta::AMDGPUKernelCallAttrSpelling::kSpellingNotCalculated);
 
   nb::enum_<pasta::AMDGPUNumSGPRAttrSpelling>(m, "AMDGPUNumSGPRAttrSpelling")
@@ -61,19 +61,19 @@ void RegisterEnums(nb::module_ &m) {
   nb::enum_<pasta::ARMInterruptAttrSpelling>(m, "ARMInterruptAttrSpelling")
     .value("GNU_INTERRUPT", pasta::ARMInterruptAttrSpelling::kGNUInterrupt)
     .value("CXX11_GNU_INTERRUPT", pasta::ARMInterruptAttrSpelling::kCXX11GnuInterrupt)
-    .value("C2X_GNU_INTERRUPT", pasta::ARMInterruptAttrSpelling::kC2xGnuInterrupt)
+    .value("C23_GNU_INTERRUPT", pasta::ARMInterruptAttrSpelling::kC23GnuInterrupt)
     .value("SPELLING_NOT_CALCULATED", pasta::ARMInterruptAttrSpelling::kSpellingNotCalculated);
 
   nb::enum_<pasta::AVRInterruptAttrSpelling>(m, "AVRInterruptAttrSpelling")
     .value("GNU_INTERRUPT", pasta::AVRInterruptAttrSpelling::kGNUInterrupt)
     .value("CXX11_GNU_INTERRUPT", pasta::AVRInterruptAttrSpelling::kCXX11GnuInterrupt)
-    .value("C2X_GNU_INTERRUPT", pasta::AVRInterruptAttrSpelling::kC2xGnuInterrupt)
+    .value("C23_GNU_INTERRUPT", pasta::AVRInterruptAttrSpelling::kC23GnuInterrupt)
     .value("SPELLING_NOT_CALCULATED", pasta::AVRInterruptAttrSpelling::kSpellingNotCalculated);
 
   nb::enum_<pasta::AVRSignalAttrSpelling>(m, "AVRSignalAttrSpelling")
     .value("GNU_SIGNAL", pasta::AVRSignalAttrSpelling::kGNUSignal)
     .value("CXX11_GNU_SIGNAL", pasta::AVRSignalAttrSpelling::kCXX11GnuSignal)
-    .value("C2X_GNU_SIGNAL", pasta::AVRSignalAttrSpelling::kC2xGnuSignal)
+    .value("C23_GNU_SIGNAL", pasta::AVRSignalAttrSpelling::kC23GnuSignal)
     .value("SPELLING_NOT_CALCULATED", pasta::AVRSignalAttrSpelling::kSpellingNotCalculated);
 
   nb::enum_<pasta::AbiTagAttrSpelling>(m, "AbiTagAttrSpelling")
@@ -93,25 +93,25 @@ void RegisterEnums(nb::module_ &m) {
   nb::enum_<pasta::AcquireHandleAttrSpelling>(m, "AcquireHandleAttrSpelling")
     .value("GNU_ACQUIRE_HANDLE", pasta::AcquireHandleAttrSpelling::kGNUAcquireHandle)
     .value("CXX11_CLANG_ACQUIRE_HANDLE", pasta::AcquireHandleAttrSpelling::kCXX11ClangAcquireHandle)
-    .value("C2X_CLANG_ACQUIRE_HANDLE", pasta::AcquireHandleAttrSpelling::kC2xClangAcquireHandle)
+    .value("C23_CLANG_ACQUIRE_HANDLE", pasta::AcquireHandleAttrSpelling::kC23ClangAcquireHandle)
     .value("SPELLING_NOT_CALCULATED", pasta::AcquireHandleAttrSpelling::kSpellingNotCalculated);
 
   nb::enum_<pasta::AddressSpaceAttrSpelling>(m, "AddressSpaceAttrSpelling")
     .value("GNU_ADDRESS_SPACE", pasta::AddressSpaceAttrSpelling::kGNUAddressSpace)
     .value("CXX11_CLANG_ADDRESS_SPACE", pasta::AddressSpaceAttrSpelling::kCXX11ClangAddressSpace)
-    .value("C2X_CLANG_ADDRESS_SPACE", pasta::AddressSpaceAttrSpelling::kC2xClangAddressSpace)
+    .value("C23_CLANG_ADDRESS_SPACE", pasta::AddressSpaceAttrSpelling::kC23ClangAddressSpace)
     .value("SPELLING_NOT_CALCULATED", pasta::AddressSpaceAttrSpelling::kSpellingNotCalculated);
 
   nb::enum_<pasta::AliasAttrSpelling>(m, "AliasAttrSpelling")
     .value("GNU_ALIAS", pasta::AliasAttrSpelling::kGNUAlias)
     .value("CXX11_GNU_ALIAS", pasta::AliasAttrSpelling::kCXX11GnuAlias)
-    .value("C2X_GNU_ALIAS", pasta::AliasAttrSpelling::kC2xGnuAlias)
+    .value("C23_GNU_ALIAS", pasta::AliasAttrSpelling::kC23GnuAlias)
     .value("SPELLING_NOT_CALCULATED", pasta::AliasAttrSpelling::kSpellingNotCalculated);
 
   nb::enum_<pasta::AlignedAttrSpelling>(m, "AlignedAttrSpelling")
     .value("GNU_ALIGNED", pasta::AlignedAttrSpelling::kGNUAligned)
     .value("CXX11_GNU_ALIGNED", pasta::AlignedAttrSpelling::kCXX11GnuAligned)
-    .value("C2X_GNU_ALIGNED", pasta::AlignedAttrSpelling::kC2xGnuAligned)
+    .value("C23_GNU_ALIGNED", pasta::AlignedAttrSpelling::kC23GnuAligned)
     .value("DECLSPEC_ALIGN", pasta::AlignedAttrSpelling::kDeclspecAlign)
     .value("KEYWORD_ALIGNAS", pasta::AlignedAttrSpelling::kKeywordAlignas)
     .value("KEYWORD__ALIGNAS", pasta::AlignedAttrSpelling::kKeyword_Alignas)
@@ -120,13 +120,13 @@ void RegisterEnums(nb::module_ &m) {
   nb::enum_<pasta::AllocAlignAttrSpelling>(m, "AllocAlignAttrSpelling")
     .value("GNU_ALLOC_ALIGN", pasta::AllocAlignAttrSpelling::kGNUAllocAlign)
     .value("CXX11_GNU_ALLOC_ALIGN", pasta::AllocAlignAttrSpelling::kCXX11GnuAllocAlign)
-    .value("C2X_GNU_ALLOC_ALIGN", pasta::AllocAlignAttrSpelling::kC2xGnuAllocAlign)
+    .value("C23_GNU_ALLOC_ALIGN", pasta::AllocAlignAttrSpelling::kC23GnuAllocAlign)
     .value("SPELLING_NOT_CALCULATED", pasta::AllocAlignAttrSpelling::kSpellingNotCalculated);
 
   nb::enum_<pasta::AllocSizeAttrSpelling>(m, "AllocSizeAttrSpelling")
     .value("GNU_ALLOC_SIZE", pasta::AllocSizeAttrSpelling::kGNUAllocSize)
     .value("CXX11_GNU_ALLOC_SIZE", pasta::AllocSizeAttrSpelling::kCXX11GnuAllocSize)
-    .value("C2X_GNU_ALLOC_SIZE", pasta::AllocSizeAttrSpelling::kC2xGnuAllocSize)
+    .value("C23_GNU_ALLOC_SIZE", pasta::AllocSizeAttrSpelling::kC23GnuAllocSize)
     .value("SPELLING_NOT_CALCULATED", pasta::AllocSizeAttrSpelling::kSpellingNotCalculated);
 
   nb::enum_<pasta::AlwaysDestroyAttrSpelling>(m, "AlwaysDestroyAttrSpelling")
@@ -137,66 +137,66 @@ void RegisterEnums(nb::module_ &m) {
   nb::enum_<pasta::AlwaysInlineAttrSpelling>(m, "AlwaysInlineAttrSpelling")
     .value("GNU_ALWAYS_INLINE", pasta::AlwaysInlineAttrSpelling::kGNUAlwaysInline)
     .value("CXX11_GNU_ALWAYS_INLINE", pasta::AlwaysInlineAttrSpelling::kCXX11GnuAlwaysInline)
-    .value("C2X_GNU_ALWAYS_INLINE", pasta::AlwaysInlineAttrSpelling::kC2xGnuAlwaysInline)
+    .value("C23_GNU_ALWAYS_INLINE", pasta::AlwaysInlineAttrSpelling::kC23GnuAlwaysInline)
     .value("CXX11_CLANG_ALWAYS_INLINE", pasta::AlwaysInlineAttrSpelling::kCXX11ClangAlwaysInline)
-    .value("C2X_CLANG_ALWAYS_INLINE", pasta::AlwaysInlineAttrSpelling::kC2xClangAlwaysInline)
+    .value("C23_CLANG_ALWAYS_INLINE", pasta::AlwaysInlineAttrSpelling::kC23ClangAlwaysInline)
     .value("KEYWORD_FORCEINLINE", pasta::AlwaysInlineAttrSpelling::kKeywordForceinline)
     .value("SPELLING_NOT_CALCULATED", pasta::AlwaysInlineAttrSpelling::kSpellingNotCalculated);
 
   nb::enum_<pasta::AnnotateAttrSpelling>(m, "AnnotateAttrSpelling")
     .value("GNU_ANNOTATE", pasta::AnnotateAttrSpelling::kGNUAnnotate)
     .value("CXX11_CLANG_ANNOTATE", pasta::AnnotateAttrSpelling::kCXX11ClangAnnotate)
-    .value("C2X_CLANG_ANNOTATE", pasta::AnnotateAttrSpelling::kC2xClangAnnotate)
+    .value("C23_CLANG_ANNOTATE", pasta::AnnotateAttrSpelling::kC23ClangAnnotate)
     .value("SPELLING_NOT_CALCULATED", pasta::AnnotateAttrSpelling::kSpellingNotCalculated);
 
   nb::enum_<pasta::AnnotateTypeAttrSpelling>(m, "AnnotateTypeAttrSpelling")
     .value("CXX11_CLANG_ANNOTATE_TYPE", pasta::AnnotateTypeAttrSpelling::kCXX11ClangAnnotateType)
-    .value("C2X_CLANG_ANNOTATE_TYPE", pasta::AnnotateTypeAttrSpelling::kC2xClangAnnotateType)
+    .value("C23_CLANG_ANNOTATE_TYPE", pasta::AnnotateTypeAttrSpelling::kC23ClangAnnotateType)
     .value("SPELLING_NOT_CALCULATED", pasta::AnnotateTypeAttrSpelling::kSpellingNotCalculated);
 
   nb::enum_<pasta::AnyX86InterruptAttrSpelling>(m, "AnyX86InterruptAttrSpelling")
     .value("GNU_INTERRUPT", pasta::AnyX86InterruptAttrSpelling::kGNUInterrupt)
     .value("CXX11_GNU_INTERRUPT", pasta::AnyX86InterruptAttrSpelling::kCXX11GnuInterrupt)
-    .value("C2X_GNU_INTERRUPT", pasta::AnyX86InterruptAttrSpelling::kC2xGnuInterrupt)
+    .value("C23_GNU_INTERRUPT", pasta::AnyX86InterruptAttrSpelling::kC23GnuInterrupt)
     .value("SPELLING_NOT_CALCULATED", pasta::AnyX86InterruptAttrSpelling::kSpellingNotCalculated);
 
   nb::enum_<pasta::AnyX86NoCallerSavedRegistersAttrSpelling>(m, "AnyX86NoCallerSavedRegistersAttrSpelling")
     .value("GNU_NO_CALLER_SAVED_REGISTERS", pasta::AnyX86NoCallerSavedRegistersAttrSpelling::kGNUNoCallerSavedRegisters)
     .value("CXX11_GNU_NO_CALLER_SAVED_REGISTERS", pasta::AnyX86NoCallerSavedRegistersAttrSpelling::kCXX11GnuNoCallerSavedRegisters)
-    .value("C2X_GNU_NO_CALLER_SAVED_REGISTERS", pasta::AnyX86NoCallerSavedRegistersAttrSpelling::kC2xGnuNoCallerSavedRegisters)
+    .value("C23_GNU_NO_CALLER_SAVED_REGISTERS", pasta::AnyX86NoCallerSavedRegistersAttrSpelling::kC23GnuNoCallerSavedRegisters)
     .value("SPELLING_NOT_CALCULATED", pasta::AnyX86NoCallerSavedRegistersAttrSpelling::kSpellingNotCalculated);
 
   nb::enum_<pasta::AnyX86NoCfCheckAttrSpelling>(m, "AnyX86NoCfCheckAttrSpelling")
     .value("GNU_NOCF_CHECK", pasta::AnyX86NoCfCheckAttrSpelling::kGNUNocfCheck)
     .value("CXX11_GNU_NOCF_CHECK", pasta::AnyX86NoCfCheckAttrSpelling::kCXX11GnuNocfCheck)
-    .value("C2X_GNU_NOCF_CHECK", pasta::AnyX86NoCfCheckAttrSpelling::kC2xGnuNocfCheck)
+    .value("C23_GNU_NOCF_CHECK", pasta::AnyX86NoCfCheckAttrSpelling::kC23GnuNocfCheck)
     .value("SPELLING_NOT_CALCULATED", pasta::AnyX86NoCfCheckAttrSpelling::kSpellingNotCalculated);
 
   nb::enum_<pasta::ArcWeakrefUnavailableAttrSpelling>(m, "ArcWeakrefUnavailableAttrSpelling")
     .value("GNU_OBJC_ARC_WEAK_REFERENCE_UNAVAILABLE", pasta::ArcWeakrefUnavailableAttrSpelling::kGNUObjcArcWeakReferenceUnavailable)
     .value("CXX11_CLANG_OBJC_ARC_WEAK_REFERENCE_UNAVAILABLE", pasta::ArcWeakrefUnavailableAttrSpelling::kCXX11ClangObjcArcWeakReferenceUnavailable)
-    .value("C2X_CLANG_OBJC_ARC_WEAK_REFERENCE_UNAVAILABLE", pasta::ArcWeakrefUnavailableAttrSpelling::kC2xClangObjcArcWeakReferenceUnavailable)
+    .value("C23_CLANG_OBJC_ARC_WEAK_REFERENCE_UNAVAILABLE", pasta::ArcWeakrefUnavailableAttrSpelling::kC23ClangObjcArcWeakReferenceUnavailable)
     .value("SPELLING_NOT_CALCULATED", pasta::ArcWeakrefUnavailableAttrSpelling::kSpellingNotCalculated);
 
   nb::enum_<pasta::ArgumentWithTypeTagAttrSpelling>(m, "ArgumentWithTypeTagAttrSpelling")
     .value("GNU_ARGUMENT_WITH_TYPE_TAG", pasta::ArgumentWithTypeTagAttrSpelling::kGNUArgumentWithTypeTag)
     .value("CXX11_CLANG_ARGUMENT_WITH_TYPE_TAG", pasta::ArgumentWithTypeTagAttrSpelling::kCXX11ClangArgumentWithTypeTag)
-    .value("C2X_CLANG_ARGUMENT_WITH_TYPE_TAG", pasta::ArgumentWithTypeTagAttrSpelling::kC2xClangArgumentWithTypeTag)
+    .value("C23_CLANG_ARGUMENT_WITH_TYPE_TAG", pasta::ArgumentWithTypeTagAttrSpelling::kC23ClangArgumentWithTypeTag)
     .value("GNU_POINTER_WITH_TYPE_TAG", pasta::ArgumentWithTypeTagAttrSpelling::kGNUPointerWithTypeTag)
     .value("CXX11_CLANG_POINTER_WITH_TYPE_TAG", pasta::ArgumentWithTypeTagAttrSpelling::kCXX11ClangPointerWithTypeTag)
-    .value("C2X_CLANG_POINTER_WITH_TYPE_TAG", pasta::ArgumentWithTypeTagAttrSpelling::kC2xClangPointerWithTypeTag)
+    .value("C23_CLANG_POINTER_WITH_TYPE_TAG", pasta::ArgumentWithTypeTagAttrSpelling::kC23ClangPointerWithTypeTag)
     .value("SPELLING_NOT_CALCULATED", pasta::ArgumentWithTypeTagAttrSpelling::kSpellingNotCalculated);
 
   nb::enum_<pasta::ArmBuiltinAliasAttrSpelling>(m, "ArmBuiltinAliasAttrSpelling")
     .value("GNU_CLANG_ARM_BUILTIN_ALIAS", pasta::ArmBuiltinAliasAttrSpelling::kGNUClangArmBuiltinAlias)
     .value("CXX11_CLANG_CLANG_ARM_BUILTIN_ALIAS", pasta::ArmBuiltinAliasAttrSpelling::kCXX11ClangClangArmBuiltinAlias)
-    .value("C2X_CLANG_CLANG_ARM_BUILTIN_ALIAS", pasta::ArmBuiltinAliasAttrSpelling::kC2xClangClangArmBuiltinAlias)
+    .value("C23_CLANG_CLANG_ARM_BUILTIN_ALIAS", pasta::ArmBuiltinAliasAttrSpelling::kC23ClangClangArmBuiltinAlias)
     .value("SPELLING_NOT_CALCULATED", pasta::ArmBuiltinAliasAttrSpelling::kSpellingNotCalculated);
 
   nb::enum_<pasta::ArmMveStrictPolymorphismAttrSpelling>(m, "ArmMveStrictPolymorphismAttrSpelling")
     .value("GNU_CLANG_ARM_MVE_STRICT_POLYMORPHISM", pasta::ArmMveStrictPolymorphismAttrSpelling::kGNUClangArmMveStrictPolymorphism)
     .value("CXX11_CLANG_CLANG_ARM_MVE_STRICT_POLYMORPHISM", pasta::ArmMveStrictPolymorphismAttrSpelling::kCXX11ClangClangArmMveStrictPolymorphism)
-    .value("C2X_CLANG_CLANG_ARM_MVE_STRICT_POLYMORPHISM", pasta::ArmMveStrictPolymorphismAttrSpelling::kC2xClangClangArmMveStrictPolymorphism)
+    .value("C23_CLANG_CLANG_ARM_MVE_STRICT_POLYMORPHISM", pasta::ArmMveStrictPolymorphismAttrSpelling::kC23ClangClangArmMveStrictPolymorphism)
     .value("SPELLING_NOT_CALCULATED", pasta::ArmMveStrictPolymorphismAttrSpelling::kSpellingNotCalculated);
 
   nb::enum_<pasta::ArrayTypeArraySizeModifier>(m, "ArrayTypeArraySizeModifier")
@@ -207,7 +207,7 @@ void RegisterEnums(nb::module_ &m) {
   nb::enum_<pasta::ArtificialAttrSpelling>(m, "ArtificialAttrSpelling")
     .value("GNU_ARTIFICIAL", pasta::ArtificialAttrSpelling::kGNUArtificial)
     .value("CXX11_GNU_ARTIFICIAL", pasta::ArtificialAttrSpelling::kCXX11GnuArtificial)
-    .value("C2X_GNU_ARTIFICIAL", pasta::ArtificialAttrSpelling::kC2xGnuArtificial)
+    .value("C23_GNU_ARTIFICIAL", pasta::ArtificialAttrSpelling::kC23GnuArtificial)
     .value("SPELLING_NOT_CALCULATED", pasta::ArtificialAttrSpelling::kSpellingNotCalculated);
 
   nb::enum_<pasta::AsmLabelAttrSpelling>(m, "AsmLabelAttrSpelling")
@@ -224,13 +224,13 @@ void RegisterEnums(nb::module_ &m) {
   nb::enum_<pasta::AssumeAlignedAttrSpelling>(m, "AssumeAlignedAttrSpelling")
     .value("GNU_ASSUME_ALIGNED", pasta::AssumeAlignedAttrSpelling::kGNUAssumeAligned)
     .value("CXX11_GNU_ASSUME_ALIGNED", pasta::AssumeAlignedAttrSpelling::kCXX11GnuAssumeAligned)
-    .value("C2X_GNU_ASSUME_ALIGNED", pasta::AssumeAlignedAttrSpelling::kC2xGnuAssumeAligned)
+    .value("C23_GNU_ASSUME_ALIGNED", pasta::AssumeAlignedAttrSpelling::kC23GnuAssumeAligned)
     .value("SPELLING_NOT_CALCULATED", pasta::AssumeAlignedAttrSpelling::kSpellingNotCalculated);
 
   nb::enum_<pasta::AssumptionAttrSpelling>(m, "AssumptionAttrSpelling")
     .value("GNU_ASSUME", pasta::AssumptionAttrSpelling::kGNUAssume)
     .value("CXX11_CLANG_ASSUME", pasta::AssumptionAttrSpelling::kCXX11ClangAssume)
-    .value("C2X_CLANG_ASSUME", pasta::AssumptionAttrSpelling::kC2xClangAssume)
+    .value("C23_CLANG_ASSUME", pasta::AssumptionAttrSpelling::kC23ClangAssume)
     .value("SPELLING_NOT_CALCULATED", pasta::AssumptionAttrSpelling::kSpellingNotCalculated);
 
   nb::enum_<pasta::AtomicExprAtomicOp>(m, "AtomicExprAtomicOp")
@@ -291,6 +291,7 @@ void RegisterEnums(nb::module_ &m) {
     .value("HIP_ATOMIC_COMPARE_EXCHANGE_STRONG", pasta::AtomicExprAtomicOp::kHipAtomicCompareExchangeStrong)
     .value("HIP_ATOMIC_EXCHANGE", pasta::AtomicExprAtomicOp::kHipAtomicExchange)
     .value("HIP_ATOMIC_FETCH_ADD", pasta::AtomicExprAtomicOp::kHipAtomicFetchAdd)
+    .value("HIP_ATOMIC_FETCH_SUB", pasta::AtomicExprAtomicOp::kHipAtomicFetchSub)
     .value("HIP_ATOMIC_FETCH_AND", pasta::AtomicExprAtomicOp::kHipAtomicFetchAnd)
     .value("HIP_ATOMIC_FETCH_OR", pasta::AtomicExprAtomicOp::kHipAtomicFetchOr)
     .value("HIP_ATOMIC_FETCH_XOR", pasta::AtomicExprAtomicOp::kHipAtomicFetchXor)
@@ -300,25 +301,31 @@ void RegisterEnums(nb::module_ &m) {
   nb::enum_<pasta::AvailabilityAttrSpelling>(m, "AvailabilityAttrSpelling")
     .value("GNU_AVAILABILITY", pasta::AvailabilityAttrSpelling::kGNUAvailability)
     .value("CXX11_CLANG_AVAILABILITY", pasta::AvailabilityAttrSpelling::kCXX11ClangAvailability)
-    .value("C2X_CLANG_AVAILABILITY", pasta::AvailabilityAttrSpelling::kC2xClangAvailability)
+    .value("C23_CLANG_AVAILABILITY", pasta::AvailabilityAttrSpelling::kC23ClangAvailability)
     .value("SPELLING_NOT_CALCULATED", pasta::AvailabilityAttrSpelling::kSpellingNotCalculated);
+
+  nb::enum_<pasta::AvailableOnlyInDefaultEvalMethodAttrSpelling>(m, "AvailableOnlyInDefaultEvalMethodAttrSpelling")
+    .value("GNU_AVAILABLE_ONLY_IN_DEFAULT_EVAL_METHOD", pasta::AvailableOnlyInDefaultEvalMethodAttrSpelling::kGNUAvailableOnlyInDefaultEvalMethod)
+    .value("CXX11_CLANG_AVAILABLE_ONLY_IN_DEFAULT_EVAL_METHOD", pasta::AvailableOnlyInDefaultEvalMethodAttrSpelling::kCXX11ClangAvailableOnlyInDefaultEvalMethod)
+    .value("C23_CLANG_AVAILABLE_ONLY_IN_DEFAULT_EVAL_METHOD", pasta::AvailableOnlyInDefaultEvalMethodAttrSpelling::kC23ClangAvailableOnlyInDefaultEvalMethod)
+    .value("SPELLING_NOT_CALCULATED", pasta::AvailableOnlyInDefaultEvalMethodAttrSpelling::kSpellingNotCalculated);
 
   nb::enum_<pasta::BPFPreserveAccessIndexAttrSpelling>(m, "BPFPreserveAccessIndexAttrSpelling")
     .value("GNU_PRESERVE_ACCESS_INDEX", pasta::BPFPreserveAccessIndexAttrSpelling::kGNUPreserveAccessIndex)
     .value("CXX11_CLANG_PRESERVE_ACCESS_INDEX", pasta::BPFPreserveAccessIndexAttrSpelling::kCXX11ClangPreserveAccessIndex)
-    .value("C2X_CLANG_PRESERVE_ACCESS_INDEX", pasta::BPFPreserveAccessIndexAttrSpelling::kC2xClangPreserveAccessIndex)
+    .value("C23_CLANG_PRESERVE_ACCESS_INDEX", pasta::BPFPreserveAccessIndexAttrSpelling::kC23ClangPreserveAccessIndex)
     .value("SPELLING_NOT_CALCULATED", pasta::BPFPreserveAccessIndexAttrSpelling::kSpellingNotCalculated);
 
   nb::enum_<pasta::BTFDeclTagAttrSpelling>(m, "BTFDeclTagAttrSpelling")
     .value("GNU_BTF_DECLARATION_TAG", pasta::BTFDeclTagAttrSpelling::kGNUBtfDeclarationTag)
     .value("CXX11_CLANG_BTF_DECLARATION_TAG", pasta::BTFDeclTagAttrSpelling::kCXX11ClangBtfDeclarationTag)
-    .value("C2X_CLANG_BTF_DECLARATION_TAG", pasta::BTFDeclTagAttrSpelling::kC2xClangBtfDeclarationTag)
+    .value("C23_CLANG_BTF_DECLARATION_TAG", pasta::BTFDeclTagAttrSpelling::kC23ClangBtfDeclarationTag)
     .value("SPELLING_NOT_CALCULATED", pasta::BTFDeclTagAttrSpelling::kSpellingNotCalculated);
 
   nb::enum_<pasta::BTFTypeTagAttrSpelling>(m, "BTFTypeTagAttrSpelling")
     .value("GNU_BTF_TYPE_TAG", pasta::BTFTypeTagAttrSpelling::kGNUBtfTypeTag)
     .value("CXX11_CLANG_BTF_TYPE_TAG", pasta::BTFTypeTagAttrSpelling::kCXX11ClangBtfTypeTag)
-    .value("C2X_CLANG_BTF_TYPE_TAG", pasta::BTFTypeTagAttrSpelling::kC2xClangBtfTypeTag)
+    .value("C23_CLANG_BTF_TYPE_TAG", pasta::BTFTypeTagAttrSpelling::kC23ClangBtfTypeTag)
     .value("SPELLING_NOT_CALCULATED", pasta::BTFTypeTagAttrSpelling::kSpellingNotCalculated);
 
   nb::enum_<pasta::BlocksAttrBlockType>(m, "BlocksAttrBlockType")
@@ -327,12 +334,12 @@ void RegisterEnums(nb::module_ &m) {
   nb::enum_<pasta::BlocksAttrSpelling>(m, "BlocksAttrSpelling")
     .value("GNU_BLOCKS", pasta::BlocksAttrSpelling::kGNUBlocks)
     .value("CXX11_CLANG_BLOCKS", pasta::BlocksAttrSpelling::kCXX11ClangBlocks)
-    .value("C2X_CLANG_BLOCKS", pasta::BlocksAttrSpelling::kC2xClangBlocks)
+    .value("C23_CLANG_BLOCKS", pasta::BlocksAttrSpelling::kC23ClangBlocks)
     .value("SPELLING_NOT_CALCULATED", pasta::BlocksAttrSpelling::kSpellingNotCalculated);
 
   nb::enum_<pasta::BuiltinAliasAttrSpelling>(m, "BuiltinAliasAttrSpelling")
     .value("CXX11_CLANG_BUILTIN_ALIAS", pasta::BuiltinAliasAttrSpelling::kCXX11ClangBuiltinAlias)
-    .value("C2X_CLANG_BUILTIN_ALIAS", pasta::BuiltinAliasAttrSpelling::kC2xClangBuiltinAlias)
+    .value("C23_CLANG_BUILTIN_ALIAS", pasta::BuiltinAliasAttrSpelling::kC23ClangBuiltinAlias)
     .value("GNU_CLANG_BUILTIN_ALIAS", pasta::BuiltinAliasAttrSpelling::kGNUClangBuiltinAlias)
     .value("SPELLING_NOT_CALCULATED", pasta::BuiltinAliasAttrSpelling::kSpellingNotCalculated);
 
@@ -434,6 +441,9 @@ void RegisterEnums(nb::module_ &m) {
     .value("SVE_FLOAT64X4", pasta::BuiltinTypeKind::kSveFloat64x4)
     .value("SVE_B_FLOAT16X4", pasta::BuiltinTypeKind::kSveBFloat16x4)
     .value("SVE_BOOLEAN", pasta::BuiltinTypeKind::kSveBoolean)
+    .value("SVE_BOOLX2", pasta::BuiltinTypeKind::kSveBoolx2)
+    .value("SVE_BOOLX4", pasta::BuiltinTypeKind::kSveBoolx4)
+    .value("SVE_COUNT", pasta::BuiltinTypeKind::kSveCount)
     .value("VECTOR_QUAD", pasta::BuiltinTypeKind::kVectorQuad)
     .value("VECTOR_PAIR", pasta::BuiltinTypeKind::kVectorPair)
     .value("RVV_INT8MF8", pasta::BuiltinTypeKind::kRvvInt8mf8)
@@ -502,6 +512,233 @@ void RegisterEnums(nb::module_ &m) {
     .value("RVV_BOOL16", pasta::BuiltinTypeKind::kRvvBool16)
     .value("RVV_BOOL32", pasta::BuiltinTypeKind::kRvvBool32)
     .value("RVV_BOOL64", pasta::BuiltinTypeKind::kRvvBool64)
+    .value("RVV_INT8MF8X2", pasta::BuiltinTypeKind::kRvvInt8mf8x2)
+    .value("RVV_INT8MF8X3", pasta::BuiltinTypeKind::kRvvInt8mf8x3)
+    .value("RVV_INT8MF8X4", pasta::BuiltinTypeKind::kRvvInt8mf8x4)
+    .value("RVV_INT8MF8X5", pasta::BuiltinTypeKind::kRvvInt8mf8x5)
+    .value("RVV_INT8MF8X6", pasta::BuiltinTypeKind::kRvvInt8mf8x6)
+    .value("RVV_INT8MF8X7", pasta::BuiltinTypeKind::kRvvInt8mf8x7)
+    .value("RVV_INT8MF8X8", pasta::BuiltinTypeKind::kRvvInt8mf8x8)
+    .value("RVV_INT8MF4X2", pasta::BuiltinTypeKind::kRvvInt8mf4x2)
+    .value("RVV_INT8MF4X3", pasta::BuiltinTypeKind::kRvvInt8mf4x3)
+    .value("RVV_INT8MF4X4", pasta::BuiltinTypeKind::kRvvInt8mf4x4)
+    .value("RVV_INT8MF4X5", pasta::BuiltinTypeKind::kRvvInt8mf4x5)
+    .value("RVV_INT8MF4X6", pasta::BuiltinTypeKind::kRvvInt8mf4x6)
+    .value("RVV_INT8MF4X7", pasta::BuiltinTypeKind::kRvvInt8mf4x7)
+    .value("RVV_INT8MF4X8", pasta::BuiltinTypeKind::kRvvInt8mf4x8)
+    .value("RVV_INT8MF2X2", pasta::BuiltinTypeKind::kRvvInt8mf2x2)
+    .value("RVV_INT8MF2X3", pasta::BuiltinTypeKind::kRvvInt8mf2x3)
+    .value("RVV_INT8MF2X4", pasta::BuiltinTypeKind::kRvvInt8mf2x4)
+    .value("RVV_INT8MF2X5", pasta::BuiltinTypeKind::kRvvInt8mf2x5)
+    .value("RVV_INT8MF2X6", pasta::BuiltinTypeKind::kRvvInt8mf2x6)
+    .value("RVV_INT8MF2X7", pasta::BuiltinTypeKind::kRvvInt8mf2x7)
+    .value("RVV_INT8MF2X8", pasta::BuiltinTypeKind::kRvvInt8mf2x8)
+    .value("RVV_INT8M1X2", pasta::BuiltinTypeKind::kRvvInt8m1x2)
+    .value("RVV_INT8M1X3", pasta::BuiltinTypeKind::kRvvInt8m1x3)
+    .value("RVV_INT8M1X4", pasta::BuiltinTypeKind::kRvvInt8m1x4)
+    .value("RVV_INT8M1X5", pasta::BuiltinTypeKind::kRvvInt8m1x5)
+    .value("RVV_INT8M1X6", pasta::BuiltinTypeKind::kRvvInt8m1x6)
+    .value("RVV_INT8M1X7", pasta::BuiltinTypeKind::kRvvInt8m1x7)
+    .value("RVV_INT8M1X8", pasta::BuiltinTypeKind::kRvvInt8m1x8)
+    .value("RVV_INT8M2X2", pasta::BuiltinTypeKind::kRvvInt8m2x2)
+    .value("RVV_INT8M2X3", pasta::BuiltinTypeKind::kRvvInt8m2x3)
+    .value("RVV_INT8M2X4", pasta::BuiltinTypeKind::kRvvInt8m2x4)
+    .value("RVV_INT8M4X2", pasta::BuiltinTypeKind::kRvvInt8m4x2)
+    .value("RVV_UINT8MF8X2", pasta::BuiltinTypeKind::kRvvUint8mf8x2)
+    .value("RVV_UINT8MF8X3", pasta::BuiltinTypeKind::kRvvUint8mf8x3)
+    .value("RVV_UINT8MF8X4", pasta::BuiltinTypeKind::kRvvUint8mf8x4)
+    .value("RVV_UINT8MF8X5", pasta::BuiltinTypeKind::kRvvUint8mf8x5)
+    .value("RVV_UINT8MF8X6", pasta::BuiltinTypeKind::kRvvUint8mf8x6)
+    .value("RVV_UINT8MF8X7", pasta::BuiltinTypeKind::kRvvUint8mf8x7)
+    .value("RVV_UINT8MF8X8", pasta::BuiltinTypeKind::kRvvUint8mf8x8)
+    .value("RVV_UINT8MF4X2", pasta::BuiltinTypeKind::kRvvUint8mf4x2)
+    .value("RVV_UINT8MF4X3", pasta::BuiltinTypeKind::kRvvUint8mf4x3)
+    .value("RVV_UINT8MF4X4", pasta::BuiltinTypeKind::kRvvUint8mf4x4)
+    .value("RVV_UINT8MF4X5", pasta::BuiltinTypeKind::kRvvUint8mf4x5)
+    .value("RVV_UINT8MF4X6", pasta::BuiltinTypeKind::kRvvUint8mf4x6)
+    .value("RVV_UINT8MF4X7", pasta::BuiltinTypeKind::kRvvUint8mf4x7)
+    .value("RVV_UINT8MF4X8", pasta::BuiltinTypeKind::kRvvUint8mf4x8)
+    .value("RVV_UINT8MF2X2", pasta::BuiltinTypeKind::kRvvUint8mf2x2)
+    .value("RVV_UINT8MF2X3", pasta::BuiltinTypeKind::kRvvUint8mf2x3)
+    .value("RVV_UINT8MF2X4", pasta::BuiltinTypeKind::kRvvUint8mf2x4)
+    .value("RVV_UINT8MF2X5", pasta::BuiltinTypeKind::kRvvUint8mf2x5)
+    .value("RVV_UINT8MF2X6", pasta::BuiltinTypeKind::kRvvUint8mf2x6)
+    .value("RVV_UINT8MF2X7", pasta::BuiltinTypeKind::kRvvUint8mf2x7)
+    .value("RVV_UINT8MF2X8", pasta::BuiltinTypeKind::kRvvUint8mf2x8)
+    .value("RVV_UINT8M1X2", pasta::BuiltinTypeKind::kRvvUint8m1x2)
+    .value("RVV_UINT8M1X3", pasta::BuiltinTypeKind::kRvvUint8m1x3)
+    .value("RVV_UINT8M1X4", pasta::BuiltinTypeKind::kRvvUint8m1x4)
+    .value("RVV_UINT8M1X5", pasta::BuiltinTypeKind::kRvvUint8m1x5)
+    .value("RVV_UINT8M1X6", pasta::BuiltinTypeKind::kRvvUint8m1x6)
+    .value("RVV_UINT8M1X7", pasta::BuiltinTypeKind::kRvvUint8m1x7)
+    .value("RVV_UINT8M1X8", pasta::BuiltinTypeKind::kRvvUint8m1x8)
+    .value("RVV_UINT8M2X2", pasta::BuiltinTypeKind::kRvvUint8m2x2)
+    .value("RVV_UINT8M2X3", pasta::BuiltinTypeKind::kRvvUint8m2x3)
+    .value("RVV_UINT8M2X4", pasta::BuiltinTypeKind::kRvvUint8m2x4)
+    .value("RVV_UINT8M4X2", pasta::BuiltinTypeKind::kRvvUint8m4x2)
+    .value("RVV_INT16MF4X2", pasta::BuiltinTypeKind::kRvvInt16mf4x2)
+    .value("RVV_INT16MF4X3", pasta::BuiltinTypeKind::kRvvInt16mf4x3)
+    .value("RVV_INT16MF4X4", pasta::BuiltinTypeKind::kRvvInt16mf4x4)
+    .value("RVV_INT16MF4X5", pasta::BuiltinTypeKind::kRvvInt16mf4x5)
+    .value("RVV_INT16MF4X6", pasta::BuiltinTypeKind::kRvvInt16mf4x6)
+    .value("RVV_INT16MF4X7", pasta::BuiltinTypeKind::kRvvInt16mf4x7)
+    .value("RVV_INT16MF4X8", pasta::BuiltinTypeKind::kRvvInt16mf4x8)
+    .value("RVV_INT16MF2X2", pasta::BuiltinTypeKind::kRvvInt16mf2x2)
+    .value("RVV_INT16MF2X3", pasta::BuiltinTypeKind::kRvvInt16mf2x3)
+    .value("RVV_INT16MF2X4", pasta::BuiltinTypeKind::kRvvInt16mf2x4)
+    .value("RVV_INT16MF2X5", pasta::BuiltinTypeKind::kRvvInt16mf2x5)
+    .value("RVV_INT16MF2X6", pasta::BuiltinTypeKind::kRvvInt16mf2x6)
+    .value("RVV_INT16MF2X7", pasta::BuiltinTypeKind::kRvvInt16mf2x7)
+    .value("RVV_INT16MF2X8", pasta::BuiltinTypeKind::kRvvInt16mf2x8)
+    .value("RVV_INT16M1X2", pasta::BuiltinTypeKind::kRvvInt16m1x2)
+    .value("RVV_INT16M1X3", pasta::BuiltinTypeKind::kRvvInt16m1x3)
+    .value("RVV_INT16M1X4", pasta::BuiltinTypeKind::kRvvInt16m1x4)
+    .value("RVV_INT16M1X5", pasta::BuiltinTypeKind::kRvvInt16m1x5)
+    .value("RVV_INT16M1X6", pasta::BuiltinTypeKind::kRvvInt16m1x6)
+    .value("RVV_INT16M1X7", pasta::BuiltinTypeKind::kRvvInt16m1x7)
+    .value("RVV_INT16M1X8", pasta::BuiltinTypeKind::kRvvInt16m1x8)
+    .value("RVV_INT16M2X2", pasta::BuiltinTypeKind::kRvvInt16m2x2)
+    .value("RVV_INT16M2X3", pasta::BuiltinTypeKind::kRvvInt16m2x3)
+    .value("RVV_INT16M2X4", pasta::BuiltinTypeKind::kRvvInt16m2x4)
+    .value("RVV_INT16M4X2", pasta::BuiltinTypeKind::kRvvInt16m4x2)
+    .value("RVV_UINT16MF4X2", pasta::BuiltinTypeKind::kRvvUint16mf4x2)
+    .value("RVV_UINT16MF4X3", pasta::BuiltinTypeKind::kRvvUint16mf4x3)
+    .value("RVV_UINT16MF4X4", pasta::BuiltinTypeKind::kRvvUint16mf4x4)
+    .value("RVV_UINT16MF4X5", pasta::BuiltinTypeKind::kRvvUint16mf4x5)
+    .value("RVV_UINT16MF4X6", pasta::BuiltinTypeKind::kRvvUint16mf4x6)
+    .value("RVV_UINT16MF4X7", pasta::BuiltinTypeKind::kRvvUint16mf4x7)
+    .value("RVV_UINT16MF4X8", pasta::BuiltinTypeKind::kRvvUint16mf4x8)
+    .value("RVV_UINT16MF2X2", pasta::BuiltinTypeKind::kRvvUint16mf2x2)
+    .value("RVV_UINT16MF2X3", pasta::BuiltinTypeKind::kRvvUint16mf2x3)
+    .value("RVV_UINT16MF2X4", pasta::BuiltinTypeKind::kRvvUint16mf2x4)
+    .value("RVV_UINT16MF2X5", pasta::BuiltinTypeKind::kRvvUint16mf2x5)
+    .value("RVV_UINT16MF2X6", pasta::BuiltinTypeKind::kRvvUint16mf2x6)
+    .value("RVV_UINT16MF2X7", pasta::BuiltinTypeKind::kRvvUint16mf2x7)
+    .value("RVV_UINT16MF2X8", pasta::BuiltinTypeKind::kRvvUint16mf2x8)
+    .value("RVV_UINT16M1X2", pasta::BuiltinTypeKind::kRvvUint16m1x2)
+    .value("RVV_UINT16M1X3", pasta::BuiltinTypeKind::kRvvUint16m1x3)
+    .value("RVV_UINT16M1X4", pasta::BuiltinTypeKind::kRvvUint16m1x4)
+    .value("RVV_UINT16M1X5", pasta::BuiltinTypeKind::kRvvUint16m1x5)
+    .value("RVV_UINT16M1X6", pasta::BuiltinTypeKind::kRvvUint16m1x6)
+    .value("RVV_UINT16M1X7", pasta::BuiltinTypeKind::kRvvUint16m1x7)
+    .value("RVV_UINT16M1X8", pasta::BuiltinTypeKind::kRvvUint16m1x8)
+    .value("RVV_UINT16M2X2", pasta::BuiltinTypeKind::kRvvUint16m2x2)
+    .value("RVV_UINT16M2X3", pasta::BuiltinTypeKind::kRvvUint16m2x3)
+    .value("RVV_UINT16M2X4", pasta::BuiltinTypeKind::kRvvUint16m2x4)
+    .value("RVV_UINT16M4X2", pasta::BuiltinTypeKind::kRvvUint16m4x2)
+    .value("RVV_INT32MF2X2", pasta::BuiltinTypeKind::kRvvInt32mf2x2)
+    .value("RVV_INT32MF2X3", pasta::BuiltinTypeKind::kRvvInt32mf2x3)
+    .value("RVV_INT32MF2X4", pasta::BuiltinTypeKind::kRvvInt32mf2x4)
+    .value("RVV_INT32MF2X5", pasta::BuiltinTypeKind::kRvvInt32mf2x5)
+    .value("RVV_INT32MF2X6", pasta::BuiltinTypeKind::kRvvInt32mf2x6)
+    .value("RVV_INT32MF2X7", pasta::BuiltinTypeKind::kRvvInt32mf2x7)
+    .value("RVV_INT32MF2X8", pasta::BuiltinTypeKind::kRvvInt32mf2x8)
+    .value("RVV_INT32M1X2", pasta::BuiltinTypeKind::kRvvInt32m1x2)
+    .value("RVV_INT32M1X3", pasta::BuiltinTypeKind::kRvvInt32m1x3)
+    .value("RVV_INT32M1X4", pasta::BuiltinTypeKind::kRvvInt32m1x4)
+    .value("RVV_INT32M1X5", pasta::BuiltinTypeKind::kRvvInt32m1x5)
+    .value("RVV_INT32M1X6", pasta::BuiltinTypeKind::kRvvInt32m1x6)
+    .value("RVV_INT32M1X7", pasta::BuiltinTypeKind::kRvvInt32m1x7)
+    .value("RVV_INT32M1X8", pasta::BuiltinTypeKind::kRvvInt32m1x8)
+    .value("RVV_INT32M2X2", pasta::BuiltinTypeKind::kRvvInt32m2x2)
+    .value("RVV_INT32M2X3", pasta::BuiltinTypeKind::kRvvInt32m2x3)
+    .value("RVV_INT32M2X4", pasta::BuiltinTypeKind::kRvvInt32m2x4)
+    .value("RVV_INT32M4X2", pasta::BuiltinTypeKind::kRvvInt32m4x2)
+    .value("RVV_UINT32MF2X2", pasta::BuiltinTypeKind::kRvvUint32mf2x2)
+    .value("RVV_UINT32MF2X3", pasta::BuiltinTypeKind::kRvvUint32mf2x3)
+    .value("RVV_UINT32MF2X4", pasta::BuiltinTypeKind::kRvvUint32mf2x4)
+    .value("RVV_UINT32MF2X5", pasta::BuiltinTypeKind::kRvvUint32mf2x5)
+    .value("RVV_UINT32MF2X6", pasta::BuiltinTypeKind::kRvvUint32mf2x6)
+    .value("RVV_UINT32MF2X7", pasta::BuiltinTypeKind::kRvvUint32mf2x7)
+    .value("RVV_UINT32MF2X8", pasta::BuiltinTypeKind::kRvvUint32mf2x8)
+    .value("RVV_UINT32M1X2", pasta::BuiltinTypeKind::kRvvUint32m1x2)
+    .value("RVV_UINT32M1X3", pasta::BuiltinTypeKind::kRvvUint32m1x3)
+    .value("RVV_UINT32M1X4", pasta::BuiltinTypeKind::kRvvUint32m1x4)
+    .value("RVV_UINT32M1X5", pasta::BuiltinTypeKind::kRvvUint32m1x5)
+    .value("RVV_UINT32M1X6", pasta::BuiltinTypeKind::kRvvUint32m1x6)
+    .value("RVV_UINT32M1X7", pasta::BuiltinTypeKind::kRvvUint32m1x7)
+    .value("RVV_UINT32M1X8", pasta::BuiltinTypeKind::kRvvUint32m1x8)
+    .value("RVV_UINT32M2X2", pasta::BuiltinTypeKind::kRvvUint32m2x2)
+    .value("RVV_UINT32M2X3", pasta::BuiltinTypeKind::kRvvUint32m2x3)
+    .value("RVV_UINT32M2X4", pasta::BuiltinTypeKind::kRvvUint32m2x4)
+    .value("RVV_UINT32M4X2", pasta::BuiltinTypeKind::kRvvUint32m4x2)
+    .value("RVV_INT64M1X2", pasta::BuiltinTypeKind::kRvvInt64m1x2)
+    .value("RVV_INT64M1X3", pasta::BuiltinTypeKind::kRvvInt64m1x3)
+    .value("RVV_INT64M1X4", pasta::BuiltinTypeKind::kRvvInt64m1x4)
+    .value("RVV_INT64M1X5", pasta::BuiltinTypeKind::kRvvInt64m1x5)
+    .value("RVV_INT64M1X6", pasta::BuiltinTypeKind::kRvvInt64m1x6)
+    .value("RVV_INT64M1X7", pasta::BuiltinTypeKind::kRvvInt64m1x7)
+    .value("RVV_INT64M1X8", pasta::BuiltinTypeKind::kRvvInt64m1x8)
+    .value("RVV_INT64M2X2", pasta::BuiltinTypeKind::kRvvInt64m2x2)
+    .value("RVV_INT64M2X3", pasta::BuiltinTypeKind::kRvvInt64m2x3)
+    .value("RVV_INT64M2X4", pasta::BuiltinTypeKind::kRvvInt64m2x4)
+    .value("RVV_INT64M4X2", pasta::BuiltinTypeKind::kRvvInt64m4x2)
+    .value("RVV_UINT64M1X2", pasta::BuiltinTypeKind::kRvvUint64m1x2)
+    .value("RVV_UINT64M1X3", pasta::BuiltinTypeKind::kRvvUint64m1x3)
+    .value("RVV_UINT64M1X4", pasta::BuiltinTypeKind::kRvvUint64m1x4)
+    .value("RVV_UINT64M1X5", pasta::BuiltinTypeKind::kRvvUint64m1x5)
+    .value("RVV_UINT64M1X6", pasta::BuiltinTypeKind::kRvvUint64m1x6)
+    .value("RVV_UINT64M1X7", pasta::BuiltinTypeKind::kRvvUint64m1x7)
+    .value("RVV_UINT64M1X8", pasta::BuiltinTypeKind::kRvvUint64m1x8)
+    .value("RVV_UINT64M2X2", pasta::BuiltinTypeKind::kRvvUint64m2x2)
+    .value("RVV_UINT64M2X3", pasta::BuiltinTypeKind::kRvvUint64m2x3)
+    .value("RVV_UINT64M2X4", pasta::BuiltinTypeKind::kRvvUint64m2x4)
+    .value("RVV_UINT64M4X2", pasta::BuiltinTypeKind::kRvvUint64m4x2)
+    .value("RVV_FLOAT16MF4X2", pasta::BuiltinTypeKind::kRvvFloat16mf4x2)
+    .value("RVV_FLOAT16MF4X3", pasta::BuiltinTypeKind::kRvvFloat16mf4x3)
+    .value("RVV_FLOAT16MF4X4", pasta::BuiltinTypeKind::kRvvFloat16mf4x4)
+    .value("RVV_FLOAT16MF4X5", pasta::BuiltinTypeKind::kRvvFloat16mf4x5)
+    .value("RVV_FLOAT16MF4X6", pasta::BuiltinTypeKind::kRvvFloat16mf4x6)
+    .value("RVV_FLOAT16MF4X7", pasta::BuiltinTypeKind::kRvvFloat16mf4x7)
+    .value("RVV_FLOAT16MF4X8", pasta::BuiltinTypeKind::kRvvFloat16mf4x8)
+    .value("RVV_FLOAT16MF2X2", pasta::BuiltinTypeKind::kRvvFloat16mf2x2)
+    .value("RVV_FLOAT16MF2X3", pasta::BuiltinTypeKind::kRvvFloat16mf2x3)
+    .value("RVV_FLOAT16MF2X4", pasta::BuiltinTypeKind::kRvvFloat16mf2x4)
+    .value("RVV_FLOAT16MF2X5", pasta::BuiltinTypeKind::kRvvFloat16mf2x5)
+    .value("RVV_FLOAT16MF2X6", pasta::BuiltinTypeKind::kRvvFloat16mf2x6)
+    .value("RVV_FLOAT16MF2X7", pasta::BuiltinTypeKind::kRvvFloat16mf2x7)
+    .value("RVV_FLOAT16MF2X8", pasta::BuiltinTypeKind::kRvvFloat16mf2x8)
+    .value("RVV_FLOAT16M1X2", pasta::BuiltinTypeKind::kRvvFloat16m1x2)
+    .value("RVV_FLOAT16M1X3", pasta::BuiltinTypeKind::kRvvFloat16m1x3)
+    .value("RVV_FLOAT16M1X4", pasta::BuiltinTypeKind::kRvvFloat16m1x4)
+    .value("RVV_FLOAT16M1X5", pasta::BuiltinTypeKind::kRvvFloat16m1x5)
+    .value("RVV_FLOAT16M1X6", pasta::BuiltinTypeKind::kRvvFloat16m1x6)
+    .value("RVV_FLOAT16M1X7", pasta::BuiltinTypeKind::kRvvFloat16m1x7)
+    .value("RVV_FLOAT16M1X8", pasta::BuiltinTypeKind::kRvvFloat16m1x8)
+    .value("RVV_FLOAT16M2X2", pasta::BuiltinTypeKind::kRvvFloat16m2x2)
+    .value("RVV_FLOAT16M2X3", pasta::BuiltinTypeKind::kRvvFloat16m2x3)
+    .value("RVV_FLOAT16M2X4", pasta::BuiltinTypeKind::kRvvFloat16m2x4)
+    .value("RVV_FLOAT16M4X2", pasta::BuiltinTypeKind::kRvvFloat16m4x2)
+    .value("RVV_FLOAT32MF2X2", pasta::BuiltinTypeKind::kRvvFloat32mf2x2)
+    .value("RVV_FLOAT32MF2X3", pasta::BuiltinTypeKind::kRvvFloat32mf2x3)
+    .value("RVV_FLOAT32MF2X4", pasta::BuiltinTypeKind::kRvvFloat32mf2x4)
+    .value("RVV_FLOAT32MF2X5", pasta::BuiltinTypeKind::kRvvFloat32mf2x5)
+    .value("RVV_FLOAT32MF2X6", pasta::BuiltinTypeKind::kRvvFloat32mf2x6)
+    .value("RVV_FLOAT32MF2X7", pasta::BuiltinTypeKind::kRvvFloat32mf2x7)
+    .value("RVV_FLOAT32MF2X8", pasta::BuiltinTypeKind::kRvvFloat32mf2x8)
+    .value("RVV_FLOAT32M1X2", pasta::BuiltinTypeKind::kRvvFloat32m1x2)
+    .value("RVV_FLOAT32M1X3", pasta::BuiltinTypeKind::kRvvFloat32m1x3)
+    .value("RVV_FLOAT32M1X4", pasta::BuiltinTypeKind::kRvvFloat32m1x4)
+    .value("RVV_FLOAT32M1X5", pasta::BuiltinTypeKind::kRvvFloat32m1x5)
+    .value("RVV_FLOAT32M1X6", pasta::BuiltinTypeKind::kRvvFloat32m1x6)
+    .value("RVV_FLOAT32M1X7", pasta::BuiltinTypeKind::kRvvFloat32m1x7)
+    .value("RVV_FLOAT32M1X8", pasta::BuiltinTypeKind::kRvvFloat32m1x8)
+    .value("RVV_FLOAT32M2X2", pasta::BuiltinTypeKind::kRvvFloat32m2x2)
+    .value("RVV_FLOAT32M2X3", pasta::BuiltinTypeKind::kRvvFloat32m2x3)
+    .value("RVV_FLOAT32M2X4", pasta::BuiltinTypeKind::kRvvFloat32m2x4)
+    .value("RVV_FLOAT32M4X2", pasta::BuiltinTypeKind::kRvvFloat32m4x2)
+    .value("RVV_FLOAT64M1X2", pasta::BuiltinTypeKind::kRvvFloat64m1x2)
+    .value("RVV_FLOAT64M1X3", pasta::BuiltinTypeKind::kRvvFloat64m1x3)
+    .value("RVV_FLOAT64M1X4", pasta::BuiltinTypeKind::kRvvFloat64m1x4)
+    .value("RVV_FLOAT64M1X5", pasta::BuiltinTypeKind::kRvvFloat64m1x5)
+    .value("RVV_FLOAT64M1X6", pasta::BuiltinTypeKind::kRvvFloat64m1x6)
+    .value("RVV_FLOAT64M1X7", pasta::BuiltinTypeKind::kRvvFloat64m1x7)
+    .value("RVV_FLOAT64M1X8", pasta::BuiltinTypeKind::kRvvFloat64m1x8)
+    .value("RVV_FLOAT64M2X2", pasta::BuiltinTypeKind::kRvvFloat64m2x2)
+    .value("RVV_FLOAT64M2X3", pasta::BuiltinTypeKind::kRvvFloat64m2x3)
+    .value("RVV_FLOAT64M2X4", pasta::BuiltinTypeKind::kRvvFloat64m2x4)
+    .value("RVV_FLOAT64M4X2", pasta::BuiltinTypeKind::kRvvFloat64m4x2)
+    .value("WASM_EXTERN_REFERENCE", pasta::BuiltinTypeKind::kWasmExternReference)
     .value("VOID", pasta::BuiltinTypeKind::kVoid)
     .value("BOOLEAN", pasta::BuiltinTypeKind::kBoolean)
     .value("CHARACTER_U", pasta::BuiltinTypeKind::kCharacterU)
@@ -579,20 +816,20 @@ void RegisterEnums(nb::module_ &m) {
   nb::enum_<pasta::CDeclAttrSpelling>(m, "CDeclAttrSpelling")
     .value("GNU_CDECL", pasta::CDeclAttrSpelling::kGNUCdecl)
     .value("CXX11_GNU_CDECL", pasta::CDeclAttrSpelling::kCXX11GnuCdecl)
-    .value("C2X_GNU_CDECL", pasta::CDeclAttrSpelling::kC2xGnuCdecl)
+    .value("C23_GNU_CDECL", pasta::CDeclAttrSpelling::kC23GnuCdecl)
     .value("KEYWORD_CDECL", pasta::CDeclAttrSpelling::kKeywordCdecl)
     .value("SPELLING_NOT_CALCULATED", pasta::CDeclAttrSpelling::kSpellingNotCalculated);
 
   nb::enum_<pasta::CFAuditedTransferAttrSpelling>(m, "CFAuditedTransferAttrSpelling")
     .value("GNU_CF_AUDITED_TRANSFER", pasta::CFAuditedTransferAttrSpelling::kGNUCfAuditedTransfer)
     .value("CXX11_CLANG_CF_AUDITED_TRANSFER", pasta::CFAuditedTransferAttrSpelling::kCXX11ClangCfAuditedTransfer)
-    .value("C2X_CLANG_CF_AUDITED_TRANSFER", pasta::CFAuditedTransferAttrSpelling::kC2xClangCfAuditedTransfer)
+    .value("C23_CLANG_CF_AUDITED_TRANSFER", pasta::CFAuditedTransferAttrSpelling::kC23ClangCfAuditedTransfer)
     .value("SPELLING_NOT_CALCULATED", pasta::CFAuditedTransferAttrSpelling::kSpellingNotCalculated);
 
   nb::enum_<pasta::CFConsumedAttrSpelling>(m, "CFConsumedAttrSpelling")
     .value("GNU_CF_CONSUMED", pasta::CFConsumedAttrSpelling::kGNUCfConsumed)
     .value("CXX11_CLANG_CF_CONSUMED", pasta::CFConsumedAttrSpelling::kCXX11ClangCfConsumed)
-    .value("C2X_CLANG_CF_CONSUMED", pasta::CFConsumedAttrSpelling::kC2xClangCfConsumed)
+    .value("C23_CLANG_CF_CONSUMED", pasta::CFConsumedAttrSpelling::kC23ClangCfConsumed)
     .value("SPELLING_NOT_CALCULATED", pasta::CFConsumedAttrSpelling::kSpellingNotCalculated);
 
   nb::enum_<pasta::CFGuardAttrGuardArg>(m, "CFGuardAttrGuardArg")
@@ -602,44 +839,44 @@ void RegisterEnums(nb::module_ &m) {
     .value("DECLSPEC_GUARD", pasta::CFGuardAttrSpelling::kDeclspecGuard)
     .value("GNU_GUARD", pasta::CFGuardAttrSpelling::kGNUGuard)
     .value("CXX11_CLANG_GUARD", pasta::CFGuardAttrSpelling::kCXX11ClangGuard)
-    .value("C2X_CLANG_GUARD", pasta::CFGuardAttrSpelling::kC2xClangGuard)
+    .value("C23_CLANG_GUARD", pasta::CFGuardAttrSpelling::kC23ClangGuard)
     .value("SPELLING_NOT_CALCULATED", pasta::CFGuardAttrSpelling::kSpellingNotCalculated);
 
   nb::enum_<pasta::CFICanonicalJumpTableAttrSpelling>(m, "CFICanonicalJumpTableAttrSpelling")
     .value("GNU_CFI_CANONICAL_JUMP_TABLE", pasta::CFICanonicalJumpTableAttrSpelling::kGNUCfiCanonicalJumpTable)
     .value("CXX11_CLANG_CFI_CANONICAL_JUMP_TABLE", pasta::CFICanonicalJumpTableAttrSpelling::kCXX11ClangCfiCanonicalJumpTable)
-    .value("C2X_CLANG_CFI_CANONICAL_JUMP_TABLE", pasta::CFICanonicalJumpTableAttrSpelling::kC2xClangCfiCanonicalJumpTable)
+    .value("C23_CLANG_CFI_CANONICAL_JUMP_TABLE", pasta::CFICanonicalJumpTableAttrSpelling::kC23ClangCfiCanonicalJumpTable)
     .value("SPELLING_NOT_CALCULATED", pasta::CFICanonicalJumpTableAttrSpelling::kSpellingNotCalculated);
 
   nb::enum_<pasta::CFReturnsNotRetainedAttrSpelling>(m, "CFReturnsNotRetainedAttrSpelling")
     .value("GNU_CF_RETURNS_NOT_RETAINED", pasta::CFReturnsNotRetainedAttrSpelling::kGNUCfReturnsNotRetained)
     .value("CXX11_CLANG_CF_RETURNS_NOT_RETAINED", pasta::CFReturnsNotRetainedAttrSpelling::kCXX11ClangCfReturnsNotRetained)
-    .value("C2X_CLANG_CF_RETURNS_NOT_RETAINED", pasta::CFReturnsNotRetainedAttrSpelling::kC2xClangCfReturnsNotRetained)
+    .value("C23_CLANG_CF_RETURNS_NOT_RETAINED", pasta::CFReturnsNotRetainedAttrSpelling::kC23ClangCfReturnsNotRetained)
     .value("SPELLING_NOT_CALCULATED", pasta::CFReturnsNotRetainedAttrSpelling::kSpellingNotCalculated);
 
   nb::enum_<pasta::CFReturnsRetainedAttrSpelling>(m, "CFReturnsRetainedAttrSpelling")
     .value("GNU_CF_RETURNS_RETAINED", pasta::CFReturnsRetainedAttrSpelling::kGNUCfReturnsRetained)
     .value("CXX11_CLANG_CF_RETURNS_RETAINED", pasta::CFReturnsRetainedAttrSpelling::kCXX11ClangCfReturnsRetained)
-    .value("C2X_CLANG_CF_RETURNS_RETAINED", pasta::CFReturnsRetainedAttrSpelling::kC2xClangCfReturnsRetained)
+    .value("C23_CLANG_CF_RETURNS_RETAINED", pasta::CFReturnsRetainedAttrSpelling::kC23ClangCfReturnsRetained)
     .value("SPELLING_NOT_CALCULATED", pasta::CFReturnsRetainedAttrSpelling::kSpellingNotCalculated);
 
   nb::enum_<pasta::CFUnknownTransferAttrSpelling>(m, "CFUnknownTransferAttrSpelling")
     .value("GNU_CF_UNKNOWN_TRANSFER", pasta::CFUnknownTransferAttrSpelling::kGNUCfUnknownTransfer)
     .value("CXX11_CLANG_CF_UNKNOWN_TRANSFER", pasta::CFUnknownTransferAttrSpelling::kCXX11ClangCfUnknownTransfer)
-    .value("C2X_CLANG_CF_UNKNOWN_TRANSFER", pasta::CFUnknownTransferAttrSpelling::kC2xClangCfUnknownTransfer)
+    .value("C23_CLANG_CF_UNKNOWN_TRANSFER", pasta::CFUnknownTransferAttrSpelling::kC23ClangCfUnknownTransfer)
     .value("SPELLING_NOT_CALCULATED", pasta::CFUnknownTransferAttrSpelling::kSpellingNotCalculated);
 
   nb::enum_<pasta::CPUDispatchAttrSpelling>(m, "CPUDispatchAttrSpelling")
     .value("GNU_CPU_DISPATCH", pasta::CPUDispatchAttrSpelling::kGNUCpuDispatch)
     .value("CXX11_CLANG_CPU_DISPATCH", pasta::CPUDispatchAttrSpelling::kCXX11ClangCpuDispatch)
-    .value("C2X_CLANG_CPU_DISPATCH", pasta::CPUDispatchAttrSpelling::kC2xClangCpuDispatch)
+    .value("C23_CLANG_CPU_DISPATCH", pasta::CPUDispatchAttrSpelling::kC23ClangCpuDispatch)
     .value("DECLSPEC_CPU_DISPATCH", pasta::CPUDispatchAttrSpelling::kDeclspecCpuDispatch)
     .value("SPELLING_NOT_CALCULATED", pasta::CPUDispatchAttrSpelling::kSpellingNotCalculated);
 
   nb::enum_<pasta::CPUSpecificAttrSpelling>(m, "CPUSpecificAttrSpelling")
     .value("GNU_CPU_SPECIFIC", pasta::CPUSpecificAttrSpelling::kGNUCpuSpecific)
     .value("CXX11_CLANG_CPU_SPECIFIC", pasta::CPUSpecificAttrSpelling::kCXX11ClangCpuSpecific)
-    .value("C2X_CLANG_CPU_SPECIFIC", pasta::CPUSpecificAttrSpelling::kC2xClangCpuSpecific)
+    .value("C23_CLANG_CPU_SPECIFIC", pasta::CPUSpecificAttrSpelling::kC23ClangCpuSpecific)
     .value("DECLSPEC_CPU_SPECIFIC", pasta::CPUSpecificAttrSpelling::kDeclspecCpuSpecific)
     .value("SPELLING_NOT_CALCULATED", pasta::CPUSpecificAttrSpelling::kSpellingNotCalculated);
 
@@ -685,8 +922,8 @@ void RegisterEnums(nb::module_ &m) {
 
   nb::enum_<pasta::CXX11NoReturnAttrSpelling>(m, "CXX11NoReturnAttrSpelling")
     .value("CXX11_NORETURN", pasta::CXX11NoReturnAttrSpelling::kCXX11Noreturn)
-    .value("C2XNORETURN", pasta::CXX11NoReturnAttrSpelling::kC2xnoreturn)
-    .value("C2X_NORETURN", pasta::CXX11NoReturnAttrSpelling::kC2xNoreturn)
+    .value("C23_NORETURN", pasta::CXX11NoReturnAttrSpelling::kC23Noreturn)
+    .value("C23___NORETURN", pasta::CXX11NoReturnAttrSpelling::kC23_Noreturn)
     .value("SPELLING_NOT_CALCULATED", pasta::CXX11NoReturnAttrSpelling::kSpellingNotCalculated);
 
   nb::enum_<pasta::CXXConstructExprConstructionKind>(m, "CXXConstructExprConstructionKind")
@@ -722,13 +959,13 @@ void RegisterEnums(nb::module_ &m) {
   nb::enum_<pasta::CallbackAttrSpelling>(m, "CallbackAttrSpelling")
     .value("GNU_CALLBACK", pasta::CallbackAttrSpelling::kGNUCallback)
     .value("CXX11_CLANG_CALLBACK", pasta::CallbackAttrSpelling::kCXX11ClangCallback)
-    .value("C2X_CLANG_CALLBACK", pasta::CallbackAttrSpelling::kC2xClangCallback)
+    .value("C23_CLANG_CALLBACK", pasta::CallbackAttrSpelling::kC23ClangCallback)
     .value("SPELLING_NOT_CALCULATED", pasta::CallbackAttrSpelling::kSpellingNotCalculated);
 
   nb::enum_<pasta::CalledOnceAttrSpelling>(m, "CalledOnceAttrSpelling")
     .value("GNU_CALLED_ONCE", pasta::CalledOnceAttrSpelling::kGNUCalledOnce)
     .value("CXX11_CLANG_CALLED_ONCE", pasta::CalledOnceAttrSpelling::kCXX11ClangCalledOnce)
-    .value("C2X_CLANG_CALLED_ONCE", pasta::CalledOnceAttrSpelling::kC2xClangCalledOnce)
+    .value("C23_CLANG_CALLED_ONCE", pasta::CalledOnceAttrSpelling::kC23ClangCalledOnce)
     .value("SPELLING_NOT_CALCULATED", pasta::CalledOnceAttrSpelling::kSpellingNotCalculated);
 
   nb::enum_<pasta::CapabilityAttrSpelling>(m, "CapabilityAttrSpelling")
@@ -759,25 +996,25 @@ void RegisterEnums(nb::module_ &m) {
   nb::enum_<pasta::CleanupAttrSpelling>(m, "CleanupAttrSpelling")
     .value("GNU_CLEANUP", pasta::CleanupAttrSpelling::kGNUCleanup)
     .value("CXX11_GNU_CLEANUP", pasta::CleanupAttrSpelling::kCXX11GnuCleanup)
-    .value("C2X_GNU_CLEANUP", pasta::CleanupAttrSpelling::kC2xGnuCleanup)
+    .value("C23_GNU_CLEANUP", pasta::CleanupAttrSpelling::kC23GnuCleanup)
     .value("SPELLING_NOT_CALCULATED", pasta::CleanupAttrSpelling::kSpellingNotCalculated);
 
   nb::enum_<pasta::ColdAttrSpelling>(m, "ColdAttrSpelling")
     .value("GNU_COLD", pasta::ColdAttrSpelling::kGNUCold)
     .value("CXX11_GNU_COLD", pasta::ColdAttrSpelling::kCXX11GnuCold)
-    .value("C2X_GNU_COLD", pasta::ColdAttrSpelling::kC2xGnuCold)
+    .value("C23_GNU_COLD", pasta::ColdAttrSpelling::kC23GnuCold)
     .value("SPELLING_NOT_CALCULATED", pasta::ColdAttrSpelling::kSpellingNotCalculated);
 
   nb::enum_<pasta::CommonAttrSpelling>(m, "CommonAttrSpelling")
     .value("GNU_COMMON", pasta::CommonAttrSpelling::kGNUCommon)
     .value("CXX11_GNU_COMMON", pasta::CommonAttrSpelling::kCXX11GnuCommon)
-    .value("C2X_GNU_COMMON", pasta::CommonAttrSpelling::kC2xGnuCommon)
+    .value("C23_GNU_COMMON", pasta::CommonAttrSpelling::kC23GnuCommon)
     .value("SPELLING_NOT_CALCULATED", pasta::CommonAttrSpelling::kSpellingNotCalculated);
 
   nb::enum_<pasta::ConstAttrSpelling>(m, "ConstAttrSpelling")
     .value("GNU_CONST", pasta::ConstAttrSpelling::kGNUConst)
     .value("CXX11_GNU_CONST", pasta::ConstAttrSpelling::kCXX11GnuConst)
-    .value("C2X_GNU_CONST", pasta::ConstAttrSpelling::kC2xGnuConst)
+    .value("C23_GNU_CONST", pasta::ConstAttrSpelling::kC23GnuConst)
     .value("SPELLING_NOT_CALCULATED", pasta::ConstAttrSpelling::kSpellingNotCalculated);
 
   nb::enum_<pasta::ConstInitAttrSpelling>(m, "ConstInitAttrSpelling")
@@ -794,7 +1031,7 @@ void RegisterEnums(nb::module_ &m) {
   nb::enum_<pasta::ConstructorAttrSpelling>(m, "ConstructorAttrSpelling")
     .value("GNU_CONSTRUCTOR", pasta::ConstructorAttrSpelling::kGNUConstructor)
     .value("CXX11_GNU_CONSTRUCTOR", pasta::ConstructorAttrSpelling::kCXX11GnuConstructor)
-    .value("C2X_GNU_CONSTRUCTOR", pasta::ConstructorAttrSpelling::kC2xGnuConstructor)
+    .value("C23_GNU_CONSTRUCTOR", pasta::ConstructorAttrSpelling::kC23GnuConstructor)
     .value("SPELLING_NOT_CALCULATED", pasta::ConstructorAttrSpelling::kSpellingNotCalculated);
 
   nb::enum_<pasta::ConsumableAttrConsumedState>(m, "ConsumableAttrConsumedState")
@@ -820,21 +1057,21 @@ void RegisterEnums(nb::module_ &m) {
   nb::enum_<pasta::ConvergentAttrSpelling>(m, "ConvergentAttrSpelling")
     .value("GNU_CONVERGENT", pasta::ConvergentAttrSpelling::kGNUConvergent)
     .value("CXX11_CLANG_CONVERGENT", pasta::ConvergentAttrSpelling::kCXX11ClangConvergent)
-    .value("C2X_CLANG_CONVERGENT", pasta::ConvergentAttrSpelling::kC2xClangConvergent)
+    .value("C23_CLANG_CONVERGENT", pasta::ConvergentAttrSpelling::kC23ClangConvergent)
     .value("SPELLING_NOT_CALCULATED", pasta::ConvergentAttrSpelling::kSpellingNotCalculated);
 
   nb::enum_<pasta::DLLExportAttrSpelling>(m, "DLLExportAttrSpelling")
     .value("DECLSPEC_DLLEXPORT", pasta::DLLExportAttrSpelling::kDeclspecDllexport)
     .value("GNU_DLLEXPORT", pasta::DLLExportAttrSpelling::kGNUDllexport)
     .value("CXX11_GNU_DLLEXPORT", pasta::DLLExportAttrSpelling::kCXX11GnuDllexport)
-    .value("C2X_GNU_DLLEXPORT", pasta::DLLExportAttrSpelling::kC2xGnuDllexport)
+    .value("C23_GNU_DLLEXPORT", pasta::DLLExportAttrSpelling::kC23GnuDllexport)
     .value("SPELLING_NOT_CALCULATED", pasta::DLLExportAttrSpelling::kSpellingNotCalculated);
 
   nb::enum_<pasta::DLLImportAttrSpelling>(m, "DLLImportAttrSpelling")
     .value("DECLSPEC_DLLIMPORT", pasta::DLLImportAttrSpelling::kDeclspecDllimport)
     .value("GNU_DLLIMPORT", pasta::DLLImportAttrSpelling::kGNUDllimport)
     .value("CXX11_GNU_DLLIMPORT", pasta::DLLImportAttrSpelling::kCXX11GnuDllimport)
-    .value("C2X_GNU_DLLIMPORT", pasta::DLLImportAttrSpelling::kC2xGnuDllimport)
+    .value("C23_GNU_DLLIMPORT", pasta::DLLImportAttrSpelling::kC23GnuDllimport)
     .value("SPELLING_NOT_CALCULATED", pasta::DLLImportAttrSpelling::kSpellingNotCalculated);
 
   nb::enum_<pasta::DeclFriendObjectKind>(m, "DeclFriendObjectKind")
@@ -878,22 +1115,22 @@ void RegisterEnums(nb::module_ &m) {
   nb::enum_<pasta::DeprecatedAttrSpelling>(m, "DeprecatedAttrSpelling")
     .value("GNU_DEPRECATED", pasta::DeprecatedAttrSpelling::kGNUDeprecated)
     .value("CXX11_GNU_DEPRECATED", pasta::DeprecatedAttrSpelling::kCXX11GnuDeprecated)
-    .value("C2X_GNU_DEPRECATED", pasta::DeprecatedAttrSpelling::kC2xGnuDeprecated)
+    .value("C23_GNU_DEPRECATED", pasta::DeprecatedAttrSpelling::kC23GnuDeprecated)
     .value("DECLSPEC_DEPRECATED", pasta::DeprecatedAttrSpelling::kDeclspecDeprecated)
     .value("CXX11_DEPRECATED", pasta::DeprecatedAttrSpelling::kCXX11Deprecated)
-    .value("C2X_DEPRECATED", pasta::DeprecatedAttrSpelling::kC2xDeprecated)
+    .value("C23_DEPRECATED", pasta::DeprecatedAttrSpelling::kC23Deprecated)
     .value("SPELLING_NOT_CALCULATED", pasta::DeprecatedAttrSpelling::kSpellingNotCalculated);
 
   nb::enum_<pasta::DestructorAttrSpelling>(m, "DestructorAttrSpelling")
     .value("GNU_DESTRUCTOR", pasta::DestructorAttrSpelling::kGNUDestructor)
     .value("CXX11_GNU_DESTRUCTOR", pasta::DestructorAttrSpelling::kCXX11GnuDestructor)
-    .value("C2X_GNU_DESTRUCTOR", pasta::DestructorAttrSpelling::kC2xGnuDestructor)
+    .value("C23_GNU_DESTRUCTOR", pasta::DestructorAttrSpelling::kC23GnuDestructor)
     .value("SPELLING_NOT_CALCULATED", pasta::DestructorAttrSpelling::kSpellingNotCalculated);
 
   nb::enum_<pasta::DiagnoseAsBuiltinAttrSpelling>(m, "DiagnoseAsBuiltinAttrSpelling")
     .value("GNU_DIAGNOSE_AS_BUILTIN", pasta::DiagnoseAsBuiltinAttrSpelling::kGNUDiagnoseAsBuiltin)
     .value("CXX11_CLANG_DIAGNOSE_AS_BUILTIN", pasta::DiagnoseAsBuiltinAttrSpelling::kCXX11ClangDiagnoseAsBuiltin)
-    .value("C2X_CLANG_DIAGNOSE_AS_BUILTIN", pasta::DiagnoseAsBuiltinAttrSpelling::kC2xClangDiagnoseAsBuiltin)
+    .value("C23_CLANG_DIAGNOSE_AS_BUILTIN", pasta::DiagnoseAsBuiltinAttrSpelling::kC23ClangDiagnoseAsBuiltin)
     .value("SPELLING_NOT_CALCULATED", pasta::DiagnoseAsBuiltinAttrSpelling::kSpellingNotCalculated);
 
   nb::enum_<pasta::DiagnoseIfAttrDiagnosticType>(m, "DiagnoseIfAttrDiagnosticType")
@@ -903,25 +1140,25 @@ void RegisterEnums(nb::module_ &m) {
   nb::enum_<pasta::DisableSanitizerInstrumentationAttrSpelling>(m, "DisableSanitizerInstrumentationAttrSpelling")
     .value("GNU_DISABLE_SANITIZER_INSTRUMENTATION", pasta::DisableSanitizerInstrumentationAttrSpelling::kGNUDisableSanitizerInstrumentation)
     .value("CXX11_CLANG_DISABLE_SANITIZER_INSTRUMENTATION", pasta::DisableSanitizerInstrumentationAttrSpelling::kCXX11ClangDisableSanitizerInstrumentation)
-    .value("C2X_CLANG_DISABLE_SANITIZER_INSTRUMENTATION", pasta::DisableSanitizerInstrumentationAttrSpelling::kC2xClangDisableSanitizerInstrumentation)
+    .value("C23_CLANG_DISABLE_SANITIZER_INSTRUMENTATION", pasta::DisableSanitizerInstrumentationAttrSpelling::kC23ClangDisableSanitizerInstrumentation)
     .value("SPELLING_NOT_CALCULATED", pasta::DisableSanitizerInstrumentationAttrSpelling::kSpellingNotCalculated);
 
   nb::enum_<pasta::DisableTailCallsAttrSpelling>(m, "DisableTailCallsAttrSpelling")
     .value("GNU_DISABLE_TAIL_CALLS", pasta::DisableTailCallsAttrSpelling::kGNUDisableTailCalls)
     .value("CXX11_CLANG_DISABLE_TAIL_CALLS", pasta::DisableTailCallsAttrSpelling::kCXX11ClangDisableTailCalls)
-    .value("C2X_CLANG_DISABLE_TAIL_CALLS", pasta::DisableTailCallsAttrSpelling::kC2xClangDisableTailCalls)
+    .value("C23_CLANG_DISABLE_TAIL_CALLS", pasta::DisableTailCallsAttrSpelling::kC23ClangDisableTailCalls)
     .value("SPELLING_NOT_CALCULATED", pasta::DisableTailCallsAttrSpelling::kSpellingNotCalculated);
 
   nb::enum_<pasta::EnforceTCBAttrSpelling>(m, "EnforceTCBAttrSpelling")
     .value("GNU_ENFORCE_TCB", pasta::EnforceTCBAttrSpelling::kGNUEnforceTcb)
     .value("CXX11_CLANG_ENFORCE_TCB", pasta::EnforceTCBAttrSpelling::kCXX11ClangEnforceTcb)
-    .value("C2X_CLANG_ENFORCE_TCB", pasta::EnforceTCBAttrSpelling::kC2xClangEnforceTcb)
+    .value("C23_CLANG_ENFORCE_TCB", pasta::EnforceTCBAttrSpelling::kC23ClangEnforceTcb)
     .value("SPELLING_NOT_CALCULATED", pasta::EnforceTCBAttrSpelling::kSpellingNotCalculated);
 
   nb::enum_<pasta::EnforceTCBLeafAttrSpelling>(m, "EnforceTCBLeafAttrSpelling")
     .value("GNU_ENFORCE_TCB_LEAF", pasta::EnforceTCBLeafAttrSpelling::kGNUEnforceTcbLeaf)
     .value("CXX11_CLANG_ENFORCE_TCB_LEAF", pasta::EnforceTCBLeafAttrSpelling::kCXX11ClangEnforceTcbLeaf)
-    .value("C2X_CLANG_ENFORCE_TCB_LEAF", pasta::EnforceTCBLeafAttrSpelling::kC2xClangEnforceTcbLeaf)
+    .value("C23_CLANG_ENFORCE_TCB_LEAF", pasta::EnforceTCBLeafAttrSpelling::kC23ClangEnforceTcbLeaf)
     .value("SPELLING_NOT_CALCULATED", pasta::EnforceTCBLeafAttrSpelling::kSpellingNotCalculated);
 
   nb::enum_<pasta::EnumExtensibilityAttrKind>(m, "EnumExtensibilityAttrKind")
@@ -931,22 +1168,22 @@ void RegisterEnums(nb::module_ &m) {
   nb::enum_<pasta::EnumExtensibilityAttrSpelling>(m, "EnumExtensibilityAttrSpelling")
     .value("GNU_ENUM_EXTENSIBILITY", pasta::EnumExtensibilityAttrSpelling::kGNUEnumExtensibility)
     .value("CXX11_CLANG_ENUM_EXTENSIBILITY", pasta::EnumExtensibilityAttrSpelling::kCXX11ClangEnumExtensibility)
-    .value("C2X_CLANG_ENUM_EXTENSIBILITY", pasta::EnumExtensibilityAttrSpelling::kC2xClangEnumExtensibility)
+    .value("C23_CLANG_ENUM_EXTENSIBILITY", pasta::EnumExtensibilityAttrSpelling::kC23ClangEnumExtensibility)
     .value("SPELLING_NOT_CALCULATED", pasta::EnumExtensibilityAttrSpelling::kSpellingNotCalculated);
 
   nb::enum_<pasta::ErrorAttrSpelling>(m, "ErrorAttrSpelling")
     .value("GNU_ERROR", pasta::ErrorAttrSpelling::kGNUError)
     .value("CXX11_GNU_ERROR", pasta::ErrorAttrSpelling::kCXX11GnuError)
-    .value("C2X_GNU_ERROR", pasta::ErrorAttrSpelling::kC2xGnuError)
+    .value("C23_GNU_ERROR", pasta::ErrorAttrSpelling::kC23GnuError)
     .value("GNU_WARNING", pasta::ErrorAttrSpelling::kGNUWarning)
     .value("CXX11_GNU_WARNING", pasta::ErrorAttrSpelling::kCXX11GnuWarning)
-    .value("C2X_GNU_WARNING", pasta::ErrorAttrSpelling::kC2xGnuWarning)
+    .value("C23_GNU_WARNING", pasta::ErrorAttrSpelling::kC23GnuWarning)
     .value("SPELLING_NOT_CALCULATED", pasta::ErrorAttrSpelling::kSpellingNotCalculated);
 
   nb::enum_<pasta::ExcludeFromExplicitInstantiationAttrSpelling>(m, "ExcludeFromExplicitInstantiationAttrSpelling")
     .value("GNU_EXCLUDE_FROM_EXPLICIT_INSTANTIATION", pasta::ExcludeFromExplicitInstantiationAttrSpelling::kGNUExcludeFromExplicitInstantiation)
     .value("CXX11_CLANG_EXCLUDE_FROM_EXPLICIT_INSTANTIATION", pasta::ExcludeFromExplicitInstantiationAttrSpelling::kCXX11ClangExcludeFromExplicitInstantiation)
-    .value("C2X_CLANG_EXCLUDE_FROM_EXPLICIT_INSTANTIATION", pasta::ExcludeFromExplicitInstantiationAttrSpelling::kC2xClangExcludeFromExplicitInstantiation)
+    .value("C23_CLANG_EXCLUDE_FROM_EXPLICIT_INSTANTIATION", pasta::ExcludeFromExplicitInstantiationAttrSpelling::kC23ClangExcludeFromExplicitInstantiation)
     .value("SPELLING_NOT_CALCULATED", pasta::ExcludeFromExplicitInstantiationAttrSpelling::kSpellingNotCalculated);
 
   nb::enum_<pasta::ExprConstantExprKind>(m, "ExprConstantExprKind")
@@ -1006,22 +1243,22 @@ void RegisterEnums(nb::module_ &m) {
   nb::enum_<pasta::ExternalSourceSymbolAttrSpelling>(m, "ExternalSourceSymbolAttrSpelling")
     .value("GNU_EXTERNAL_SOURCE_SYMBOL", pasta::ExternalSourceSymbolAttrSpelling::kGNUExternalSourceSymbol)
     .value("CXX11_CLANG_EXTERNAL_SOURCE_SYMBOL", pasta::ExternalSourceSymbolAttrSpelling::kCXX11ClangExternalSourceSymbol)
-    .value("C2X_CLANG_EXTERNAL_SOURCE_SYMBOL", pasta::ExternalSourceSymbolAttrSpelling::kC2xClangExternalSourceSymbol)
+    .value("C23_CLANG_EXTERNAL_SOURCE_SYMBOL", pasta::ExternalSourceSymbolAttrSpelling::kC23ClangExternalSourceSymbol)
     .value("SPELLING_NOT_CALCULATED", pasta::ExternalSourceSymbolAttrSpelling::kSpellingNotCalculated);
 
   nb::enum_<pasta::FallThroughAttrSpelling>(m, "FallThroughAttrSpelling")
     .value("CXX11_FALLTHROUGH", pasta::FallThroughAttrSpelling::kCXX11Fallthrough)
-    .value("C2X_FALLTHROUGH", pasta::FallThroughAttrSpelling::kC2xFallthrough)
+    .value("C23_FALLTHROUGH", pasta::FallThroughAttrSpelling::kC23Fallthrough)
     .value("CXX11_CLANG_FALLTHROUGH", pasta::FallThroughAttrSpelling::kCXX11ClangFallthrough)
     .value("GNU_FALLTHROUGH", pasta::FallThroughAttrSpelling::kGNUFallthrough)
     .value("CXX11_GNU_FALLTHROUGH", pasta::FallThroughAttrSpelling::kCXX11GnuFallthrough)
-    .value("C2X_GNU_FALLTHROUGH", pasta::FallThroughAttrSpelling::kC2xGnuFallthrough)
+    .value("C23_GNU_FALLTHROUGH", pasta::FallThroughAttrSpelling::kC23GnuFallthrough)
     .value("SPELLING_NOT_CALCULATED", pasta::FallThroughAttrSpelling::kSpellingNotCalculated);
 
   nb::enum_<pasta::FastCallAttrSpelling>(m, "FastCallAttrSpelling")
     .value("GNU_FASTCALL", pasta::FastCallAttrSpelling::kGNUFastcall)
     .value("CXX11_GNU_FASTCALL", pasta::FastCallAttrSpelling::kCXX11GnuFastcall)
-    .value("C2X_GNU_FASTCALL", pasta::FastCallAttrSpelling::kC2xGnuFastcall)
+    .value("C23_GNU_FASTCALL", pasta::FastCallAttrSpelling::kC23GnuFastcall)
     .value("KEYWORD_FASTCALL", pasta::FastCallAttrSpelling::kKeywordFastcall)
     .value("SPELLING_NOT_CALCULATED", pasta::FastCallAttrSpelling::kSpellingNotCalculated);
 
@@ -1033,25 +1270,25 @@ void RegisterEnums(nb::module_ &m) {
   nb::enum_<pasta::FlagEnumAttrSpelling>(m, "FlagEnumAttrSpelling")
     .value("GNU_FLAG_ENUM", pasta::FlagEnumAttrSpelling::kGNUFlagEnum)
     .value("CXX11_CLANG_FLAG_ENUM", pasta::FlagEnumAttrSpelling::kCXX11ClangFlagEnum)
-    .value("C2X_CLANG_FLAG_ENUM", pasta::FlagEnumAttrSpelling::kC2xClangFlagEnum)
+    .value("C23_CLANG_FLAG_ENUM", pasta::FlagEnumAttrSpelling::kC23ClangFlagEnum)
     .value("SPELLING_NOT_CALCULATED", pasta::FlagEnumAttrSpelling::kSpellingNotCalculated);
 
   nb::enum_<pasta::FlattenAttrSpelling>(m, "FlattenAttrSpelling")
     .value("GNU_FLATTEN", pasta::FlattenAttrSpelling::kGNUFlatten)
     .value("CXX11_GNU_FLATTEN", pasta::FlattenAttrSpelling::kCXX11GnuFlatten)
-    .value("C2X_GNU_FLATTEN", pasta::FlattenAttrSpelling::kC2xGnuFlatten)
+    .value("C23_GNU_FLATTEN", pasta::FlattenAttrSpelling::kC23GnuFlatten)
     .value("SPELLING_NOT_CALCULATED", pasta::FlattenAttrSpelling::kSpellingNotCalculated);
 
   nb::enum_<pasta::FormatArgAttrSpelling>(m, "FormatArgAttrSpelling")
     .value("GNU_FORMAT_ARGUMENT", pasta::FormatArgAttrSpelling::kGNUFormatArgument)
     .value("CXX11_GNU_FORMAT_ARGUMENT", pasta::FormatArgAttrSpelling::kCXX11GnuFormatArgument)
-    .value("C2X_GNU_FORMAT_ARGUMENT", pasta::FormatArgAttrSpelling::kC2xGnuFormatArgument)
+    .value("C23_GNU_FORMAT_ARGUMENT", pasta::FormatArgAttrSpelling::kC23GnuFormatArgument)
     .value("SPELLING_NOT_CALCULATED", pasta::FormatArgAttrSpelling::kSpellingNotCalculated);
 
   nb::enum_<pasta::FormatAttrSpelling>(m, "FormatAttrSpelling")
     .value("GNU_FORMAT", pasta::FormatAttrSpelling::kGNUFormat)
     .value("CXX11_GNU_FORMAT", pasta::FormatAttrSpelling::kCXX11GnuFormat)
-    .value("C2X_GNU_FORMAT", pasta::FormatAttrSpelling::kC2xGnuFormat)
+    .value("C23_GNU_FORMAT", pasta::FormatAttrSpelling::kC23GnuFormat)
     .value("SPELLING_NOT_CALCULATED", pasta::FormatAttrSpelling::kSpellingNotCalculated);
 
   nb::enum_<pasta::FunctionDeclTemplatedKind>(m, "FunctionDeclTemplatedKind")
@@ -1069,13 +1306,21 @@ void RegisterEnums(nb::module_ &m) {
   nb::enum_<pasta::FunctionReturnThunksAttrSpelling>(m, "FunctionReturnThunksAttrSpelling")
     .value("GNU_FUNCTION_RETURN", pasta::FunctionReturnThunksAttrSpelling::kGNUFunctionReturn)
     .value("CXX11_GNU_FUNCTION_RETURN", pasta::FunctionReturnThunksAttrSpelling::kCXX11GnuFunctionReturn)
-    .value("C2X_GNU_FUNCTION_RETURN", pasta::FunctionReturnThunksAttrSpelling::kC2xGnuFunctionReturn)
+    .value("C23_GNU_FUNCTION_RETURN", pasta::FunctionReturnThunksAttrSpelling::kC23GnuFunctionReturn)
     .value("SPELLING_NOT_CALCULATED", pasta::FunctionReturnThunksAttrSpelling::kSpellingNotCalculated);
+
+  nb::enum_<pasta::FunctionTypeAArch64SMETypeAttributes>(m, "FunctionTypeAArch64SMETypeAttributes")
+    .value("SME_NORMAL_FUNCTION", pasta::FunctionTypeAArch64SMETypeAttributes::kSMENormalFunction)
+    .value("SMEP_STATE_SM_ENABLED_MASK", pasta::FunctionTypeAArch64SMETypeAttributes::kSMEPStateSMEnabledMask)
+    .value("SMEP_STATE_SM_COMPATIBLE_MASK", pasta::FunctionTypeAArch64SMETypeAttributes::kSMEPStateSMCompatibleMask)
+    .value("SMEP_STATE_ZA_SHARED_MASK", pasta::FunctionTypeAArch64SMETypeAttributes::kSMEPStateZASharedMask)
+    .value("SMEP_STATE_ZA_PRESERVED_MASK", pasta::FunctionTypeAArch64SMETypeAttributes::kSMEPStateZAPreservedMask)
+    .value("SME_ATTRIBUTE_MASK", pasta::FunctionTypeAArch64SMETypeAttributes::kSMEAttributeMask);
 
   nb::enum_<pasta::GNUInlineAttrSpelling>(m, "GNUInlineAttrSpelling")
     .value("GNU_GNU_INLINE", pasta::GNUInlineAttrSpelling::kGNUGnuInline)
     .value("CXX11_GNU_GNU_INLINE", pasta::GNUInlineAttrSpelling::kCXX11GnuGnuInline)
-    .value("C2X_GNU_GNU_INLINE", pasta::GNUInlineAttrSpelling::kC2xGnuGnuInline)
+    .value("C23_GNU_GNU_INLINE", pasta::GNUInlineAttrSpelling::kC23GnuGnuInline)
     .value("SPELLING_NOT_CALCULATED", pasta::GNUInlineAttrSpelling::kSpellingNotCalculated);
 
   nb::enum_<pasta::GuardedVarAttrSpelling>(m, "GuardedVarAttrSpelling")
@@ -1121,7 +1366,6 @@ void RegisterEnums(nb::module_ &m) {
     .value("HULL", pasta::HLSLShaderAttrShaderType::kHull)
     .value("DOMAIN", pasta::HLSLShaderAttrShaderType::kDomain)
     .value("COMPUTE", pasta::HLSLShaderAttrShaderType::kCompute)
-    .value("LIBRARY", pasta::HLSLShaderAttrShaderType::kLibrary)
     .value("RAY_GENERATION", pasta::HLSLShaderAttrShaderType::kRayGeneration)
     .value("INTERSECTION", pasta::HLSLShaderAttrShaderType::kIntersection)
     .value("ANY_HIT", pasta::HLSLShaderAttrShaderType::kAnyHit)
@@ -1134,31 +1378,31 @@ void RegisterEnums(nb::module_ &m) {
   nb::enum_<pasta::HotAttrSpelling>(m, "HotAttrSpelling")
     .value("GNU_HOT", pasta::HotAttrSpelling::kGNUHot)
     .value("CXX11_GNU_HOT", pasta::HotAttrSpelling::kCXX11GnuHot)
-    .value("C2X_GNU_HOT", pasta::HotAttrSpelling::kC2xGnuHot)
+    .value("C23_GNU_HOT", pasta::HotAttrSpelling::kC23GnuHot)
     .value("SPELLING_NOT_CALCULATED", pasta::HotAttrSpelling::kSpellingNotCalculated);
 
   nb::enum_<pasta::IBActionAttrSpelling>(m, "IBActionAttrSpelling")
     .value("GNU_IBACTION", pasta::IBActionAttrSpelling::kGNUIbaction)
     .value("CXX11_CLANG_IBACTION", pasta::IBActionAttrSpelling::kCXX11ClangIbaction)
-    .value("C2X_CLANG_IBACTION", pasta::IBActionAttrSpelling::kC2xClangIbaction)
+    .value("C23_CLANG_IBACTION", pasta::IBActionAttrSpelling::kC23ClangIbaction)
     .value("SPELLING_NOT_CALCULATED", pasta::IBActionAttrSpelling::kSpellingNotCalculated);
 
   nb::enum_<pasta::IBOutletAttrSpelling>(m, "IBOutletAttrSpelling")
     .value("GNU_IBOUTLET", pasta::IBOutletAttrSpelling::kGNUIboutlet)
     .value("CXX11_CLANG_IBOUTLET", pasta::IBOutletAttrSpelling::kCXX11ClangIboutlet)
-    .value("C2X_CLANG_IBOUTLET", pasta::IBOutletAttrSpelling::kC2xClangIboutlet)
+    .value("C23_CLANG_IBOUTLET", pasta::IBOutletAttrSpelling::kC23ClangIboutlet)
     .value("SPELLING_NOT_CALCULATED", pasta::IBOutletAttrSpelling::kSpellingNotCalculated);
 
   nb::enum_<pasta::IBOutletCollectionAttrSpelling>(m, "IBOutletCollectionAttrSpelling")
     .value("GNU_IBOUTLETCOLLECTION", pasta::IBOutletCollectionAttrSpelling::kGNUIboutletcollection)
     .value("CXX11_CLANG_IBOUTLETCOLLECTION", pasta::IBOutletCollectionAttrSpelling::kCXX11ClangIboutletcollection)
-    .value("C2X_CLANG_IBOUTLETCOLLECTION", pasta::IBOutletCollectionAttrSpelling::kC2xClangIboutletcollection)
+    .value("C23_CLANG_IBOUTLETCOLLECTION", pasta::IBOutletCollectionAttrSpelling::kC23ClangIboutletcollection)
     .value("SPELLING_NOT_CALCULATED", pasta::IBOutletCollectionAttrSpelling::kSpellingNotCalculated);
 
   nb::enum_<pasta::IFuncAttrSpelling>(m, "IFuncAttrSpelling")
     .value("GNU_IFUNC", pasta::IFuncAttrSpelling::kGNUIfunc)
     .value("CXX11_GNU_IFUNC", pasta::IFuncAttrSpelling::kCXX11GnuIfunc)
-    .value("C2X_GNU_IFUNC", pasta::IFuncAttrSpelling::kC2xGnuIfunc)
+    .value("C23_GNU_IFUNC", pasta::IFuncAttrSpelling::kC23GnuIfunc)
     .value("SPELLING_NOT_CALCULATED", pasta::IFuncAttrSpelling::kSpellingNotCalculated);
 
   nb::enum_<pasta::ImplicitCastExprOnStack>(m, "ImplicitCastExprOnStack")
@@ -1186,19 +1430,19 @@ void RegisterEnums(nb::module_ &m) {
   nb::enum_<pasta::InternalLinkageAttrSpelling>(m, "InternalLinkageAttrSpelling")
     .value("GNU_INTERNAL_LINKAGE", pasta::InternalLinkageAttrSpelling::kGNUInternalLinkage)
     .value("CXX11_CLANG_INTERNAL_LINKAGE", pasta::InternalLinkageAttrSpelling::kCXX11ClangInternalLinkage)
-    .value("C2X_CLANG_INTERNAL_LINKAGE", pasta::InternalLinkageAttrSpelling::kC2xClangInternalLinkage)
+    .value("C23_CLANG_INTERNAL_LINKAGE", pasta::InternalLinkageAttrSpelling::kC23ClangInternalLinkage)
     .value("SPELLING_NOT_CALCULATED", pasta::InternalLinkageAttrSpelling::kSpellingNotCalculated);
 
   nb::enum_<pasta::LTOVisibilityPublicAttrSpelling>(m, "LTOVisibilityPublicAttrSpelling")
     .value("GNU_LTO_VISIBILITY_PUBLIC", pasta::LTOVisibilityPublicAttrSpelling::kGNULtoVisibilityPublic)
     .value("CXX11_CLANG_LTO_VISIBILITY_PUBLIC", pasta::LTOVisibilityPublicAttrSpelling::kCXX11ClangLtoVisibilityPublic)
-    .value("C2X_CLANG_LTO_VISIBILITY_PUBLIC", pasta::LTOVisibilityPublicAttrSpelling::kC2xClangLtoVisibilityPublic)
+    .value("C23_CLANG_LTO_VISIBILITY_PUBLIC", pasta::LTOVisibilityPublicAttrSpelling::kC23ClangLtoVisibilityPublic)
     .value("SPELLING_NOT_CALCULATED", pasta::LTOVisibilityPublicAttrSpelling::kSpellingNotCalculated);
 
   nb::enum_<pasta::LeafAttrSpelling>(m, "LeafAttrSpelling")
     .value("GNU_LEAF", pasta::LeafAttrSpelling::kGNULeaf)
     .value("CXX11_GNU_LEAF", pasta::LeafAttrSpelling::kCXX11GnuLeaf)
-    .value("C2X_GNU_LEAF", pasta::LeafAttrSpelling::kC2xGnuLeaf)
+    .value("C23_GNU_LEAF", pasta::LeafAttrSpelling::kC23GnuLeaf)
     .value("SPELLING_NOT_CALCULATED", pasta::LeafAttrSpelling::kSpellingNotCalculated);
 
   nb::enum_<pasta::LifetimeBoundAttrSpelling>(m, "LifetimeBoundAttrSpelling")
@@ -1208,7 +1452,7 @@ void RegisterEnums(nb::module_ &m) {
 
   nb::enum_<pasta::LikelyAttrSpelling>(m, "LikelyAttrSpelling")
     .value("CXX11_LIKELY", pasta::LikelyAttrSpelling::kCXX11Likely)
-    .value("C2X_CLANG_LIKELY", pasta::LikelyAttrSpelling::kC2xClangLikely)
+    .value("C23_CLANG_LIKELY", pasta::LikelyAttrSpelling::kC23ClangLikely)
     .value("SPELLING_NOT_CALCULATED", pasta::LikelyAttrSpelling::kSpellingNotCalculated);
 
   nb::enum_<pasta::LinkageSpecDeclLanguageIDs>(m, "LinkageSpecDeclLanguageIDs")
@@ -1218,7 +1462,7 @@ void RegisterEnums(nb::module_ &m) {
   nb::enum_<pasta::LoaderUninitializedAttrSpelling>(m, "LoaderUninitializedAttrSpelling")
     .value("GNU_LOADER_UNINITIALIZED", pasta::LoaderUninitializedAttrSpelling::kGNULoaderUninitialized)
     .value("CXX11_CLANG_LOADER_UNINITIALIZED", pasta::LoaderUninitializedAttrSpelling::kCXX11ClangLoaderUninitialized)
-    .value("C2X_CLANG_LOADER_UNINITIALIZED", pasta::LoaderUninitializedAttrSpelling::kC2xClangLoaderUninitialized)
+    .value("C23_CLANG_LOADER_UNINITIALIZED", pasta::LoaderUninitializedAttrSpelling::kC23ClangLoaderUninitialized)
     .value("SPELLING_NOT_CALCULATED", pasta::LoaderUninitializedAttrSpelling::kSpellingNotCalculated);
 
   nb::enum_<pasta::LoopHintAttrLoopHintState>(m, "LoopHintAttrLoopHintState")
@@ -1255,13 +1499,13 @@ void RegisterEnums(nb::module_ &m) {
   nb::enum_<pasta::MIGServerRoutineAttrSpelling>(m, "MIGServerRoutineAttrSpelling")
     .value("GNU_MIG_SERVER_ROUTINE", pasta::MIGServerRoutineAttrSpelling::kGNUMigServerRoutine)
     .value("CXX11_CLANG_MIG_SERVER_ROUTINE", pasta::MIGServerRoutineAttrSpelling::kCXX11ClangMigServerRoutine)
-    .value("C2X_CLANG_MIG_SERVER_ROUTINE", pasta::MIGServerRoutineAttrSpelling::kC2xClangMigServerRoutine)
+    .value("C23_CLANG_MIG_SERVER_ROUTINE", pasta::MIGServerRoutineAttrSpelling::kC23ClangMigServerRoutine)
     .value("SPELLING_NOT_CALCULATED", pasta::MIGServerRoutineAttrSpelling::kSpellingNotCalculated);
 
   nb::enum_<pasta::MSABIAttrSpelling>(m, "MSABIAttrSpelling")
     .value("GNU_MS_ABI", pasta::MSABIAttrSpelling::kGNUMsAbi)
     .value("CXX11_GNU_MS_ABI", pasta::MSABIAttrSpelling::kCXX11GnuMsAbi)
-    .value("C2X_GNU_MS_ABI", pasta::MSABIAttrSpelling::kC2xGnuMsAbi)
+    .value("C23_GNU_MS_ABI", pasta::MSABIAttrSpelling::kC23GnuMsAbi)
     .value("SPELLING_NOT_CALCULATED", pasta::MSABIAttrSpelling::kSpellingNotCalculated);
 
   nb::enum_<pasta::MSInheritanceAttrSpelling>(m, "MSInheritanceAttrSpelling")
@@ -1274,49 +1518,49 @@ void RegisterEnums(nb::module_ &m) {
   nb::enum_<pasta::MSP430InterruptAttrSpelling>(m, "MSP430InterruptAttrSpelling")
     .value("GNU_INTERRUPT", pasta::MSP430InterruptAttrSpelling::kGNUInterrupt)
     .value("CXX11_GNU_INTERRUPT", pasta::MSP430InterruptAttrSpelling::kCXX11GnuInterrupt)
-    .value("C2X_GNU_INTERRUPT", pasta::MSP430InterruptAttrSpelling::kC2xGnuInterrupt)
+    .value("C23_GNU_INTERRUPT", pasta::MSP430InterruptAttrSpelling::kC23GnuInterrupt)
     .value("SPELLING_NOT_CALCULATED", pasta::MSP430InterruptAttrSpelling::kSpellingNotCalculated);
 
   nb::enum_<pasta::MSStructAttrSpelling>(m, "MSStructAttrSpelling")
     .value("GNU_MS_STRUCT", pasta::MSStructAttrSpelling::kGNUMsStruct)
     .value("CXX11_GNU_MS_STRUCT", pasta::MSStructAttrSpelling::kCXX11GnuMsStruct)
-    .value("C2X_GNU_MS_STRUCT", pasta::MSStructAttrSpelling::kC2xGnuMsStruct)
+    .value("C23_GNU_MS_STRUCT", pasta::MSStructAttrSpelling::kC23GnuMsStruct)
     .value("SPELLING_NOT_CALCULATED", pasta::MSStructAttrSpelling::kSpellingNotCalculated);
 
   nb::enum_<pasta::MayAliasAttrSpelling>(m, "MayAliasAttrSpelling")
     .value("GNU_MAY_ALIAS", pasta::MayAliasAttrSpelling::kGNUMayAlias)
     .value("CXX11_GNU_MAY_ALIAS", pasta::MayAliasAttrSpelling::kCXX11GnuMayAlias)
-    .value("C2X_GNU_MAY_ALIAS", pasta::MayAliasAttrSpelling::kC2xGnuMayAlias)
+    .value("C23_GNU_MAY_ALIAS", pasta::MayAliasAttrSpelling::kC23GnuMayAlias)
     .value("SPELLING_NOT_CALCULATED", pasta::MayAliasAttrSpelling::kSpellingNotCalculated);
 
   nb::enum_<pasta::MaybeUndefAttrSpelling>(m, "MaybeUndefAttrSpelling")
     .value("GNU_MAYBE_UNDEF", pasta::MaybeUndefAttrSpelling::kGNUMaybeUndef)
     .value("CXX11_CLANG_MAYBE_UNDEF", pasta::MaybeUndefAttrSpelling::kCXX11ClangMaybeUndef)
-    .value("C2X_CLANG_MAYBE_UNDEF", pasta::MaybeUndefAttrSpelling::kC2xClangMaybeUndef)
+    .value("C23_CLANG_MAYBE_UNDEF", pasta::MaybeUndefAttrSpelling::kC23ClangMaybeUndef)
     .value("SPELLING_NOT_CALCULATED", pasta::MaybeUndefAttrSpelling::kSpellingNotCalculated);
 
   nb::enum_<pasta::MicroMipsAttrSpelling>(m, "MicroMipsAttrSpelling")
     .value("GNU_MICROMIPS", pasta::MicroMipsAttrSpelling::kGNUMicromips)
     .value("CXX11_GNU_MICROMIPS", pasta::MicroMipsAttrSpelling::kCXX11GnuMicromips)
-    .value("C2X_GNU_MICROMIPS", pasta::MicroMipsAttrSpelling::kC2xGnuMicromips)
+    .value("C23_GNU_MICROMIPS", pasta::MicroMipsAttrSpelling::kC23GnuMicromips)
     .value("SPELLING_NOT_CALCULATED", pasta::MicroMipsAttrSpelling::kSpellingNotCalculated);
 
   nb::enum_<pasta::MinSizeAttrSpelling>(m, "MinSizeAttrSpelling")
     .value("GNU_MINSIZE", pasta::MinSizeAttrSpelling::kGNUMinsize)
     .value("CXX11_CLANG_MINSIZE", pasta::MinSizeAttrSpelling::kCXX11ClangMinsize)
-    .value("C2X_CLANG_MINSIZE", pasta::MinSizeAttrSpelling::kC2xClangMinsize)
+    .value("C23_CLANG_MINSIZE", pasta::MinSizeAttrSpelling::kC23ClangMinsize)
     .value("SPELLING_NOT_CALCULATED", pasta::MinSizeAttrSpelling::kSpellingNotCalculated);
 
   nb::enum_<pasta::MinVectorWidthAttrSpelling>(m, "MinVectorWidthAttrSpelling")
     .value("GNU_MIN_VECTOR_WIDTH", pasta::MinVectorWidthAttrSpelling::kGNUMinVectorWidth)
     .value("CXX11_CLANG_MIN_VECTOR_WIDTH", pasta::MinVectorWidthAttrSpelling::kCXX11ClangMinVectorWidth)
-    .value("C2X_CLANG_MIN_VECTOR_WIDTH", pasta::MinVectorWidthAttrSpelling::kC2xClangMinVectorWidth)
+    .value("C23_CLANG_MIN_VECTOR_WIDTH", pasta::MinVectorWidthAttrSpelling::kC23ClangMinVectorWidth)
     .value("SPELLING_NOT_CALCULATED", pasta::MinVectorWidthAttrSpelling::kSpellingNotCalculated);
 
   nb::enum_<pasta::Mips16AttrSpelling>(m, "Mips16AttrSpelling")
     .value("GNU_MIPS16", pasta::Mips16AttrSpelling::kGNUMips16)
     .value("CXX11_GNU_MIPS16", pasta::Mips16AttrSpelling::kCXX11GnuMips16)
-    .value("C2X_GNU_MIPS16", pasta::Mips16AttrSpelling::kC2xGnuMips16)
+    .value("C23_GNU_MIPS16", pasta::Mips16AttrSpelling::kC23GnuMips16)
     .value("SPELLING_NOT_CALCULATED", pasta::Mips16AttrSpelling::kSpellingNotCalculated);
 
   nb::enum_<pasta::MipsInterruptAttrInterruptType>(m, "MipsInterruptAttrInterruptType")
@@ -1333,73 +1577,79 @@ void RegisterEnums(nb::module_ &m) {
   nb::enum_<pasta::MipsInterruptAttrSpelling>(m, "MipsInterruptAttrSpelling")
     .value("GNU_INTERRUPT", pasta::MipsInterruptAttrSpelling::kGNUInterrupt)
     .value("CXX11_GNU_INTERRUPT", pasta::MipsInterruptAttrSpelling::kCXX11GnuInterrupt)
-    .value("C2X_GNU_INTERRUPT", pasta::MipsInterruptAttrSpelling::kC2xGnuInterrupt)
+    .value("C23_GNU_INTERRUPT", pasta::MipsInterruptAttrSpelling::kC23GnuInterrupt)
     .value("SPELLING_NOT_CALCULATED", pasta::MipsInterruptAttrSpelling::kSpellingNotCalculated);
 
   nb::enum_<pasta::MipsLongCallAttrSpelling>(m, "MipsLongCallAttrSpelling")
     .value("GNU_LONG_CALL", pasta::MipsLongCallAttrSpelling::kGNULongCall)
     .value("CXX11_GNU_LONG_CALL", pasta::MipsLongCallAttrSpelling::kCXX11GnuLongCall)
-    .value("C2X_GNU_LONG_CALL", pasta::MipsLongCallAttrSpelling::kC2xGnuLongCall)
+    .value("C23_GNU_LONG_CALL", pasta::MipsLongCallAttrSpelling::kC23GnuLongCall)
     .value("GNU_FAR", pasta::MipsLongCallAttrSpelling::kGNUFar)
     .value("CXX11_GNU_FAR", pasta::MipsLongCallAttrSpelling::kCXX11GnuFar)
-    .value("C2X_GNU_FAR", pasta::MipsLongCallAttrSpelling::kC2xGnuFar)
+    .value("C23_GNU_FAR", pasta::MipsLongCallAttrSpelling::kC23GnuFar)
     .value("SPELLING_NOT_CALCULATED", pasta::MipsLongCallAttrSpelling::kSpellingNotCalculated);
 
   nb::enum_<pasta::MipsShortCallAttrSpelling>(m, "MipsShortCallAttrSpelling")
     .value("GNU_SHORT_CALL", pasta::MipsShortCallAttrSpelling::kGNUShortCall)
     .value("CXX11_GNU_SHORT_CALL", pasta::MipsShortCallAttrSpelling::kCXX11GnuShortCall)
-    .value("C2X_GNU_SHORT_CALL", pasta::MipsShortCallAttrSpelling::kC2xGnuShortCall)
+    .value("C23_GNU_SHORT_CALL", pasta::MipsShortCallAttrSpelling::kC23GnuShortCall)
     .value("GNU_NEAR", pasta::MipsShortCallAttrSpelling::kGNUNear)
     .value("CXX11_GNU_NEAR", pasta::MipsShortCallAttrSpelling::kCXX11GnuNear)
-    .value("C2X_GNU_NEAR", pasta::MipsShortCallAttrSpelling::kC2xGnuNear)
+    .value("C23_GNU_NEAR", pasta::MipsShortCallAttrSpelling::kC23GnuNear)
     .value("SPELLING_NOT_CALCULATED", pasta::MipsShortCallAttrSpelling::kSpellingNotCalculated);
 
   nb::enum_<pasta::ModeAttrSpelling>(m, "ModeAttrSpelling")
     .value("GNU_MODE", pasta::ModeAttrSpelling::kGNUMode)
     .value("CXX11_GNU_MODE", pasta::ModeAttrSpelling::kCXX11GnuMode)
-    .value("C2X_GNU_MODE", pasta::ModeAttrSpelling::kC2xGnuMode)
+    .value("C23_GNU_MODE", pasta::ModeAttrSpelling::kC23GnuMode)
     .value("SPELLING_NOT_CALCULATED", pasta::ModeAttrSpelling::kSpellingNotCalculated);
 
   nb::enum_<pasta::MustTailAttrSpelling>(m, "MustTailAttrSpelling")
     .value("GNU_MUSTTAIL", pasta::MustTailAttrSpelling::kGNUMusttail)
     .value("CXX11_CLANG_MUSTTAIL", pasta::MustTailAttrSpelling::kCXX11ClangMusttail)
-    .value("C2X_CLANG_MUSTTAIL", pasta::MustTailAttrSpelling::kC2xClangMusttail)
+    .value("C23_CLANG_MUSTTAIL", pasta::MustTailAttrSpelling::kC23ClangMusttail)
     .value("SPELLING_NOT_CALCULATED", pasta::MustTailAttrSpelling::kSpellingNotCalculated);
 
   nb::enum_<pasta::NSConsumedAttrSpelling>(m, "NSConsumedAttrSpelling")
     .value("GNU_NS_CONSUMED", pasta::NSConsumedAttrSpelling::kGNUNsConsumed)
     .value("CXX11_CLANG_NS_CONSUMED", pasta::NSConsumedAttrSpelling::kCXX11ClangNsConsumed)
-    .value("C2X_CLANG_NS_CONSUMED", pasta::NSConsumedAttrSpelling::kC2xClangNsConsumed)
+    .value("C23_CLANG_NS_CONSUMED", pasta::NSConsumedAttrSpelling::kC23ClangNsConsumed)
     .value("SPELLING_NOT_CALCULATED", pasta::NSConsumedAttrSpelling::kSpellingNotCalculated);
 
   nb::enum_<pasta::NSConsumesSelfAttrSpelling>(m, "NSConsumesSelfAttrSpelling")
     .value("GNU_NS_CONSUMES_SELF", pasta::NSConsumesSelfAttrSpelling::kGNUNsConsumesSelf)
     .value("CXX11_CLANG_NS_CONSUMES_SELF", pasta::NSConsumesSelfAttrSpelling::kCXX11ClangNsConsumesSelf)
-    .value("C2X_CLANG_NS_CONSUMES_SELF", pasta::NSConsumesSelfAttrSpelling::kC2xClangNsConsumesSelf)
+    .value("C23_CLANG_NS_CONSUMES_SELF", pasta::NSConsumesSelfAttrSpelling::kC23ClangNsConsumesSelf)
     .value("SPELLING_NOT_CALCULATED", pasta::NSConsumesSelfAttrSpelling::kSpellingNotCalculated);
 
   nb::enum_<pasta::NSReturnsAutoreleasedAttrSpelling>(m, "NSReturnsAutoreleasedAttrSpelling")
     .value("GNU_NS_RETURNS_AUTORELEASED", pasta::NSReturnsAutoreleasedAttrSpelling::kGNUNsReturnsAutoreleased)
     .value("CXX11_CLANG_NS_RETURNS_AUTORELEASED", pasta::NSReturnsAutoreleasedAttrSpelling::kCXX11ClangNsReturnsAutoreleased)
-    .value("C2X_CLANG_NS_RETURNS_AUTORELEASED", pasta::NSReturnsAutoreleasedAttrSpelling::kC2xClangNsReturnsAutoreleased)
+    .value("C23_CLANG_NS_RETURNS_AUTORELEASED", pasta::NSReturnsAutoreleasedAttrSpelling::kC23ClangNsReturnsAutoreleased)
     .value("SPELLING_NOT_CALCULATED", pasta::NSReturnsAutoreleasedAttrSpelling::kSpellingNotCalculated);
 
   nb::enum_<pasta::NSReturnsNotRetainedAttrSpelling>(m, "NSReturnsNotRetainedAttrSpelling")
     .value("GNU_NS_RETURNS_NOT_RETAINED", pasta::NSReturnsNotRetainedAttrSpelling::kGNUNsReturnsNotRetained)
     .value("CXX11_CLANG_NS_RETURNS_NOT_RETAINED", pasta::NSReturnsNotRetainedAttrSpelling::kCXX11ClangNsReturnsNotRetained)
-    .value("C2X_CLANG_NS_RETURNS_NOT_RETAINED", pasta::NSReturnsNotRetainedAttrSpelling::kC2xClangNsReturnsNotRetained)
+    .value("C23_CLANG_NS_RETURNS_NOT_RETAINED", pasta::NSReturnsNotRetainedAttrSpelling::kC23ClangNsReturnsNotRetained)
     .value("SPELLING_NOT_CALCULATED", pasta::NSReturnsNotRetainedAttrSpelling::kSpellingNotCalculated);
 
   nb::enum_<pasta::NSReturnsRetainedAttrSpelling>(m, "NSReturnsRetainedAttrSpelling")
     .value("GNU_NS_RETURNS_RETAINED", pasta::NSReturnsRetainedAttrSpelling::kGNUNsReturnsRetained)
     .value("CXX11_CLANG_NS_RETURNS_RETAINED", pasta::NSReturnsRetainedAttrSpelling::kCXX11ClangNsReturnsRetained)
-    .value("C2X_CLANG_NS_RETURNS_RETAINED", pasta::NSReturnsRetainedAttrSpelling::kC2xClangNsReturnsRetained)
+    .value("C23_CLANG_NS_RETURNS_RETAINED", pasta::NSReturnsRetainedAttrSpelling::kC23ClangNsReturnsRetained)
     .value("SPELLING_NOT_CALCULATED", pasta::NSReturnsRetainedAttrSpelling::kSpellingNotCalculated);
+
+  nb::enum_<pasta::NVPTXKernelAttrSpelling>(m, "NVPTXKernelAttrSpelling")
+    .value("GNU_NVPTX_KERNEL", pasta::NVPTXKernelAttrSpelling::kGNUNvptxKernel)
+    .value("CXX11_CLANG_NVPTX_KERNEL", pasta::NVPTXKernelAttrSpelling::kCXX11ClangNvptxKernel)
+    .value("C23_CLANG_NVPTX_KERNEL", pasta::NVPTXKernelAttrSpelling::kC23ClangNvptxKernel)
+    .value("SPELLING_NOT_CALCULATED", pasta::NVPTXKernelAttrSpelling::kSpellingNotCalculated);
 
   nb::enum_<pasta::NakedAttrSpelling>(m, "NakedAttrSpelling")
     .value("GNU_NAKED", pasta::NakedAttrSpelling::kGNUNaked)
     .value("CXX11_GNU_NAKED", pasta::NakedAttrSpelling::kCXX11GnuNaked)
-    .value("C2X_GNU_NAKED", pasta::NakedAttrSpelling::kC2xGnuNaked)
+    .value("C23_GNU_NAKED", pasta::NakedAttrSpelling::kC23GnuNaked)
     .value("DECLSPEC_NAKED", pasta::NakedAttrSpelling::kDeclspecNaked)
     .value("SPELLING_NOT_CALCULATED", pasta::NakedAttrSpelling::kSpellingNotCalculated);
 
@@ -1410,25 +1660,25 @@ void RegisterEnums(nb::module_ &m) {
   nb::enum_<pasta::NoBuiltinAttrSpelling>(m, "NoBuiltinAttrSpelling")
     .value("GNU_NO_BUILTIN", pasta::NoBuiltinAttrSpelling::kGNUNoBuiltin)
     .value("CXX11_CLANG_NO_BUILTIN", pasta::NoBuiltinAttrSpelling::kCXX11ClangNoBuiltin)
-    .value("C2X_CLANG_NO_BUILTIN", pasta::NoBuiltinAttrSpelling::kC2xClangNoBuiltin)
+    .value("C23_CLANG_NO_BUILTIN", pasta::NoBuiltinAttrSpelling::kC23ClangNoBuiltin)
     .value("SPELLING_NOT_CALCULATED", pasta::NoBuiltinAttrSpelling::kSpellingNotCalculated);
 
   nb::enum_<pasta::NoCommonAttrSpelling>(m, "NoCommonAttrSpelling")
     .value("GNU_NOCOMMON", pasta::NoCommonAttrSpelling::kGNUNocommon)
     .value("CXX11_GNU_NOCOMMON", pasta::NoCommonAttrSpelling::kCXX11GnuNocommon)
-    .value("C2X_GNU_NOCOMMON", pasta::NoCommonAttrSpelling::kC2xGnuNocommon)
+    .value("C23_GNU_NOCOMMON", pasta::NoCommonAttrSpelling::kC23GnuNocommon)
     .value("SPELLING_NOT_CALCULATED", pasta::NoCommonAttrSpelling::kSpellingNotCalculated);
 
   nb::enum_<pasta::NoDebugAttrSpelling>(m, "NoDebugAttrSpelling")
     .value("GNU_NODEBUG", pasta::NoDebugAttrSpelling::kGNUNodebug)
     .value("CXX11_GNU_NODEBUG", pasta::NoDebugAttrSpelling::kCXX11GnuNodebug)
-    .value("C2X_GNU_NODEBUG", pasta::NoDebugAttrSpelling::kC2xGnuNodebug)
+    .value("C23_GNU_NODEBUG", pasta::NoDebugAttrSpelling::kC23GnuNodebug)
     .value("SPELLING_NOT_CALCULATED", pasta::NoDebugAttrSpelling::kSpellingNotCalculated);
 
   nb::enum_<pasta::NoDerefAttrSpelling>(m, "NoDerefAttrSpelling")
     .value("GNU_NODEREF", pasta::NoDerefAttrSpelling::kGNUNoderef)
     .value("CXX11_CLANG_NODEREF", pasta::NoDerefAttrSpelling::kCXX11ClangNoderef)
-    .value("C2X_CLANG_NODEREF", pasta::NoDerefAttrSpelling::kC2xClangNoderef)
+    .value("C23_CLANG_NODEREF", pasta::NoDerefAttrSpelling::kC23ClangNoderef)
     .value("SPELLING_NOT_CALCULATED", pasta::NoDerefAttrSpelling::kSpellingNotCalculated);
 
   nb::enum_<pasta::NoDestroyAttrSpelling>(m, "NoDestroyAttrSpelling")
@@ -1439,122 +1689,122 @@ void RegisterEnums(nb::module_ &m) {
   nb::enum_<pasta::NoDuplicateAttrSpelling>(m, "NoDuplicateAttrSpelling")
     .value("GNU_NODUPLICATE", pasta::NoDuplicateAttrSpelling::kGNUNoduplicate)
     .value("CXX11_CLANG_NODUPLICATE", pasta::NoDuplicateAttrSpelling::kCXX11ClangNoduplicate)
-    .value("C2X_CLANG_NODUPLICATE", pasta::NoDuplicateAttrSpelling::kC2xClangNoduplicate)
+    .value("C23_CLANG_NODUPLICATE", pasta::NoDuplicateAttrSpelling::kC23ClangNoduplicate)
     .value("SPELLING_NOT_CALCULATED", pasta::NoDuplicateAttrSpelling::kSpellingNotCalculated);
 
   nb::enum_<pasta::NoEscapeAttrSpelling>(m, "NoEscapeAttrSpelling")
     .value("GNU_NOESCAPE", pasta::NoEscapeAttrSpelling::kGNUNoescape)
     .value("CXX11_CLANG_NOESCAPE", pasta::NoEscapeAttrSpelling::kCXX11ClangNoescape)
-    .value("C2X_CLANG_NOESCAPE", pasta::NoEscapeAttrSpelling::kC2xClangNoescape)
+    .value("C23_CLANG_NOESCAPE", pasta::NoEscapeAttrSpelling::kC23ClangNoescape)
     .value("SPELLING_NOT_CALCULATED", pasta::NoEscapeAttrSpelling::kSpellingNotCalculated);
 
   nb::enum_<pasta::NoInlineAttrSpelling>(m, "NoInlineAttrSpelling")
     .value("KEYWORD_NOINLINE", pasta::NoInlineAttrSpelling::kKeywordNoinline)
     .value("GNU_NOINLINE", pasta::NoInlineAttrSpelling::kGNUNoinline)
     .value("CXX11_GNU_NOINLINE", pasta::NoInlineAttrSpelling::kCXX11GnuNoinline)
-    .value("C2X_GNU_NOINLINE", pasta::NoInlineAttrSpelling::kC2xGnuNoinline)
+    .value("C23_GNU_NOINLINE", pasta::NoInlineAttrSpelling::kC23GnuNoinline)
     .value("CXX11_CLANG_NOINLINE", pasta::NoInlineAttrSpelling::kCXX11ClangNoinline)
-    .value("C2X_CLANG_NOINLINE", pasta::NoInlineAttrSpelling::kC2xClangNoinline)
+    .value("C23_CLANG_NOINLINE", pasta::NoInlineAttrSpelling::kC23ClangNoinline)
     .value("DECLSPEC_NOINLINE", pasta::NoInlineAttrSpelling::kDeclspecNoinline)
     .value("SPELLING_NOT_CALCULATED", pasta::NoInlineAttrSpelling::kSpellingNotCalculated);
 
   nb::enum_<pasta::NoInstrumentFunctionAttrSpelling>(m, "NoInstrumentFunctionAttrSpelling")
     .value("GNU_NO_INSTRUMENT_FUNCTION", pasta::NoInstrumentFunctionAttrSpelling::kGNUNoInstrumentFunction)
     .value("CXX11_GNU_NO_INSTRUMENT_FUNCTION", pasta::NoInstrumentFunctionAttrSpelling::kCXX11GnuNoInstrumentFunction)
-    .value("C2X_GNU_NO_INSTRUMENT_FUNCTION", pasta::NoInstrumentFunctionAttrSpelling::kC2xGnuNoInstrumentFunction)
+    .value("C23_GNU_NO_INSTRUMENT_FUNCTION", pasta::NoInstrumentFunctionAttrSpelling::kC23GnuNoInstrumentFunction)
     .value("SPELLING_NOT_CALCULATED", pasta::NoInstrumentFunctionAttrSpelling::kSpellingNotCalculated);
 
   nb::enum_<pasta::NoMergeAttrSpelling>(m, "NoMergeAttrSpelling")
     .value("GNU_NOMERGE", pasta::NoMergeAttrSpelling::kGNUNomerge)
     .value("CXX11_CLANG_NOMERGE", pasta::NoMergeAttrSpelling::kCXX11ClangNomerge)
-    .value("C2X_CLANG_NOMERGE", pasta::NoMergeAttrSpelling::kC2xClangNomerge)
+    .value("C23_CLANG_NOMERGE", pasta::NoMergeAttrSpelling::kC23ClangNomerge)
     .value("SPELLING_NOT_CALCULATED", pasta::NoMergeAttrSpelling::kSpellingNotCalculated);
 
   nb::enum_<pasta::NoMicroMipsAttrSpelling>(m, "NoMicroMipsAttrSpelling")
     .value("GNU_NOMICROMIPS", pasta::NoMicroMipsAttrSpelling::kGNUNomicromips)
     .value("CXX11_GNU_NOMICROMIPS", pasta::NoMicroMipsAttrSpelling::kCXX11GnuNomicromips)
-    .value("C2X_GNU_NOMICROMIPS", pasta::NoMicroMipsAttrSpelling::kC2xGnuNomicromips)
+    .value("C23_GNU_NOMICROMIPS", pasta::NoMicroMipsAttrSpelling::kC23GnuNomicromips)
     .value("SPELLING_NOT_CALCULATED", pasta::NoMicroMipsAttrSpelling::kSpellingNotCalculated);
 
   nb::enum_<pasta::NoMips16AttrSpelling>(m, "NoMips16AttrSpelling")
     .value("GNU_NOMIPS16", pasta::NoMips16AttrSpelling::kGNUNomips16)
     .value("CXX11_GNU_NOMIPS16", pasta::NoMips16AttrSpelling::kCXX11GnuNomips16)
-    .value("C2X_GNU_NOMIPS16", pasta::NoMips16AttrSpelling::kC2xGnuNomips16)
+    .value("C23_GNU_NOMIPS16", pasta::NoMips16AttrSpelling::kC23GnuNomips16)
     .value("SPELLING_NOT_CALCULATED", pasta::NoMips16AttrSpelling::kSpellingNotCalculated);
 
   nb::enum_<pasta::NoProfileFunctionAttrSpelling>(m, "NoProfileFunctionAttrSpelling")
     .value("GNU_NO_PROFILE_INSTRUMENT_FUNCTION", pasta::NoProfileFunctionAttrSpelling::kGNUNoProfileInstrumentFunction)
     .value("CXX11_GNU_NO_PROFILE_INSTRUMENT_FUNCTION", pasta::NoProfileFunctionAttrSpelling::kCXX11GnuNoProfileInstrumentFunction)
-    .value("C2X_GNU_NO_PROFILE_INSTRUMENT_FUNCTION", pasta::NoProfileFunctionAttrSpelling::kC2xGnuNoProfileInstrumentFunction)
+    .value("C23_GNU_NO_PROFILE_INSTRUMENT_FUNCTION", pasta::NoProfileFunctionAttrSpelling::kC23GnuNoProfileInstrumentFunction)
     .value("SPELLING_NOT_CALCULATED", pasta::NoProfileFunctionAttrSpelling::kSpellingNotCalculated);
 
   nb::enum_<pasta::NoRandomizeLayoutAttrSpelling>(m, "NoRandomizeLayoutAttrSpelling")
     .value("GNU_NO_RANDOMIZE_LAYOUT", pasta::NoRandomizeLayoutAttrSpelling::kGNUNoRandomizeLayout)
     .value("CXX11_GNU_NO_RANDOMIZE_LAYOUT", pasta::NoRandomizeLayoutAttrSpelling::kCXX11GnuNoRandomizeLayout)
-    .value("C2X_GNU_NO_RANDOMIZE_LAYOUT", pasta::NoRandomizeLayoutAttrSpelling::kC2xGnuNoRandomizeLayout)
+    .value("C23_GNU_NO_RANDOMIZE_LAYOUT", pasta::NoRandomizeLayoutAttrSpelling::kC23GnuNoRandomizeLayout)
     .value("SPELLING_NOT_CALCULATED", pasta::NoRandomizeLayoutAttrSpelling::kSpellingNotCalculated);
 
   nb::enum_<pasta::NoReturnAttrSpelling>(m, "NoReturnAttrSpelling")
     .value("GNU_NORETURN", pasta::NoReturnAttrSpelling::kGNUNoreturn)
     .value("CXX11_GNU_NORETURN", pasta::NoReturnAttrSpelling::kCXX11GnuNoreturn)
-    .value("C2X_GNU_NORETURN", pasta::NoReturnAttrSpelling::kC2xGnuNoreturn)
+    .value("C23_GNU_NORETURN", pasta::NoReturnAttrSpelling::kC23GnuNoreturn)
     .value("DECLSPEC_NORETURN", pasta::NoReturnAttrSpelling::kDeclspecNoreturn)
     .value("SPELLING_NOT_CALCULATED", pasta::NoReturnAttrSpelling::kSpellingNotCalculated);
 
   nb::enum_<pasta::NoSanitizeAttrSpelling>(m, "NoSanitizeAttrSpelling")
     .value("GNU_NO_SANITIZE", pasta::NoSanitizeAttrSpelling::kGNUNoSanitize)
     .value("CXX11_CLANG_NO_SANITIZE", pasta::NoSanitizeAttrSpelling::kCXX11ClangNoSanitize)
-    .value("C2X_CLANG_NO_SANITIZE", pasta::NoSanitizeAttrSpelling::kC2xClangNoSanitize)
+    .value("C23_CLANG_NO_SANITIZE", pasta::NoSanitizeAttrSpelling::kC23ClangNoSanitize)
     .value("SPELLING_NOT_CALCULATED", pasta::NoSanitizeAttrSpelling::kSpellingNotCalculated);
 
   nb::enum_<pasta::NoSpeculativeLoadHardeningAttrSpelling>(m, "NoSpeculativeLoadHardeningAttrSpelling")
     .value("GNU_NO_SPECULATIVE_LOAD_HARDENING", pasta::NoSpeculativeLoadHardeningAttrSpelling::kGNUNoSpeculativeLoadHardening)
     .value("CXX11_CLANG_NO_SPECULATIVE_LOAD_HARDENING", pasta::NoSpeculativeLoadHardeningAttrSpelling::kCXX11ClangNoSpeculativeLoadHardening)
-    .value("C2X_CLANG_NO_SPECULATIVE_LOAD_HARDENING", pasta::NoSpeculativeLoadHardeningAttrSpelling::kC2xClangNoSpeculativeLoadHardening)
+    .value("C23_CLANG_NO_SPECULATIVE_LOAD_HARDENING", pasta::NoSpeculativeLoadHardeningAttrSpelling::kC23ClangNoSpeculativeLoadHardening)
     .value("SPELLING_NOT_CALCULATED", pasta::NoSpeculativeLoadHardeningAttrSpelling::kSpellingNotCalculated);
 
   nb::enum_<pasta::NoSplitStackAttrSpelling>(m, "NoSplitStackAttrSpelling")
     .value("GNU_NO_SPLIT_STACK", pasta::NoSplitStackAttrSpelling::kGNUNoSplitStack)
     .value("CXX11_GNU_NO_SPLIT_STACK", pasta::NoSplitStackAttrSpelling::kCXX11GnuNoSplitStack)
-    .value("C2X_GNU_NO_SPLIT_STACK", pasta::NoSplitStackAttrSpelling::kC2xGnuNoSplitStack)
+    .value("C23_GNU_NO_SPLIT_STACK", pasta::NoSplitStackAttrSpelling::kC23GnuNoSplitStack)
     .value("SPELLING_NOT_CALCULATED", pasta::NoSplitStackAttrSpelling::kSpellingNotCalculated);
 
   nb::enum_<pasta::NoStackProtectorAttrSpelling>(m, "NoStackProtectorAttrSpelling")
     .value("GNU_NO_STACK_PROTECTOR", pasta::NoStackProtectorAttrSpelling::kGNUNoStackProtector)
     .value("CXX11_CLANG_NO_STACK_PROTECTOR", pasta::NoStackProtectorAttrSpelling::kCXX11ClangNoStackProtector)
-    .value("C2X_CLANG_NO_STACK_PROTECTOR", pasta::NoStackProtectorAttrSpelling::kC2xClangNoStackProtector)
+    .value("C23_CLANG_NO_STACK_PROTECTOR", pasta::NoStackProtectorAttrSpelling::kC23ClangNoStackProtector)
     .value("DECLSPEC_SAFEBUFFERS", pasta::NoStackProtectorAttrSpelling::kDeclspecSafebuffers)
     .value("SPELLING_NOT_CALCULATED", pasta::NoStackProtectorAttrSpelling::kSpellingNotCalculated);
 
   nb::enum_<pasta::NoThreadSafetyAnalysisAttrSpelling>(m, "NoThreadSafetyAnalysisAttrSpelling")
     .value("GNU_NO_THREAD_SAFETY_ANALYSIS", pasta::NoThreadSafetyAnalysisAttrSpelling::kGNUNoThreadSafetyAnalysis)
     .value("CXX11_CLANG_NO_THREAD_SAFETY_ANALYSIS", pasta::NoThreadSafetyAnalysisAttrSpelling::kCXX11ClangNoThreadSafetyAnalysis)
-    .value("C2X_CLANG_NO_THREAD_SAFETY_ANALYSIS", pasta::NoThreadSafetyAnalysisAttrSpelling::kC2xClangNoThreadSafetyAnalysis)
+    .value("C23_CLANG_NO_THREAD_SAFETY_ANALYSIS", pasta::NoThreadSafetyAnalysisAttrSpelling::kC23ClangNoThreadSafetyAnalysis)
     .value("SPELLING_NOT_CALCULATED", pasta::NoThreadSafetyAnalysisAttrSpelling::kSpellingNotCalculated);
 
   nb::enum_<pasta::NoThrowAttrSpelling>(m, "NoThrowAttrSpelling")
     .value("GNU_NOTHROW", pasta::NoThrowAttrSpelling::kGNUNothrow)
     .value("CXX11_GNU_NOTHROW", pasta::NoThrowAttrSpelling::kCXX11GnuNothrow)
-    .value("C2X_GNU_NOTHROW", pasta::NoThrowAttrSpelling::kC2xGnuNothrow)
+    .value("C23_GNU_NOTHROW", pasta::NoThrowAttrSpelling::kC23GnuNothrow)
     .value("DECLSPEC_NOTHROW", pasta::NoThrowAttrSpelling::kDeclspecNothrow)
     .value("SPELLING_NOT_CALCULATED", pasta::NoThrowAttrSpelling::kSpellingNotCalculated);
 
   nb::enum_<pasta::NoUwtableAttrSpelling>(m, "NoUwtableAttrSpelling")
     .value("GNU_NOUWTABLE", pasta::NoUwtableAttrSpelling::kGNUNouwtable)
     .value("CXX11_CLANG_NOUWTABLE", pasta::NoUwtableAttrSpelling::kCXX11ClangNouwtable)
-    .value("C2X_CLANG_NOUWTABLE", pasta::NoUwtableAttrSpelling::kC2xClangNouwtable)
+    .value("C23_CLANG_NOUWTABLE", pasta::NoUwtableAttrSpelling::kC23ClangNouwtable)
     .value("SPELLING_NOT_CALCULATED", pasta::NoUwtableAttrSpelling::kSpellingNotCalculated);
 
   nb::enum_<pasta::NonNullAttrSpelling>(m, "NonNullAttrSpelling")
     .value("GNU_NONNULL", pasta::NonNullAttrSpelling::kGNUNonnull)
     .value("CXX11_GNU_NONNULL", pasta::NonNullAttrSpelling::kCXX11GnuNonnull)
-    .value("C2X_GNU_NONNULL", pasta::NonNullAttrSpelling::kC2xGnuNonnull)
+    .value("C23_GNU_NONNULL", pasta::NonNullAttrSpelling::kC23GnuNonnull)
     .value("SPELLING_NOT_CALCULATED", pasta::NonNullAttrSpelling::kSpellingNotCalculated);
 
   nb::enum_<pasta::NotTailCalledAttrSpelling>(m, "NotTailCalledAttrSpelling")
     .value("GNU_NOT_TAIL_CALLED", pasta::NotTailCalledAttrSpelling::kGNUNotTailCalled)
     .value("CXX11_CLANG_NOT_TAIL_CALLED", pasta::NotTailCalledAttrSpelling::kCXX11ClangNotTailCalled)
-    .value("C2X_CLANG_NOT_TAIL_CALLED", pasta::NotTailCalledAttrSpelling::kC2xClangNotTailCalled)
+    .value("C23_CLANG_NOT_TAIL_CALLED", pasta::NotTailCalledAttrSpelling::kC23ClangNotTailCalled)
     .value("SPELLING_NOT_CALCULATED", pasta::NotTailCalledAttrSpelling::kSpellingNotCalculated);
 
   nb::enum_<pasta::OMPAllocateDeclAttrAllocatorTypeTy>(m, "OMPAllocateDeclAttrAllocatorTypeTy")
@@ -1592,115 +1842,115 @@ void RegisterEnums(nb::module_ &m) {
   nb::enum_<pasta::OSConsumedAttrSpelling>(m, "OSConsumedAttrSpelling")
     .value("GNU_OS_CONSUMED", pasta::OSConsumedAttrSpelling::kGNUOsConsumed)
     .value("CXX11_CLANG_OS_CONSUMED", pasta::OSConsumedAttrSpelling::kCXX11ClangOsConsumed)
-    .value("C2X_CLANG_OS_CONSUMED", pasta::OSConsumedAttrSpelling::kC2xClangOsConsumed)
+    .value("C23_CLANG_OS_CONSUMED", pasta::OSConsumedAttrSpelling::kC23ClangOsConsumed)
     .value("SPELLING_NOT_CALCULATED", pasta::OSConsumedAttrSpelling::kSpellingNotCalculated);
 
   nb::enum_<pasta::OSConsumesThisAttrSpelling>(m, "OSConsumesThisAttrSpelling")
     .value("GNU_OS_CONSUMES_THIS", pasta::OSConsumesThisAttrSpelling::kGNUOsConsumesThis)
     .value("CXX11_CLANG_OS_CONSUMES_THIS", pasta::OSConsumesThisAttrSpelling::kCXX11ClangOsConsumesThis)
-    .value("C2X_CLANG_OS_CONSUMES_THIS", pasta::OSConsumesThisAttrSpelling::kC2xClangOsConsumesThis)
+    .value("C23_CLANG_OS_CONSUMES_THIS", pasta::OSConsumesThisAttrSpelling::kC23ClangOsConsumesThis)
     .value("SPELLING_NOT_CALCULATED", pasta::OSConsumesThisAttrSpelling::kSpellingNotCalculated);
 
   nb::enum_<pasta::OSReturnsNotRetainedAttrSpelling>(m, "OSReturnsNotRetainedAttrSpelling")
     .value("GNU_OS_RETURNS_NOT_RETAINED", pasta::OSReturnsNotRetainedAttrSpelling::kGNUOsReturnsNotRetained)
     .value("CXX11_CLANG_OS_RETURNS_NOT_RETAINED", pasta::OSReturnsNotRetainedAttrSpelling::kCXX11ClangOsReturnsNotRetained)
-    .value("C2X_CLANG_OS_RETURNS_NOT_RETAINED", pasta::OSReturnsNotRetainedAttrSpelling::kC2xClangOsReturnsNotRetained)
+    .value("C23_CLANG_OS_RETURNS_NOT_RETAINED", pasta::OSReturnsNotRetainedAttrSpelling::kC23ClangOsReturnsNotRetained)
     .value("SPELLING_NOT_CALCULATED", pasta::OSReturnsNotRetainedAttrSpelling::kSpellingNotCalculated);
 
   nb::enum_<pasta::OSReturnsRetainedAttrSpelling>(m, "OSReturnsRetainedAttrSpelling")
     .value("GNU_OS_RETURNS_RETAINED", pasta::OSReturnsRetainedAttrSpelling::kGNUOsReturnsRetained)
     .value("CXX11_CLANG_OS_RETURNS_RETAINED", pasta::OSReturnsRetainedAttrSpelling::kCXX11ClangOsReturnsRetained)
-    .value("C2X_CLANG_OS_RETURNS_RETAINED", pasta::OSReturnsRetainedAttrSpelling::kC2xClangOsReturnsRetained)
+    .value("C23_CLANG_OS_RETURNS_RETAINED", pasta::OSReturnsRetainedAttrSpelling::kC23ClangOsReturnsRetained)
     .value("SPELLING_NOT_CALCULATED", pasta::OSReturnsRetainedAttrSpelling::kSpellingNotCalculated);
 
   nb::enum_<pasta::OSReturnsRetainedOnNonZeroAttrSpelling>(m, "OSReturnsRetainedOnNonZeroAttrSpelling")
     .value("GNU_OS_RETURNS_RETAINED_ON_NON_ZERO", pasta::OSReturnsRetainedOnNonZeroAttrSpelling::kGNUOsReturnsRetainedOnNonZero)
     .value("CXX11_CLANG_OS_RETURNS_RETAINED_ON_NON_ZERO", pasta::OSReturnsRetainedOnNonZeroAttrSpelling::kCXX11ClangOsReturnsRetainedOnNonZero)
-    .value("C2X_CLANG_OS_RETURNS_RETAINED_ON_NON_ZERO", pasta::OSReturnsRetainedOnNonZeroAttrSpelling::kC2xClangOsReturnsRetainedOnNonZero)
+    .value("C23_CLANG_OS_RETURNS_RETAINED_ON_NON_ZERO", pasta::OSReturnsRetainedOnNonZeroAttrSpelling::kC23ClangOsReturnsRetainedOnNonZero)
     .value("SPELLING_NOT_CALCULATED", pasta::OSReturnsRetainedOnNonZeroAttrSpelling::kSpellingNotCalculated);
 
   nb::enum_<pasta::OSReturnsRetainedOnZeroAttrSpelling>(m, "OSReturnsRetainedOnZeroAttrSpelling")
     .value("GNU_OS_RETURNS_RETAINED_ON_ZERO", pasta::OSReturnsRetainedOnZeroAttrSpelling::kGNUOsReturnsRetainedOnZero)
     .value("CXX11_CLANG_OS_RETURNS_RETAINED_ON_ZERO", pasta::OSReturnsRetainedOnZeroAttrSpelling::kCXX11ClangOsReturnsRetainedOnZero)
-    .value("C2X_CLANG_OS_RETURNS_RETAINED_ON_ZERO", pasta::OSReturnsRetainedOnZeroAttrSpelling::kC2xClangOsReturnsRetainedOnZero)
+    .value("C23_CLANG_OS_RETURNS_RETAINED_ON_ZERO", pasta::OSReturnsRetainedOnZeroAttrSpelling::kC23ClangOsReturnsRetainedOnZero)
     .value("SPELLING_NOT_CALCULATED", pasta::OSReturnsRetainedOnZeroAttrSpelling::kSpellingNotCalculated);
 
   nb::enum_<pasta::ObjCBoxableAttrSpelling>(m, "ObjCBoxableAttrSpelling")
     .value("GNU_OBJC_BOXABLE", pasta::ObjCBoxableAttrSpelling::kGNUObjcBoxable)
     .value("CXX11_CLANG_OBJC_BOXABLE", pasta::ObjCBoxableAttrSpelling::kCXX11ClangObjcBoxable)
-    .value("C2X_CLANG_OBJC_BOXABLE", pasta::ObjCBoxableAttrSpelling::kC2xClangObjcBoxable)
+    .value("C23_CLANG_OBJC_BOXABLE", pasta::ObjCBoxableAttrSpelling::kC23ClangObjcBoxable)
     .value("SPELLING_NOT_CALCULATED", pasta::ObjCBoxableAttrSpelling::kSpellingNotCalculated);
 
   nb::enum_<pasta::ObjCBridgeAttrSpelling>(m, "ObjCBridgeAttrSpelling")
     .value("GNU_OBJC_BRIDGE", pasta::ObjCBridgeAttrSpelling::kGNUObjcBridge)
     .value("CXX11_CLANG_OBJC_BRIDGE", pasta::ObjCBridgeAttrSpelling::kCXX11ClangObjcBridge)
-    .value("C2X_CLANG_OBJC_BRIDGE", pasta::ObjCBridgeAttrSpelling::kC2xClangObjcBridge)
+    .value("C23_CLANG_OBJC_BRIDGE", pasta::ObjCBridgeAttrSpelling::kC23ClangObjcBridge)
     .value("SPELLING_NOT_CALCULATED", pasta::ObjCBridgeAttrSpelling::kSpellingNotCalculated);
 
   nb::enum_<pasta::ObjCBridgeMutableAttrSpelling>(m, "ObjCBridgeMutableAttrSpelling")
     .value("GNU_OBJC_BRIDGE_MUTABLE", pasta::ObjCBridgeMutableAttrSpelling::kGNUObjcBridgeMutable)
     .value("CXX11_CLANG_OBJC_BRIDGE_MUTABLE", pasta::ObjCBridgeMutableAttrSpelling::kCXX11ClangObjcBridgeMutable)
-    .value("C2X_CLANG_OBJC_BRIDGE_MUTABLE", pasta::ObjCBridgeMutableAttrSpelling::kC2xClangObjcBridgeMutable)
+    .value("C23_CLANG_OBJC_BRIDGE_MUTABLE", pasta::ObjCBridgeMutableAttrSpelling::kC23ClangObjcBridgeMutable)
     .value("SPELLING_NOT_CALCULATED", pasta::ObjCBridgeMutableAttrSpelling::kSpellingNotCalculated);
 
   nb::enum_<pasta::ObjCBridgeRelatedAttrSpelling>(m, "ObjCBridgeRelatedAttrSpelling")
     .value("GNU_OBJC_BRIDGE_RELATED", pasta::ObjCBridgeRelatedAttrSpelling::kGNUObjcBridgeRelated)
     .value("CXX11_CLANG_OBJC_BRIDGE_RELATED", pasta::ObjCBridgeRelatedAttrSpelling::kCXX11ClangObjcBridgeRelated)
-    .value("C2X_CLANG_OBJC_BRIDGE_RELATED", pasta::ObjCBridgeRelatedAttrSpelling::kC2xClangObjcBridgeRelated)
+    .value("C23_CLANG_OBJC_BRIDGE_RELATED", pasta::ObjCBridgeRelatedAttrSpelling::kC23ClangObjcBridgeRelated)
     .value("SPELLING_NOT_CALCULATED", pasta::ObjCBridgeRelatedAttrSpelling::kSpellingNotCalculated);
 
   nb::enum_<pasta::ObjCClassStubAttrSpelling>(m, "ObjCClassStubAttrSpelling")
     .value("GNU_OBJC_CLASS_STUB", pasta::ObjCClassStubAttrSpelling::kGNUObjcClassStub)
     .value("CXX11_CLANG_OBJC_CLASS_STUB", pasta::ObjCClassStubAttrSpelling::kCXX11ClangObjcClassStub)
-    .value("C2X_CLANG_OBJC_CLASS_STUB", pasta::ObjCClassStubAttrSpelling::kC2xClangObjcClassStub)
+    .value("C23_CLANG_OBJC_CLASS_STUB", pasta::ObjCClassStubAttrSpelling::kC23ClangObjcClassStub)
     .value("SPELLING_NOT_CALCULATED", pasta::ObjCClassStubAttrSpelling::kSpellingNotCalculated);
 
   nb::enum_<pasta::ObjCDesignatedInitializerAttrSpelling>(m, "ObjCDesignatedInitializerAttrSpelling")
     .value("GNU_OBJC_DESIGNATED_INITIALIZER", pasta::ObjCDesignatedInitializerAttrSpelling::kGNUObjcDesignatedInitializer)
     .value("CXX11_CLANG_OBJC_DESIGNATED_INITIALIZER", pasta::ObjCDesignatedInitializerAttrSpelling::kCXX11ClangObjcDesignatedInitializer)
-    .value("C2X_CLANG_OBJC_DESIGNATED_INITIALIZER", pasta::ObjCDesignatedInitializerAttrSpelling::kC2xClangObjcDesignatedInitializer)
+    .value("C23_CLANG_OBJC_DESIGNATED_INITIALIZER", pasta::ObjCDesignatedInitializerAttrSpelling::kC23ClangObjcDesignatedInitializer)
     .value("SPELLING_NOT_CALCULATED", pasta::ObjCDesignatedInitializerAttrSpelling::kSpellingNotCalculated);
 
   nb::enum_<pasta::ObjCDirectAttrSpelling>(m, "ObjCDirectAttrSpelling")
     .value("GNU_OBJC_DIRECT", pasta::ObjCDirectAttrSpelling::kGNUObjcDirect)
     .value("CXX11_CLANG_OBJC_DIRECT", pasta::ObjCDirectAttrSpelling::kCXX11ClangObjcDirect)
-    .value("C2X_CLANG_OBJC_DIRECT", pasta::ObjCDirectAttrSpelling::kC2xClangObjcDirect)
+    .value("C23_CLANG_OBJC_DIRECT", pasta::ObjCDirectAttrSpelling::kC23ClangObjcDirect)
     .value("SPELLING_NOT_CALCULATED", pasta::ObjCDirectAttrSpelling::kSpellingNotCalculated);
 
   nb::enum_<pasta::ObjCDirectMembersAttrSpelling>(m, "ObjCDirectMembersAttrSpelling")
     .value("GNU_OBJC_DIRECT_MEMBERS", pasta::ObjCDirectMembersAttrSpelling::kGNUObjcDirectMembers)
     .value("CXX11_CLANG_OBJC_DIRECT_MEMBERS", pasta::ObjCDirectMembersAttrSpelling::kCXX11ClangObjcDirectMembers)
-    .value("C2X_CLANG_OBJC_DIRECT_MEMBERS", pasta::ObjCDirectMembersAttrSpelling::kC2xClangObjcDirectMembers)
+    .value("C23_CLANG_OBJC_DIRECT_MEMBERS", pasta::ObjCDirectMembersAttrSpelling::kC23ClangObjcDirectMembers)
     .value("SPELLING_NOT_CALCULATED", pasta::ObjCDirectMembersAttrSpelling::kSpellingNotCalculated);
 
   nb::enum_<pasta::ObjCExceptionAttrSpelling>(m, "ObjCExceptionAttrSpelling")
     .value("GNU_OBJC_EXCEPTION", pasta::ObjCExceptionAttrSpelling::kGNUObjcException)
     .value("CXX11_CLANG_OBJC_EXCEPTION", pasta::ObjCExceptionAttrSpelling::kCXX11ClangObjcException)
-    .value("C2X_CLANG_OBJC_EXCEPTION", pasta::ObjCExceptionAttrSpelling::kC2xClangObjcException)
+    .value("C23_CLANG_OBJC_EXCEPTION", pasta::ObjCExceptionAttrSpelling::kC23ClangObjcException)
     .value("SPELLING_NOT_CALCULATED", pasta::ObjCExceptionAttrSpelling::kSpellingNotCalculated);
 
   nb::enum_<pasta::ObjCExplicitProtocolImplAttrSpelling>(m, "ObjCExplicitProtocolImplAttrSpelling")
     .value("GNU_OBJC_PROTOCOL_REQUIRES_EXPLICIT_IMPLEMENTATION", pasta::ObjCExplicitProtocolImplAttrSpelling::kGNUObjcProtocolRequiresExplicitImplementation)
     .value("CXX11_CLANG_OBJC_PROTOCOL_REQUIRES_EXPLICIT_IMPLEMENTATION", pasta::ObjCExplicitProtocolImplAttrSpelling::kCXX11ClangObjcProtocolRequiresExplicitImplementation)
-    .value("C2X_CLANG_OBJC_PROTOCOL_REQUIRES_EXPLICIT_IMPLEMENTATION", pasta::ObjCExplicitProtocolImplAttrSpelling::kC2xClangObjcProtocolRequiresExplicitImplementation)
+    .value("C23_CLANG_OBJC_PROTOCOL_REQUIRES_EXPLICIT_IMPLEMENTATION", pasta::ObjCExplicitProtocolImplAttrSpelling::kC23ClangObjcProtocolRequiresExplicitImplementation)
     .value("SPELLING_NOT_CALCULATED", pasta::ObjCExplicitProtocolImplAttrSpelling::kSpellingNotCalculated);
 
   nb::enum_<pasta::ObjCExternallyRetainedAttrSpelling>(m, "ObjCExternallyRetainedAttrSpelling")
     .value("GNU_OBJC_EXTERNALLY_RETAINED", pasta::ObjCExternallyRetainedAttrSpelling::kGNUObjcExternallyRetained)
     .value("CXX11_CLANG_OBJC_EXTERNALLY_RETAINED", pasta::ObjCExternallyRetainedAttrSpelling::kCXX11ClangObjcExternallyRetained)
-    .value("C2X_CLANG_OBJC_EXTERNALLY_RETAINED", pasta::ObjCExternallyRetainedAttrSpelling::kC2xClangObjcExternallyRetained)
+    .value("C23_CLANG_OBJC_EXTERNALLY_RETAINED", pasta::ObjCExternallyRetainedAttrSpelling::kC23ClangObjcExternallyRetained)
     .value("SPELLING_NOT_CALCULATED", pasta::ObjCExternallyRetainedAttrSpelling::kSpellingNotCalculated);
 
   nb::enum_<pasta::ObjCGCAttrSpelling>(m, "ObjCGCAttrSpelling")
     .value("GNU_OBJC_GC", pasta::ObjCGCAttrSpelling::kGNUObjcGc)
     .value("CXX11_CLANG_OBJC_GC", pasta::ObjCGCAttrSpelling::kCXX11ClangObjcGc)
-    .value("C2X_CLANG_OBJC_GC", pasta::ObjCGCAttrSpelling::kC2xClangObjcGc)
+    .value("C23_CLANG_OBJC_GC", pasta::ObjCGCAttrSpelling::kC23ClangObjcGc)
     .value("SPELLING_NOT_CALCULATED", pasta::ObjCGCAttrSpelling::kSpellingNotCalculated);
 
   nb::enum_<pasta::ObjCIndependentClassAttrSpelling>(m, "ObjCIndependentClassAttrSpelling")
     .value("GNU_OBJC_INDEPENDENT_CLASS", pasta::ObjCIndependentClassAttrSpelling::kGNUObjcIndependentClass)
     .value("CXX11_CLANG_OBJC_INDEPENDENT_CLASS", pasta::ObjCIndependentClassAttrSpelling::kCXX11ClangObjcIndependentClass)
-    .value("C2X_CLANG_OBJC_INDEPENDENT_CLASS", pasta::ObjCIndependentClassAttrSpelling::kC2xClangObjcIndependentClass)
+    .value("C23_CLANG_OBJC_INDEPENDENT_CLASS", pasta::ObjCIndependentClassAttrSpelling::kC23ClangObjcIndependentClass)
     .value("SPELLING_NOT_CALCULATED", pasta::ObjCIndependentClassAttrSpelling::kSpellingNotCalculated);
 
   nb::enum_<pasta::ObjCIvarDeclAccessControl>(m, "ObjCIvarDeclAccessControl")
@@ -1732,37 +1982,37 @@ void RegisterEnums(nb::module_ &m) {
   nb::enum_<pasta::ObjCMethodFamilyAttrSpelling>(m, "ObjCMethodFamilyAttrSpelling")
     .value("GNU_OBJC_METHOD_FAMILY", pasta::ObjCMethodFamilyAttrSpelling::kGNUObjcMethodFamily)
     .value("CXX11_CLANG_OBJC_METHOD_FAMILY", pasta::ObjCMethodFamilyAttrSpelling::kCXX11ClangObjcMethodFamily)
-    .value("C2X_CLANG_OBJC_METHOD_FAMILY", pasta::ObjCMethodFamilyAttrSpelling::kC2xClangObjcMethodFamily)
+    .value("C23_CLANG_OBJC_METHOD_FAMILY", pasta::ObjCMethodFamilyAttrSpelling::kC23ClangObjcMethodFamily)
     .value("SPELLING_NOT_CALCULATED", pasta::ObjCMethodFamilyAttrSpelling::kSpellingNotCalculated);
 
   nb::enum_<pasta::ObjCNSObjectAttrSpelling>(m, "ObjCNSObjectAttrSpelling")
     .value("GNUNS_OBJECT", pasta::ObjCNSObjectAttrSpelling::kGNUNSObject)
     .value("CXX11_CLANG_NS_OBJECT", pasta::ObjCNSObjectAttrSpelling::kCXX11ClangNSObject)
-    .value("C2X_CLANG_NS_OBJECT", pasta::ObjCNSObjectAttrSpelling::kC2xClangNSObject)
+    .value("C23_CLANG_NS_OBJECT", pasta::ObjCNSObjectAttrSpelling::kC23ClangNSObject)
     .value("SPELLING_NOT_CALCULATED", pasta::ObjCNSObjectAttrSpelling::kSpellingNotCalculated);
 
   nb::enum_<pasta::ObjCNonLazyClassAttrSpelling>(m, "ObjCNonLazyClassAttrSpelling")
     .value("GNU_OBJC_NONLAZY_CLASS", pasta::ObjCNonLazyClassAttrSpelling::kGNUObjcNonlazyClass)
     .value("CXX11_CLANG_OBJC_NONLAZY_CLASS", pasta::ObjCNonLazyClassAttrSpelling::kCXX11ClangObjcNonlazyClass)
-    .value("C2X_CLANG_OBJC_NONLAZY_CLASS", pasta::ObjCNonLazyClassAttrSpelling::kC2xClangObjcNonlazyClass)
+    .value("C23_CLANG_OBJC_NONLAZY_CLASS", pasta::ObjCNonLazyClassAttrSpelling::kC23ClangObjcNonlazyClass)
     .value("SPELLING_NOT_CALCULATED", pasta::ObjCNonLazyClassAttrSpelling::kSpellingNotCalculated);
 
   nb::enum_<pasta::ObjCNonRuntimeProtocolAttrSpelling>(m, "ObjCNonRuntimeProtocolAttrSpelling")
     .value("GNU_OBJC_NON_RUNTIME_PROTOCOL", pasta::ObjCNonRuntimeProtocolAttrSpelling::kGNUObjcNonRuntimeProtocol)
     .value("CXX11_CLANG_OBJC_NON_RUNTIME_PROTOCOL", pasta::ObjCNonRuntimeProtocolAttrSpelling::kCXX11ClangObjcNonRuntimeProtocol)
-    .value("C2X_CLANG_OBJC_NON_RUNTIME_PROTOCOL", pasta::ObjCNonRuntimeProtocolAttrSpelling::kC2xClangObjcNonRuntimeProtocol)
+    .value("C23_CLANG_OBJC_NON_RUNTIME_PROTOCOL", pasta::ObjCNonRuntimeProtocolAttrSpelling::kC23ClangObjcNonRuntimeProtocol)
     .value("SPELLING_NOT_CALCULATED", pasta::ObjCNonRuntimeProtocolAttrSpelling::kSpellingNotCalculated);
 
   nb::enum_<pasta::ObjCOwnershipAttrSpelling>(m, "ObjCOwnershipAttrSpelling")
     .value("GNU_OBJC_OWNERSHIP", pasta::ObjCOwnershipAttrSpelling::kGNUObjcOwnership)
     .value("CXX11_CLANG_OBJC_OWNERSHIP", pasta::ObjCOwnershipAttrSpelling::kCXX11ClangObjcOwnership)
-    .value("C2X_CLANG_OBJC_OWNERSHIP", pasta::ObjCOwnershipAttrSpelling::kC2xClangObjcOwnership)
+    .value("C23_CLANG_OBJC_OWNERSHIP", pasta::ObjCOwnershipAttrSpelling::kC23ClangObjcOwnership)
     .value("SPELLING_NOT_CALCULATED", pasta::ObjCOwnershipAttrSpelling::kSpellingNotCalculated);
 
   nb::enum_<pasta::ObjCPreciseLifetimeAttrSpelling>(m, "ObjCPreciseLifetimeAttrSpelling")
     .value("GNU_OBJC_PRECISE_LIFETIME", pasta::ObjCPreciseLifetimeAttrSpelling::kGNUObjcPreciseLifetime)
     .value("CXX11_CLANG_OBJC_PRECISE_LIFETIME", pasta::ObjCPreciseLifetimeAttrSpelling::kCXX11ClangObjcPreciseLifetime)
-    .value("C2X_CLANG_OBJC_PRECISE_LIFETIME", pasta::ObjCPreciseLifetimeAttrSpelling::kC2xClangObjcPreciseLifetime)
+    .value("C23_CLANG_OBJC_PRECISE_LIFETIME", pasta::ObjCPreciseLifetimeAttrSpelling::kC23ClangObjcPreciseLifetime)
     .value("SPELLING_NOT_CALCULATED", pasta::ObjCPreciseLifetimeAttrSpelling::kSpellingNotCalculated);
 
   nb::enum_<pasta::ObjCPropertyDeclPropertyControl>(m, "ObjCPropertyDeclPropertyControl")
@@ -1783,43 +2033,43 @@ void RegisterEnums(nb::module_ &m) {
   nb::enum_<pasta::ObjCRequiresPropertyDefsAttrSpelling>(m, "ObjCRequiresPropertyDefsAttrSpelling")
     .value("GNU_OBJC_REQUIRES_PROPERTY_DEFINITIONS", pasta::ObjCRequiresPropertyDefsAttrSpelling::kGNUObjcRequiresPropertyDefinitions)
     .value("CXX11_CLANG_OBJC_REQUIRES_PROPERTY_DEFINITIONS", pasta::ObjCRequiresPropertyDefsAttrSpelling::kCXX11ClangObjcRequiresPropertyDefinitions)
-    .value("C2X_CLANG_OBJC_REQUIRES_PROPERTY_DEFINITIONS", pasta::ObjCRequiresPropertyDefsAttrSpelling::kC2xClangObjcRequiresPropertyDefinitions)
+    .value("C23_CLANG_OBJC_REQUIRES_PROPERTY_DEFINITIONS", pasta::ObjCRequiresPropertyDefsAttrSpelling::kC23ClangObjcRequiresPropertyDefinitions)
     .value("SPELLING_NOT_CALCULATED", pasta::ObjCRequiresPropertyDefsAttrSpelling::kSpellingNotCalculated);
 
   nb::enum_<pasta::ObjCRequiresSuperAttrSpelling>(m, "ObjCRequiresSuperAttrSpelling")
     .value("GNU_OBJC_REQUIRES_SUPER", pasta::ObjCRequiresSuperAttrSpelling::kGNUObjcRequiresSuper)
     .value("CXX11_CLANG_OBJC_REQUIRES_SUPER", pasta::ObjCRequiresSuperAttrSpelling::kCXX11ClangObjcRequiresSuper)
-    .value("C2X_CLANG_OBJC_REQUIRES_SUPER", pasta::ObjCRequiresSuperAttrSpelling::kC2xClangObjcRequiresSuper)
+    .value("C23_CLANG_OBJC_REQUIRES_SUPER", pasta::ObjCRequiresSuperAttrSpelling::kC23ClangObjcRequiresSuper)
     .value("SPELLING_NOT_CALCULATED", pasta::ObjCRequiresSuperAttrSpelling::kSpellingNotCalculated);
 
   nb::enum_<pasta::ObjCReturnsInnerPointerAttrSpelling>(m, "ObjCReturnsInnerPointerAttrSpelling")
     .value("GNU_OBJC_RETURNS_INNER_POINTER", pasta::ObjCReturnsInnerPointerAttrSpelling::kGNUObjcReturnsInnerPointer)
     .value("CXX11_CLANG_OBJC_RETURNS_INNER_POINTER", pasta::ObjCReturnsInnerPointerAttrSpelling::kCXX11ClangObjcReturnsInnerPointer)
-    .value("C2X_CLANG_OBJC_RETURNS_INNER_POINTER", pasta::ObjCReturnsInnerPointerAttrSpelling::kC2xClangObjcReturnsInnerPointer)
+    .value("C23_CLANG_OBJC_RETURNS_INNER_POINTER", pasta::ObjCReturnsInnerPointerAttrSpelling::kC23ClangObjcReturnsInnerPointer)
     .value("SPELLING_NOT_CALCULATED", pasta::ObjCReturnsInnerPointerAttrSpelling::kSpellingNotCalculated);
 
   nb::enum_<pasta::ObjCRootClassAttrSpelling>(m, "ObjCRootClassAttrSpelling")
     .value("GNU_OBJC_ROOT_CLASS", pasta::ObjCRootClassAttrSpelling::kGNUObjcRootClass)
     .value("CXX11_CLANG_OBJC_ROOT_CLASS", pasta::ObjCRootClassAttrSpelling::kCXX11ClangObjcRootClass)
-    .value("C2X_CLANG_OBJC_ROOT_CLASS", pasta::ObjCRootClassAttrSpelling::kC2xClangObjcRootClass)
+    .value("C23_CLANG_OBJC_ROOT_CLASS", pasta::ObjCRootClassAttrSpelling::kC23ClangObjcRootClass)
     .value("SPELLING_NOT_CALCULATED", pasta::ObjCRootClassAttrSpelling::kSpellingNotCalculated);
 
   nb::enum_<pasta::ObjCRuntimeNameAttrSpelling>(m, "ObjCRuntimeNameAttrSpelling")
     .value("GNU_OBJC_RUNTIME_NAME", pasta::ObjCRuntimeNameAttrSpelling::kGNUObjcRuntimeName)
     .value("CXX11_CLANG_OBJC_RUNTIME_NAME", pasta::ObjCRuntimeNameAttrSpelling::kCXX11ClangObjcRuntimeName)
-    .value("C2X_CLANG_OBJC_RUNTIME_NAME", pasta::ObjCRuntimeNameAttrSpelling::kC2xClangObjcRuntimeName)
+    .value("C23_CLANG_OBJC_RUNTIME_NAME", pasta::ObjCRuntimeNameAttrSpelling::kC23ClangObjcRuntimeName)
     .value("SPELLING_NOT_CALCULATED", pasta::ObjCRuntimeNameAttrSpelling::kSpellingNotCalculated);
 
   nb::enum_<pasta::ObjCRuntimeVisibleAttrSpelling>(m, "ObjCRuntimeVisibleAttrSpelling")
     .value("GNU_OBJC_RUNTIME_VISIBLE", pasta::ObjCRuntimeVisibleAttrSpelling::kGNUObjcRuntimeVisible)
     .value("CXX11_CLANG_OBJC_RUNTIME_VISIBLE", pasta::ObjCRuntimeVisibleAttrSpelling::kCXX11ClangObjcRuntimeVisible)
-    .value("C2X_CLANG_OBJC_RUNTIME_VISIBLE", pasta::ObjCRuntimeVisibleAttrSpelling::kC2xClangObjcRuntimeVisible)
+    .value("C23_CLANG_OBJC_RUNTIME_VISIBLE", pasta::ObjCRuntimeVisibleAttrSpelling::kC23ClangObjcRuntimeVisible)
     .value("SPELLING_NOT_CALCULATED", pasta::ObjCRuntimeVisibleAttrSpelling::kSpellingNotCalculated);
 
   nb::enum_<pasta::ObjCSubclassingRestrictedAttrSpelling>(m, "ObjCSubclassingRestrictedAttrSpelling")
     .value("GNU_OBJC_SUBCLASSING_RESTRICTED", pasta::ObjCSubclassingRestrictedAttrSpelling::kGNUObjcSubclassingRestricted)
     .value("CXX11_CLANG_OBJC_SUBCLASSING_RESTRICTED", pasta::ObjCSubclassingRestrictedAttrSpelling::kCXX11ClangObjcSubclassingRestricted)
-    .value("C2X_CLANG_OBJC_SUBCLASSING_RESTRICTED", pasta::ObjCSubclassingRestrictedAttrSpelling::kC2xClangObjcSubclassingRestricted)
+    .value("C23_CLANG_OBJC_SUBCLASSING_RESTRICTED", pasta::ObjCSubclassingRestrictedAttrSpelling::kC23ClangObjcSubclassingRestricted)
     .value("SPELLING_NOT_CALCULATED", pasta::ObjCSubclassingRestrictedAttrSpelling::kSpellingNotCalculated);
 
   nb::enum_<pasta::OpenCLAccessAttrSpelling>(m, "OpenCLAccessAttrSpelling")
@@ -1832,33 +2082,33 @@ void RegisterEnums(nb::module_ &m) {
     .value("KEYWORD_CONSTANT", pasta::OpenCLConstantAddressSpaceAttrSpelling::kKeywordConstant)
     .value("GNU_OPENCL_CONSTANT", pasta::OpenCLConstantAddressSpaceAttrSpelling::kGNUOpenclConstant)
     .value("CXX11_CLANG_OPENCL_CONSTANT", pasta::OpenCLConstantAddressSpaceAttrSpelling::kCXX11ClangOpenclConstant)
-    .value("C2X_CLANG_OPENCL_CONSTANT", pasta::OpenCLConstantAddressSpaceAttrSpelling::kC2xClangOpenclConstant)
+    .value("C23_CLANG_OPENCL_CONSTANT", pasta::OpenCLConstantAddressSpaceAttrSpelling::kC23ClangOpenclConstant)
     .value("SPELLING_NOT_CALCULATED", pasta::OpenCLConstantAddressSpaceAttrSpelling::kSpellingNotCalculated);
 
   nb::enum_<pasta::OpenCLGenericAddressSpaceAttrSpelling>(m, "OpenCLGenericAddressSpaceAttrSpelling")
     .value("KEYWORD_GENERIC", pasta::OpenCLGenericAddressSpaceAttrSpelling::kKeywordGeneric)
     .value("GNU_OPENCL_GENERIC", pasta::OpenCLGenericAddressSpaceAttrSpelling::kGNUOpenclGeneric)
     .value("CXX11_CLANG_OPENCL_GENERIC", pasta::OpenCLGenericAddressSpaceAttrSpelling::kCXX11ClangOpenclGeneric)
-    .value("C2X_CLANG_OPENCL_GENERIC", pasta::OpenCLGenericAddressSpaceAttrSpelling::kC2xClangOpenclGeneric)
+    .value("C23_CLANG_OPENCL_GENERIC", pasta::OpenCLGenericAddressSpaceAttrSpelling::kC23ClangOpenclGeneric)
     .value("SPELLING_NOT_CALCULATED", pasta::OpenCLGenericAddressSpaceAttrSpelling::kSpellingNotCalculated);
 
   nb::enum_<pasta::OpenCLGlobalAddressSpaceAttrSpelling>(m, "OpenCLGlobalAddressSpaceAttrSpelling")
     .value("KEYWORD_GLOBAL", pasta::OpenCLGlobalAddressSpaceAttrSpelling::kKeywordGlobal)
     .value("GNU_OPENCL_GLOBAL", pasta::OpenCLGlobalAddressSpaceAttrSpelling::kGNUOpenclGlobal)
     .value("CXX11_CLANG_OPENCL_GLOBAL", pasta::OpenCLGlobalAddressSpaceAttrSpelling::kCXX11ClangOpenclGlobal)
-    .value("C2X_CLANG_OPENCL_GLOBAL", pasta::OpenCLGlobalAddressSpaceAttrSpelling::kC2xClangOpenclGlobal)
+    .value("C23_CLANG_OPENCL_GLOBAL", pasta::OpenCLGlobalAddressSpaceAttrSpelling::kC23ClangOpenclGlobal)
     .value("SPELLING_NOT_CALCULATED", pasta::OpenCLGlobalAddressSpaceAttrSpelling::kSpellingNotCalculated);
 
   nb::enum_<pasta::OpenCLGlobalDeviceAddressSpaceAttrSpelling>(m, "OpenCLGlobalDeviceAddressSpaceAttrSpelling")
     .value("GNU_OPENCL_GLOBAL_DEVICE", pasta::OpenCLGlobalDeviceAddressSpaceAttrSpelling::kGNUOpenclGlobalDevice)
     .value("CXX11_CLANG_OPENCL_GLOBAL_DEVICE", pasta::OpenCLGlobalDeviceAddressSpaceAttrSpelling::kCXX11ClangOpenclGlobalDevice)
-    .value("C2X_CLANG_OPENCL_GLOBAL_DEVICE", pasta::OpenCLGlobalDeviceAddressSpaceAttrSpelling::kC2xClangOpenclGlobalDevice)
+    .value("C23_CLANG_OPENCL_GLOBAL_DEVICE", pasta::OpenCLGlobalDeviceAddressSpaceAttrSpelling::kC23ClangOpenclGlobalDevice)
     .value("SPELLING_NOT_CALCULATED", pasta::OpenCLGlobalDeviceAddressSpaceAttrSpelling::kSpellingNotCalculated);
 
   nb::enum_<pasta::OpenCLGlobalHostAddressSpaceAttrSpelling>(m, "OpenCLGlobalHostAddressSpaceAttrSpelling")
     .value("GNU_OPENCL_GLOBAL_HOST", pasta::OpenCLGlobalHostAddressSpaceAttrSpelling::kGNUOpenclGlobalHost)
     .value("CXX11_CLANG_OPENCL_GLOBAL_HOST", pasta::OpenCLGlobalHostAddressSpaceAttrSpelling::kCXX11ClangOpenclGlobalHost)
-    .value("C2X_CLANG_OPENCL_GLOBAL_HOST", pasta::OpenCLGlobalHostAddressSpaceAttrSpelling::kC2xClangOpenclGlobalHost)
+    .value("C23_CLANG_OPENCL_GLOBAL_HOST", pasta::OpenCLGlobalHostAddressSpaceAttrSpelling::kC23ClangOpenclGlobalHost)
     .value("SPELLING_NOT_CALCULATED", pasta::OpenCLGlobalHostAddressSpaceAttrSpelling::kSpellingNotCalculated);
 
   nb::enum_<pasta::OpenCLKernelAttrSpelling>(m, "OpenCLKernelAttrSpelling")
@@ -1869,26 +2119,26 @@ void RegisterEnums(nb::module_ &m) {
     .value("KEYWORD_LOCAL", pasta::OpenCLLocalAddressSpaceAttrSpelling::kKeywordLocal)
     .value("GNU_OPENCL_LOCAL", pasta::OpenCLLocalAddressSpaceAttrSpelling::kGNUOpenclLocal)
     .value("CXX11_CLANG_OPENCL_LOCAL", pasta::OpenCLLocalAddressSpaceAttrSpelling::kCXX11ClangOpenclLocal)
-    .value("C2X_CLANG_OPENCL_LOCAL", pasta::OpenCLLocalAddressSpaceAttrSpelling::kC2xClangOpenclLocal)
+    .value("C23_CLANG_OPENCL_LOCAL", pasta::OpenCLLocalAddressSpaceAttrSpelling::kC23ClangOpenclLocal)
     .value("SPELLING_NOT_CALCULATED", pasta::OpenCLLocalAddressSpaceAttrSpelling::kSpellingNotCalculated);
 
   nb::enum_<pasta::OpenCLPrivateAddressSpaceAttrSpelling>(m, "OpenCLPrivateAddressSpaceAttrSpelling")
     .value("KEYWORD_PRIVATE", pasta::OpenCLPrivateAddressSpaceAttrSpelling::kKeywordPrivate)
     .value("GNU_OPENCL_PRIVATE", pasta::OpenCLPrivateAddressSpaceAttrSpelling::kGNUOpenclPrivate)
     .value("CXX11_CLANG_OPENCL_PRIVATE", pasta::OpenCLPrivateAddressSpaceAttrSpelling::kCXX11ClangOpenclPrivate)
-    .value("C2X_CLANG_OPENCL_PRIVATE", pasta::OpenCLPrivateAddressSpaceAttrSpelling::kC2xClangOpenclPrivate)
+    .value("C23_CLANG_OPENCL_PRIVATE", pasta::OpenCLPrivateAddressSpaceAttrSpelling::kC23ClangOpenclPrivate)
     .value("SPELLING_NOT_CALCULATED", pasta::OpenCLPrivateAddressSpaceAttrSpelling::kSpellingNotCalculated);
 
   nb::enum_<pasta::OptimizeNoneAttrSpelling>(m, "OptimizeNoneAttrSpelling")
     .value("GNU_OPTNONE", pasta::OptimizeNoneAttrSpelling::kGNUOptnone)
     .value("CXX11_CLANG_OPTNONE", pasta::OptimizeNoneAttrSpelling::kCXX11ClangOptnone)
-    .value("C2X_CLANG_OPTNONE", pasta::OptimizeNoneAttrSpelling::kC2xClangOptnone)
+    .value("C23_CLANG_OPTNONE", pasta::OptimizeNoneAttrSpelling::kC23ClangOptnone)
     .value("SPELLING_NOT_CALCULATED", pasta::OptimizeNoneAttrSpelling::kSpellingNotCalculated);
 
   nb::enum_<pasta::OverloadableAttrSpelling>(m, "OverloadableAttrSpelling")
     .value("GNU_OVERLOADABLE", pasta::OverloadableAttrSpelling::kGNUOverloadable)
     .value("CXX11_CLANG_OVERLOADABLE", pasta::OverloadableAttrSpelling::kCXX11ClangOverloadable)
-    .value("C2X_CLANG_OVERLOADABLE", pasta::OverloadableAttrSpelling::kC2xClangOverloadable)
+    .value("C23_CLANG_OVERLOADABLE", pasta::OverloadableAttrSpelling::kC23ClangOverloadable)
     .value("SPELLING_NOT_CALCULATED", pasta::OverloadableAttrSpelling::kSpellingNotCalculated);
 
   nb::enum_<pasta::OwnershipAttrOwnershipKind>(m, "OwnershipAttrOwnershipKind")
@@ -1899,19 +2149,19 @@ void RegisterEnums(nb::module_ &m) {
   nb::enum_<pasta::OwnershipAttrSpelling>(m, "OwnershipAttrSpelling")
     .value("GNU_OWNERSHIP_HOLDS", pasta::OwnershipAttrSpelling::kGNUOwnershipHolds)
     .value("CXX11_CLANG_OWNERSHIP_HOLDS", pasta::OwnershipAttrSpelling::kCXX11ClangOwnershipHolds)
-    .value("C2X_CLANG_OWNERSHIP_HOLDS", pasta::OwnershipAttrSpelling::kC2xClangOwnershipHolds)
+    .value("C23_CLANG_OWNERSHIP_HOLDS", pasta::OwnershipAttrSpelling::kC23ClangOwnershipHolds)
     .value("GNU_OWNERSHIP_RETURNS", pasta::OwnershipAttrSpelling::kGNUOwnershipReturns)
     .value("CXX11_CLANG_OWNERSHIP_RETURNS", pasta::OwnershipAttrSpelling::kCXX11ClangOwnershipReturns)
-    .value("C2X_CLANG_OWNERSHIP_RETURNS", pasta::OwnershipAttrSpelling::kC2xClangOwnershipReturns)
+    .value("C23_CLANG_OWNERSHIP_RETURNS", pasta::OwnershipAttrSpelling::kC23ClangOwnershipReturns)
     .value("GNU_OWNERSHIP_TAKES", pasta::OwnershipAttrSpelling::kGNUOwnershipTakes)
     .value("CXX11_CLANG_OWNERSHIP_TAKES", pasta::OwnershipAttrSpelling::kCXX11ClangOwnershipTakes)
-    .value("C2X_CLANG_OWNERSHIP_TAKES", pasta::OwnershipAttrSpelling::kC2xClangOwnershipTakes)
+    .value("C23_CLANG_OWNERSHIP_TAKES", pasta::OwnershipAttrSpelling::kC23ClangOwnershipTakes)
     .value("SPELLING_NOT_CALCULATED", pasta::OwnershipAttrSpelling::kSpellingNotCalculated);
 
   nb::enum_<pasta::PackedAttrSpelling>(m, "PackedAttrSpelling")
     .value("GNU_PACKED", pasta::PackedAttrSpelling::kGNUPacked)
     .value("CXX11_GNU_PACKED", pasta::PackedAttrSpelling::kCXX11GnuPacked)
-    .value("C2X_GNU_PACKED", pasta::PackedAttrSpelling::kC2xGnuPacked)
+    .value("C23_GNU_PACKED", pasta::PackedAttrSpelling::kC23GnuPacked)
     .value("SPELLING_NOT_CALCULATED", pasta::PackedAttrSpelling::kSpellingNotCalculated);
 
   nb::enum_<pasta::ParamTypestateAttrConsumedState>(m, "ParamTypestateAttrConsumedState")
@@ -1927,23 +2177,23 @@ void RegisterEnums(nb::module_ &m) {
   nb::enum_<pasta::PascalAttrSpelling>(m, "PascalAttrSpelling")
     .value("GNU_PASCAL", pasta::PascalAttrSpelling::kGNUPascal)
     .value("CXX11_CLANG_PASCAL", pasta::PascalAttrSpelling::kCXX11ClangPascal)
-    .value("C2X_CLANG_PASCAL", pasta::PascalAttrSpelling::kC2xClangPascal)
+    .value("C23_CLANG_PASCAL", pasta::PascalAttrSpelling::kC23ClangPascal)
     .value("KEYWORD_PASCAL", pasta::PascalAttrSpelling::kKeywordPascal)
     .value("SPELLING_NOT_CALCULATED", pasta::PascalAttrSpelling::kSpellingNotCalculated);
 
   nb::enum_<pasta::PassObjectSizeAttrSpelling>(m, "PassObjectSizeAttrSpelling")
     .value("GNU_PASS_OBJECT_SIZE", pasta::PassObjectSizeAttrSpelling::kGNUPassObjectSize)
     .value("CXX11_CLANG_PASS_OBJECT_SIZE", pasta::PassObjectSizeAttrSpelling::kCXX11ClangPassObjectSize)
-    .value("C2X_CLANG_PASS_OBJECT_SIZE", pasta::PassObjectSizeAttrSpelling::kC2xClangPassObjectSize)
+    .value("C23_CLANG_PASS_OBJECT_SIZE", pasta::PassObjectSizeAttrSpelling::kC23ClangPassObjectSize)
     .value("GNU_PASS_DYNAMIC_OBJECT_SIZE", pasta::PassObjectSizeAttrSpelling::kGNUPassDynamicObjectSize)
     .value("CXX11_CLANG_PASS_DYNAMIC_OBJECT_SIZE", pasta::PassObjectSizeAttrSpelling::kCXX11ClangPassDynamicObjectSize)
-    .value("C2X_CLANG_PASS_DYNAMIC_OBJECT_SIZE", pasta::PassObjectSizeAttrSpelling::kC2xClangPassDynamicObjectSize)
+    .value("C23_CLANG_PASS_DYNAMIC_OBJECT_SIZE", pasta::PassObjectSizeAttrSpelling::kC23ClangPassDynamicObjectSize)
     .value("SPELLING_NOT_CALCULATED", pasta::PassObjectSizeAttrSpelling::kSpellingNotCalculated);
 
   nb::enum_<pasta::PatchableFunctionEntryAttrSpelling>(m, "PatchableFunctionEntryAttrSpelling")
     .value("GNU_PATCHABLE_FUNCTION_ENTRY", pasta::PatchableFunctionEntryAttrSpelling::kGNUPatchableFunctionEntry)
     .value("CXX11_GNU_PATCHABLE_FUNCTION_ENTRY", pasta::PatchableFunctionEntryAttrSpelling::kCXX11GnuPatchableFunctionEntry)
-    .value("C2X_GNU_PATCHABLE_FUNCTION_ENTRY", pasta::PatchableFunctionEntryAttrSpelling::kC2xGnuPatchableFunctionEntry)
+    .value("C23_GNU_PATCHABLE_FUNCTION_ENTRY", pasta::PatchableFunctionEntryAttrSpelling::kC23GnuPatchableFunctionEntry)
     .value("SPELLING_NOT_CALCULATED", pasta::PatchableFunctionEntryAttrSpelling::kSpellingNotCalculated);
 
   nb::enum_<pasta::PcsAttrPCSType>(m, "PcsAttrPCSType")
@@ -1953,7 +2203,7 @@ void RegisterEnums(nb::module_ &m) {
   nb::enum_<pasta::PcsAttrSpelling>(m, "PcsAttrSpelling")
     .value("GNU_PCS", pasta::PcsAttrSpelling::kGNUPcs)
     .value("CXX11_GNU_PCS", pasta::PcsAttrSpelling::kCXX11GnuPcs)
-    .value("C2X_GNU_PCS", pasta::PcsAttrSpelling::kC2xGnuPcs)
+    .value("C23_GNU_PCS", pasta::PcsAttrSpelling::kC23GnuPcs)
     .value("SPELLING_NOT_CALCULATED", pasta::PcsAttrSpelling::kSpellingNotCalculated);
 
   nb::enum_<pasta::PredefinedExprIdentKind>(m, "PredefinedExprIdentKind")
@@ -1974,13 +2224,13 @@ void RegisterEnums(nb::module_ &m) {
   nb::enum_<pasta::PreserveAllAttrSpelling>(m, "PreserveAllAttrSpelling")
     .value("GNU_PRESERVE_ALL", pasta::PreserveAllAttrSpelling::kGNUPreserveAll)
     .value("CXX11_CLANG_PRESERVE_ALL", pasta::PreserveAllAttrSpelling::kCXX11ClangPreserveAll)
-    .value("C2X_CLANG_PRESERVE_ALL", pasta::PreserveAllAttrSpelling::kC2xClangPreserveAll)
+    .value("C23_CLANG_PRESERVE_ALL", pasta::PreserveAllAttrSpelling::kC23ClangPreserveAll)
     .value("SPELLING_NOT_CALCULATED", pasta::PreserveAllAttrSpelling::kSpellingNotCalculated);
 
   nb::enum_<pasta::PreserveMostAttrSpelling>(m, "PreserveMostAttrSpelling")
     .value("GNU_PRESERVE_MOST", pasta::PreserveMostAttrSpelling::kGNUPreserveMost)
     .value("CXX11_CLANG_PRESERVE_MOST", pasta::PreserveMostAttrSpelling::kCXX11ClangPreserveMost)
-    .value("C2X_CLANG_PRESERVE_MOST", pasta::PreserveMostAttrSpelling::kC2xClangPreserveMost)
+    .value("C23_CLANG_PRESERVE_MOST", pasta::PreserveMostAttrSpelling::kC23ClangPreserveMost)
     .value("SPELLING_NOT_CALCULATED", pasta::PreserveMostAttrSpelling::kSpellingNotCalculated);
 
   nb::enum_<pasta::PtGuardedVarAttrSpelling>(m, "PtGuardedVarAttrSpelling")
@@ -1991,7 +2241,7 @@ void RegisterEnums(nb::module_ &m) {
   nb::enum_<pasta::PureAttrSpelling>(m, "PureAttrSpelling")
     .value("GNU_PURE", pasta::PureAttrSpelling::kGNUPure)
     .value("CXX11_GNU_PURE", pasta::PureAttrSpelling::kCXX11GnuPure)
-    .value("C2X_GNU_PURE", pasta::PureAttrSpelling::kC2xGnuPure)
+    .value("C23_GNU_PURE", pasta::PureAttrSpelling::kC23GnuPure)
     .value("SPELLING_NOT_CALCULATED", pasta::PureAttrSpelling::kSpellingNotCalculated);
 
   nb::enum_<pasta::QualifiedTypeDestructionKind>(m, "QualifiedTypeDestructionKind")
@@ -2000,6 +2250,12 @@ void RegisterEnums(nb::module_ &m) {
     .value("OBJC_STRONG_LIFETIME", pasta::QualifiedTypeDestructionKind::kObjcStrongLifetime)
     .value("OBJC_WEAK_LIFETIME", pasta::QualifiedTypeDestructionKind::kObjcWeakLifetime)
     .value("NONTRIVIAL_C_STRUCT", pasta::QualifiedTypeDestructionKind::kNontrivialCStruct);
+
+  nb::enum_<pasta::QualifiedTypeNonConstantStorageReason>(m, "QualifiedTypeNonConstantStorageReason")
+    .value("MUTABLE_FIELD", pasta::QualifiedTypeNonConstantStorageReason::kMutableField)
+    .value("NON_CONST_NON_REFERENCE_TYPE", pasta::QualifiedTypeNonConstantStorageReason::kNonConstNonReferenceType)
+    .value("NON_TRIVIAL_CONSTRUCTOR", pasta::QualifiedTypeNonConstantStorageReason::kNonTrivialConstructor)
+    .value("NON_TRIVIAL_DESTRUCTOR", pasta::QualifiedTypeNonConstantStorageReason::kNonTrivialDestructor);
 
   nb::enum_<pasta::QualifiedTypePrimitiveCopyKind>(m, "QualifiedTypePrimitiveCopyKind")
     .value("TRIVIAL", pasta::QualifiedTypePrimitiveCopyKind::kTrivial)
@@ -2015,26 +2271,25 @@ void RegisterEnums(nb::module_ &m) {
     .value("STRUCT", pasta::QualifiedTypePrimitiveDefaultInitializeKind::kStruct);
 
   nb::enum_<pasta::RISCVInterruptAttrInterruptType>(m, "RISCVInterruptAttrInterruptType")
-    .value("USER", pasta::RISCVInterruptAttrInterruptType::kUser)
     .value("SUPERVISOR", pasta::RISCVInterruptAttrInterruptType::kSupervisor)
     .value("MACHINE", pasta::RISCVInterruptAttrInterruptType::kMachine);
 
   nb::enum_<pasta::RISCVInterruptAttrSpelling>(m, "RISCVInterruptAttrSpelling")
     .value("GNU_INTERRUPT", pasta::RISCVInterruptAttrSpelling::kGNUInterrupt)
     .value("CXX11_GNU_INTERRUPT", pasta::RISCVInterruptAttrSpelling::kCXX11GnuInterrupt)
-    .value("C2X_GNU_INTERRUPT", pasta::RISCVInterruptAttrSpelling::kC2xGnuInterrupt)
+    .value("C23_GNU_INTERRUPT", pasta::RISCVInterruptAttrSpelling::kC23GnuInterrupt)
     .value("SPELLING_NOT_CALCULATED", pasta::RISCVInterruptAttrSpelling::kSpellingNotCalculated);
 
   nb::enum_<pasta::RandomizeLayoutAttrSpelling>(m, "RandomizeLayoutAttrSpelling")
     .value("GNU_RANDOMIZE_LAYOUT", pasta::RandomizeLayoutAttrSpelling::kGNURandomizeLayout)
     .value("CXX11_GNU_RANDOMIZE_LAYOUT", pasta::RandomizeLayoutAttrSpelling::kCXX11GnuRandomizeLayout)
-    .value("C2X_GNU_RANDOMIZE_LAYOUT", pasta::RandomizeLayoutAttrSpelling::kC2xGnuRandomizeLayout)
+    .value("C23_GNU_RANDOMIZE_LAYOUT", pasta::RandomizeLayoutAttrSpelling::kC23GnuRandomizeLayout)
     .value("SPELLING_NOT_CALCULATED", pasta::RandomizeLayoutAttrSpelling::kSpellingNotCalculated);
 
   nb::enum_<pasta::ReadOnlyPlacementAttrSpelling>(m, "ReadOnlyPlacementAttrSpelling")
     .value("GNU_ENFORCE_READ_ONLY_PLACEMENT", pasta::ReadOnlyPlacementAttrSpelling::kGNUEnforceReadOnlyPlacement)
     .value("CXX11_CLANG_ENFORCE_READ_ONLY_PLACEMENT", pasta::ReadOnlyPlacementAttrSpelling::kCXX11ClangEnforceReadOnlyPlacement)
-    .value("C2X_CLANG_ENFORCE_READ_ONLY_PLACEMENT", pasta::ReadOnlyPlacementAttrSpelling::kC2xClangEnforceReadOnlyPlacement)
+    .value("C23_CLANG_ENFORCE_READ_ONLY_PLACEMENT", pasta::ReadOnlyPlacementAttrSpelling::kC23ClangEnforceReadOnlyPlacement)
     .value("SPELLING_NOT_CALCULATED", pasta::ReadOnlyPlacementAttrSpelling::kSpellingNotCalculated);
 
   nb::enum_<pasta::RecordDeclArgPassingKind>(m, "RecordDeclArgPassingKind")
@@ -2045,7 +2300,7 @@ void RegisterEnums(nb::module_ &m) {
   nb::enum_<pasta::RegCallAttrSpelling>(m, "RegCallAttrSpelling")
     .value("GNU_REGCALL", pasta::RegCallAttrSpelling::kGNURegcall)
     .value("CXX11_GNU_REGCALL", pasta::RegCallAttrSpelling::kCXX11GnuRegcall)
-    .value("C2X_GNU_REGCALL", pasta::RegCallAttrSpelling::kC2xGnuRegcall)
+    .value("C23_GNU_REGCALL", pasta::RegCallAttrSpelling::kC23GnuRegcall)
     .value("KEYWORD_REGCALL", pasta::RegCallAttrSpelling::kKeywordRegcall)
     .value("SPELLING_NOT_CALCULATED", pasta::RegCallAttrSpelling::kSpellingNotCalculated);
 
@@ -2068,7 +2323,7 @@ void RegisterEnums(nb::module_ &m) {
   nb::enum_<pasta::ReleaseHandleAttrSpelling>(m, "ReleaseHandleAttrSpelling")
     .value("GNU_RELEASE_HANDLE", pasta::ReleaseHandleAttrSpelling::kGNUReleaseHandle)
     .value("CXX11_CLANG_RELEASE_HANDLE", pasta::ReleaseHandleAttrSpelling::kCXX11ClangReleaseHandle)
-    .value("C2X_CLANG_RELEASE_HANDLE", pasta::ReleaseHandleAttrSpelling::kC2xClangReleaseHandle)
+    .value("C23_CLANG_RELEASE_HANDLE", pasta::ReleaseHandleAttrSpelling::kC23ClangReleaseHandle)
     .value("SPELLING_NOT_CALCULATED", pasta::ReleaseHandleAttrSpelling::kSpellingNotCalculated);
 
   nb::enum_<pasta::RequiresCapabilityAttrSpelling>(m, "RequiresCapabilityAttrSpelling")
@@ -2086,13 +2341,13 @@ void RegisterEnums(nb::module_ &m) {
     .value("DECLSPEC_RESTRICT", pasta::RestrictAttrSpelling::kDeclspecRestrict)
     .value("GNU_MALLOC", pasta::RestrictAttrSpelling::kGNUMalloc)
     .value("CXX11_GNU_MALLOC", pasta::RestrictAttrSpelling::kCXX11GnuMalloc)
-    .value("C2X_GNU_MALLOC", pasta::RestrictAttrSpelling::kC2xGnuMalloc)
+    .value("C23_GNU_MALLOC", pasta::RestrictAttrSpelling::kC23GnuMalloc)
     .value("SPELLING_NOT_CALCULATED", pasta::RestrictAttrSpelling::kSpellingNotCalculated);
 
   nb::enum_<pasta::RetainAttrSpelling>(m, "RetainAttrSpelling")
     .value("GNU_RETAIN", pasta::RetainAttrSpelling::kGNURetain)
     .value("CXX11_GNU_RETAIN", pasta::RetainAttrSpelling::kCXX11GnuRetain)
-    .value("C2X_GNU_RETAIN", pasta::RetainAttrSpelling::kC2xGnuRetain)
+    .value("C23_GNU_RETAIN", pasta::RetainAttrSpelling::kC23GnuRetain)
     .value("SPELLING_NOT_CALCULATED", pasta::RetainAttrSpelling::kSpellingNotCalculated);
 
   nb::enum_<pasta::ReturnTypestateAttrConsumedState>(m, "ReturnTypestateAttrConsumedState")
@@ -2108,25 +2363,25 @@ void RegisterEnums(nb::module_ &m) {
   nb::enum_<pasta::ReturnsNonNullAttrSpelling>(m, "ReturnsNonNullAttrSpelling")
     .value("GNU_RETURNS_NONNULL", pasta::ReturnsNonNullAttrSpelling::kGNUReturnsNonnull)
     .value("CXX11_GNU_RETURNS_NONNULL", pasta::ReturnsNonNullAttrSpelling::kCXX11GnuReturnsNonnull)
-    .value("C2X_GNU_RETURNS_NONNULL", pasta::ReturnsNonNullAttrSpelling::kC2xGnuReturnsNonnull)
+    .value("C23_GNU_RETURNS_NONNULL", pasta::ReturnsNonNullAttrSpelling::kC23GnuReturnsNonnull)
     .value("SPELLING_NOT_CALCULATED", pasta::ReturnsNonNullAttrSpelling::kSpellingNotCalculated);
 
   nb::enum_<pasta::ReturnsTwiceAttrSpelling>(m, "ReturnsTwiceAttrSpelling")
     .value("GNU_RETURNS_TWICE", pasta::ReturnsTwiceAttrSpelling::kGNUReturnsTwice)
     .value("CXX11_GNU_RETURNS_TWICE", pasta::ReturnsTwiceAttrSpelling::kCXX11GnuReturnsTwice)
-    .value("C2X_GNU_RETURNS_TWICE", pasta::ReturnsTwiceAttrSpelling::kC2xGnuReturnsTwice)
+    .value("C23_GNU_RETURNS_TWICE", pasta::ReturnsTwiceAttrSpelling::kC23GnuReturnsTwice)
     .value("SPELLING_NOT_CALCULATED", pasta::ReturnsTwiceAttrSpelling::kSpellingNotCalculated);
 
   nb::enum_<pasta::SYCLKernelAttrSpelling>(m, "SYCLKernelAttrSpelling")
     .value("GNU_SYCL_KERNEL", pasta::SYCLKernelAttrSpelling::kGNUSyclKernel)
     .value("CXX11_CLANG_SYCL_KERNEL", pasta::SYCLKernelAttrSpelling::kCXX11ClangSyclKernel)
-    .value("C2X_CLANG_SYCL_KERNEL", pasta::SYCLKernelAttrSpelling::kC2xClangSyclKernel)
+    .value("C23_CLANG_SYCL_KERNEL", pasta::SYCLKernelAttrSpelling::kC23ClangSyclKernel)
     .value("SPELLING_NOT_CALCULATED", pasta::SYCLKernelAttrSpelling::kSpellingNotCalculated);
 
   nb::enum_<pasta::SYCLSpecialClassAttrSpelling>(m, "SYCLSpecialClassAttrSpelling")
     .value("GNU_SYCL_SPECIAL_CLASS", pasta::SYCLSpecialClassAttrSpelling::kGNUSyclSpecialClass)
     .value("CXX11_CLANG_SYCL_SPECIAL_CLASS", pasta::SYCLSpecialClassAttrSpelling::kCXX11ClangSyclSpecialClass)
-    .value("C2X_CLANG_SYCL_SPECIAL_CLASS", pasta::SYCLSpecialClassAttrSpelling::kC2xClangSyclSpecialClass)
+    .value("C23_CLANG_SYCL_SPECIAL_CLASS", pasta::SYCLSpecialClassAttrSpelling::kC23ClangSyclSpecialClass)
     .value("SPELLING_NOT_CALCULATED", pasta::SYCLSpecialClassAttrSpelling::kSpellingNotCalculated);
 
   nb::enum_<pasta::ScopedLockableAttrSpelling>(m, "ScopedLockableAttrSpelling")
@@ -2137,7 +2392,7 @@ void RegisterEnums(nb::module_ &m) {
   nb::enum_<pasta::SectionAttrSpelling>(m, "SectionAttrSpelling")
     .value("GNU_SECTION", pasta::SectionAttrSpelling::kGNUSection)
     .value("CXX11_GNU_SECTION", pasta::SectionAttrSpelling::kCXX11GnuSection)
-    .value("C2X_GNU_SECTION", pasta::SectionAttrSpelling::kC2xGnuSection)
+    .value("C23_GNU_SECTION", pasta::SectionAttrSpelling::kC23GnuSection)
     .value("DECLSPEC_ALLOCATE", pasta::SectionAttrSpelling::kDeclspecAllocate)
     .value("SPELLING_NOT_CALCULATED", pasta::SectionAttrSpelling::kSpellingNotCalculated);
 
@@ -2145,13 +2400,13 @@ void RegisterEnums(nb::module_ &m) {
     .value("DECLSPEC_SELECTANY", pasta::SelectAnyAttrSpelling::kDeclspecSelectany)
     .value("GNU_SELECTANY", pasta::SelectAnyAttrSpelling::kGNUSelectany)
     .value("CXX11_GNU_SELECTANY", pasta::SelectAnyAttrSpelling::kCXX11GnuSelectany)
-    .value("C2X_GNU_SELECTANY", pasta::SelectAnyAttrSpelling::kC2xGnuSelectany)
+    .value("C23_GNU_SELECTANY", pasta::SelectAnyAttrSpelling::kC23GnuSelectany)
     .value("SPELLING_NOT_CALCULATED", pasta::SelectAnyAttrSpelling::kSpellingNotCalculated);
 
   nb::enum_<pasta::SentinelAttrSpelling>(m, "SentinelAttrSpelling")
     .value("GNU_SENTINEL", pasta::SentinelAttrSpelling::kGNUSentinel)
     .value("CXX11_GNU_SENTINEL", pasta::SentinelAttrSpelling::kCXX11GnuSentinel)
-    .value("C2X_GNU_SENTINEL", pasta::SentinelAttrSpelling::kC2xGnuSentinel)
+    .value("C23_GNU_SENTINEL", pasta::SentinelAttrSpelling::kC23GnuSentinel)
     .value("SPELLING_NOT_CALCULATED", pasta::SentinelAttrSpelling::kSpellingNotCalculated);
 
   nb::enum_<pasta::SetTypestateAttrConsumedState>(m, "SetTypestateAttrConsumedState")
@@ -2166,7 +2421,9 @@ void RegisterEnums(nb::module_ &m) {
 
   nb::enum_<pasta::SourceLocExprIdentKind>(m, "SourceLocExprIdentKind")
     .value("FUNCTION", pasta::SourceLocExprIdentKind::kFunction)
+    .value("FUNC_SIG", pasta::SourceLocExprIdentKind::kFuncSig)
     .value("FILE", pasta::SourceLocExprIdentKind::kFile)
+    .value("FILE_NAME", pasta::SourceLocExprIdentKind::kFileName)
     .value("LINE", pasta::SourceLocExprIdentKind::kLine)
     .value("COLUMN", pasta::SourceLocExprIdentKind::kColumn)
     .value("SOURCE_TOKEN_STRUCT", pasta::SourceLocExprIdentKind::kSourceTokenStruct);
@@ -2174,7 +2431,7 @@ void RegisterEnums(nb::module_ &m) {
   nb::enum_<pasta::SpeculativeLoadHardeningAttrSpelling>(m, "SpeculativeLoadHardeningAttrSpelling")
     .value("GNU_SPECULATIVE_LOAD_HARDENING", pasta::SpeculativeLoadHardeningAttrSpelling::kGNUSpeculativeLoadHardening)
     .value("CXX11_CLANG_SPECULATIVE_LOAD_HARDENING", pasta::SpeculativeLoadHardeningAttrSpelling::kCXX11ClangSpeculativeLoadHardening)
-    .value("C2X_CLANG_SPECULATIVE_LOAD_HARDENING", pasta::SpeculativeLoadHardeningAttrSpelling::kC2xClangSpeculativeLoadHardening)
+    .value("C23_CLANG_SPECULATIVE_LOAD_HARDENING", pasta::SpeculativeLoadHardeningAttrSpelling::kC23ClangSpeculativeLoadHardening)
     .value("SPELLING_NOT_CALCULATED", pasta::SpeculativeLoadHardeningAttrSpelling::kSpellingNotCalculated);
 
   nb::enum_<pasta::StandaloneDebugAttrSpelling>(m, "StandaloneDebugAttrSpelling")
@@ -2185,7 +2442,7 @@ void RegisterEnums(nb::module_ &m) {
   nb::enum_<pasta::StdCallAttrSpelling>(m, "StdCallAttrSpelling")
     .value("GNU_STDCALL", pasta::StdCallAttrSpelling::kGNUStdcall)
     .value("CXX11_GNU_STDCALL", pasta::StdCallAttrSpelling::kCXX11GnuStdcall)
-    .value("C2X_GNU_STDCALL", pasta::StdCallAttrSpelling::kC2xGnuStdcall)
+    .value("C23_GNU_STDCALL", pasta::StdCallAttrSpelling::kC23GnuStdcall)
     .value("KEYWORD_STDCALL", pasta::StdCallAttrSpelling::kKeywordStdcall)
     .value("SPELLING_NOT_CALCULATED", pasta::StdCallAttrSpelling::kSpellingNotCalculated);
 
@@ -2270,6 +2527,7 @@ void RegisterEnums(nb::module_ &m) {
     .value("OMP_PARALLEL_MASTER_DIRECTIVE", pasta::StmtKind::kOMPParallelMasterDirective)
     .value("OMP_PARALLEL_SECTIONS_DIRECTIVE", pasta::StmtKind::kOMPParallelSectionsDirective)
     .value("OMP_SCAN_DIRECTIVE", pasta::StmtKind::kOMPScanDirective)
+    .value("OMP_SCOPE_DIRECTIVE", pasta::StmtKind::kOMPScopeDirective)
     .value("OMP_SECTION_DIRECTIVE", pasta::StmtKind::kOMPSectionDirective)
     .value("OMP_SECTIONS_DIRECTIVE", pasta::StmtKind::kOMPSectionsDirective)
     .value("OMP_SINGLE_DIRECTIVE", pasta::StmtKind::kOMPSingleDirective)
@@ -2434,7 +2692,8 @@ void RegisterEnums(nb::module_ &m) {
     .value("WIDE", pasta::StringLiteralStringKind::kWide)
     .value("UTF8", pasta::StringLiteralStringKind::kUTF8)
     .value("UTF16", pasta::StringLiteralStringKind::kUTF16)
-    .value("UTF32", pasta::StringLiteralStringKind::kUTF32);
+    .value("UTF32", pasta::StringLiteralStringKind::kUTF32)
+    .value("UNEVALUATED", pasta::StringLiteralStringKind::kUnevaluated);
 
   nb::enum_<pasta::SwiftAsyncAttrKind>(m, "SwiftAsyncAttrKind")
     .value("NONE", pasta::SwiftAsyncAttrKind::kNone)
@@ -2444,19 +2703,19 @@ void RegisterEnums(nb::module_ &m) {
   nb::enum_<pasta::SwiftAsyncAttrSpelling>(m, "SwiftAsyncAttrSpelling")
     .value("GNU_SWIFT_ASYNC", pasta::SwiftAsyncAttrSpelling::kGNUSwiftAsync)
     .value("CXX11_CLANG_SWIFT_ASYNC", pasta::SwiftAsyncAttrSpelling::kCXX11ClangSwiftAsync)
-    .value("C2X_CLANG_SWIFT_ASYNC", pasta::SwiftAsyncAttrSpelling::kC2xClangSwiftAsync)
+    .value("C23_CLANG_SWIFT_ASYNC", pasta::SwiftAsyncAttrSpelling::kC23ClangSwiftAsync)
     .value("SPELLING_NOT_CALCULATED", pasta::SwiftAsyncAttrSpelling::kSpellingNotCalculated);
 
   nb::enum_<pasta::SwiftAsyncCallAttrSpelling>(m, "SwiftAsyncCallAttrSpelling")
     .value("GNU_SWIFTASYNCCALL", pasta::SwiftAsyncCallAttrSpelling::kGNUSwiftasynccall)
     .value("CXX11_CLANG_SWIFTASYNCCALL", pasta::SwiftAsyncCallAttrSpelling::kCXX11ClangSwiftasynccall)
-    .value("C2X_CLANG_SWIFTASYNCCALL", pasta::SwiftAsyncCallAttrSpelling::kC2xClangSwiftasynccall)
+    .value("C23_CLANG_SWIFTASYNCCALL", pasta::SwiftAsyncCallAttrSpelling::kC23ClangSwiftasynccall)
     .value("SPELLING_NOT_CALCULATED", pasta::SwiftAsyncCallAttrSpelling::kSpellingNotCalculated);
 
   nb::enum_<pasta::SwiftAsyncContextAttrSpelling>(m, "SwiftAsyncContextAttrSpelling")
     .value("GNU_SWIFT_ASYNC_CONTEXT", pasta::SwiftAsyncContextAttrSpelling::kGNUSwiftAsyncContext)
     .value("CXX11_CLANG_SWIFT_ASYNC_CONTEXT", pasta::SwiftAsyncContextAttrSpelling::kCXX11ClangSwiftAsyncContext)
-    .value("C2X_CLANG_SWIFT_ASYNC_CONTEXT", pasta::SwiftAsyncContextAttrSpelling::kC2xClangSwiftAsyncContext)
+    .value("C23_CLANG_SWIFT_ASYNC_CONTEXT", pasta::SwiftAsyncContextAttrSpelling::kC23ClangSwiftAsyncContext)
     .value("SPELLING_NOT_CALCULATED", pasta::SwiftAsyncContextAttrSpelling::kSpellingNotCalculated);
 
   nb::enum_<pasta::SwiftAsyncErrorAttrConventionKind>(m, "SwiftAsyncErrorAttrConventionKind")
@@ -2468,19 +2727,19 @@ void RegisterEnums(nb::module_ &m) {
   nb::enum_<pasta::SwiftAsyncErrorAttrSpelling>(m, "SwiftAsyncErrorAttrSpelling")
     .value("GNU_SWIFT_ASYNC_ERROR", pasta::SwiftAsyncErrorAttrSpelling::kGNUSwiftAsyncError)
     .value("CXX11_CLANG_SWIFT_ASYNC_ERROR", pasta::SwiftAsyncErrorAttrSpelling::kCXX11ClangSwiftAsyncError)
-    .value("C2X_CLANG_SWIFT_ASYNC_ERROR", pasta::SwiftAsyncErrorAttrSpelling::kC2xClangSwiftAsyncError)
+    .value("C23_CLANG_SWIFT_ASYNC_ERROR", pasta::SwiftAsyncErrorAttrSpelling::kC23ClangSwiftAsyncError)
     .value("SPELLING_NOT_CALCULATED", pasta::SwiftAsyncErrorAttrSpelling::kSpellingNotCalculated);
 
   nb::enum_<pasta::SwiftCallAttrSpelling>(m, "SwiftCallAttrSpelling")
     .value("GNU_SWIFTCALL", pasta::SwiftCallAttrSpelling::kGNUSwiftcall)
     .value("CXX11_CLANG_SWIFTCALL", pasta::SwiftCallAttrSpelling::kCXX11ClangSwiftcall)
-    .value("C2X_CLANG_SWIFTCALL", pasta::SwiftCallAttrSpelling::kC2xClangSwiftcall)
+    .value("C23_CLANG_SWIFTCALL", pasta::SwiftCallAttrSpelling::kC23ClangSwiftcall)
     .value("SPELLING_NOT_CALCULATED", pasta::SwiftCallAttrSpelling::kSpellingNotCalculated);
 
   nb::enum_<pasta::SwiftContextAttrSpelling>(m, "SwiftContextAttrSpelling")
     .value("GNU_SWIFT_CONTEXT", pasta::SwiftContextAttrSpelling::kGNUSwiftContext)
     .value("CXX11_CLANG_SWIFT_CONTEXT", pasta::SwiftContextAttrSpelling::kCXX11ClangSwiftContext)
-    .value("C2X_CLANG_SWIFT_CONTEXT", pasta::SwiftContextAttrSpelling::kC2xClangSwiftContext)
+    .value("C23_CLANG_SWIFT_CONTEXT", pasta::SwiftContextAttrSpelling::kC23ClangSwiftContext)
     .value("SPELLING_NOT_CALCULATED", pasta::SwiftContextAttrSpelling::kSpellingNotCalculated);
 
   nb::enum_<pasta::SwiftErrorAttrConventionKind>(m, "SwiftErrorAttrConventionKind")
@@ -2493,13 +2752,13 @@ void RegisterEnums(nb::module_ &m) {
   nb::enum_<pasta::SwiftErrorResultAttrSpelling>(m, "SwiftErrorResultAttrSpelling")
     .value("GNU_SWIFT_ERROR_RESULT", pasta::SwiftErrorResultAttrSpelling::kGNUSwiftErrorResult)
     .value("CXX11_CLANG_SWIFT_ERROR_RESULT", pasta::SwiftErrorResultAttrSpelling::kCXX11ClangSwiftErrorResult)
-    .value("C2X_CLANG_SWIFT_ERROR_RESULT", pasta::SwiftErrorResultAttrSpelling::kC2xClangSwiftErrorResult)
+    .value("C23_CLANG_SWIFT_ERROR_RESULT", pasta::SwiftErrorResultAttrSpelling::kC23ClangSwiftErrorResult)
     .value("SPELLING_NOT_CALCULATED", pasta::SwiftErrorResultAttrSpelling::kSpellingNotCalculated);
 
   nb::enum_<pasta::SwiftIndirectResultAttrSpelling>(m, "SwiftIndirectResultAttrSpelling")
     .value("GNU_SWIFT_INDIRECT_RESULT", pasta::SwiftIndirectResultAttrSpelling::kGNUSwiftIndirectResult)
     .value("CXX11_CLANG_SWIFT_INDIRECT_RESULT", pasta::SwiftIndirectResultAttrSpelling::kCXX11ClangSwiftIndirectResult)
-    .value("C2X_CLANG_SWIFT_INDIRECT_RESULT", pasta::SwiftIndirectResultAttrSpelling::kC2xClangSwiftIndirectResult)
+    .value("C23_CLANG_SWIFT_INDIRECT_RESULT", pasta::SwiftIndirectResultAttrSpelling::kC23ClangSwiftIndirectResult)
     .value("SPELLING_NOT_CALCULATED", pasta::SwiftIndirectResultAttrSpelling::kSpellingNotCalculated);
 
   nb::enum_<pasta::SwiftNewTypeAttrNewtypeKind>(m, "SwiftNewTypeAttrNewtypeKind")
@@ -2514,31 +2773,31 @@ void RegisterEnums(nb::module_ &m) {
   nb::enum_<pasta::SysVABIAttrSpelling>(m, "SysVABIAttrSpelling")
     .value("GNU_SYSV_ABI", pasta::SysVABIAttrSpelling::kGNUSysvAbi)
     .value("CXX11_GNU_SYSV_ABI", pasta::SysVABIAttrSpelling::kCXX11GnuSysvAbi)
-    .value("C2X_GNU_SYSV_ABI", pasta::SysVABIAttrSpelling::kC2xGnuSysvAbi)
+    .value("C23_GNU_SYSV_ABI", pasta::SysVABIAttrSpelling::kC23GnuSysvAbi)
     .value("SPELLING_NOT_CALCULATED", pasta::SysVABIAttrSpelling::kSpellingNotCalculated);
 
   nb::enum_<pasta::TLSModelAttrSpelling>(m, "TLSModelAttrSpelling")
     .value("GNU_TLS_MODEL", pasta::TLSModelAttrSpelling::kGNUTlsModel)
     .value("CXX11_GNU_TLS_MODEL", pasta::TLSModelAttrSpelling::kCXX11GnuTlsModel)
-    .value("C2X_GNU_TLS_MODEL", pasta::TLSModelAttrSpelling::kC2xGnuTlsModel)
+    .value("C23_GNU_TLS_MODEL", pasta::TLSModelAttrSpelling::kC23GnuTlsModel)
     .value("SPELLING_NOT_CALCULATED", pasta::TLSModelAttrSpelling::kSpellingNotCalculated);
 
   nb::enum_<pasta::TargetAttrSpelling>(m, "TargetAttrSpelling")
     .value("GNU_TARGET", pasta::TargetAttrSpelling::kGNUTarget)
     .value("CXX11_GNU_TARGET", pasta::TargetAttrSpelling::kCXX11GnuTarget)
-    .value("C2X_GNU_TARGET", pasta::TargetAttrSpelling::kC2xGnuTarget)
+    .value("C23_GNU_TARGET", pasta::TargetAttrSpelling::kC23GnuTarget)
     .value("SPELLING_NOT_CALCULATED", pasta::TargetAttrSpelling::kSpellingNotCalculated);
 
   nb::enum_<pasta::TargetClonesAttrSpelling>(m, "TargetClonesAttrSpelling")
     .value("GNU_TARGET_CLONES", pasta::TargetClonesAttrSpelling::kGNUTargetClones)
     .value("CXX11_GNU_TARGET_CLONES", pasta::TargetClonesAttrSpelling::kCXX11GnuTargetClones)
-    .value("C2X_GNU_TARGET_CLONES", pasta::TargetClonesAttrSpelling::kC2xGnuTargetClones)
+    .value("C23_GNU_TARGET_CLONES", pasta::TargetClonesAttrSpelling::kC23GnuTargetClones)
     .value("SPELLING_NOT_CALCULATED", pasta::TargetClonesAttrSpelling::kSpellingNotCalculated);
 
   nb::enum_<pasta::TargetVersionAttrSpelling>(m, "TargetVersionAttrSpelling")
     .value("GNU_TARGET_VERSION", pasta::TargetVersionAttrSpelling::kGNUTargetVersion)
     .value("CXX11_GNU_TARGET_VERSION", pasta::TargetVersionAttrSpelling::kCXX11GnuTargetVersion)
-    .value("C2X_GNU_TARGET_VERSION", pasta::TargetVersionAttrSpelling::kC2xGnuTargetVersion)
+    .value("C23_GNU_TARGET_VERSION", pasta::TargetVersionAttrSpelling::kC23GnuTargetVersion)
     .value("SPELLING_NOT_CALCULATED", pasta::TargetVersionAttrSpelling::kSpellingNotCalculated);
 
   nb::enum_<pasta::TemplateArgumentKind>(m, "TemplateArgumentKind")
@@ -2564,14 +2823,14 @@ void RegisterEnums(nb::module_ &m) {
   nb::enum_<pasta::ThisCallAttrSpelling>(m, "ThisCallAttrSpelling")
     .value("GNU_THISCALL", pasta::ThisCallAttrSpelling::kGNUThiscall)
     .value("CXX11_GNU_THISCALL", pasta::ThisCallAttrSpelling::kCXX11GnuThiscall)
-    .value("C2X_GNU_THISCALL", pasta::ThisCallAttrSpelling::kC2xGnuThiscall)
+    .value("C23_GNU_THISCALL", pasta::ThisCallAttrSpelling::kC23GnuThiscall)
     .value("KEYWORD_THISCALL", pasta::ThisCallAttrSpelling::kKeywordThiscall)
     .value("SPELLING_NOT_CALCULATED", pasta::ThisCallAttrSpelling::kSpellingNotCalculated);
 
   nb::enum_<pasta::TransparentUnionAttrSpelling>(m, "TransparentUnionAttrSpelling")
     .value("GNU_TRANSPARENT_UNION", pasta::TransparentUnionAttrSpelling::kGNUTransparentUnion)
     .value("CXX11_GNU_TRANSPARENT_UNION", pasta::TransparentUnionAttrSpelling::kCXX11GnuTransparentUnion)
-    .value("C2X_GNU_TRANSPARENT_UNION", pasta::TransparentUnionAttrSpelling::kC2xGnuTransparentUnion)
+    .value("C23_GNU_TRANSPARENT_UNION", pasta::TransparentUnionAttrSpelling::kC23GnuTransparentUnion)
     .value("SPELLING_NOT_CALCULATED", pasta::TransparentUnionAttrSpelling::kSpellingNotCalculated);
 
   nb::enum_<pasta::TrivialABIAttrSpelling>(m, "TrivialABIAttrSpelling")
@@ -2658,13 +2917,13 @@ void RegisterEnums(nb::module_ &m) {
   nb::enum_<pasta::TypeTagForDatatypeAttrSpelling>(m, "TypeTagForDatatypeAttrSpelling")
     .value("GNU_TYPE_TAG_FOR_DATATYPE", pasta::TypeTagForDatatypeAttrSpelling::kGNUTypeTagForDatatype)
     .value("CXX11_CLANG_TYPE_TAG_FOR_DATATYPE", pasta::TypeTagForDatatypeAttrSpelling::kCXX11ClangTypeTagForDatatype)
-    .value("C2X_CLANG_TYPE_TAG_FOR_DATATYPE", pasta::TypeTagForDatatypeAttrSpelling::kC2xClangTypeTagForDatatype)
+    .value("C23_CLANG_TYPE_TAG_FOR_DATATYPE", pasta::TypeTagForDatatypeAttrSpelling::kC23ClangTypeTagForDatatype)
     .value("SPELLING_NOT_CALCULATED", pasta::TypeTagForDatatypeAttrSpelling::kSpellingNotCalculated);
 
   nb::enum_<pasta::TypeVisibilityAttrSpelling>(m, "TypeVisibilityAttrSpelling")
     .value("GNU_TYPE_VISIBILITY", pasta::TypeVisibilityAttrSpelling::kGNUTypeVisibility)
     .value("CXX11_CLANG_TYPE_VISIBILITY", pasta::TypeVisibilityAttrSpelling::kCXX11ClangTypeVisibility)
-    .value("C2X_CLANG_TYPE_VISIBILITY", pasta::TypeVisibilityAttrSpelling::kC2xClangTypeVisibility)
+    .value("C23_CLANG_TYPE_VISIBILITY", pasta::TypeVisibilityAttrSpelling::kC23ClangTypeVisibility)
     .value("SPELLING_NOT_CALCULATED", pasta::TypeVisibilityAttrSpelling::kSpellingNotCalculated);
 
   nb::enum_<pasta::TypeVisibilityAttrVisibilityType>(m, "TypeVisibilityAttrVisibilityType")
@@ -2701,7 +2960,7 @@ void RegisterEnums(nb::module_ &m) {
   nb::enum_<pasta::UnavailableAttrSpelling>(m, "UnavailableAttrSpelling")
     .value("GNU_UNAVAILABLE", pasta::UnavailableAttrSpelling::kGNUUnavailable)
     .value("CXX11_CLANG_UNAVAILABLE", pasta::UnavailableAttrSpelling::kCXX11ClangUnavailable)
-    .value("C2X_CLANG_UNAVAILABLE", pasta::UnavailableAttrSpelling::kC2xClangUnavailable)
+    .value("C23_CLANG_UNAVAILABLE", pasta::UnavailableAttrSpelling::kC23ClangUnavailable)
     .value("SPELLING_NOT_CALCULATED", pasta::UnavailableAttrSpelling::kSpellingNotCalculated);
 
   nb::enum_<pasta::UninitializedAttrSpelling>(m, "UninitializedAttrSpelling")
@@ -2711,27 +2970,33 @@ void RegisterEnums(nb::module_ &m) {
 
   nb::enum_<pasta::UnlikelyAttrSpelling>(m, "UnlikelyAttrSpelling")
     .value("CXX11_UNLIKELY", pasta::UnlikelyAttrSpelling::kCXX11Unlikely)
-    .value("C2X_CLANG_UNLIKELY", pasta::UnlikelyAttrSpelling::kC2xClangUnlikely)
+    .value("C23_CLANG_UNLIKELY", pasta::UnlikelyAttrSpelling::kC23ClangUnlikely)
     .value("SPELLING_NOT_CALCULATED", pasta::UnlikelyAttrSpelling::kSpellingNotCalculated);
+
+  nb::enum_<pasta::UnsafeBufferUsageAttrSpelling>(m, "UnsafeBufferUsageAttrSpelling")
+    .value("GNU_UNSAFE_BUFFER_USAGE", pasta::UnsafeBufferUsageAttrSpelling::kGNUUnsafeBufferUsage)
+    .value("CXX11_CLANG_UNSAFE_BUFFER_USAGE", pasta::UnsafeBufferUsageAttrSpelling::kCXX11ClangUnsafeBufferUsage)
+    .value("C23_CLANG_UNSAFE_BUFFER_USAGE", pasta::UnsafeBufferUsageAttrSpelling::kC23ClangUnsafeBufferUsage)
+    .value("SPELLING_NOT_CALCULATED", pasta::UnsafeBufferUsageAttrSpelling::kSpellingNotCalculated);
 
   nb::enum_<pasta::UnusedAttrSpelling>(m, "UnusedAttrSpelling")
     .value("CXX11_MAYBE_UNUSED", pasta::UnusedAttrSpelling::kCXX11MaybeUnused)
     .value("GNU_UNUSED", pasta::UnusedAttrSpelling::kGNUUnused)
     .value("CXX11_GNU_UNUSED", pasta::UnusedAttrSpelling::kCXX11GnuUnused)
-    .value("C2X_GNU_UNUSED", pasta::UnusedAttrSpelling::kC2xGnuUnused)
-    .value("C2X_MAYBE_UNUSED", pasta::UnusedAttrSpelling::kC2xMaybeUnused)
+    .value("C23_GNU_UNUSED", pasta::UnusedAttrSpelling::kC23GnuUnused)
+    .value("C23_MAYBE_UNUSED", pasta::UnusedAttrSpelling::kC23MaybeUnused)
     .value("SPELLING_NOT_CALCULATED", pasta::UnusedAttrSpelling::kSpellingNotCalculated);
 
   nb::enum_<pasta::UseHandleAttrSpelling>(m, "UseHandleAttrSpelling")
     .value("GNU_USE_HANDLE", pasta::UseHandleAttrSpelling::kGNUUseHandle)
     .value("CXX11_CLANG_USE_HANDLE", pasta::UseHandleAttrSpelling::kCXX11ClangUseHandle)
-    .value("C2X_CLANG_USE_HANDLE", pasta::UseHandleAttrSpelling::kC2xClangUseHandle)
+    .value("C23_CLANG_USE_HANDLE", pasta::UseHandleAttrSpelling::kC23ClangUseHandle)
     .value("SPELLING_NOT_CALCULATED", pasta::UseHandleAttrSpelling::kSpellingNotCalculated);
 
   nb::enum_<pasta::UsedAttrSpelling>(m, "UsedAttrSpelling")
     .value("GNU_USED", pasta::UsedAttrSpelling::kGNUUsed)
     .value("CXX11_GNU_USED", pasta::UsedAttrSpelling::kCXX11GnuUsed)
-    .value("C2X_GNU_USED", pasta::UsedAttrSpelling::kC2xGnuUsed)
+    .value("C23_GNU_USED", pasta::UsedAttrSpelling::kC23GnuUsed)
     .value("SPELLING_NOT_CALCULATED", pasta::UsedAttrSpelling::kSpellingNotCalculated);
 
   nb::enum_<pasta::UserDefinedLiteralLiteralOperatorKind>(m, "UserDefinedLiteralLiteralOperatorKind")
@@ -2776,7 +3041,7 @@ void RegisterEnums(nb::module_ &m) {
   nb::enum_<pasta::VectorCallAttrSpelling>(m, "VectorCallAttrSpelling")
     .value("GNU_VECTORCALL", pasta::VectorCallAttrSpelling::kGNUVectorcall)
     .value("CXX11_CLANG_VECTORCALL", pasta::VectorCallAttrSpelling::kCXX11ClangVectorcall)
-    .value("C2X_CLANG_VECTORCALL", pasta::VectorCallAttrSpelling::kC2xClangVectorcall)
+    .value("C23_CLANG_VECTORCALL", pasta::VectorCallAttrSpelling::kC23ClangVectorcall)
     .value("KEYWORD_VECTORCALL", pasta::VectorCallAttrSpelling::kKeywordVectorcall)
     .value("SPELLING_NOT_CALCULATED", pasta::VectorCallAttrSpelling::kSpellingNotCalculated);
 
@@ -2788,12 +3053,13 @@ void RegisterEnums(nb::module_ &m) {
     .value("NEON_VECTOR", pasta::VectorTypeVectorKind::kNeonVector)
     .value("NEON_POLY_VECTOR", pasta::VectorTypeVectorKind::kNeonPolyVector)
     .value("SVE_FIXED_LENGTH_DATA_VECTOR", pasta::VectorTypeVectorKind::kSveFixedLengthDataVector)
-    .value("SVE_FIXED_LENGTH_PREDICATE_VECTOR", pasta::VectorTypeVectorKind::kSveFixedLengthPredicateVector);
+    .value("SVE_FIXED_LENGTH_PREDICATE_VECTOR", pasta::VectorTypeVectorKind::kSveFixedLengthPredicateVector)
+    .value("RVV_FIXED_LENGTH_DATA_VECTOR", pasta::VectorTypeVectorKind::kRVVFixedLengthDataVector);
 
   nb::enum_<pasta::VisibilityAttrSpelling>(m, "VisibilityAttrSpelling")
     .value("GNU_VISIBILITY", pasta::VisibilityAttrSpelling::kGNUVisibility)
     .value("CXX11_GNU_VISIBILITY", pasta::VisibilityAttrSpelling::kCXX11GnuVisibility)
-    .value("C2X_GNU_VISIBILITY", pasta::VisibilityAttrSpelling::kC2xGnuVisibility)
+    .value("C23_GNU_VISIBILITY", pasta::VisibilityAttrSpelling::kC23GnuVisibility)
     .value("SPELLING_NOT_CALCULATED", pasta::VisibilityAttrSpelling::kSpellingNotCalculated);
 
   nb::enum_<pasta::VisibilityAttrVisibilityType>(m, "VisibilityAttrVisibilityType")
@@ -2804,79 +3070,79 @@ void RegisterEnums(nb::module_ &m) {
   nb::enum_<pasta::WarnUnusedAttrSpelling>(m, "WarnUnusedAttrSpelling")
     .value("GNU_WARN_UNUSED", pasta::WarnUnusedAttrSpelling::kGNUWarnUnused)
     .value("CXX11_GNU_WARN_UNUSED", pasta::WarnUnusedAttrSpelling::kCXX11GnuWarnUnused)
-    .value("C2X_GNU_WARN_UNUSED", pasta::WarnUnusedAttrSpelling::kC2xGnuWarnUnused)
+    .value("C23_GNU_WARN_UNUSED", pasta::WarnUnusedAttrSpelling::kC23GnuWarnUnused)
     .value("SPELLING_NOT_CALCULATED", pasta::WarnUnusedAttrSpelling::kSpellingNotCalculated);
 
   nb::enum_<pasta::WarnUnusedResultAttrSpelling>(m, "WarnUnusedResultAttrSpelling")
     .value("CXX11_NODISCARD", pasta::WarnUnusedResultAttrSpelling::kCXX11Nodiscard)
-    .value("C2X_NODISCARD", pasta::WarnUnusedResultAttrSpelling::kC2xNodiscard)
+    .value("C23_NODISCARD", pasta::WarnUnusedResultAttrSpelling::kC23Nodiscard)
     .value("CXX11_CLANG_WARN_UNUSED_RESULT", pasta::WarnUnusedResultAttrSpelling::kCXX11ClangWarnUnusedResult)
     .value("GNU_WARN_UNUSED_RESULT", pasta::WarnUnusedResultAttrSpelling::kGNUWarnUnusedResult)
     .value("CXX11_GNU_WARN_UNUSED_RESULT", pasta::WarnUnusedResultAttrSpelling::kCXX11GnuWarnUnusedResult)
-    .value("C2X_GNU_WARN_UNUSED_RESULT", pasta::WarnUnusedResultAttrSpelling::kC2xGnuWarnUnusedResult)
+    .value("C23_GNU_WARN_UNUSED_RESULT", pasta::WarnUnusedResultAttrSpelling::kC23GnuWarnUnusedResult)
     .value("SPELLING_NOT_CALCULATED", pasta::WarnUnusedResultAttrSpelling::kSpellingNotCalculated);
 
   nb::enum_<pasta::WeakAttrSpelling>(m, "WeakAttrSpelling")
     .value("GNU_WEAK", pasta::WeakAttrSpelling::kGNUWeak)
     .value("CXX11_GNU_WEAK", pasta::WeakAttrSpelling::kCXX11GnuWeak)
-    .value("C2X_GNU_WEAK", pasta::WeakAttrSpelling::kC2xGnuWeak)
+    .value("C23_GNU_WEAK", pasta::WeakAttrSpelling::kC23GnuWeak)
     .value("SPELLING_NOT_CALCULATED", pasta::WeakAttrSpelling::kSpellingNotCalculated);
 
   nb::enum_<pasta::WeakImportAttrSpelling>(m, "WeakImportAttrSpelling")
     .value("GNU_WEAK_IMPORT", pasta::WeakImportAttrSpelling::kGNUWeakImport)
     .value("CXX11_CLANG_WEAK_IMPORT", pasta::WeakImportAttrSpelling::kCXX11ClangWeakImport)
-    .value("C2X_CLANG_WEAK_IMPORT", pasta::WeakImportAttrSpelling::kC2xClangWeakImport)
+    .value("C23_CLANG_WEAK_IMPORT", pasta::WeakImportAttrSpelling::kC23ClangWeakImport)
     .value("SPELLING_NOT_CALCULATED", pasta::WeakImportAttrSpelling::kSpellingNotCalculated);
 
   nb::enum_<pasta::WeakRefAttrSpelling>(m, "WeakRefAttrSpelling")
     .value("GNU_WEAKREF", pasta::WeakRefAttrSpelling::kGNUWeakref)
     .value("CXX11_GNU_WEAKREF", pasta::WeakRefAttrSpelling::kCXX11GnuWeakref)
-    .value("C2X_GNU_WEAKREF", pasta::WeakRefAttrSpelling::kC2xGnuWeakref)
+    .value("C23_GNU_WEAKREF", pasta::WeakRefAttrSpelling::kC23GnuWeakref)
     .value("SPELLING_NOT_CALCULATED", pasta::WeakRefAttrSpelling::kSpellingNotCalculated);
 
   nb::enum_<pasta::WebAssemblyExportNameAttrSpelling>(m, "WebAssemblyExportNameAttrSpelling")
     .value("GNU_EXPORT_NAME", pasta::WebAssemblyExportNameAttrSpelling::kGNUExportName)
     .value("CXX11_CLANG_EXPORT_NAME", pasta::WebAssemblyExportNameAttrSpelling::kCXX11ClangExportName)
-    .value("C2X_CLANG_EXPORT_NAME", pasta::WebAssemblyExportNameAttrSpelling::kC2xClangExportName)
+    .value("C23_CLANG_EXPORT_NAME", pasta::WebAssemblyExportNameAttrSpelling::kC23ClangExportName)
     .value("SPELLING_NOT_CALCULATED", pasta::WebAssemblyExportNameAttrSpelling::kSpellingNotCalculated);
 
   nb::enum_<pasta::WebAssemblyImportModuleAttrSpelling>(m, "WebAssemblyImportModuleAttrSpelling")
     .value("GNU_IMPORT_MODULE", pasta::WebAssemblyImportModuleAttrSpelling::kGNUImportModule)
     .value("CXX11_CLANG_IMPORT_MODULE", pasta::WebAssemblyImportModuleAttrSpelling::kCXX11ClangImportModule)
-    .value("C2X_CLANG_IMPORT_MODULE", pasta::WebAssemblyImportModuleAttrSpelling::kC2xClangImportModule)
+    .value("C23_CLANG_IMPORT_MODULE", pasta::WebAssemblyImportModuleAttrSpelling::kC23ClangImportModule)
     .value("SPELLING_NOT_CALCULATED", pasta::WebAssemblyImportModuleAttrSpelling::kSpellingNotCalculated);
 
   nb::enum_<pasta::WebAssemblyImportNameAttrSpelling>(m, "WebAssemblyImportNameAttrSpelling")
     .value("GNU_IMPORT_NAME", pasta::WebAssemblyImportNameAttrSpelling::kGNUImportName)
     .value("CXX11_CLANG_IMPORT_NAME", pasta::WebAssemblyImportNameAttrSpelling::kCXX11ClangImportName)
-    .value("C2X_CLANG_IMPORT_NAME", pasta::WebAssemblyImportNameAttrSpelling::kC2xClangImportName)
+    .value("C23_CLANG_IMPORT_NAME", pasta::WebAssemblyImportNameAttrSpelling::kC23ClangImportName)
     .value("SPELLING_NOT_CALCULATED", pasta::WebAssemblyImportNameAttrSpelling::kSpellingNotCalculated);
 
   nb::enum_<pasta::X86ForceAlignArgPointerAttrSpelling>(m, "X86ForceAlignArgPointerAttrSpelling")
     .value("GNU_FORCE_ALIGN_ARGUMENT_POINTER", pasta::X86ForceAlignArgPointerAttrSpelling::kGNUForceAlignArgumentPointer)
     .value("CXX11_GNU_FORCE_ALIGN_ARGUMENT_POINTER", pasta::X86ForceAlignArgPointerAttrSpelling::kCXX11GnuForceAlignArgumentPointer)
-    .value("C2X_GNU_FORCE_ALIGN_ARGUMENT_POINTER", pasta::X86ForceAlignArgPointerAttrSpelling::kC2xGnuForceAlignArgumentPointer)
+    .value("C23_GNU_FORCE_ALIGN_ARGUMENT_POINTER", pasta::X86ForceAlignArgPointerAttrSpelling::kC23GnuForceAlignArgumentPointer)
     .value("SPELLING_NOT_CALCULATED", pasta::X86ForceAlignArgPointerAttrSpelling::kSpellingNotCalculated);
 
   nb::enum_<pasta::XRayInstrumentAttrSpelling>(m, "XRayInstrumentAttrSpelling")
     .value("GNU_XRAY_ALWAYS_INSTRUMENT", pasta::XRayInstrumentAttrSpelling::kGNUXrayAlwaysInstrument)
     .value("CXX11_CLANG_XRAY_ALWAYS_INSTRUMENT", pasta::XRayInstrumentAttrSpelling::kCXX11ClangXrayAlwaysInstrument)
-    .value("C2X_CLANG_XRAY_ALWAYS_INSTRUMENT", pasta::XRayInstrumentAttrSpelling::kC2xClangXrayAlwaysInstrument)
+    .value("C23_CLANG_XRAY_ALWAYS_INSTRUMENT", pasta::XRayInstrumentAttrSpelling::kC23ClangXrayAlwaysInstrument)
     .value("GNU_XRAY_NEVER_INSTRUMENT", pasta::XRayInstrumentAttrSpelling::kGNUXrayNeverInstrument)
     .value("CXX11_CLANG_XRAY_NEVER_INSTRUMENT", pasta::XRayInstrumentAttrSpelling::kCXX11ClangXrayNeverInstrument)
-    .value("C2X_CLANG_XRAY_NEVER_INSTRUMENT", pasta::XRayInstrumentAttrSpelling::kC2xClangXrayNeverInstrument)
+    .value("C23_CLANG_XRAY_NEVER_INSTRUMENT", pasta::XRayInstrumentAttrSpelling::kC23ClangXrayNeverInstrument)
     .value("SPELLING_NOT_CALCULATED", pasta::XRayInstrumentAttrSpelling::kSpellingNotCalculated);
 
   nb::enum_<pasta::XRayLogArgsAttrSpelling>(m, "XRayLogArgsAttrSpelling")
     .value("GNU_XRAY_LOG_ARGUMENTS", pasta::XRayLogArgsAttrSpelling::kGNUXrayLogArguments)
     .value("CXX11_CLANG_XRAY_LOG_ARGUMENTS", pasta::XRayLogArgsAttrSpelling::kCXX11ClangXrayLogArguments)
-    .value("C2X_CLANG_XRAY_LOG_ARGUMENTS", pasta::XRayLogArgsAttrSpelling::kC2xClangXrayLogArguments)
+    .value("C23_CLANG_XRAY_LOG_ARGUMENTS", pasta::XRayLogArgsAttrSpelling::kC23ClangXrayLogArguments)
     .value("SPELLING_NOT_CALCULATED", pasta::XRayLogArgsAttrSpelling::kSpellingNotCalculated);
 
   nb::enum_<pasta::ZeroCallUsedRegsAttrSpelling>(m, "ZeroCallUsedRegsAttrSpelling")
     .value("GNU_ZERO_CALL_USED_REGS", pasta::ZeroCallUsedRegsAttrSpelling::kGNUZeroCallUsedRegs)
     .value("CXX11_GNU_ZERO_CALL_USED_REGS", pasta::ZeroCallUsedRegsAttrSpelling::kCXX11GnuZeroCallUsedRegs)
-    .value("C2X_GNU_ZERO_CALL_USED_REGS", pasta::ZeroCallUsedRegsAttrSpelling::kC2xGnuZeroCallUsedRegs)
+    .value("C23_GNU_ZERO_CALL_USED_REGS", pasta::ZeroCallUsedRegsAttrSpelling::kC23GnuZeroCallUsedRegs)
     .value("SPELLING_NOT_CALCULATED", pasta::ZeroCallUsedRegsAttrSpelling::kSpellingNotCalculated);
 
   nb::enum_<pasta::ZeroCallUsedRegsAttrZeroCallUsedRegsKind>(m, "ZeroCallUsedRegsAttrZeroCallUsedRegsKind")
@@ -3165,10 +3431,10 @@ void RegisterEnums(nb::module_ &m) {
     .value("POS_CONDITION", pasta::DataPositionTy::kPOSCondition)
     .value("POSR", pasta::DataPositionTy::kPOSR);
 
-  nb::enum_<pasta::DebugSrcHashKind>(m, "DebugSrcHashKind")
-    .value("DSHMD5", pasta::DebugSrcHashKind::kDSHMD5)
-    .value("DSHSHA1", pasta::DebugSrcHashKind::kDSHSHA1)
-    .value("DSHSHA256", pasta::DebugSrcHashKind::kDSHSHA256);
+  nb::enum_<pasta::DeductionCandidate>(m, "DeductionCandidate")
+    .value("NORMAL", pasta::DeductionCandidate::kNormal)
+    .value("COPY", pasta::DeductionCandidate::kCopy)
+    .value("AGGREGATE", pasta::DeductionCandidate::kAggregate);
 
   nb::enum_<pasta::DefaultArgKind>(m, "DefaultArgKind")
     .value("NONE", pasta::DefaultArgKind::kNone)
@@ -3189,6 +3455,11 @@ void RegisterEnums(nb::module_ &m) {
     .value("EXPLICIT", pasta::DefaultVisiblityExportMapping::kExplicit)
     .value("ALL", pasta::DefaultVisiblityExportMapping::kAll);
 
+  nb::enum_<pasta::DesignatorKind>(m, "DesignatorKind")
+    .value("FIELD_DESIGNATOR", pasta::DesignatorKind::kFieldDesignator)
+    .value("ARRAY_DESIGNATOR", pasta::DesignatorKind::kArrayDesignator)
+    .value("ARRAY_RANGE_DESIGNATOR", pasta::DesignatorKind::kArrayRangeDesignator);
+
   nb::enum_<pasta::DiagnosticLevelMask>(m, "DiagnosticLevelMask")
     .value("NONE", pasta::DiagnosticLevelMask::kNone)
     .value("NOTE", pasta::DiagnosticLevelMask::kNote)
@@ -3205,12 +3476,6 @@ void RegisterEnums(nb::module_ &m) {
     .value("ENUM", pasta::ElaboratedTypeKeyword::kEnum)
     .value("TYPENAME", pasta::ElaboratedTypeKeyword::kTypename)
     .value("NONE", pasta::ElaboratedTypeKeyword::kNone);
-
-  nb::enum_<pasta::EmbedBitcodeKind>(m, "EmbedBitcodeKind")
-    .value("EMBED_OFF", pasta::EmbedBitcodeKind::kEmbedOff)
-    .value("EMBED_ALL", pasta::EmbedBitcodeKind::kEmbedAll)
-    .value("EMBED_BITCODE", pasta::EmbedBitcodeKind::kEmbedBitcode)
-    .value("EMBED_MARKER", pasta::EmbedBitcodeKind::kEmbedMarker);
 
   nb::enum_<pasta::EscapeChar>(m, "EscapeChar")
     .value("SINGLE", pasta::EscapeChar::kSingle)
@@ -3242,11 +3507,6 @@ void RegisterEnums(nb::module_ &m) {
     .value("FPP_STANDARD", pasta::ExcessPrecisionKind::kFPPStandard)
     .value("FPP_FAST", pasta::ExcessPrecisionKind::kFPPFast)
     .value("FPP_NONE", pasta::ExcessPrecisionKind::kFPPNone);
-
-  nb::enum_<pasta::ExclusionType>(m, "ExclusionType")
-    .value("ALLOW", pasta::ExclusionType::kAllow)
-    .value("SKIP", pasta::ExclusionType::kSkip)
-    .value("FORBID", pasta::ExclusionType::kForbid);
 
   nb::enum_<pasta::ExplicitSpecKind>(m, "ExplicitSpecKind")
     .value("RESOLVED_FALSE", pasta::ExplicitSpecKind::kResolvedFalse)
@@ -3317,19 +3577,9 @@ void RegisterEnums(nb::module_ &m) {
     .value("FAST", pasta::FPModeKind::kFast)
     .value("FAST_HONOR_PRAGMAS", pasta::FPModeKind::kFastHonorPragmas);
 
-  nb::enum_<pasta::FiniteLoopsKind>(m, "FiniteLoopsKind")
-    .value("LANGUAGE", pasta::FiniteLoopsKind::kLanguage)
-    .value("ALWAYS", pasta::FiniteLoopsKind::kAlways)
-    .value("NEVER", pasta::FiniteLoopsKind::kNever);
-
   nb::enum_<pasta::Flags>(m, "Flags")
     .value("F_INLINE", pasta::Flags::kFInline)
     .value("F_NESTED", pasta::Flags::kFNested);
-
-  nb::enum_<pasta::FramePointerKind>(m, "FramePointerKind")
-    .value("NONE", pasta::FramePointerKind::kNone)
-    .value("NON_LEAF", pasta::FramePointerKind::kNonLeaf)
-    .value("ALL", pasta::FramePointerKind::kAll);
 
   nb::enum_<pasta::GC>(m, "GC")
     .value("GC_NONE", pasta::GC::kGCNone)
@@ -3386,12 +3636,6 @@ void RegisterEnums(nb::module_ &m) {
     .value("CONSTEVAL_NON_NEGATED", pasta::IfStatementKind::kConstevalNonNegated)
     .value("CONSTEVAL_NEGATED", pasta::IfStatementKind::kConstevalNegated);
 
-  nb::enum_<pasta::ImbueAttribute>(m, "ImbueAttribute")
-    .value("NONE", pasta::ImbueAttribute::kNONE)
-    .value("ALWAYS", pasta::ImbueAttribute::kALWAYS)
-    .value("NEVER", pasta::ImbueAttribute::kNEVER)
-    .value("ALWAYSARG1", pasta::ImbueAttribute::kALWAYSARG1);
-
   nb::enum_<pasta::InClassInitStyle>(m, "InClassInitStyle")
     .value("NO_INITIALIZER", pasta::InClassInitStyle::kNoInitializer)
     .value("COPY_INITIALIZER", pasta::InClassInitStyle::kCopyInitializer)
@@ -3408,20 +3652,21 @@ void RegisterEnums(nb::module_ &m) {
     .value("IN_CLASS_LIST_INITIALIZER", pasta::InitStorageKind::kInClassListInitializer)
     .value("CAPTURED_VLA_TYPE", pasta::InitStorageKind::kCapturedVLAType);
 
-  nb::enum_<pasta::InlineAsmDialectKind>(m, "InlineAsmDialectKind")
-    .value("IADATT", pasta::InlineAsmDialectKind::kIADATT)
-    .value("IAD_INTEL", pasta::InlineAsmDialectKind::kIADIntel);
-
   nb::enum_<pasta::InlineVariableDefinitionKind>(m, "InlineVariableDefinitionKind")
     .value("NONE", pasta::InlineVariableDefinitionKind::kNone)
     .value("WEAK", pasta::InlineVariableDefinitionKind::kWeak)
     .value("WEAK_UNKNOWN", pasta::InlineVariableDefinitionKind::kWeakUnknown)
     .value("STRONG", pasta::InlineVariableDefinitionKind::kStrong);
 
-  nb::enum_<pasta::InliningMethod>(m, "InliningMethod")
-    .value("NORMAL_INLINING", pasta::InliningMethod::kNormalInlining)
-    .value("ONLY_HINT_INLINING", pasta::InliningMethod::kOnlyHintInlining)
-    .value("ONLY_ALWAYS_INLINING", pasta::InliningMethod::kOnlyAlwaysInlining);
+  nb::enum_<pasta::InterestingIdentifierKind>(m, "InterestingIdentifierKind")
+    .value("NOT_INTERESTING", pasta::InterestingIdentifierKind::kNotInteresting)
+    .value("FILE", pasta::InterestingIdentifierKind::kFILE)
+    .value("JMP_BUF", pasta::InterestingIdentifierKind::kJmpBuf)
+    .value("SIGJMP_BUF", pasta::InterestingIdentifierKind::kSigjmpBuf)
+    .value("UCONTEXT_T", pasta::InterestingIdentifierKind::kUcontextT)
+    .value("FLOAT_T", pasta::InterestingIdentifierKind::kFloatT)
+    .value("DOUBLE_T", pasta::InterestingIdentifierKind::kDoubleT)
+    .value("NUMINTERESTINGIDENTIFIERS", pasta::InterestingIdentifierKind::kNUMINTERESTINGIDENTIFIERS);
 
   nb::enum_<pasta::Kinds>(m, "Kinds")
     .value("L_VALUE", pasta::Kinds::kLValue)
@@ -3469,20 +3714,22 @@ void RegisterEnums(nb::module_ &m) {
     .value("PTR32_SPTR", pasta::LangAS::kPtr32Sptr)
     .value("PTR32_UPTR", pasta::LangAS::kPtr32Uptr)
     .value("PTR64", pasta::LangAS::kPtr64)
-    .value("HLSL_GROUPSHARED", pasta::LangAS::kHlslGroupshared);
+    .value("HLSL_GROUPSHARED", pasta::LangAS::kHlslGroupshared)
+    .value("WASM_FUNCREF", pasta::LangAS::kWasmFuncref);
 
   nb::enum_<pasta::LangFeatures>(m, "LangFeatures")
     .value("LINE_COMMENT", pasta::LangFeatures::kLineComment)
     .value("C99", pasta::LangFeatures::kC99)
     .value("C11", pasta::LangFeatures::kC11)
     .value("C17", pasta::LangFeatures::kC17)
-    .value("C2X", pasta::LangFeatures::kC2x)
+    .value("C23", pasta::LangFeatures::kC23)
     .value("C_PLUS_PLUS", pasta::LangFeatures::kCPlusPlus)
     .value("C_PLUS_PLUS11", pasta::LangFeatures::kCPlusPlus11)
     .value("C_PLUS_PLUS14", pasta::LangFeatures::kCPlusPlus14)
     .value("C_PLUS_PLUS17", pasta::LangFeatures::kCPlusPlus17)
     .value("C_PLUS_PLUS20", pasta::LangFeatures::kCPlusPlus20)
-    .value("C_PLUS_PLUS2B", pasta::LangFeatures::kCPlusPlus2b)
+    .value("C_PLUS_PLUS23", pasta::LangFeatures::kCPlusPlus23)
+    .value("C_PLUS_PLUS26", pasta::LangFeatures::kCPlusPlus26)
     .value("DIGRAPHS", pasta::LangFeatures::kDigraphs)
     .value("GNU_MODE", pasta::LangFeatures::kGNUMode)
     .value("HEX_FLOAT", pasta::LangFeatures::kHexFloat)
@@ -3527,7 +3774,6 @@ void RegisterEnums(nb::module_ &m) {
     .value("INTERNAL_LINKAGE", pasta::Linkage::kInternalLinkage)
     .value("UNIQUE_EXTERNAL_LINKAGE", pasta::Linkage::kUniqueExternalLinkage)
     .value("VISIBLE_NO_LINKAGE", pasta::Linkage::kVisibleNoLinkage)
-    .value("MODULE_INTERNAL_LINKAGE", pasta::Linkage::kModuleInternalLinkage)
     .value("MODULE_LINKAGE", pasta::Linkage::kModuleLinkage)
     .value("EXTERNAL_LINKAGE", pasta::Linkage::kExternalLinkage);
 
@@ -3621,11 +3867,6 @@ void RegisterEnums(nb::module_ &m) {
     .value("BRIDGE", pasta::ObjCBridgeCastKind::kBridge)
     .value("BRIDGE_TRANSFER", pasta::ObjCBridgeCastKind::kBridgeTransfer)
     .value("BRIDGE_RETAINED", pasta::ObjCBridgeCastKind::kBridgeRetained);
-
-  nb::enum_<pasta::ObjCDispatchMethodKind>(m, "ObjCDispatchMethodKind")
-    .value("LEGACY", pasta::ObjCDispatchMethodKind::kLegacy)
-    .value("NON_LEGACY", pasta::ObjCDispatchMethodKind::kNonLegacy)
-    .value("MIXED", pasta::ObjCDispatchMethodKind::kMixed);
 
   nb::enum_<pasta::ObjCInstanceTypeFamily>(m, "ObjCInstanceTypeFamily")
     .value("NONE", pasta::ObjCInstanceTypeFamily::kNone)
@@ -3783,6 +4024,13 @@ void RegisterEnums(nb::module_ &m) {
   nb::enum_<pasta::OpenMPDistScheduleClauseKind>(m, "OpenMPDistScheduleClauseKind")
     .value("STATIC", pasta::OpenMPDistScheduleClauseKind::kStatic)
     .value("UNKNOWN", pasta::OpenMPDistScheduleClauseKind::kUnknown);
+
+  nb::enum_<pasta::OpenMPDoacrossClauseModifier>(m, "OpenMPDoacrossClauseModifier")
+    .value("DOACROSS_SOURCE", pasta::OpenMPDoacrossClauseModifier::kDOACROSSSource)
+    .value("DOACROSS_SINK", pasta::OpenMPDoacrossClauseModifier::kDOACROSSSink)
+    .value("DOACROSS_SINK_OMP_CUR_ITERATION", pasta::OpenMPDoacrossClauseModifier::kDOACROSSSinkOmpCurIteration)
+    .value("DOACROSS_SOURCE_OMP_CUR_ITERATION", pasta::OpenMPDoacrossClauseModifier::kDOACROSSSourceOmpCurIteration)
+    .value("DOACROSS_UNKNOWN", pasta::OpenMPDoacrossClauseModifier::kDOACROSSUnknown);
 
   nb::enum_<pasta::OpenMPGrainsizeClauseModifier>(m, "OpenMPGrainsizeClauseModifier")
     .value("GRAINSIZE_STRICT", pasta::OpenMPGrainsizeClauseModifier::kGRAINSIZEStrict)
@@ -3988,12 +4236,6 @@ void RegisterEnums(nb::module_ &m) {
     .value("ZERO_INITIALIZER", pasta::PragmaSectionFlag::kZeroInitializer)
     .value("INVALID", pasta::PragmaSectionFlag::kInvalid);
 
-  nb::enum_<pasta::ProfileInstrKind>(m, "ProfileInstrKind")
-    .value("PROFILE_NONE", pasta::ProfileInstrKind::kProfileNone)
-    .value("PROFILE_CLANG_INSTR", pasta::ProfileInstrKind::kProfileClangInstr)
-    .value("PROFILE_IR_INSTR", pasta::ProfileInstrKind::kProfileIRInstr)
-    .value("PROFILE_CSIR_INSTR", pasta::ProfileInstrKind::kProfileCSIRInstr);
-
   nb::enum_<pasta::Qualified>(m, "Qualified")
     .value("NONE", pasta::Qualified::kNone)
     .value("AS_WRITTEN", pasta::Qualified::kAsWritten)
@@ -4015,14 +4257,6 @@ void RegisterEnums(nb::module_ &m) {
     .value("L_VALUE", pasta::RefQualifierKind::kLValue)
     .value("R_VALUE", pasta::RefQualifierKind::kRValue);
 
-  nb::enum_<pasta::RemarkKind>(m, "RemarkKind")
-    .value("MISSING", pasta::RemarkKind::kMissing)
-    .value("ENABLED", pasta::RemarkKind::kEnabled)
-    .value("ENABLED_EVERYTHING", pasta::RemarkKind::kEnabledEverything)
-    .value("DISABLED", pasta::RemarkKind::kDisabled)
-    .value("DISABLED_EVERYTHING", pasta::RemarkKind::kDisabledEverything)
-    .value("WITH_PATTERN", pasta::RemarkKind::kWithPattern);
-
   nb::enum_<pasta::ReservedIdentifierStatus>(m, "ReservedIdentifierStatus")
     .value("NOT_RESERVED", pasta::ReservedIdentifierStatus::kNotReserved)
     .value("STARTS_WITH_UNDERSCORE_AT_GLOBAL_SCOPE", pasta::ReservedIdentifierStatus::kStartsWithUnderscoreAtGlobalScope)
@@ -4030,6 +4264,11 @@ void RegisterEnums(nb::module_ &m) {
     .value("STARTS_WITH_DOUBLE_UNDERSCORE", pasta::ReservedIdentifierStatus::kStartsWithDoubleUnderscore)
     .value("STARTS_WITH_UNDERSCORE_FOLLOWED_BY_CAPITAL_LETTER", pasta::ReservedIdentifierStatus::kStartsWithUnderscoreFollowedByCapitalLetter)
     .value("CONTAINS_DOUBLE_UNDERSCORE", pasta::ReservedIdentifierStatus::kContainsDoubleUnderscore);
+
+  nb::enum_<pasta::ReservedLiteralSuffixIdStatus>(m, "ReservedLiteralSuffixIdStatus")
+    .value("NOT_RESERVED", pasta::ReservedLiteralSuffixIdStatus::kNotReserved)
+    .value("NOT_STARTS_WITH_UNDERSCORE", pasta::ReservedLiteralSuffixIdStatus::kNotStartsWithUnderscore)
+    .value("CONTAINS_DOUBLE_UNDERSCORE", pasta::ReservedLiteralSuffixIdStatus::kContainsDoubleUnderscore);
 
   nb::enum_<pasta::SFINAEResponse>(m, "SFINAEResponse")
     .value("SUBSTITUTION_FAILURE", pasta::SFINAEResponse::kSubstitutionFailure)
@@ -4216,11 +4455,6 @@ void RegisterEnums(nb::module_ &m) {
     .value("ZERO_OR_INCOMPLETE", pasta::StrictFlexArraysLevelKind::kZeroOrIncomplete)
     .value("INCOMPLETE_ONLY", pasta::StrictFlexArraysLevelKind::kIncompleteOnly);
 
-  nb::enum_<pasta::StructReturnConventionKind>(m, "StructReturnConventionKind")
-    .value("DEFAULT", pasta::StructReturnConventionKind::kDefault)
-    .value("ON_STACK", pasta::StructReturnConventionKind::kOnStack)
-    .value("IN_REGS", pasta::StructReturnConventionKind::kInRegs);
-
   nb::enum_<pasta::SubExpr>(m, "SubExpr")
     .value("CALLEE", pasta::SubExpr::kCallee)
     .value("LHS", pasta::SubExpr::kLHS)
@@ -4236,15 +4470,10 @@ void RegisterEnums(nb::module_ &m) {
     .value("ON_FALLTHROUGH", pasta::SubStmt::kOnFallthrough)
     .value("ALLOCATE", pasta::SubStmt::kAllocate)
     .value("DEALLOCATE", pasta::SubStmt::kDeallocate)
+    .value("RESULT_DECLARATION", pasta::SubStmt::kResultDeclaration)
     .value("RETURN_VALUE", pasta::SubStmt::kReturnValue)
     .value("RETURN_STATEMENT", pasta::SubStmt::kReturnStatement)
     .value("RETURN_STATEMENT_ON_ALLOC_FAILURE", pasta::SubStmt::kReturnStatementOnAllocFailure);
-
-  nb::enum_<pasta::SwiftAsyncFramePointerKind>(m, "SwiftAsyncFramePointerKind")
-    .value("AUTO", pasta::SwiftAsyncFramePointerKind::kAuto)
-    .value("ALWAYS", pasta::SwiftAsyncFramePointerKind::kAlways)
-    .value("NEVER", pasta::SwiftAsyncFramePointerKind::kNever)
-    .value("DEFAULT", pasta::SwiftAsyncFramePointerKind::kDefault);
 
   nb::enum_<pasta::SyncScope>(m, "SyncScope")
     .value("HIP_SINGLE_THREAD", pasta::SyncScope::kHIPSingleThread)
@@ -4260,19 +4489,14 @@ void RegisterEnums(nb::module_ &m) {
   nb::enum_<pasta::Syntax>(m, "Syntax")
     .value("GNU", pasta::Syntax::kGNU)
     .value("CXX11", pasta::Syntax::kCXX11)
-    .value("C2X", pasta::Syntax::kC2x)
+    .value("C23", pasta::Syntax::kC23)
     .value("DECLSPEC", pasta::Syntax::kDeclspec)
     .value("MICROSOFT", pasta::Syntax::kMicrosoft)
     .value("KEYWORD", pasta::Syntax::kKeyword)
     .value("PRAGMA", pasta::Syntax::kPragma)
     .value("CONTEXT_SENSITIVE_KEYWORD", pasta::Syntax::kContextSensitiveKeyword)
-    .value("HLSL_SEMANTIC", pasta::Syntax::kHLSLSemantic);
-
-  nb::enum_<pasta::TLSModel>(m, "TLSModel")
-    .value("GENERAL_DYNAMIC_TLS_MODEL", pasta::TLSModel::kGeneralDynamicTLSModel)
-    .value("LOCAL_DYNAMIC_TLS_MODEL", pasta::TLSModel::kLocalDynamicTLSModel)
-    .value("INITIAL_EXEC_TLS_MODEL", pasta::TLSModel::kInitialExecTLSModel)
-    .value("LOCAL_EXEC_TLS_MODEL", pasta::TLSModel::kLocalExecTLSModel);
+    .value("HLSL_SEMANTIC", pasta::Syntax::kHLSLSemantic)
+    .value("IMPLICIT", pasta::Syntax::kImplicit);
 
   nb::enum_<pasta::TQ>(m, "TQ")
     .value("CONST", pasta::TQ::kConst)
@@ -4524,7 +4748,9 @@ void RegisterEnums(nb::module_ &m) {
     .value("KEYWORD___BUILTIN_CHOOSE_EXPRESSION", pasta::TokenKind::kKeyword__BuiltinChooseExpression)
     .value("KEYWORD___BUILTIN_OFFSETOF", pasta::TokenKind::kKeyword__BuiltinOffsetof)
     .value("KEYWORD___BUILTIN_FILE", pasta::TokenKind::kKeyword__BuiltinFILE)
+    .value("KEYWORD___BUILTIN_FILENAME", pasta::TokenKind::kKeyword__BuiltinFILENAME)
     .value("KEYWORD___BUILTIN_FUNCTION", pasta::TokenKind::kKeyword__BuiltinFUNCTION)
+    .value("KEYWORD___BUILTIN_FUNCSIG", pasta::TokenKind::kKeyword__BuiltinFUNCSIG)
     .value("KEYWORD___BUILTIN_LINE", pasta::TokenKind::kKeyword__BuiltinLINE)
     .value("KEYWORD___BUILTIN_COLUMN", pasta::TokenKind::kKeyword__BuiltinCOLUMN)
     .value("KEYWORD___BUILTIN_SOURCE_TOKEN", pasta::TokenKind::kKeyword__BuiltinSourceToken)
@@ -4600,12 +4826,15 @@ void RegisterEnums(nb::module_ &m) {
     .value("KEYWORD___REMOVE_VOLATILE", pasta::TokenKind::kKeyword__RemoveVolatile)
     .value("KEYWORD___UNDERLYING_TYPE", pasta::TokenKind::kKeyword__UnderlyingType)
     .value("KEYWORD___IS_TRIVIALLY_RELOCATABLE", pasta::TokenKind::kKeyword__IsTriviallyRelocatable)
+    .value("KEYWORD___IS_TRIVIALLY_EQUALITY_COMPARABLE", pasta::TokenKind::kKeyword__IsTriviallyEqualityComparable)
     .value("KEYWORD___IS_BOUNDED_ARRAY", pasta::TokenKind::kKeyword__IsBoundedArray)
     .value("KEYWORD___IS_UNBOUNDED_ARRAY", pasta::TokenKind::kKeyword__IsUnboundedArray)
     .value("KEYWORD___IS_NULLPTR", pasta::TokenKind::kKeyword__IsNullptr)
     .value("KEYWORD___IS_SCOPED_ENUM", pasta::TokenKind::kKeyword__IsScopedEnum)
     .value("KEYWORD___IS_REFERENCEABLE", pasta::TokenKind::kKeyword__IsReferenceable)
+    .value("KEYWORD___CAN_PASS_IN_REGS", pasta::TokenKind::kKeyword__CanPassInRegs)
     .value("KEYWORD___REFERENCE_BINDS_TO_TEMPORARY", pasta::TokenKind::kKeyword__ReferenceBindsToTemporary)
+    .value("KEYWORD___REFERENCE_CONSTRUCTS_FROM_TEMPORARY", pasta::TokenKind::kKeyword__ReferenceConstructsFromTemporary)
     .value("KEYWORD___IS_LVALUE_EXPRESSION", pasta::TokenKind::kKeyword__IsLvalueExpression)
     .value("KEYWORD___IS_RVALUE_EXPRESSION", pasta::TokenKind::kKeyword__IsRvalueExpression)
     .value("KEYWORD___IS_ARITHMETIC", pasta::TokenKind::kKeyword__IsArithmetic)
@@ -4698,6 +4927,7 @@ void RegisterEnums(nb::module_ &m) {
     .value("KEYWORD__NULLABLE", pasta::TokenKind::kKeyword_Nullable)
     .value("KEYWORD__NULLABLE_RESULT", pasta::TokenKind::kKeyword_NullableResult)
     .value("KEYWORD__NULL_UNSPECIFIED", pasta::TokenKind::kKeyword_NullUnspecified)
+    .value("KEYWORD___FUNCREF", pasta::TokenKind::kKeyword__Funcref)
     .value("KEYWORD___PTR64", pasta::TokenKind::kKeyword__Ptr64)
     .value("KEYWORD___PTR32", pasta::TokenKind::kKeyword__Ptr32)
     .value("KEYWORD___SPTR", pasta::TokenKind::kKeyword__Sptr)
@@ -4718,6 +4948,12 @@ void RegisterEnums(nb::module_ &m) {
     .value("KEYWORD___BUILTIN_BIT_CAST", pasta::TokenKind::kKeyword__BuiltinBitCast)
     .value("KEYWORD___BUILTIN_AVAILABLE", pasta::TokenKind::kKeyword__BuiltinAvailable)
     .value("KEYWORD___BUILTIN_SYCL_UNIQUE_STABLE_NAME", pasta::TokenKind::kKeyword__BuiltinSyclUniqueStableName)
+    .value("KEYWORD___ARM_LOCALLY_STREAMING", pasta::TokenKind::kKeyword__ArmLocallyStreaming)
+    .value("KEYWORD___ARM_NEW_ZA", pasta::TokenKind::kKeyword__ArmNewZa)
+    .value("KEYWORD___ARM_PRESERVES_ZA", pasta::TokenKind::kKeyword__ArmPreservesZa)
+    .value("KEYWORD___ARM_SHARED_ZA", pasta::TokenKind::kKeyword__ArmSharedZa)
+    .value("KEYWORD___ARM_STREAMING", pasta::TokenKind::kKeyword__ArmStreaming)
+    .value("KEYWORD___ARM_STREAMING_COMPATIBLE", pasta::TokenKind::kKeyword__ArmStreamingCompatible)
     .value("KEYWORD___UNKNOWN_ANYTYPE", pasta::TokenKind::kKeyword__UnknownAnytype)
     .value("ANNOT_CXXSCOPE", pasta::TokenKind::kAnnotCxxscope)
     .value("ANNOT_TYPENAME", pasta::TokenKind::kAnnotTypename)
@@ -4758,7 +4994,8 @@ void RegisterEnums(nb::module_ &m) {
     .value("ANNOT_MODULE_INCLUDE", pasta::TokenKind::kAnnotModuleInclude)
     .value("ANNOT_MODULE_BEGIN", pasta::TokenKind::kAnnotModuleBegin)
     .value("ANNOT_MODULE_END", pasta::TokenKind::kAnnotModuleEnd)
-    .value("ANNOT_HEADER_UNIT", pasta::TokenKind::kAnnotHeaderUnit);
+    .value("ANNOT_HEADER_UNIT", pasta::TokenKind::kAnnotHeaderUnit)
+    .value("ANNOT_REPL_INPUT_END", pasta::TokenKind::kAnnotReplInputEnd);
 
   nb::enum_<pasta::TrailingAllocKind>(m, "TrailingAllocKind")
     .value("TAK_INHERITS_CONSTRUCTOR", pasta::TrailingAllocKind::kTAKInheritsConstructor)
@@ -4963,11 +5200,13 @@ void RegisterEnums(nb::module_ &m) {
     .value("IS_UNION", pasta::TypeTrait::kIsUnion)
     .value("HAS_UNIQUE_OBJECT_REPRESENTATIONS", pasta::TypeTrait::kHasUniqueObjectRepresentations)
     .value("IS_TRIVIALLY_RELOCATABLE", pasta::TypeTrait::kIsTriviallyRelocatable)
+    .value("IS_TRIVIALLY_EQUALITY_COMPARABLE", pasta::TypeTrait::kIsTriviallyEqualityComparable)
     .value("IS_BOUNDED_ARRAY", pasta::TypeTrait::kIsBoundedArray)
     .value("IS_UNBOUNDED_ARRAY", pasta::TypeTrait::kIsUnboundedArray)
     .value("IS_NULL_POINTER", pasta::TypeTrait::kIsNullPointer)
     .value("IS_SCOPED_ENUM", pasta::TypeTrait::kIsScopedEnum)
     .value("IS_REFERENCEABLE", pasta::TypeTrait::kIsReferenceable)
+    .value("CAN_PASS_IN_REGS", pasta::TypeTrait::kCanPassInRegs)
     .value("IS_ARITHMETIC", pasta::TypeTrait::kIsArithmetic)
     .value("IS_FLOATING_POINT", pasta::TypeTrait::kIsFloatingPoint)
     .value("IS_INTEGRAL", pasta::TypeTrait::kIsIntegral)
@@ -4997,6 +5236,7 @@ void RegisterEnums(nb::module_ &m) {
     .value("IS_CONVERTIBLE_TO", pasta::TypeTrait::kIsConvertibleTo)
     .value("IS_TRIVIALLY_ASSIGNABLE", pasta::TypeTrait::kIsTriviallyAssignable)
     .value("REFERENCE_BINDS_TO_TEMPORARY", pasta::TypeTrait::kReferenceBindsToTemporary)
+    .value("REFERENCE_CONSTRUCTS_FROM_TEMPORARY", pasta::TypeTrait::kReferenceConstructsFromTemporary)
     .value("IS_SAME", pasta::TypeTrait::kIsSame)
     .value("IS_CONVERTIBLE", pasta::TypeTrait::kIsConvertible)
     .value("XNU_TYPE_COMPATIBLE", pasta::TypeTrait::kXNUTypeCompatible)
@@ -5046,15 +5286,6 @@ void RegisterEnums(nb::module_ &m) {
     .value("UNION", pasta::APValueKind::kUnion)
     .value("MEMBER_POINTER", pasta::APValueKind::kMemberPointer)
     .value("ADDRESS_LABEL_DIFF", pasta::APValueKind::kAddressLabelDiff);
-
-  nb::enum_<pasta::VectorLibrary>(m, "VectorLibrary")
-    .value("NO_LIBRARY", pasta::VectorLibrary::kNoLibrary)
-    .value("ACCELERATE", pasta::VectorLibrary::kAccelerate)
-    .value("LIBMVEC", pasta::VectorLibrary::kLIBMVEC)
-    .value("MASSV", pasta::VectorLibrary::kMASSV)
-    .value("SVML", pasta::VectorLibrary::kSVML)
-    .value("SLEEF", pasta::VectorLibrary::kSLEEF)
-    .value("DARWIN_LIBSYSTEM_M", pasta::VectorLibrary::kDarwinLibsystemM);
 
   nb::enum_<pasta::Visibility>(m, "Visibility")
     .value("HIDDEN_VISIBILITY", pasta::Visibility::kHiddenVisibility)

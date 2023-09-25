@@ -17,7 +17,7 @@ namespace nb = nanobind;
 
 void RegisterOMPTaskwaitDirective(nb::module_ &m) {
   nb::class_<OMPTaskwaitDirective, OMPExecutableDirective>(m, "OMPTaskwaitDirective")
-    .def("__hash__", [](const OMPTaskwaitDirective& stmt) { return (intptr_t)stmt.RawStmt(); })
+    .def("__hash__", [](const OMPTaskwaitDirective& stmt) { return reinterpret_cast<intptr_t>(stmt.RawStmt()); })
     .def("__eq__", [](const Stmt& a, const Stmt& b) { return a.RawStmt() == b.RawStmt(); });
 }
 } // namespace pasta

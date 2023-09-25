@@ -17,7 +17,7 @@ namespace nb = nanobind;
 
 void RegisterAddrLabelExpr(nb::module_ &m) {
   nb::class_<AddrLabelExpr, Expr>(m, "AddrLabelExpr")
-    .def("__hash__", [](const AddrLabelExpr& stmt) { return (intptr_t)stmt.RawStmt(); })
+    .def("__hash__", [](const AddrLabelExpr& stmt) { return reinterpret_cast<intptr_t>(stmt.RawStmt()); })
     .def("__eq__", [](const Stmt& a, const Stmt& b) { return a.RawStmt() == b.RawStmt(); })
     .def_prop_ro("children", &AddrLabelExpr::Children)
     .def_prop_ro("amp_amp_token", &AddrLabelExpr::AmpAmpToken)

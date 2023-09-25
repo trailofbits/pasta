@@ -17,7 +17,7 @@ namespace nb = nanobind;
 
 void RegisterVAArgExpr(nb::module_ &m) {
   nb::class_<VAArgExpr, Expr>(m, "VAArgExpr")
-    .def("__hash__", [](const VAArgExpr& stmt) { return (intptr_t)stmt.RawStmt(); })
+    .def("__hash__", [](const VAArgExpr& stmt) { return reinterpret_cast<intptr_t>(stmt.RawStmt()); })
     .def("__eq__", [](const Stmt& a, const Stmt& b) { return a.RawStmt() == b.RawStmt(); })
     .def_prop_ro("children", &VAArgExpr::Children)
     .def_prop_ro("begin_token", &VAArgExpr::BeginToken)

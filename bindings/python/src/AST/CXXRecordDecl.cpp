@@ -17,7 +17,7 @@ namespace nb = nanobind;
 
 void RegisterCXXRecordDecl(nb::module_ &m) {
   nb::class_<CXXRecordDecl, RecordDecl>(m, "CXXRecordDecl")
-    .def("__hash__", [](const CXXRecordDecl &decl) { return (intptr_t)decl.RawDecl(); })
+    .def("__hash__", [](const CXXRecordDecl &decl) { return reinterpret_cast<intptr_t>(decl.RawDecl()); })
     .def("__eq__", [](const Decl &a, const Decl &b) { return a.RawDecl() == b.RawDecl(); })
     .def_prop_ro("size_without_virtual_bases", &CXXRecordDecl::SizeWithoutVirtualBases)
     .def_prop_ro("primary_base", &CXXRecordDecl::PrimaryBase)
@@ -48,6 +48,7 @@ void RegisterCXXRecordDecl(nb::module_ &m) {
     .def_prop_ro("lambda_context_declaration", &CXXRecordDecl::LambdaContextDeclaration)
     .def_prop_ro("lambda_dependency_kind", &CXXRecordDecl::LambdaDependencyKind)
     .def_prop_ro("lambda_explicit_template_parameters", &CXXRecordDecl::LambdaExplicitTemplateParameters)
+    .def_prop_ro("lambda_index_in_context", &CXXRecordDecl::LambdaIndexInContext)
     .def_prop_ro("lambda_mangling_number", &CXXRecordDecl::LambdaManglingNumber)
     .def_prop_ro("lambda_type", &CXXRecordDecl::LambdaType)
     .def_prop_ro("ms_inheritance_model", &CXXRecordDecl::MSInheritanceModel)

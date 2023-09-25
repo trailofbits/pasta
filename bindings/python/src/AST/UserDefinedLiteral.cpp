@@ -17,7 +17,7 @@ namespace nb = nanobind;
 
 void RegisterUserDefinedLiteral(nb::module_ &m) {
   nb::class_<UserDefinedLiteral, CallExpr>(m, "UserDefinedLiteral")
-    .def("__hash__", [](const UserDefinedLiteral& stmt) { return (intptr_t)stmt.RawStmt(); })
+    .def("__hash__", [](const UserDefinedLiteral& stmt) { return reinterpret_cast<intptr_t>(stmt.RawStmt()); })
     .def("__eq__", [](const Stmt& a, const Stmt& b) { return a.RawStmt() == b.RawStmt(); })
     .def_prop_ro("begin_token", &UserDefinedLiteral::BeginToken)
     .def_prop_ro("cooked_literal", &UserDefinedLiteral::CookedLiteral)

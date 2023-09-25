@@ -17,7 +17,7 @@ namespace nb = nanobind;
 
 void RegisterOMPLoopBasedDirective(nb::module_ &m) {
   nb::class_<OMPLoopBasedDirective, OMPExecutableDirective>(m, "OMPLoopBasedDirective")
-    .def("__hash__", [](const OMPLoopBasedDirective& stmt) { return (intptr_t)stmt.RawStmt(); })
+    .def("__hash__", [](const OMPLoopBasedDirective& stmt) { return reinterpret_cast<intptr_t>(stmt.RawStmt()); })
     .def("__eq__", [](const Stmt& a, const Stmt& b) { return a.RawStmt() == b.RawStmt(); })
     .def_prop_ro("loops_number", &OMPLoopBasedDirective::LoopsNumber);
 }

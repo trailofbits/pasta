@@ -17,7 +17,7 @@ namespace nb = nanobind;
 
 void RegisterUsingShadowDecl(nb::module_ &m) {
   nb::class_<UsingShadowDecl, NamedDecl>(m, "UsingShadowDecl")
-    .def("__hash__", [](const UsingShadowDecl &decl) { return (intptr_t)decl.RawDecl(); })
+    .def("__hash__", [](const UsingShadowDecl &decl) { return reinterpret_cast<intptr_t>(decl.RawDecl()); })
     .def("__eq__", [](const Decl &a, const Decl &b) { return a.RawDecl() == b.RawDecl(); })
     .def_prop_ro("canonical_declaration", &UsingShadowDecl::CanonicalDeclaration)
     .def_prop_ro("introducer", &UsingShadowDecl::Introducer)

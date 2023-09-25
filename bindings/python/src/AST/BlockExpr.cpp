@@ -17,7 +17,7 @@ namespace nb = nanobind;
 
 void RegisterBlockExpr(nb::module_ &m) {
   nb::class_<BlockExpr, Expr>(m, "BlockExpr")
-    .def("__hash__", [](const BlockExpr& stmt) { return (intptr_t)stmt.RawStmt(); })
+    .def("__hash__", [](const BlockExpr& stmt) { return reinterpret_cast<intptr_t>(stmt.RawStmt()); })
     .def("__eq__", [](const Stmt& a, const Stmt& b) { return a.RawStmt() == b.RawStmt(); })
     .def_prop_ro("children", &BlockExpr::Children)
     .def_prop_ro("begin_token", &BlockExpr::BeginToken)

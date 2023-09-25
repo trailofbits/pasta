@@ -17,7 +17,7 @@ namespace nb = nanobind;
 
 void RegisterCompoundLiteralExpr(nb::module_ &m) {
   nb::class_<CompoundLiteralExpr, Expr>(m, "CompoundLiteralExpr")
-    .def("__hash__", [](const CompoundLiteralExpr& stmt) { return (intptr_t)stmt.RawStmt(); })
+    .def("__hash__", [](const CompoundLiteralExpr& stmt) { return reinterpret_cast<intptr_t>(stmt.RawStmt()); })
     .def("__eq__", [](const Stmt& a, const Stmt& b) { return a.RawStmt() == b.RawStmt(); })
     .def_prop_ro("children", &CompoundLiteralExpr::Children)
     .def_prop_ro("begin_token", &CompoundLiteralExpr::BeginToken)

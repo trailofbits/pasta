@@ -17,7 +17,7 @@ namespace nb = nanobind;
 
 void RegisterCXXUnresolvedConstructExpr(nb::module_ &m) {
   nb::class_<CXXUnresolvedConstructExpr, Expr>(m, "CXXUnresolvedConstructExpr")
-    .def("__hash__", [](const CXXUnresolvedConstructExpr& stmt) { return (intptr_t)stmt.RawStmt(); })
+    .def("__hash__", [](const CXXUnresolvedConstructExpr& stmt) { return reinterpret_cast<intptr_t>(stmt.RawStmt()); })
     .def("__eq__", [](const Stmt& a, const Stmt& b) { return a.RawStmt() == b.RawStmt(); })
     .def_prop_ro("arguments", &CXXUnresolvedConstructExpr::Arguments)
     .def_prop_ro("children", &CXXUnresolvedConstructExpr::Children)

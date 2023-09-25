@@ -17,7 +17,7 @@ namespace nb = nanobind;
 
 void RegisterOMPBarrierDirective(nb::module_ &m) {
   nb::class_<OMPBarrierDirective, OMPExecutableDirective>(m, "OMPBarrierDirective")
-    .def("__hash__", [](const OMPBarrierDirective& stmt) { return (intptr_t)stmt.RawStmt(); })
+    .def("__hash__", [](const OMPBarrierDirective& stmt) { return reinterpret_cast<intptr_t>(stmt.RawStmt()); })
     .def("__eq__", [](const Stmt& a, const Stmt& b) { return a.RawStmt() == b.RawStmt(); });
 }
 } // namespace pasta

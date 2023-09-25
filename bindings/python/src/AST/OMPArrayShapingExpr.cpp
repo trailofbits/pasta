@@ -17,7 +17,7 @@ namespace nb = nanobind;
 
 void RegisterOMPArrayShapingExpr(nb::module_ &m) {
   nb::class_<OMPArrayShapingExpr, Expr>(m, "OMPArrayShapingExpr")
-    .def("__hash__", [](const OMPArrayShapingExpr& stmt) { return (intptr_t)stmt.RawStmt(); })
+    .def("__hash__", [](const OMPArrayShapingExpr& stmt) { return reinterpret_cast<intptr_t>(stmt.RawStmt()); })
     .def("__eq__", [](const Stmt& a, const Stmt& b) { return a.RawStmt() == b.RawStmt(); })
     .def_prop_ro("children", &OMPArrayShapingExpr::Children)
     .def_prop_ro("base", &OMPArrayShapingExpr::Base)

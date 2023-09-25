@@ -17,7 +17,7 @@ namespace nb = nanobind;
 
 void RegisterObjCAtDefsFieldDecl(nb::module_ &m) {
   nb::class_<ObjCAtDefsFieldDecl, FieldDecl>(m, "ObjCAtDefsFieldDecl")
-    .def("__hash__", [](const ObjCAtDefsFieldDecl &decl) { return (intptr_t)decl.RawDecl(); })
+    .def("__hash__", [](const ObjCAtDefsFieldDecl &decl) { return reinterpret_cast<intptr_t>(decl.RawDecl()); })
     .def("__eq__", [](const Decl &a, const Decl &b) { return a.RawDecl() == b.RawDecl(); });
 }
 } // namespace pasta

@@ -17,7 +17,7 @@ namespace nb = nanobind;
 
 void RegisterAMDGPUKernelCallAttr(nb::module_ &m) {
   nb::class_<AMDGPUKernelCallAttr, InheritableAttr>(m, "AMDGPUKernelCallAttr")
-    .def("__hash__", [](const AMDGPUKernelCallAttr &attr) { return (intptr_t)attr.RawAttr(); })
+    .def("__hash__", [](const AMDGPUKernelCallAttr &attr) { return reinterpret_cast<intptr_t>(attr.RawAttr()); })
     .def("__eq__", [](const Attr &a, const Attr &b) { return a.RawAttr() == b.RawAttr(); })
     .def_prop_ro("spelling", &AMDGPUKernelCallAttr::Spelling);
 }

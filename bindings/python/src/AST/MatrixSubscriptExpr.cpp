@@ -17,7 +17,7 @@ namespace nb = nanobind;
 
 void RegisterMatrixSubscriptExpr(nb::module_ &m) {
   nb::class_<MatrixSubscriptExpr, Expr>(m, "MatrixSubscriptExpr")
-    .def("__hash__", [](const MatrixSubscriptExpr& stmt) { return (intptr_t)stmt.RawStmt(); })
+    .def("__hash__", [](const MatrixSubscriptExpr& stmt) { return reinterpret_cast<intptr_t>(stmt.RawStmt()); })
     .def("__eq__", [](const Stmt& a, const Stmt& b) { return a.RawStmt() == b.RawStmt(); })
     .def_prop_ro("children", &MatrixSubscriptExpr::Children)
     .def_prop_ro("base", &MatrixSubscriptExpr::Base)

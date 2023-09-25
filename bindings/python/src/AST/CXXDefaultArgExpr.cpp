@@ -17,7 +17,7 @@ namespace nb = nanobind;
 
 void RegisterCXXDefaultArgExpr(nb::module_ &m) {
   nb::class_<CXXDefaultArgExpr, Expr>(m, "CXXDefaultArgExpr")
-    .def("__hash__", [](const CXXDefaultArgExpr& stmt) { return (intptr_t)stmt.RawStmt(); })
+    .def("__hash__", [](const CXXDefaultArgExpr& stmt) { return reinterpret_cast<intptr_t>(stmt.RawStmt()); })
     .def("__eq__", [](const Stmt& a, const Stmt& b) { return a.RawStmt() == b.RawStmt(); })
     .def_prop_ro("children", &CXXDefaultArgExpr::Children)
     .def_prop_ro("adjusted_rewritten_expression", &CXXDefaultArgExpr::AdjustedRewrittenExpression)

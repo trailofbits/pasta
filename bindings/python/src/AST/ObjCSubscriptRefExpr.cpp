@@ -17,7 +17,7 @@ namespace nb = nanobind;
 
 void RegisterObjCSubscriptRefExpr(nb::module_ &m) {
   nb::class_<ObjCSubscriptRefExpr, Expr>(m, "ObjCSubscriptRefExpr")
-    .def("__hash__", [](const ObjCSubscriptRefExpr& stmt) { return (intptr_t)stmt.RawStmt(); })
+    .def("__hash__", [](const ObjCSubscriptRefExpr& stmt) { return reinterpret_cast<intptr_t>(stmt.RawStmt()); })
     .def("__eq__", [](const Stmt& a, const Stmt& b) { return a.RawStmt() == b.RawStmt(); })
     .def_prop_ro("children", &ObjCSubscriptRefExpr::Children)
     .def_prop_ro("at_index_method_declaration", &ObjCSubscriptRefExpr::AtIndexMethodDeclaration)

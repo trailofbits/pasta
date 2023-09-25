@@ -17,7 +17,7 @@ namespace nb = nanobind;
 
 void RegisterVectorType(nb::module_ &m) {
   nb::class_<VectorType, Type>(m, "VectorType")
-    .def("__hash__", [](const VectorType &type) { return (intptr_t)type.RawType(); })
+    .def("__hash__", [](const VectorType &type) { return reinterpret_cast<intptr_t>(type.RawType()); })
     .def("__eq__", [](const Type &a, const Type &b) { return a.RawType() == b.RawType(); })
     .def_prop_ro("desugar", &VectorType::Desugar)
     .def_prop_ro("element_type", &VectorType::ElementType)

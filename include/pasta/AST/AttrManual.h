@@ -61,20 +61,23 @@ class AttributeCommonInfo {
   // Is GNU syntax?
   bool IsGNUScope() const noexcept;
 
-  // Is alignas attribute?
-  bool IsAlignasAttribute() const noexcept;
-
   // Is CXX11 attribute?
   bool IsCXX11Attribute() const noexcept;
 
   // Is C2x attribute?
-  bool IsC2xAttribute() const noexcept;
+  bool IsC23Attribute() const noexcept;
 
   // Is keyword attribute?
   bool IsKeywordAttribute() const noexcept;
 
   // Is context-sensitive keyword attribute?
   bool IsContextSensitiveKeywordAttribute() const noexcept;
+
+  // The attribute is spelled `[[]]` in either C or C++ mode, including standard
+  // attributes spelled with a keyword, like `alignas`.
+  inline bool isStandardAttributeSyntax() const {
+    return IsCXX11Attribute() || IsC23Attribute();
+  }
 #endif
 };
 

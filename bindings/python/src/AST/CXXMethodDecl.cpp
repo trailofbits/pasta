@@ -17,7 +17,7 @@ namespace nb = nanobind;
 
 void RegisterCXXMethodDecl(nb::module_ &m) {
   nb::class_<CXXMethodDecl, FunctionDecl>(m, "CXXMethodDecl")
-    .def("__hash__", [](const CXXMethodDecl &decl) { return (intptr_t)decl.RawDecl(); })
+    .def("__hash__", [](const CXXMethodDecl &decl) { return reinterpret_cast<intptr_t>(decl.RawDecl()); })
     .def("__eq__", [](const Decl &a, const Decl &b) { return a.RawDecl() == b.RawDecl(); })
     .def_prop_ro("canonical_declaration", &CXXMethodDecl::CanonicalDeclaration)
     .def_prop_ro("most_recent_declaration", &CXXMethodDecl::MostRecentDeclaration)

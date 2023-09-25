@@ -13,6 +13,8 @@
 
 #include "DeclStmtPrinter.h"
 
+#include <llvm/ADT/StringExtras.h>
+
 //===----------------------------------------------------------------------===//
 //  Stmt printing methods.
 //===----------------------------------------------------------------------===//
@@ -774,6 +776,11 @@ void StmtPrinter::VisitOMPSectionsDirective(clang::OMPSectionsDirective *Node) {
 void StmtPrinter::VisitOMPSectionDirective(clang::OMPSectionDirective *Node) {
   TokenPrinterContext ctx(OS, Node, tokens);
   Indent() << "#pragma omp section";
+  PrintOMPExecutableDirective(Node);
+}
+
+void StmtPrinter::VisitOMPScopeDirective(clang::OMPScopeDirective *Node) {
+  Indent() << "#pragma omp scope";
   PrintOMPExecutableDirective(Node);
 }
 
@@ -1985,7 +1992,7 @@ void StmtPrinter::VisitDesignatedInitExpr(clang::DesignatedInitExpr *Node) {
     TokenPrinterContext ctx(OS, &D, tokens);
     if (D.isFieldDesignator()) {
       if (D.getDotLoc().isInvalid()) {
-        if (clang::IdentifierInfo *II = D.getFieldName()) {
+        if (auto *II = D.getFieldName()) {
           OS << II->getName();
           ctx.MarkLocation(D.getFieldLoc());
           OS << ":";

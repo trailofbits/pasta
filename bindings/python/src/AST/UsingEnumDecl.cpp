@@ -17,7 +17,7 @@ namespace nb = nanobind;
 
 void RegisterUsingEnumDecl(nb::module_ &m) {
   nb::class_<UsingEnumDecl, BaseUsingDecl>(m, "UsingEnumDecl")
-    .def("__hash__", [](const UsingEnumDecl &decl) { return (intptr_t)decl.RawDecl(); })
+    .def("__hash__", [](const UsingEnumDecl &decl) { return reinterpret_cast<intptr_t>(decl.RawDecl()); })
     .def("__eq__", [](const Decl &a, const Decl &b) { return a.RawDecl() == b.RawDecl(); })
     .def_prop_ro("canonical_declaration", &UsingEnumDecl::CanonicalDeclaration)
     .def_prop_ro("enum_declaration", &UsingEnumDecl::EnumDeclaration)

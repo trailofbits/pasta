@@ -17,7 +17,7 @@ namespace nb = nanobind;
 
 void RegisterVectorCallAttr(nb::module_ &m) {
   nb::class_<VectorCallAttr, InheritableAttr>(m, "VectorCallAttr")
-    .def("__hash__", [](const VectorCallAttr &attr) { return (intptr_t)attr.RawAttr(); })
+    .def("__hash__", [](const VectorCallAttr &attr) { return reinterpret_cast<intptr_t>(attr.RawAttr()); })
     .def("__eq__", [](const Attr &a, const Attr &b) { return a.RawAttr() == b.RawAttr(); })
     .def_prop_ro("spelling", &VectorCallAttr::Spelling);
 }

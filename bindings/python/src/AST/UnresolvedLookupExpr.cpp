@@ -17,7 +17,7 @@ namespace nb = nanobind;
 
 void RegisterUnresolvedLookupExpr(nb::module_ &m) {
   nb::class_<UnresolvedLookupExpr, OverloadExpr>(m, "UnresolvedLookupExpr")
-    .def("__hash__", [](const UnresolvedLookupExpr& stmt) { return (intptr_t)stmt.RawStmt(); })
+    .def("__hash__", [](const UnresolvedLookupExpr& stmt) { return reinterpret_cast<intptr_t>(stmt.RawStmt()); })
     .def("__eq__", [](const Stmt& a, const Stmt& b) { return a.RawStmt() == b.RawStmt(); })
     .def_prop_ro("children", &UnresolvedLookupExpr::Children)
     .def_prop_ro("begin_token", &UnresolvedLookupExpr::BeginToken)

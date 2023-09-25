@@ -17,7 +17,7 @@ namespace nb = nanobind;
 
 void RegisterUnlikelyAttr(nb::module_ &m) {
   nb::class_<UnlikelyAttr, StmtAttr>(m, "UnlikelyAttr")
-    .def("__hash__", [](const UnlikelyAttr &attr) { return (intptr_t)attr.RawAttr(); })
+    .def("__hash__", [](const UnlikelyAttr &attr) { return reinterpret_cast<intptr_t>(attr.RawAttr()); })
     .def("__eq__", [](const Attr &a, const Attr &b) { return a.RawAttr() == b.RawAttr(); })
     .def_prop_ro("spelling", &UnlikelyAttr::Spelling);
 }

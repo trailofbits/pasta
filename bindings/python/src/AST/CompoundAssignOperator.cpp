@@ -17,7 +17,7 @@ namespace nb = nanobind;
 
 void RegisterCompoundAssignOperator(nb::module_ &m) {
   nb::class_<CompoundAssignOperator, BinaryOperator>(m, "CompoundAssignOperator")
-    .def("__hash__", [](const CompoundAssignOperator& stmt) { return (intptr_t)stmt.RawStmt(); })
+    .def("__hash__", [](const CompoundAssignOperator& stmt) { return reinterpret_cast<intptr_t>(stmt.RawStmt()); })
     .def("__eq__", [](const Stmt& a, const Stmt& b) { return a.RawStmt() == b.RawStmt(); })
     .def_prop_ro("computation_lhs_type", &CompoundAssignOperator::ComputationLHSType)
     .def_prop_ro("computation_result_type", &CompoundAssignOperator::ComputationResultType);

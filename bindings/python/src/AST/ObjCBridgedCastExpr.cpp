@@ -17,7 +17,7 @@ namespace nb = nanobind;
 
 void RegisterObjCBridgedCastExpr(nb::module_ &m) {
   nb::class_<ObjCBridgedCastExpr, ExplicitCastExpr>(m, "ObjCBridgedCastExpr")
-    .def("__hash__", [](const ObjCBridgedCastExpr& stmt) { return (intptr_t)stmt.RawStmt(); })
+    .def("__hash__", [](const ObjCBridgedCastExpr& stmt) { return reinterpret_cast<intptr_t>(stmt.RawStmt()); })
     .def("__eq__", [](const Stmt& a, const Stmt& b) { return a.RawStmt() == b.RawStmt(); })
     .def_prop_ro("begin_token", &ObjCBridgedCastExpr::BeginToken)
     .def_prop_ro("bridge_keyword_token", &ObjCBridgedCastExpr::BridgeKeywordToken)

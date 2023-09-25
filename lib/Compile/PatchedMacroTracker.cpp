@@ -1062,7 +1062,9 @@ void ASTImpl::LinkMacroTokenContexts(void) {
     m(__include_macros, MacroKind::kIncludeMacrosDirective) \
     m(define, MacroKind::kDefineDirective) \
     m(undef, MacroKind::kUndefineDirective) \
-    m(pragma, MacroKind::kPragmaDirective)
+    m(pragma, MacroKind::kPragmaDirective) \
+    m(__public_macro, MacroKind::kOtherDirective) \
+    m(__private_macro, MacroKind::kOtherDirective)
 
 #define KIND_FROM_NAME(kw, pasta_kind) \
     if (ident == #kw) { \

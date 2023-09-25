@@ -17,7 +17,7 @@ namespace nb = nanobind;
 
 void RegisterTypedefNameDecl(nb::module_ &m) {
   nb::class_<TypedefNameDecl, TypeDecl>(m, "TypedefNameDecl")
-    .def("__hash__", [](const TypedefNameDecl &decl) { return (intptr_t)decl.RawDecl(); })
+    .def("__hash__", [](const TypedefNameDecl &decl) { return reinterpret_cast<intptr_t>(decl.RawDecl()); })
     .def("__eq__", [](const Decl &a, const Decl &b) { return a.RawDecl() == b.RawDecl(); })
     .def_prop_ro("anonymous_declaration_with_typedef_name", &TypedefNameDecl::AnonymousDeclarationWithTypedefName)
     .def_prop_ro("canonical_declaration", &TypedefNameDecl::CanonicalDeclaration)

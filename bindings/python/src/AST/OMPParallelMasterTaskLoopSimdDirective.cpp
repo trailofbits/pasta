@@ -17,7 +17,7 @@ namespace nb = nanobind;
 
 void RegisterOMPParallelMasterTaskLoopSimdDirective(nb::module_ &m) {
   nb::class_<OMPParallelMasterTaskLoopSimdDirective, OMPLoopDirective>(m, "OMPParallelMasterTaskLoopSimdDirective")
-    .def("__hash__", [](const OMPParallelMasterTaskLoopSimdDirective& stmt) { return (intptr_t)stmt.RawStmt(); })
+    .def("__hash__", [](const OMPParallelMasterTaskLoopSimdDirective& stmt) { return reinterpret_cast<intptr_t>(stmt.RawStmt()); })
     .def("__eq__", [](const Stmt& a, const Stmt& b) { return a.RawStmt() == b.RawStmt(); });
 }
 } // namespace pasta

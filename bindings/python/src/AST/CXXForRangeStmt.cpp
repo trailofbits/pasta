@@ -17,7 +17,7 @@ namespace nb = nanobind;
 
 void RegisterCXXForRangeStmt(nb::module_ &m) {
   nb::class_<CXXForRangeStmt, Stmt>(m, "CXXForRangeStmt")
-    .def("__hash__", [](const CXXForRangeStmt& stmt) { return (intptr_t)stmt.RawStmt(); })
+    .def("__hash__", [](const CXXForRangeStmt& stmt) { return reinterpret_cast<intptr_t>(stmt.RawStmt()); })
     .def("__eq__", [](const Stmt& a, const Stmt& b) { return a.RawStmt() == b.RawStmt(); })
     .def_prop_ro("children", &CXXForRangeStmt::Children)
     .def_prop_ro("begin_token", &CXXForRangeStmt::BeginToken)

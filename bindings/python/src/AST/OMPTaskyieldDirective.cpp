@@ -17,7 +17,7 @@ namespace nb = nanobind;
 
 void RegisterOMPTaskyieldDirective(nb::module_ &m) {
   nb::class_<OMPTaskyieldDirective, OMPExecutableDirective>(m, "OMPTaskyieldDirective")
-    .def("__hash__", [](const OMPTaskyieldDirective& stmt) { return (intptr_t)stmt.RawStmt(); })
+    .def("__hash__", [](const OMPTaskyieldDirective& stmt) { return reinterpret_cast<intptr_t>(stmt.RawStmt()); })
     .def("__eq__", [](const Stmt& a, const Stmt& b) { return a.RawStmt() == b.RawStmt(); });
 }
 } // namespace pasta

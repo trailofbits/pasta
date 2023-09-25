@@ -397,8 +397,10 @@ class Decl {
   bool IsFirstDeclaration(void) const;
   bool IsFromASTFile(void) const;
   bool IsFunctionOrFunctionTemplate(void) const;
+  bool IsFunctionPointerType(void) const;
   bool IsImplicit(void) const;
   bool IsInAnonymousNamespace(void) const;
+  bool IsInAnotherModuleUnit(void) const;
   bool IsInExportDeclarationContext(void) const;
   // IsInIdentifierNamespace: (bool)
   std::optional<bool> IsInLocalScopeForInstantiation(void) const;
@@ -808,6 +810,7 @@ class NamedDecl : public Decl {
   bool IsExternallyDeclarable(void) const;
   bool IsExternallyVisible(void) const;
   bool IsLinkageValid(void) const;
+  // IsPlaceholderVariable: (bool)
   // IsReserved: (clang::ReservedIdentifierStatus)
  protected:
   PASTA_DEFINE_DEFAULT_DECL_CONSTRUCTOR(NamedDecl)
@@ -976,7 +979,7 @@ class ObjCInterfaceDecl : public ObjCContainerDecl {
   // CategoryInstanceMethod: (clang::ObjCMethodDecl *)
   ::pasta::ObjCCategoryDecl CategoryListRaw(void) const;
   // CategoryMethod: (clang::ObjCMethodDecl *)
-  ::pasta::ObjCInterfaceDecl Definition(void) const;
+  std::optional<::pasta::ObjCInterfaceDecl> Definition(void) const;
   ::pasta::Token EndOfDefinitionToken(void) const;
   ::pasta::ObjCImplementationDecl Implementation(void) const;
   std::string_view ObjCRuntimeNameAsString(void) const;
@@ -1136,7 +1139,7 @@ class ObjCProtocolDecl : public ObjCContainerDecl {
   PASTA_DECLARE_BASE_OPERATORS(NamedDecl, ObjCProtocolDecl)
   PASTA_DECLARE_BASE_OPERATORS(ObjCContainerDecl, ObjCProtocolDecl)
   ::pasta::ObjCProtocolDecl CanonicalDeclaration(void) const;
-  ::pasta::ObjCProtocolDecl Definition(void) const;
+  std::optional<::pasta::ObjCProtocolDecl> Definition(void) const;
   std::string_view ObjCRuntimeNameAsString(void) const;
   // ReferencedProtocols: (const clang::ObjCProtocolList &)
   bool HasDefinition(void) const;
@@ -1197,7 +1200,7 @@ class StaticAssertDecl : public Decl {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(StaticAssertDecl)
   PASTA_DECLARE_BASE_OPERATORS(Decl, StaticAssertDecl)
   ::pasta::Expr AssertExpression(void) const;
-  ::pasta::StringLiteral Message(void) const;
+  ::pasta::Expr Message(void) const;
   ::pasta::Token RParenToken(void) const;
   bool IsFailed(void) const;
  protected:
@@ -1261,6 +1264,7 @@ class TopLevelStmtDecl : public Decl {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(TopLevelStmtDecl)
   PASTA_DECLARE_BASE_OPERATORS(Decl, TopLevelStmtDecl)
   ::pasta::Stmt Statement(void) const;
+  bool IsSemiMissing(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_DECL_CONSTRUCTOR(TopLevelStmtDecl)
 };
@@ -1740,9 +1744,11 @@ class FieldDecl : public DeclaratorDecl {
   ::pasta::RecordDecl Parent(void) const;
   bool HasCapturedVLAType(void) const;
   bool HasInClassInitializer(void) const;
+  bool HasNonNullInClassInitializer(void) const;
   bool IsAnonymousStructOrUnion(void) const;
   bool IsBitField(void) const;
   bool IsMutable(void) const;
+  bool IsPotentiallyOverlapping(void) const;
   bool IsUnnamedBitfield(void) const;
   bool IsZeroLengthBitField(void) const;
   bool IsZeroSize(void) const;
@@ -1769,6 +1775,7 @@ class FunctionDecl : public DeclaratorDecl {
   PASTA_DECLARE_DERIVED_OPERATORS(FunctionDecl, CXXDeductionGuideDecl)
   PASTA_DECLARE_DERIVED_OPERATORS(FunctionDecl, CXXDestructorDecl)
   PASTA_DECLARE_DERIVED_OPERATORS(FunctionDecl, CXXMethodDecl)
+  bool BodyContainsImmediateEscalatingExpressions(void) const;
   bool FriendConstraintRefersToEnclosingTemplate(void) const;
   bool UsesFPIntrin(void) const;
   std::optional<bool> DoesDeclarationForceExternallyVisibleDefinition(void) const;
@@ -1833,6 +1840,8 @@ class FunctionDecl : public DeclaratorDecl {
   bool IsExternC(void) const;
   bool IsFunctionTemplateSpecialization(void) const;
   bool IsGlobal(void) const;
+  bool IsImmediateEscalating(void) const;
+  bool IsImmediateFunction(void) const;
   bool IsImplicitlyInstantiable(void) const;
   bool IsInExternCContext(void) const;
   bool IsInExternCXXContext(void) const;
@@ -1845,6 +1854,7 @@ class FunctionDecl : public DeclaratorDecl {
   std::optional<bool> IsMSExternInline(void) const;
   bool IsMSVCRTEntryPoint(void) const;
   bool IsMain(void) const;
+  bool IsMemberLikeConstrainedFriend(void) const;
   bool IsMultiVersion(void) const;
   bool IsNoReturn(void) const;
   bool IsOverloadedOperator(void) const;
@@ -2581,8 +2591,8 @@ class CXXDeductionGuideDecl : public FunctionDecl {
   PASTA_DECLARE_BASE_OPERATORS(ValueDecl, CXXDeductionGuideDecl)
   ::pasta::CXXConstructorDecl CorrespondingConstructor(void) const;
   ::pasta::TemplateDecl DeducedTemplate(void) const;
+  enum DeductionCandidate DeductionCandidateKind(void) const;
   // ExplicitSpecifier: (const clang::ExplicitSpecifier)
-  bool IsCopyDeductionCandidate(void) const;
   bool IsExplicit(void) const;
   std::vector<::pasta::TemplateParameterList> TemplateParameterLists(void) const;
   std::vector<::pasta::ParmVarDecl> ParameterDeclarations(void) const;
@@ -2688,7 +2698,7 @@ class EnumDecl : public TagDecl {
   PASTA_DECLARE_BASE_OPERATORS(TypeDecl, EnumDecl)
   std::vector<::pasta::EnumConstantDecl> Enumerators(void) const;
   ::pasta::EnumDecl CanonicalDeclaration(void) const;
-  ::pasta::EnumDecl Definition(void) const;
+  std::optional<::pasta::EnumDecl> Definition(void) const;
   std::optional<::pasta::EnumDecl> InstantiatedFromMemberEnum(void) const;
   std::optional<::pasta::Type> IntegerType(void) const;
   ::pasta::TokenRange IntegerTypeRange(void) const;
@@ -2981,6 +2991,7 @@ class CXXRecordDecl : public RecordDecl {
   // ForallBases: (bool)
   std::optional<std::vector<::pasta::FriendDecl>> Friends(void) const;
   ::pasta::CXXRecordDecl CanonicalDeclaration(void) const;
+  // Capture: (const clang::LambdaCapture *)
   std::optional<::pasta::CXXRecordDecl> Definition(void) const;
   std::optional<::pasta::FunctionTemplateDecl> DependentLambdaCallOperator(void) const;
   std::optional<::pasta::ClassTemplateDecl> DescribedClassTemplate(void) const;
@@ -2993,7 +3004,9 @@ class CXXRecordDecl : public RecordDecl {
   std::optional<::pasta::Decl> LambdaContextDeclaration(void) const;
   uint32_t LambdaDependencyKind(void) const;
   std::optional<std::vector<::pasta::NamedDecl>> LambdaExplicitTemplateParameters(void) const;
+  uint32_t LambdaIndexInContext(void) const;
   std::optional<uint32_t> LambdaManglingNumber(void) const;
+  // LambdaNumbering: (clang::CXXRecordDecl::LambdaNumbering)
   std::optional<::pasta::Type> LambdaType(void) const;
   std::optional<enum MSInheritanceModel> MSInheritanceModel(void) const;
   enum MSVtorDispMode MSVtorDispMode(void) const;

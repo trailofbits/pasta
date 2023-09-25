@@ -17,7 +17,7 @@ namespace nb = nanobind;
 
 void RegisterCUDALaunchBoundsAttr(nb::module_ &m) {
   nb::class_<CUDALaunchBoundsAttr, InheritableAttr>(m, "CUDALaunchBoundsAttr")
-    .def("__hash__", [](const CUDALaunchBoundsAttr &attr) { return (intptr_t)attr.RawAttr(); })
+    .def("__hash__", [](const CUDALaunchBoundsAttr &attr) { return reinterpret_cast<intptr_t>(attr.RawAttr()); })
     .def("__eq__", [](const Attr &a, const Attr &b) { return a.RawAttr() == b.RawAttr(); })
     .def_prop_ro("max_threads", &CUDALaunchBoundsAttr::MaxThreads)
     .def_prop_ro("min_blocks", &CUDALaunchBoundsAttr::MinBlocks)

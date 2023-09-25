@@ -17,7 +17,7 @@ namespace nb = nanobind;
 
 void RegisterSEHFinallyStmt(nb::module_ &m) {
   nb::class_<SEHFinallyStmt, Stmt>(m, "SEHFinallyStmt")
-    .def("__hash__", [](const SEHFinallyStmt& stmt) { return (intptr_t)stmt.RawStmt(); })
+    .def("__hash__", [](const SEHFinallyStmt& stmt) { return reinterpret_cast<intptr_t>(stmt.RawStmt()); })
     .def("__eq__", [](const Stmt& a, const Stmt& b) { return a.RawStmt() == b.RawStmt(); })
     .def_prop_ro("children", &SEHFinallyStmt::Children)
     .def_prop_ro("begin_token", &SEHFinallyStmt::BeginToken)

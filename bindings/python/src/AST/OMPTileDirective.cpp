@@ -17,7 +17,7 @@ namespace nb = nanobind;
 
 void RegisterOMPTileDirective(nb::module_ &m) {
   nb::class_<OMPTileDirective, OMPLoopTransformationDirective>(m, "OMPTileDirective")
-    .def("__hash__", [](const OMPTileDirective& stmt) { return (intptr_t)stmt.RawStmt(); })
+    .def("__hash__", [](const OMPTileDirective& stmt) { return reinterpret_cast<intptr_t>(stmt.RawStmt()); })
     .def("__eq__", [](const Stmt& a, const Stmt& b) { return a.RawStmt() == b.RawStmt(); })
     .def_prop_ro("pre_initializers", &OMPTileDirective::PreInitializers)
     .def_prop_ro("transformed_statement", &OMPTileDirective::TransformedStatement);

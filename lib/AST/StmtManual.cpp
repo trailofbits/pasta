@@ -69,7 +69,7 @@ std::optional<::pasta::FieldDecl> Designator::Field(void) const noexcept {
   if (!design->isFieldDesignator()) {
     return std::nullopt;
   }
-  return DeclBuilder::Create<pasta::FieldDecl>(ast, design->getField());
+  return DeclBuilder::Create<pasta::FieldDecl>(ast, design->getFieldDecl());
 }
 
 // Returns the TokenRange for the designator.
@@ -133,16 +133,6 @@ std::optional<::pasta::FieldDecl> Designator::Field(void) const noexcept {
     return ast->TokenAt(clang::SourceLocation());
   }
   return ast->TokenAt(design->getEllipsisLoc());
-}
-
-// Get the index for first designator expression. It will be only valid for
-std::optional<unsigned> Designator::FirstExpressionIndex(void) const noexcept {
-  auto design = reinterpret_cast<const clang::DesignatedInitExpr::Designator *>(spec);
-  assert(design != nullptr);
-  if (!(design->isArrayDesignator() || design->isArrayRangeDesignator())) {
-    return std::nullopt;
-  }
-  return design->getFirstExprIndex();
 }
 
 #endif  // PASTA_IN_BOOTSTRAP

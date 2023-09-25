@@ -17,7 +17,7 @@ namespace nb = nanobind;
 
 void RegisterUnresolvedMemberExpr(nb::module_ &m) {
   nb::class_<UnresolvedMemberExpr, OverloadExpr>(m, "UnresolvedMemberExpr")
-    .def("__hash__", [](const UnresolvedMemberExpr& stmt) { return (intptr_t)stmt.RawStmt(); })
+    .def("__hash__", [](const UnresolvedMemberExpr& stmt) { return reinterpret_cast<intptr_t>(stmt.RawStmt()); })
     .def("__eq__", [](const Stmt& a, const Stmt& b) { return a.RawStmt() == b.RawStmt(); })
     .def_prop_ro("children", &UnresolvedMemberExpr::Children)
     .def_prop_ro("base", &UnresolvedMemberExpr::Base)

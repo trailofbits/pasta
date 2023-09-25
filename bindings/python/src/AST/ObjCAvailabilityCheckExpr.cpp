@@ -17,7 +17,7 @@ namespace nb = nanobind;
 
 void RegisterObjCAvailabilityCheckExpr(nb::module_ &m) {
   nb::class_<ObjCAvailabilityCheckExpr, Expr>(m, "ObjCAvailabilityCheckExpr")
-    .def("__hash__", [](const ObjCAvailabilityCheckExpr& stmt) { return (intptr_t)stmt.RawStmt(); })
+    .def("__hash__", [](const ObjCAvailabilityCheckExpr& stmt) { return reinterpret_cast<intptr_t>(stmt.RawStmt()); })
     .def("__eq__", [](const Stmt& a, const Stmt& b) { return a.RawStmt() == b.RawStmt(); })
     .def_prop_ro("children", &ObjCAvailabilityCheckExpr::Children)
     .def_prop_ro("begin_token", &ObjCAvailabilityCheckExpr::BeginToken)

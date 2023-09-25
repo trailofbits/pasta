@@ -3590,8 +3590,11 @@ std::optional<bool> Expr::IsIntegerConstantExpression(void) const {
   return val;
 }
 
-bool Expr::IsKnownToHaveBooleanValue(void) const {
+std::optional<bool> Expr::IsKnownToHaveBooleanValue(void) const {
   auto &self = *const_cast<clang::Expr *>(u.Expr);
+  if (self.getType().isNull()) {
+    return std::nullopt;
+  }
   decltype(auto) val = self.isKnownToHaveBooleanValue();
   return val;
 }
@@ -3633,8 +3636,11 @@ bool Expr::IsPRValue(void) const {
   return val;
 }
 
-bool Expr::IsReadIfDiscardedInCPlusPlus11(void) const {
+std::optional<bool> Expr::IsReadIfDiscardedInCPlusPlus11(void) const {
   auto &self = *const_cast<clang::Expr *>(u.Expr);
+  if (self.getType().isNull()) {
+    return std::nullopt;
+  }
   decltype(auto) val = self.isReadIfDiscardedInCPlusPlus11();
   return val;
 }

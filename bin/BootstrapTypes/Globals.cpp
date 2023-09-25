@@ -1349,6 +1349,14 @@ std::map<std::pair<std::string, std::string>, std::string> kConditionalNullptr{
    "  if (!self.isBitField()) {\n"
    "    return std::nullopt;\n"
    "  }\n"},
+  {{"Expr", "IsKnownToHaveBooleanValue"},
+   "  if (self.getType().isNull()) {\n"
+   "    return std::nullopt;\n"
+   "  }\n"},
+  {{"Expr", "IsReadIfDiscardedInCPlusPlus11"},
+   "  if (self.getType().isNull()) {\n"
+   "    return std::nullopt;\n"
+   "  }\n"},
   {{"Expr", "IsCXX11ConstantExpression"},
    "  if (self.getType().isNull() || self.isValueDependent()) {\n"
    "    return std::nullopt;\n"

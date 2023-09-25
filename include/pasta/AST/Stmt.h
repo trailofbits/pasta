@@ -1555,7 +1555,7 @@ class Expr : public ValueStmt {
   bool IsImplicitCXXThis(void) const;
   bool IsInstantiationDependent(void) const;
   std::optional<bool> IsIntegerConstantExpression(void) const;
-  bool IsKnownToHaveBooleanValue(void) const;
+  std::optional<bool> IsKnownToHaveBooleanValue(void) const;
   bool IsLValue(void) const;
   enum ExprisModifiableLvalueResult IsModifiableLvalue(void) const;
   // IsNullPointerConstant: (clang::Expr::NullPointerConstantKind)
@@ -1563,7 +1563,7 @@ class Expr : public ValueStmt {
   bool IsObjCSelfExpression(void) const;
   bool IsOrdinaryOrBitFieldObject(void) const;
   bool IsPRValue(void) const;
-  bool IsReadIfDiscardedInCPlusPlus11(void) const;
+  std::optional<bool> IsReadIfDiscardedInCPlusPlus11(void) const;
   // IsTemporaryObject: (bool)
   bool IsTypeDependent(void) const;
   // IsUnusedResultAWarning: (bool)

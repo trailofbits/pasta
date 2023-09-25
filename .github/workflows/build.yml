@@ -120,7 +120,7 @@ jobs:
           -DPASTA_BOOTSTRAP_MACROS=OFF \
           -DPASTA_BOOTSTRAP_TYPES=OFF \
           -DPASTA_ENABLE_TESTING=OFF \
-          -DPASTA_ENABLE_PY_BINDINGS=ON \
+          -DPASTA_ENABLE_PY_BINDINGS=OFF \
           -DPASTA_ENABLE_INSTALL=OFF \
           "${{ steps.build_paths.outputs.SOURCE }}"
 

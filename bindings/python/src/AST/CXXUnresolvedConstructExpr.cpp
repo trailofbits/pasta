@@ -27,7 +27,6 @@ void RegisterCXXUnresolvedConstructExpr(nb::module_ &m) {
     .def_prop_ro("num_arguments", &CXXUnresolvedConstructExpr::NumArguments)
     .def_prop_ro("r_paren_token", &CXXUnresolvedConstructExpr::RParenToken)
     .def_prop_ro("type_as_written", &CXXUnresolvedConstructExpr::TypeAsWritten)
-    .def_prop_ro("type", &CXXUnresolvedConstructExpr::Type)
     .def_prop_ro("is_list_initialization", &CXXUnresolvedConstructExpr::IsListInitialization);
 }
 } // namespace pasta

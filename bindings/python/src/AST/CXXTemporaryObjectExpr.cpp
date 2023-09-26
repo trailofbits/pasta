@@ -20,7 +20,6 @@ void RegisterCXXTemporaryObjectExpr(nb::module_ &m) {
     .def("__hash__", [](const CXXTemporaryObjectExpr& stmt) { return reinterpret_cast<intptr_t>(stmt.RawStmt()); })
     .def("__eq__", [](const Stmt& a, const Stmt& b) { return a.RawStmt() == b.RawStmt(); })
     .def_prop_ro("begin_token", &CXXTemporaryObjectExpr::BeginToken)
-    .def_prop_ro("end_token", &CXXTemporaryObjectExpr::EndToken)
-    .def_prop_ro("type", &CXXTemporaryObjectExpr::Type);
+    .def_prop_ro("end_token", &CXXTemporaryObjectExpr::EndToken);
 }
 } // namespace pasta

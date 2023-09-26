@@ -2779,6 +2779,7 @@ enum DeclObjCDeclQualifier ObjCMethodDecl::ObjCDeclQualifier(void) const {
   return TypeBuilder::Build(ast, val);
 }
 
+// 0: ObjCMethodDecl::
 ::pasta::TokenRange ObjCMethodDecl::ReturnTypeTokens(void) const {
   auto &self = *const_cast<clang::ObjCMethodDecl *>(u.ObjCMethodDecl);
   decltype(auto) val = self.getReturnTypeSourceRange();
@@ -3024,6 +3025,7 @@ enum ObjCPropertyDeclSetterKind ObjCPropertyDecl::SetterKind(void) const {
   return TypeBuilder::Build(ast, val);
 }
 
+// 0: ObjCPropertyDecl::
 // 1: ObjCPropertyDecl::UsageType
 bool ObjCPropertyDecl::IsAtomic(void) const {
   auto &self = *const_cast<clang::ObjCPropertyDecl *>(u.ObjCPropertyDecl);
@@ -3535,13 +3537,7 @@ std::optional<::pasta::TagDecl> TypedefNameDecl::AnonymousDeclarationWithTypedef
   throw std::runtime_error("TypedefNameDecl::CanonicalDeclaration can return nullptr!");
 }
 
-::pasta::Type TypedefNameDecl::Type(void) const {
-  auto &self = *const_cast<clang::TypedefNameDecl *>(u.TypedefNameDecl);
-  decltype(auto) val = self.getTypeSourceInfo();
-  return TypeBuilder::Build(ast, val->getType());
-  throw std::runtime_error("TypedefNameDecl::Type can return nullptr!");
-}
-
+// 0: TypedefNameDecl::
 ::pasta::Type TypedefNameDecl::UnderlyingType(void) const {
   auto &self = *const_cast<clang::TypedefNameDecl *>(u.TypedefNameDecl);
   decltype(auto) val = self.getUnderlyingType();
@@ -4339,15 +4335,7 @@ std::optional<::pasta::Expr> DeclaratorDecl::TrailingRequiresClause(void) const 
   }
 }
 
-std::optional<::pasta::Type> DeclaratorDecl::Type(void) const {
-  auto &self = *const_cast<clang::DeclaratorDecl *>(u.DeclaratorDecl);
-  decltype(auto) val = self.getTypeSourceInfo();
-  if (!val) {
-    return std::nullopt;
-  }
-  return TypeBuilder::Build(ast, val->getType());
-}
-
+// 0: DeclaratorDecl::
 ::pasta::Token DeclaratorDecl::TypeSpecEndToken(void) const {
   auto &self = *const_cast<clang::DeclaratorDecl *>(u.DeclaratorDecl);
   decltype(auto) val = self.getTypeSpecEndLoc();
@@ -5467,7 +5455,7 @@ std::optional<::pasta::Expr> NonTypeTemplateParmDecl::DefaultArgument(void) cons
 }
 
 // 1: NonTypeTemplateParmDecl::ExpansionType
-// 1: NonTypeTemplateParmDecl::ExpansionType
+// 1: NonTypeTemplateParmDecl::
 std::optional<uint32_t> NonTypeTemplateParmDecl::NumExpansionTypes(void) const {
   auto &self = *const_cast<clang::NonTypeTemplateParmDecl *>(u.NonTypeTemplateParmDecl);
   if (!self.isExpandedParameterPack()) {
@@ -7584,6 +7572,7 @@ std::optional<::pasta::Type> EnumDecl::IntegerType(void) const {
   return ast->TokenRangeFrom(val);
 }
 
+// 0: EnumDecl::
 // 0: EnumDecl::MemberSpecializationInfo
 ::pasta::EnumDecl EnumDecl::MostRecentDeclaration(void) const {
   auto &self = *const_cast<clang::EnumDecl *>(u.EnumDecl);
@@ -8766,18 +8755,7 @@ std::optional<uint32_t> CXXRecordDecl::LambdaManglingNumber(void) const {
 }
 
 // 0: CXXRecordDecl::LambdaNumbering
-std::optional<::pasta::Type> CXXRecordDecl::LambdaType(void) const {
-  auto &self = *const_cast<clang::CXXRecordDecl *>(u.CXXRecordDecl);
-  if (!self.isLambda()) {
-    return std::nullopt;
-  }
-  decltype(auto) val = self.getLambdaTypeInfo();
-  if (!val) {
-    return std::nullopt;
-  }
-  return TypeBuilder::Build(ast, val->getType());
-}
-
+// 0: CXXRecordDecl::
 std::optional<enum MSInheritanceModel> CXXRecordDecl::MSInheritanceModel(void) const {
   auto &self = *const_cast<clang::CXXRecordDecl *>(u.CXXRecordDecl);
   if (!self.getAttr<clang::MSInheritanceAttr>()) {

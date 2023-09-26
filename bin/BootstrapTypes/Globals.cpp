@@ -1142,7 +1142,6 @@ std::set<std::pair<std::string, std::string>> kCanReturnNullptr{
   {"FieldDecl", "CapturedVLAType"},
   {"ElaboratedType", "OwnedTagDeclaration"},
   {"DeclaratorDecl", "TypeSourceInfo"},
-  {"DeclaratorDecl", "Type"},
   {"Decl", "PreviousDeclaration"},
   {"TypeAliasTemplateDecl", "PreviousDeclaration"},
   {"VarTemplateDecl", "PreviousDeclaration"},

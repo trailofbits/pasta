@@ -312,9 +312,6 @@ Result<AST, std::string> CompileJob::Run(void) const {
   }
 
   invocation_target.adjust(*diagnostics_engine, lang_opts);
-  invocation_target.adjustTargetOptions(ci.getCodeGenOpts(),
-                                        ci.getTargetOpts());
-
   if (auto aux_target = ci.getAuxTarget(); aux_target) {
     invocation_target.setAuxTarget(aux_target);
   }

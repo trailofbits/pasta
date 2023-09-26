@@ -235,6 +235,15 @@ static const clang::ASTRecordLayout *GetRecordLayout(const clang::RecordDecl *de
 
 }  // namespace
 
+std::optional<::pasta::Decl> Decl::From(const DeclContext &dc) {
+  auto decl = clang::Decl::castFromDeclContext(dc.u.DeclContext);
+  if (!decl) {
+    return std::nullopt;
+  }
+
+  return DeclBuilder::Create<pasta::Decl>(dc.ast, decl);
+}
+
 ::pasta::DeclCategory Decl::Category(void) const noexcept {
   return ClassifyDecl(u.Decl);
 }

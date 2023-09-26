@@ -438,6 +438,7 @@ class Decl {
   inline bool operator==(const Decl &that) const noexcept {
     return u.opaque == that.u.opaque;
   }
+  static std::optional<::pasta::Decl> From(const DeclContext &);
   static std::optional<::pasta::Decl> From(const TokenContext &);
  protected:
   friend class TokenContext;

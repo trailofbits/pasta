@@ -178,6 +178,7 @@ void GenerateDeclH(void) {
           << "    return u.opaque == that.u.opaque;\n"
           << "  }\n"
           << "  static std::optional<::pasta::Decl> From(const TokenContext &);\n"
+          << "  static std::optional<::pasta::Decl> From(const DeclContext &);\n"
           << " protected:\n"
           << "  friend class TokenContext;\n\n"
           << "  std::shared_ptr<ASTImpl> ast;\n"

@@ -1174,6 +1174,11 @@ std::set<std::pair<std::string, std::string>> kCanReturnNullptr{
   {"FriendDecl", "FriendType"},
   {"CXXPseudoDestructorExpr", "ScopeType"},
   {"TypeAliasTemplateDecl", "InstantiatedFromMemberTemplate"},
+  {"RedeclarableTemplateDecl", "InstantiatedFromMemberTemplate"},
+  {"VarTemplateDecl", "InstantiatedFromMemberTemplate"},
+  {"ClassTemplateDecl", "InstantiatedFromMemberTemplate"},
+  {"FunctionTemplateDecl", "InstantiatedFromMemberTemplate"},
+  {"ClassTemplatePartialSpecializationDecl", "InstantiatedFromMemberTemplate"},
   {"NonTypeTemplateParmDecl", "DefaultArgument"},
   {"Type", "StripObjCKindOfType"},
   {"NonTypeTemplateParmDecl", "NumExpansionTypes"},
@@ -1201,6 +1206,9 @@ std::set<std::pair<std::string, std::string>> kCanReturnNullptr{
   {"ObjCInterfaceDecl", "Definition"},
   {"ObjCProtocolDecl", "Definition"},
   {"StaticAssertDecl", "Message"},
+  {"VarTemplatePartialSpecializationDecl", "InstantiatedFromMember"},
+  {"ClassTemplatePartialSpecializationDecl", "InstantiatedFromMember"},
+  {"CXXCatchStmt", "CaughtType"},
 //  {"FunctionProtoType", "EllipsisToken"},
 //  {"FunctionDecl", "EllipsisToken"},
 //  {"FunctionDecl", "PointOfInstantiation"},
@@ -1462,7 +1470,6 @@ std::map<std::pair<std::string, std::string>, std::string> kConditionalNullptr{
    "      self.getOp() > clang::AtomicExpr::AO__opencl_atomic_fetch_max) {\n"
    "    return std::nullopt;\n"
    "  }\n"},
-
 
 #define SELF_IS_DEFINITION \
     "  if (!self.getDefinition()) {\n" \

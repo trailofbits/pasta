@@ -24,6 +24,7 @@ void RegisterObjCMessageExpr(nb::module_ &m) {
     .def_prop_ro("begin_token", &ObjCMessageExpr::BeginToken)
     .def_prop_ro("call_return_type", &ObjCMessageExpr::CallReturnType)
     .def_prop_ro("class_receiver", &ObjCMessageExpr::ClassReceiver)
+    .def_prop_ro("class_receiver_type", &ObjCMessageExpr::ClassReceiverType)
     .def_prop_ro("end_token", &ObjCMessageExpr::EndToken)
     .def_prop_ro("instance_receiver", &ObjCMessageExpr::InstanceReceiver)
     .def_prop_ro("left_token", &ObjCMessageExpr::LeftToken)

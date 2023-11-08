@@ -45,7 +45,11 @@ bool AttributeCommonInfo::IsCXX11Attribute() const noexcept {
 
 // Returns true if attribute syntax is C2x
 bool AttributeCommonInfo::IsC23Attribute() const noexcept {
+#ifdef PASTA_LLVM_18
   return attr->isC23Attribute();
+#else
+  return attr->isC2xAttribute();
+#endif
 }
 
 // Returns true if attribute syntax is keyword

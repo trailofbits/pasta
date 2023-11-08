@@ -1992,7 +1992,6 @@ bool NamedDecl::IsLinkageValid(void) const {
   return val;
 }
 
-// 1: NamedDecl::IsPlaceholderVariable
 // 1: NamedDecl::IsReserved
 NamespaceAliasDecl::NamespaceAliasDecl(
     std::shared_ptr<ASTImpl> ast_,

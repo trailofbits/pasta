@@ -674,7 +674,7 @@ std::optional<enum TypeScalarTypeKind> Type::ScalarTypeKind(void) const {
 
 std::optional<::pasta::Type> Type::SveElementType(void) const {
   auto &self = *(u.Type);
-  if (!self.isSveVLSBuiltinType()) {
+  if (!self.isRVVVLSBuiltinType()) {
     return std::nullopt;
   }
   decltype(auto) val = self.getSveEltType(ast->ci->getASTContext());
@@ -1840,12 +1840,6 @@ bool Type::IsStructureType(void) const {
   return val;
 }
 
-bool Type::IsSveVLSBuiltinType(void) const {
-  auto &self = *const_cast<clang::Type *>(u.Type);
-  decltype(auto) val = self.isSveVLSBuiltinType();
-  return val;
-}
-
 bool Type::IsTemplateTypeParmType(void) const {
   auto &self = *const_cast<clang::Type *>(u.Type);
   decltype(auto) val = self.isTemplateTypeParmType();
@@ -1903,6 +1897,12 @@ bool Type::IsUnsignedIntegerOrEnumerationType(void) const {
 bool Type::IsUnsignedIntegerType(void) const {
   auto &self = *const_cast<clang::Type *>(u.Type);
   decltype(auto) val = self.isUnsignedIntegerType();
+  return val;
+}
+
+bool Type::IsVLSTBuiltinType(void) const {
+  auto &self = *const_cast<clang::Type *>(u.Type);
+  decltype(auto) val = self.isVLSTBuiltinType();
   return val;
 }
 
@@ -2534,12 +2534,6 @@ PASTA_DEFINE_BASE_OPERATORS(Type, ConstantArrayType)
   decltype(auto) val = self.desugar();
   assert(!val.isNull());
   return TypeBuilder::Build(ast, val);
-}
-
-uint32_t ConstantArrayType::NumAddressingBits(void) const {
-  auto &self = *(u.ConstantArrayType);
-  decltype(auto) val = self.getNumAddressingBits(ast->ci->getASTContext());
-  return val;
 }
 
 llvm::APInt ConstantArrayType::Size(void) const {
@@ -4421,12 +4415,6 @@ std::vector<::pasta::Type> FunctionProtoType::Exceptions(void) const {
     ret.emplace_back(TypeBuilder::Create<::pasta::Type>(ast, qual_type));
   }
   return ret;
-}
-
-uint32_t FunctionProtoType::AArch64SMEAttributes(void) const {
-  auto &self = *const_cast<clang::FunctionProtoType *>(u.FunctionProtoType);
-  decltype(auto) val = self.getAArch64SMEAttributes();
-  return val;
 }
 
 ::pasta::Token FunctionProtoType::EllipsisToken(void) const {

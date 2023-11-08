@@ -12,22 +12,19 @@
 
 #include "../Bindings.h"
 
-#include <sstream>
-
 namespace pasta {
 namespace nb = nanobind;
 
 void RegisterType(nb::module_ &m) {
   nb::class_<Type>(m, "Type")
-    .def("__hash__", [](const Type &type) { return (intptr_t)type.RawType(); })
-    .def("__eq__", [](const Type &a, const Type &b) { return a == b; })
-    .def("__ne__", [](const Type &a, const Type &b) { return a != b; })
+    .def("__hash__", [](const Type &type) { return reinterpret_cast<intptr_t>(type.RawType()); })
+    .def("__eq__", [](const Type &a, const Type &b) { return a.RawType() == b.RawType(); })
     .def_prop_ro("kind", &Type::Kind)
     .def_prop_ro("kind_name", &Type::KindName)
     .def_prop_ro("size_in_bits", &Type::SizeInBits)
     .def_prop_ro("alignment", &Type::Alignment)
     .def_prop_ro("is_qualified", &Type::IsQualified)
-    .def_prop_ro("unqualified_type", [] (const Type &tp) { return tp.UnqualifiedType(); })
+    .def_prop_ro("unqualified_type", &Type::UnqualifiedType)
     .def_prop_ro("accepts_obj_c_type_parameters", &Type::AcceptsObjCTypeParameters)
     .def_prop_ro("can_decay_to_pointer_type", &Type::CanDecayToPointerType)
     .def_prop_ro("can_have_nullability", &Type::CanHaveNullability)
@@ -244,7 +241,6 @@ void RegisterType(nb::module_ &m) {
     .def_prop_ro("is_structural_type", &Type::IsStructuralType)
     .def_prop_ro("is_structure_or_class_type", &Type::IsStructureOrClassType)
     .def_prop_ro("is_structure_type", &Type::IsStructureType)
-    .def_prop_ro("is_sve_vls_builtin_type", &Type::IsSveVLSBuiltinType)
     .def_prop_ro("is_template_type_parm_type", &Type::IsTemplateTypeParmType)
     .def_prop_ro("is_typedef_name_type", &Type::IsTypedefNameType)
     .def_prop_ro("is_undeduced_auto_type", &Type::IsUndeducedAutoType)
@@ -255,6 +251,7 @@ void RegisterType(nb::module_ &m) {
     .def_prop_ro("is_unsigned_fixed_point_type", &Type::IsUnsignedFixedPointType)
     .def_prop_ro("is_unsigned_integer_or_enumeration_type", &Type::IsUnsignedIntegerOrEnumerationType)
     .def_prop_ro("is_unsigned_integer_type", &Type::IsUnsignedIntegerType)
+    .def_prop_ro("is_vlst_builtin_type", &Type::IsVLSTBuiltinType)
     .def_prop_ro("is_variable_array_type", &Type::IsVariableArrayType)
     .def_prop_ro("is_variably_modified_type", &Type::IsVariablyModifiedType)
     .def_prop_ro("is_vector_type", &Type::IsVectorType)

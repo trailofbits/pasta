@@ -25,7 +25,6 @@ void RegisterAtomicExpr(nb::module_ &m) {
     .def_prop_ro("end_token", &AtomicExpr::EndToken)
     .def_prop_ro("num_sub_expressions", &AtomicExpr::NumSubExpressions)
     .def_prop_ro("operation", &AtomicExpr::Operation)
-    .def_prop_ro("operation_as_string", &AtomicExpr::OperationAsString)
     .def_prop_ro("order", &AtomicExpr::Order)
     .def_prop_ro("order_fail", &AtomicExpr::OrderFail)
     .def_prop_ro("pointer", &AtomicExpr::Pointer)

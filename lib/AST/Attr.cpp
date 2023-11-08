@@ -1110,31 +1110,11 @@ void AttrVisitor::VisitArmBuiltinAliasAttr(const ArmBuiltinAliasAttr &attr) {
   VisitInheritableAttr(attr);
 }
 
-void AttrVisitor::VisitArmLocallyStreamingAttr(const ArmLocallyStreamingAttr &attr) {
-  VisitInheritableAttr(attr);
-}
-
 void AttrVisitor::VisitArmMveStrictPolymorphismAttr(const ArmMveStrictPolymorphismAttr &attr) {
   VisitTypeAttr(attr);
 }
 
-void AttrVisitor::VisitArmNewZAAttr(const ArmNewZAAttr &attr) {
-  VisitInheritableAttr(attr);
-}
-
-void AttrVisitor::VisitArmPreservesZAAttr(const ArmPreservesZAAttr &attr) {
-  VisitTypeAttr(attr);
-}
-
-void AttrVisitor::VisitArmSharedZAAttr(const ArmSharedZAAttr &attr) {
-  VisitTypeAttr(attr);
-}
-
 void AttrVisitor::VisitArmStreamingAttr(const ArmStreamingAttr &attr) {
-  VisitTypeAttr(attr);
-}
-
-void AttrVisitor::VisitArmStreamingCompatibleAttr(const ArmStreamingCompatibleAttr &attr) {
   VisitTypeAttr(attr);
 }
 
@@ -1674,13 +1654,8 @@ PASTA_DEFINE_DERIVED_OPERATORS(Attr, AnyX86NoCfCheckAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(Attr, ArcWeakrefUnavailableAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(Attr, ArgumentWithTypeTagAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(Attr, ArmBuiltinAliasAttr)
-PASTA_DEFINE_DERIVED_OPERATORS(Attr, ArmLocallyStreamingAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(Attr, ArmMveStrictPolymorphismAttr)
-PASTA_DEFINE_DERIVED_OPERATORS(Attr, ArmNewZAAttr)
-PASTA_DEFINE_DERIVED_OPERATORS(Attr, ArmPreservesZAAttr)
-PASTA_DEFINE_DERIVED_OPERATORS(Attr, ArmSharedZAAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(Attr, ArmStreamingAttr)
-PASTA_DEFINE_DERIVED_OPERATORS(Attr, ArmStreamingCompatibleAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(Attr, ArtificialAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(Attr, AsmLabelAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(Attr, AssertCapabilityAttr)
@@ -2185,8 +2160,6 @@ PASTA_DEFINE_DERIVED_OPERATORS(InheritableAttr, AnyX86NoCfCheckAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(InheritableAttr, ArcWeakrefUnavailableAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(InheritableAttr, ArgumentWithTypeTagAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(InheritableAttr, ArmBuiltinAliasAttr)
-PASTA_DEFINE_DERIVED_OPERATORS(InheritableAttr, ArmLocallyStreamingAttr)
-PASTA_DEFINE_DERIVED_OPERATORS(InheritableAttr, ArmNewZAAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(InheritableAttr, ArtificialAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(InheritableAttr, AsmLabelAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(InheritableAttr, AssertCapabilityAttr)
@@ -6969,10 +6942,7 @@ PASTA_DEFINE_BASE_OPERATORS(Attr, TypeAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(TypeAttr, AddressSpaceAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(TypeAttr, AnnotateTypeAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(TypeAttr, ArmMveStrictPolymorphismAttr)
-PASTA_DEFINE_DERIVED_OPERATORS(TypeAttr, ArmPreservesZAAttr)
-PASTA_DEFINE_DERIVED_OPERATORS(TypeAttr, ArmSharedZAAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(TypeAttr, ArmStreamingAttr)
-PASTA_DEFINE_DERIVED_OPERATORS(TypeAttr, ArmStreamingCompatibleAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(TypeAttr, BTFTypeTagAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(TypeAttr, CmseNSCallAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(TypeAttr, HLSLGroupSharedAddressSpaceAttr)
@@ -8811,25 +8781,6 @@ std::string_view ArmBuiltinAliasAttr::Spelling(void) const {
   throw std::runtime_error("ArmBuiltinAliasAttr::Spelling can return nullptr!");
 }
 
-ArmLocallyStreamingAttr::ArmLocallyStreamingAttr(
-    std::shared_ptr<ASTImpl> ast_,
-    const ::clang::Attr *attr_)
-    : InheritableAttr(std::move(ast_), attr_) {}
-
-PASTA_DEFINE_BASE_OPERATORS(Attr, ArmLocallyStreamingAttr)
-PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, ArmLocallyStreamingAttr)
-// 1: ArmLocallyStreamingAttr::Clone
-std::string_view ArmLocallyStreamingAttr::Spelling(void) const {
-  auto &self = *const_cast<clang::ArmLocallyStreamingAttr *>(u.ArmLocallyStreamingAttr);
-  decltype(auto) val = self.getSpelling();
-  if (val) {
-    return std::string_view(val);
-  } else {
-    return std::string_view();
-  }
-  throw std::runtime_error("ArmLocallyStreamingAttr::Spelling can return nullptr!");
-}
-
 ArmMveStrictPolymorphismAttr::ArmMveStrictPolymorphismAttr(
     std::shared_ptr<ASTImpl> ast_,
     const ::clang::Attr *attr_)
@@ -8849,63 +8800,6 @@ std::string_view ArmMveStrictPolymorphismAttr::Spelling(void) const {
   throw std::runtime_error("ArmMveStrictPolymorphismAttr::Spelling can return nullptr!");
 }
 
-ArmNewZAAttr::ArmNewZAAttr(
-    std::shared_ptr<ASTImpl> ast_,
-    const ::clang::Attr *attr_)
-    : InheritableAttr(std::move(ast_), attr_) {}
-
-PASTA_DEFINE_BASE_OPERATORS(Attr, ArmNewZAAttr)
-PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, ArmNewZAAttr)
-// 1: ArmNewZAAttr::Clone
-std::string_view ArmNewZAAttr::Spelling(void) const {
-  auto &self = *const_cast<clang::ArmNewZAAttr *>(u.ArmNewZAAttr);
-  decltype(auto) val = self.getSpelling();
-  if (val) {
-    return std::string_view(val);
-  } else {
-    return std::string_view();
-  }
-  throw std::runtime_error("ArmNewZAAttr::Spelling can return nullptr!");
-}
-
-ArmPreservesZAAttr::ArmPreservesZAAttr(
-    std::shared_ptr<ASTImpl> ast_,
-    const ::clang::Attr *attr_)
-    : TypeAttr(std::move(ast_), attr_) {}
-
-PASTA_DEFINE_BASE_OPERATORS(Attr, ArmPreservesZAAttr)
-PASTA_DEFINE_BASE_OPERATORS(TypeAttr, ArmPreservesZAAttr)
-// 1: ArmPreservesZAAttr::Clone
-std::string_view ArmPreservesZAAttr::Spelling(void) const {
-  auto &self = *const_cast<clang::ArmPreservesZAAttr *>(u.ArmPreservesZAAttr);
-  decltype(auto) val = self.getSpelling();
-  if (val) {
-    return std::string_view(val);
-  } else {
-    return std::string_view();
-  }
-  throw std::runtime_error("ArmPreservesZAAttr::Spelling can return nullptr!");
-}
-
-ArmSharedZAAttr::ArmSharedZAAttr(
-    std::shared_ptr<ASTImpl> ast_,
-    const ::clang::Attr *attr_)
-    : TypeAttr(std::move(ast_), attr_) {}
-
-PASTA_DEFINE_BASE_OPERATORS(Attr, ArmSharedZAAttr)
-PASTA_DEFINE_BASE_OPERATORS(TypeAttr, ArmSharedZAAttr)
-// 1: ArmSharedZAAttr::Clone
-std::string_view ArmSharedZAAttr::Spelling(void) const {
-  auto &self = *const_cast<clang::ArmSharedZAAttr *>(u.ArmSharedZAAttr);
-  decltype(auto) val = self.getSpelling();
-  if (val) {
-    return std::string_view(val);
-  } else {
-    return std::string_view();
-  }
-  throw std::runtime_error("ArmSharedZAAttr::Spelling can return nullptr!");
-}
-
 ArmStreamingAttr::ArmStreamingAttr(
     std::shared_ptr<ASTImpl> ast_,
     const ::clang::Attr *attr_)
@@ -8923,25 +8817,6 @@ std::string_view ArmStreamingAttr::Spelling(void) const {
     return std::string_view();
   }
   throw std::runtime_error("ArmStreamingAttr::Spelling can return nullptr!");
-}
-
-ArmStreamingCompatibleAttr::ArmStreamingCompatibleAttr(
-    std::shared_ptr<ASTImpl> ast_,
-    const ::clang::Attr *attr_)
-    : TypeAttr(std::move(ast_), attr_) {}
-
-PASTA_DEFINE_BASE_OPERATORS(Attr, ArmStreamingCompatibleAttr)
-PASTA_DEFINE_BASE_OPERATORS(TypeAttr, ArmStreamingCompatibleAttr)
-// 1: ArmStreamingCompatibleAttr::Clone
-std::string_view ArmStreamingCompatibleAttr::Spelling(void) const {
-  auto &self = *const_cast<clang::ArmStreamingCompatibleAttr *>(u.ArmStreamingCompatibleAttr);
-  decltype(auto) val = self.getSpelling();
-  if (val) {
-    return std::string_view(val);
-  } else {
-    return std::string_view();
-  }
-  throw std::runtime_error("ArmStreamingCompatibleAttr::Spelling can return nullptr!");
 }
 
 ArtificialAttr::ArtificialAttr(

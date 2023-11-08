@@ -17,9 +17,6 @@ namespace nb = nanobind;
 
 void RegisterDeclContext(nb::module_ &m) {
   nb::class_<DeclContext>(m, "DeclContext")
-    .def("__hash__", [](const DeclContext &decl) { return (intptr_t)decl.RawDeclContext(); })
-    .def("__eq__", [](const DeclContext &a, const DeclContext &b) { return a.RawDeclContext() == b.RawDeclContext(); })
-    .def("__ne__", [](const DeclContext &a, const DeclContext &b) { return a.RawDeclContext() != b.RawDeclContext(); })
     .def_prop_ro("declarations", &DeclContext::Declarations)
     .def_prop_ro("declaration_kind", &DeclContext::DeclarationKind)
     .def_prop_ro("declaration_kind_name", &DeclContext::DeclarationKindName)

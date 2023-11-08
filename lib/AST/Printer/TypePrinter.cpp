@@ -2294,12 +2294,12 @@ void TypePrinter::printAttributed(const clang::AttributedType *T,
       printBeforeAfter(T->getModifiedType(), OS, std::move(IdentFn));
       return;
 
-#ifdef PASTA_LLVM_18
     case clang::attr::ArmStreaming:
       printBeforeAfter(T->getModifiedType(), OS, std::move(IdentFn));
       OS << "__arm_streaming";
       return;
 
+#ifdef PASTA_LLVM_18
     case clang::attr::ArmStreamingCompatible:
       printBeforeAfter(T->getModifiedType(), OS, std::move(IdentFn));
       OS << "__arm_streaming_compatible";
@@ -2377,8 +2377,8 @@ void TypePrinter::printAttributed(const clang::AttributedType *T,
         case clang::attr::CmseNSCall:
         case clang::attr::AnnotateType:
         case clang::attr::WebAssemblyFuncref:
-#ifdef PASTA_LLVM_18
         case clang::attr::ArmStreaming:
+#ifdef PASTA_LLVM_18
         case clang::attr::ArmStreamingCompatible:
         case clang::attr::ArmSharedZA:
         case clang::attr::ArmPreservesZA:

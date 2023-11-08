@@ -811,7 +811,6 @@ class NamedDecl : public Decl {
   bool IsExternallyDeclarable(void) const;
   bool IsExternallyVisible(void) const;
   bool IsLinkageValid(void) const;
-  // IsPlaceholderVariable: (bool)
   // IsReserved: (clang::ReservedIdentifierStatus)
  protected:
   PASTA_DEFINE_DEFAULT_DECL_CONSTRUCTOR(NamedDecl)

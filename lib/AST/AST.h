@@ -29,6 +29,10 @@
 #include "Macro.h"
 #include "Token.h"
 
+#ifndef PASTA_LLVM_18
+#define AS_C23 AS_C2x
+#endif
+
 namespace clang {
 class CompilerInstance;
 class Preprocessor;

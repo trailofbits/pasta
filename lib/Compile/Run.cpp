@@ -223,7 +223,11 @@ Result<AST, std::string> CompileJob::Run(void) const {
       invocation.getPreprocessorOutputOpts();
   ppo_options = {};  // Reset to defaults.
 
+#ifdef PASTA_LLVM_18
   clang::LangOptions &lang_opts = invocation.getLangOpts();
+#else
+  clang::LangOptions &lang_opts = *invocation.getLangOpts();
+#endif
 
   // Disable cpp language option that enable true/false keyword. It
   // can have conflict with C identifiers declaring true/false

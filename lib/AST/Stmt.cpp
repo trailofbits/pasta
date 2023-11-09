@@ -3238,7 +3238,7 @@ enum ExprLValueClassification Expr::ClassifyLValue(void) const {
 // 5: Expr::EvaluateCharacterRangeAsString
 std::optional<llvm::APSInt> Expr::EvaluateKnownConstInt(void) const {
   auto &self = *(u.Expr);
-  if (self.getType().isNull() || self.isValueDependent()) {
+  if (self.isValueDependent()) {
     return std::nullopt;
   } else {
     auto &ac = ast->ci->getASTContext();
@@ -3250,7 +3250,7 @@ std::optional<llvm::APSInt> Expr::EvaluateKnownConstInt(void) const {
 
 std::optional<llvm::APSInt> Expr::EvaluateKnownConstIntCheckOverflow(void) const {
   auto &self = *(u.Expr);
-  if (self.getType().isNull() || self.isValueDependent()) {
+  if (self.isValueDependent()) {
     return std::nullopt;
   } else {
     auto &ac = ast->ci->getASTContext();
@@ -3510,7 +3510,7 @@ bool Expr::IsBoundMemberFunction(void) const {
 
 std::optional<bool> Expr::IsCXX11ConstantExpression(void) const {
   auto &self = *(u.Expr);
-  if (self.getType().isNull() || self.isValueDependent()) {
+  if (self.isValueDependent()) {
     return std::nullopt;
   }
   auto &ac = ast->ci->getASTContext();
@@ -3525,7 +3525,7 @@ std::optional<bool> Expr::IsCXX11ConstantExpression(void) const {
 
 std::optional<bool> Expr::IsCXX98IntegralConstantExpression(void) const {
   auto &self = *(u.Expr);
-  if (self.getType().isNull() || self.isValueDependent()) {
+  if (self.isValueDependent()) {
     return std::nullopt;
   } else {
     auto &ac = ast->ci->getASTContext();
@@ -3544,7 +3544,7 @@ bool Expr::IsDefaultArgument(void) const {
 
 std::optional<bool> Expr::IsEvaluatable(void) const {
   auto &self = *(u.Expr);
-  if (self.getType().isNull() || self.isValueDependent()) {
+  if (self.isValueDependent()) {
     return std::nullopt;
   } else {
     auto &ac = ast->ci->getASTContext();
@@ -3575,7 +3575,7 @@ bool Expr::IsInstantiationDependent(void) const {
 
 std::optional<bool> Expr::IsIntegerConstantExpression(void) const {
   auto &self = *(u.Expr);
-  if (self.getType().isNull() || self.isValueDependent()) {
+  if (self.isValueDependent()) {
     return std::nullopt;
   } else {
     auto &ac = ast->ci->getASTContext();
@@ -3585,11 +3585,8 @@ std::optional<bool> Expr::IsIntegerConstantExpression(void) const {
   return val;
 }
 
-std::optional<bool> Expr::IsKnownToHaveBooleanValue(void) const {
+bool Expr::IsKnownToHaveBooleanValue(void) const {
   auto &self = *const_cast<clang::Expr *>(u.Expr);
-  if (self.getType().isNull()) {
-    return std::nullopt;
-  }
   decltype(auto) val = self.isKnownToHaveBooleanValue();
   return val;
 }
@@ -3631,11 +3628,8 @@ bool Expr::IsPRValue(void) const {
   return val;
 }
 
-std::optional<bool> Expr::IsReadIfDiscardedInCPlusPlus11(void) const {
+bool Expr::IsReadIfDiscardedInCPlusPlus11(void) const {
   auto &self = *const_cast<clang::Expr *>(u.Expr);
-  if (self.getType().isNull()) {
-    return std::nullopt;
-  }
   decltype(auto) val = self.isReadIfDiscardedInCPlusPlus11();
   return val;
 }
@@ -4464,7 +4458,7 @@ std::vector<::pasta::Expr> GenericSelectionExpr::AssociationExpressions(void) co
   return ret;
 }
 
-// 0: GenericSelectionExpr::
+// 0: GenericSelectionExpr::AssociationTypes
 // 1: GenericSelectionExpr::Association
 ::pasta::Token GenericSelectionExpr::BeginToken(void) const {
   auto &self = *const_cast<clang::GenericSelectionExpr *>(u.GenericSelectionExpr);
@@ -8400,7 +8394,6 @@ std::vector<::pasta::Stmt> ObjCEncodeExpr::Children(void) const {
   return TypeBuilder::Build(ast, val);
 }
 
-// 0: ObjCEncodeExpr::
 ::pasta::Token ObjCEncodeExpr::EndToken(void) const {
   auto &self = *const_cast<clang::ObjCEncodeExpr *>(u.ObjCEncodeExpr);
   decltype(auto) val = self.getEndLoc();
@@ -8736,7 +8729,13 @@ std::vector<::pasta::Stmt> ObjCMessageExpr::Children(void) const {
   return TypeBuilder::Build(ast, val);
 }
 
-// 0: ObjCMessageExpr::
+::pasta::Type ObjCMessageExpr::ClassReceiverType(void) const {
+  auto &self = *const_cast<clang::ObjCMessageExpr *>(u.ObjCMessageExpr);
+  decltype(auto) val = self.getClassReceiverTypeInfo();
+  return TypeBuilder::Build(ast, val->getType());
+  throw std::runtime_error("ObjCMessageExpr::ClassReceiverType can return nullptr!");
+}
+
 ::pasta::Token ObjCMessageExpr::EndToken(void) const {
   auto &self = *const_cast<clang::ObjCMessageExpr *>(u.ObjCMessageExpr);
   decltype(auto) val = self.getEndLoc();
@@ -9310,7 +9309,13 @@ uint32_t OffsetOfExpr::NumExpressions(void) const {
   return ast->TokenAt(val);
 }
 
-// 0: OffsetOfExpr::
+::pasta::Type OffsetOfExpr::Type(void) const {
+  auto &self = *const_cast<clang::OffsetOfExpr *>(u.OffsetOfExpr);
+  decltype(auto) val = self.getTypeSourceInfo();
+  return TypeBuilder::Build(ast, val->getType());
+  throw std::runtime_error("OffsetOfExpr::Type can return nullptr!");
+}
+
 OpaqueValueExpr::OpaqueValueExpr(
     std::shared_ptr<ASTImpl> ast_,
     const ::clang::Stmt *stmt_)
@@ -10224,7 +10229,13 @@ std::vector<::pasta::Stmt> SYCLUniqueStableNameExpr::Children(void) const {
   return ast->TokenAt(val);
 }
 
-// 0: SYCLUniqueStableNameExpr::
+::pasta::Type SYCLUniqueStableNameExpr::Type(void) const {
+  auto &self = *const_cast<clang::SYCLUniqueStableNameExpr *>(u.SYCLUniqueStableNameExpr);
+  decltype(auto) val = self.getTypeSourceInfo();
+  return TypeBuilder::Build(ast, val->getType());
+  throw std::runtime_error("SYCLUniqueStableNameExpr::Type can return nullptr!");
+}
+
 ShuffleVectorExpr::ShuffleVectorExpr(
     std::shared_ptr<ASTImpl> ast_,
     const ::clang::Stmt *stmt_)
@@ -10946,7 +10957,6 @@ std::optional<::pasta::Type> UnaryExprOrTypeTraitExpr::ArgumentType(void) const 
   return TypeBuilder::Build(ast, val);
 }
 
-// 0: UnaryExprOrTypeTraitExpr::
 ::pasta::Token UnaryExprOrTypeTraitExpr::BeginToken(void) const {
   auto &self = *const_cast<clang::UnaryExprOrTypeTraitExpr *>(u.UnaryExprOrTypeTraitExpr);
   decltype(auto) val = self.getBeginLoc();
@@ -11307,7 +11317,13 @@ std::vector<::pasta::Stmt> VAArgExpr::Children(void) const {
   throw std::runtime_error("VAArgExpr::SubExpression can return nullptr!");
 }
 
-// 0: VAArgExpr::
+::pasta::Type VAArgExpr::WrittenType(void) const {
+  auto &self = *const_cast<clang::VAArgExpr *>(u.VAArgExpr);
+  decltype(auto) val = self.getWrittenTypeInfo();
+  return TypeBuilder::Build(ast, val->getType());
+  throw std::runtime_error("VAArgExpr::WrittenType can return nullptr!");
+}
+
 bool VAArgExpr::IsMicrosoftABI(void) const {
   auto &self = *const_cast<clang::VAArgExpr *>(u.VAArgExpr);
   decltype(auto) val = self.isMicrosoftABI();
@@ -11632,7 +11648,6 @@ std::vector<::pasta::Stmt> ArrayTypeTraitExpr::Children(void) const {
   return TypeBuilder::Build(ast, val);
 }
 
-// 0: ArrayTypeTraitExpr::
 enum ArrayTypeTrait ArrayTypeTraitExpr::Trait(void) const {
   auto &self = *const_cast<clang::ArrayTypeTraitExpr *>(u.ArrayTypeTraitExpr);
   decltype(auto) val = self.getTrait();
@@ -13016,7 +13031,6 @@ bool CXXNewExpr::DoesUsualArrayDeleteWantSize(void) const {
   return TypeBuilder::Build(ast, val);
 }
 
-// 0: CXXNewExpr::
 std::optional<::pasta::Expr> CXXNewExpr::ArraySize(void) const {
   auto &self = *const_cast<clang::CXXNewExpr *>(u.CXXNewExpr);
   decltype(auto) val = self.getArraySize();
@@ -13366,7 +13380,6 @@ std::vector<::pasta::Stmt> CXXPseudoDestructorExpr::Children(void) const {
 }
 
 // 0: CXXPseudoDestructorExpr::DestroyedTypeIdentifier
-// 0: CXXPseudoDestructorExpr::
 ::pasta::Token CXXPseudoDestructorExpr::DestroyedTypeToken(void) const {
   auto &self = *const_cast<clang::CXXPseudoDestructorExpr *>(u.CXXPseudoDestructorExpr);
   decltype(auto) val = self.getDestroyedTypeLoc();
@@ -13387,7 +13400,18 @@ std::vector<::pasta::Stmt> CXXPseudoDestructorExpr::Children(void) const {
 
 // 0: CXXPseudoDestructorExpr::Qualifier
 // 0: CXXPseudoDestructorExpr::QualifierToken
-// 0: CXXPseudoDestructorExpr::
+std::optional<::pasta::Type> CXXPseudoDestructorExpr::ScopeType(void) const {
+  auto &self = *const_cast<clang::CXXPseudoDestructorExpr *>(u.CXXPseudoDestructorExpr);
+  if (!self.getScopeTypeInfo()) {
+    return std::nullopt;
+  }
+  decltype(auto) val = self.getScopeTypeInfo();
+  if (!val) {
+    return std::nullopt;
+  }
+  return TypeBuilder::Build(ast, val->getType());
+}
+
 ::pasta::Token CXXPseudoDestructorExpr::TildeToken(void) const {
   auto &self = *const_cast<clang::CXXPseudoDestructorExpr *>(u.CXXPseudoDestructorExpr);
   decltype(auto) val = self.getTildeLoc();
@@ -13550,7 +13574,13 @@ std::vector<::pasta::Stmt> CXXScalarValueInitExpr::Children(void) const {
   return ast->TokenAt(val);
 }
 
-// 0: CXXScalarValueInitExpr::
+::pasta::Type CXXScalarValueInitExpr::Type(void) const {
+  auto &self = *const_cast<clang::CXXScalarValueInitExpr *>(u.CXXScalarValueInitExpr);
+  decltype(auto) val = self.getTypeSourceInfo();
+  return TypeBuilder::Build(ast, val->getType());
+  throw std::runtime_error("CXXScalarValueInitExpr::Type can return nullptr!");
+}
+
 CXXStdInitializerListExpr::CXXStdInitializerListExpr(
     std::shared_ptr<ASTImpl> ast_,
     const ::clang::Stmt *stmt_)
@@ -13619,7 +13649,13 @@ PASTA_DEFINE_BASE_OPERATORS(ValueStmt, CXXTemporaryObjectExpr)
   return ast->TokenAt(val);
 }
 
-// 0: CXXTemporaryObjectExpr::
+::pasta::Type CXXTemporaryObjectExpr::Type(void) const {
+  auto &self = *const_cast<clang::CXXTemporaryObjectExpr *>(u.CXXTemporaryObjectExpr);
+  decltype(auto) val = self.getTypeSourceInfo();
+  return TypeBuilder::Build(ast, val->getType());
+  throw std::runtime_error("CXXTemporaryObjectExpr::Type can return nullptr!");
+}
+
 std::vector<::pasta::Expr> CXXTemporaryObjectExpr::Arguments(void) const {
   std::vector<::pasta::Expr> ret;
   auto convert_elem = [&] (const clang::Expr * val) {
@@ -13894,7 +13930,13 @@ uint32_t CXXUnresolvedConstructExpr::NumArguments(void) const {
   return TypeBuilder::Build(ast, val);
 }
 
-// 0: CXXUnresolvedConstructExpr::
+::pasta::Type CXXUnresolvedConstructExpr::Type(void) const {
+  auto &self = *const_cast<clang::CXXUnresolvedConstructExpr *>(u.CXXUnresolvedConstructExpr);
+  decltype(auto) val = self.getTypeSourceInfo();
+  return TypeBuilder::Build(ast, val->getType());
+  throw std::runtime_error("CXXUnresolvedConstructExpr::Type can return nullptr!");
+}
+
 bool CXXUnresolvedConstructExpr::IsListInitialization(void) const {
   auto &self = *const_cast<clang::CXXUnresolvedConstructExpr *>(u.CXXUnresolvedConstructExpr);
   decltype(auto) val = self.isListInitialization();
@@ -14464,7 +14506,13 @@ std::vector<::pasta::Stmt> CompoundLiteralExpr::Children(void) const {
   return ast->TokenAt(val);
 }
 
-// 0: CompoundLiteralExpr::
+::pasta::Type CompoundLiteralExpr::Type(void) const {
+  auto &self = *const_cast<clang::CompoundLiteralExpr *>(u.CompoundLiteralExpr);
+  decltype(auto) val = self.getTypeSourceInfo();
+  return TypeBuilder::Build(ast, val->getType());
+  throw std::runtime_error("CompoundLiteralExpr::Type can return nullptr!");
+}
+
 bool CompoundLiteralExpr::IsFileScope(void) const {
   auto &self = *const_cast<clang::CompoundLiteralExpr *>(u.CompoundLiteralExpr);
   decltype(auto) val = self.isFileScope();
@@ -14720,7 +14768,13 @@ std::vector<::pasta::Stmt> ConvertVectorExpr::Children(void) const {
   throw std::runtime_error("ConvertVectorExpr::SrcExpression can return nullptr!");
 }
 
-// 0: ConvertVectorExpr::
+::pasta::Type ConvertVectorExpr::Type(void) const {
+  auto &self = *const_cast<clang::ConvertVectorExpr *>(u.ConvertVectorExpr);
+  decltype(auto) val = self.getTypeSourceInfo();
+  return TypeBuilder::Build(ast, val->getType());
+  throw std::runtime_error("ConvertVectorExpr::Type can return nullptr!");
+}
+
 CoroutineSuspendExpr::CoroutineSuspendExpr(
     std::shared_ptr<ASTImpl> ast_,
     const ::clang::Stmt *stmt_)

@@ -1325,6 +1325,7 @@ class TypedefNameDecl : public TypeDecl {
   PASTA_DECLARE_DERIVED_OPERATORS(TypedefNameDecl, TypedefDecl)
   std::optional<::pasta::TagDecl> AnonymousDeclarationWithTypedefName(void) const;
   ::pasta::TypedefNameDecl CanonicalDeclaration(void) const;
+  ::pasta::Type Type(void) const;
   ::pasta::Type UnderlyingType(void) const;
   bool IsModed(void) const;
   bool IsTransparentTag(void) const;
@@ -1695,6 +1696,7 @@ class DeclaratorDecl : public ValueDecl {
   // QualifierToken: (clang::NestedNameSpecifierLoc)
   // TemplateParameterList: (clang::TemplateParameterList *)
   std::optional<::pasta::Expr> TrailingRequiresClause(void) const;
+  std::optional<::pasta::Type> Type(void) const;
   ::pasta::Token TypeSpecEndToken(void) const;
   ::pasta::Token TypeSpecStartToken(void) const;
   std::vector<::pasta::TemplateParameterList> TemplateParameterLists(void) const;
@@ -1987,6 +1989,7 @@ class NonTypeTemplateParmDecl : public DeclaratorDecl {
   std::optional<::pasta::Expr> DefaultArgument(void) const;
   ::pasta::Token DefaultArgumentToken(void) const;
   // ExpansionType: (clang::QualType)
+  // ExpansionType: (clang::TypeSourceInfo *)
   std::optional<uint32_t> NumExpansionTypes(void) const;
   std::optional<::pasta::Expr> PlaceholderTypeConstraint(void) const;
   bool HasDefaultArgument(void) const;
@@ -1996,7 +1999,6 @@ class NonTypeTemplateParmDecl : public DeclaratorDecl {
   bool IsParameterPack(void) const;
   std::vector<::pasta::TemplateParameterList> TemplateParameterLists(void) const;
   std::vector<::pasta::Type> ExpansionTypes(void) const;
-  // !!! ExpansionType getNumExpansionTypes getExpansionTypeSourceInfo (bad CxxName)
  protected:
   PASTA_DEFINE_DEFAULT_DECL_CONSTRUCTOR(NonTypeTemplateParmDecl)
 };
@@ -3005,6 +3007,7 @@ class CXXRecordDecl : public RecordDecl {
   uint32_t LambdaIndexInContext(void) const;
   std::optional<uint32_t> LambdaManglingNumber(void) const;
   // LambdaNumbering: (clang::CXXRecordDecl::LambdaNumbering)
+  std::optional<::pasta::Type> LambdaType(void) const;
   std::optional<enum MSInheritanceModel> MSInheritanceModel(void) const;
   enum MSVtorDispMode MSVtorDispMode(void) const;
   // MemberSpecializationInfo: (clang::MemberSpecializationInfo *)

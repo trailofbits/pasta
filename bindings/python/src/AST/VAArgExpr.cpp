@@ -25,6 +25,7 @@ void RegisterVAArgExpr(nb::module_ &m) {
     .def_prop_ro("end_token", &VAArgExpr::EndToken)
     .def_prop_ro("r_paren_token", &VAArgExpr::RParenToken)
     .def_prop_ro("sub_expression", &VAArgExpr::SubExpression)
+    .def_prop_ro("written_type", &VAArgExpr::WrittenType)
     .def_prop_ro("is_microsoft_abi", &VAArgExpr::IsMicrosoftABI);
 }
 } // namespace pasta

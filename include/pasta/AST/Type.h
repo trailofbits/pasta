@@ -323,7 +323,7 @@ class Type {
   std::optional<::pasta::CXXRecordDecl> PointeeCXXRecordDeclaration(void) const;
   std::optional<::pasta::Type> PointeeOrArrayElementType(void) const;
   std::optional<::pasta::Type> PointeeType(void) const;
-  std::optional<::pasta::Type> RVVElementType(void) const;
+  ::pasta::Type RVVEltType(void) const;
   std::optional<enum TypeScalarTypeKind> ScalarTypeKind(void) const;
   std::optional<::pasta::Type> SveElementType(void) const;
   ::pasta::TypeKind Kind(void) const;
@@ -518,7 +518,6 @@ class Type {
   std::optional<bool> IsStructuralType(void) const;
   bool IsStructureOrClassType(void) const;
   bool IsStructureType(void) const;
-  bool IsSveVLSBuiltinType(void) const;
   bool IsTemplateTypeParmType(void) const;
   bool IsTypedefNameType(void) const;
   bool IsUndeducedAutoType(void) const;
@@ -529,6 +528,7 @@ class Type {
   bool IsUnsignedFixedPointType(void) const;
   bool IsUnsignedIntegerOrEnumerationType(void) const;
   bool IsUnsignedIntegerType(void) const;
+  bool IsVLSTBuiltinType(void) const;
   bool IsVariableArrayType(void) const;
   bool IsVariablyModifiedType(void) const;
   bool IsVectorType(void) const;
@@ -827,7 +827,6 @@ class ConstantArrayType : public ArrayType {
   PASTA_DECLARE_BASE_OPERATORS(ArrayType, ConstantArrayType)
   PASTA_DECLARE_BASE_OPERATORS(Type, ConstantArrayType)
   ::pasta::Type Desugar(void) const;
-  uint32_t NumAddressingBits(void) const;
   llvm::APInt Size(void) const;
   std::optional<::pasta::Expr> SizeExpression(void) const;
   bool IsSugared(void) const;
@@ -1601,7 +1600,6 @@ class FunctionProtoType : public FunctionType {
   std::optional<enum CanThrowResult> CanThrow(void) const;
   ::pasta::Type Desugar(void) const;
   std::vector<::pasta::Type> Exceptions(void) const;
-  uint32_t AArch64SMEAttributes(void) const;
   ::pasta::Token EllipsisToken(void) const;
   std::optional<::pasta::FunctionDecl> ExceptionSpecDeclaration(void) const;
   // ExceptionSpecInfo: (clang::FunctionProtoType::ExceptionSpecInfo)

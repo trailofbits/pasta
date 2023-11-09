@@ -306,13 +306,8 @@ class AttrVisitor {
   virtual void VisitArcWeakrefUnavailableAttr(const ArcWeakrefUnavailableAttr &);
   virtual void VisitArgumentWithTypeTagAttr(const ArgumentWithTypeTagAttr &);
   virtual void VisitArmBuiltinAliasAttr(const ArmBuiltinAliasAttr &);
-  virtual void VisitArmLocallyStreamingAttr(const ArmLocallyStreamingAttr &);
   virtual void VisitArmMveStrictPolymorphismAttr(const ArmMveStrictPolymorphismAttr &);
-  virtual void VisitArmNewZAAttr(const ArmNewZAAttr &);
-  virtual void VisitArmPreservesZAAttr(const ArmPreservesZAAttr &);
-  virtual void VisitArmSharedZAAttr(const ArmSharedZAAttr &);
   virtual void VisitArmStreamingAttr(const ArmStreamingAttr &);
-  virtual void VisitArmStreamingCompatibleAttr(const ArmStreamingCompatibleAttr &);
   virtual void VisitArtificialAttr(const ArtificialAttr &);
   virtual void VisitAsmLabelAttr(const AsmLabelAttr &);
   virtual void VisitAssertCapabilityAttr(const AssertCapabilityAttr &);
@@ -470,13 +465,8 @@ class Attr {
   PASTA_DECLARE_DERIVED_OPERATORS(Attr, ArcWeakrefUnavailableAttr)
   PASTA_DECLARE_DERIVED_OPERATORS(Attr, ArgumentWithTypeTagAttr)
   PASTA_DECLARE_DERIVED_OPERATORS(Attr, ArmBuiltinAliasAttr)
-  PASTA_DECLARE_DERIVED_OPERATORS(Attr, ArmLocallyStreamingAttr)
   PASTA_DECLARE_DERIVED_OPERATORS(Attr, ArmMveStrictPolymorphismAttr)
-  PASTA_DECLARE_DERIVED_OPERATORS(Attr, ArmNewZAAttr)
-  PASTA_DECLARE_DERIVED_OPERATORS(Attr, ArmPreservesZAAttr)
-  PASTA_DECLARE_DERIVED_OPERATORS(Attr, ArmSharedZAAttr)
   PASTA_DECLARE_DERIVED_OPERATORS(Attr, ArmStreamingAttr)
-  PASTA_DECLARE_DERIVED_OPERATORS(Attr, ArmStreamingCompatibleAttr)
   PASTA_DECLARE_DERIVED_OPERATORS(Attr, ArtificialAttr)
   PASTA_DECLARE_DERIVED_OPERATORS(Attr, AsmLabelAttr)
   PASTA_DECLARE_DERIVED_OPERATORS(Attr, AssertCapabilityAttr)
@@ -879,13 +869,8 @@ class Attr {
     const ::clang::ArcWeakrefUnavailableAttr *ArcWeakrefUnavailableAttr;
     const ::clang::ArgumentWithTypeTagAttr *ArgumentWithTypeTagAttr;
     const ::clang::ArmBuiltinAliasAttr *ArmBuiltinAliasAttr;
-    const ::clang::ArmLocallyStreamingAttr *ArmLocallyStreamingAttr;
     const ::clang::ArmMveStrictPolymorphismAttr *ArmMveStrictPolymorphismAttr;
-    const ::clang::ArmNewZAAttr *ArmNewZAAttr;
-    const ::clang::ArmPreservesZAAttr *ArmPreservesZAAttr;
-    const ::clang::ArmSharedZAAttr *ArmSharedZAAttr;
     const ::clang::ArmStreamingAttr *ArmStreamingAttr;
-    const ::clang::ArmStreamingCompatibleAttr *ArmStreamingCompatibleAttr;
     const ::clang::ArtificialAttr *ArtificialAttr;
     const ::clang::AsmLabelAttr *AsmLabelAttr;
     const ::clang::AssertCapabilityAttr *AssertCapabilityAttr;
@@ -1324,8 +1309,6 @@ class InheritableAttr : public Attr {
   PASTA_DECLARE_DERIVED_OPERATORS(InheritableAttr, ArcWeakrefUnavailableAttr)
   PASTA_DECLARE_DERIVED_OPERATORS(InheritableAttr, ArgumentWithTypeTagAttr)
   PASTA_DECLARE_DERIVED_OPERATORS(InheritableAttr, ArmBuiltinAliasAttr)
-  PASTA_DECLARE_DERIVED_OPERATORS(InheritableAttr, ArmLocallyStreamingAttr)
-  PASTA_DECLARE_DERIVED_OPERATORS(InheritableAttr, ArmNewZAAttr)
   PASTA_DECLARE_DERIVED_OPERATORS(InheritableAttr, ArtificialAttr)
   PASTA_DECLARE_DERIVED_OPERATORS(InheritableAttr, AsmLabelAttr)
   PASTA_DECLARE_DERIVED_OPERATORS(InheritableAttr, AssertCapabilityAttr)
@@ -4431,10 +4414,7 @@ class TypeAttr : public Attr {
   PASTA_DECLARE_DERIVED_OPERATORS(TypeAttr, AddressSpaceAttr)
   PASTA_DECLARE_DERIVED_OPERATORS(TypeAttr, AnnotateTypeAttr)
   PASTA_DECLARE_DERIVED_OPERATORS(TypeAttr, ArmMveStrictPolymorphismAttr)
-  PASTA_DECLARE_DERIVED_OPERATORS(TypeAttr, ArmPreservesZAAttr)
-  PASTA_DECLARE_DERIVED_OPERATORS(TypeAttr, ArmSharedZAAttr)
   PASTA_DECLARE_DERIVED_OPERATORS(TypeAttr, ArmStreamingAttr)
-  PASTA_DECLARE_DERIVED_OPERATORS(TypeAttr, ArmStreamingCompatibleAttr)
   PASTA_DECLARE_DERIVED_OPERATORS(TypeAttr, BTFTypeTagAttr)
   PASTA_DECLARE_DERIVED_OPERATORS(TypeAttr, CmseNSCallAttr)
   PASTA_DECLARE_DERIVED_OPERATORS(TypeAttr, HLSLGroupSharedAddressSpaceAttr)
@@ -5487,20 +5467,6 @@ class ArmBuiltinAliasAttr : public InheritableAttr {
 
 static_assert(sizeof(Attr) == sizeof(ArmBuiltinAliasAttr));
 
-class ArmLocallyStreamingAttr : public InheritableAttr {
- private:
-  using InheritableAttr::From;
- public:
-  PASTA_DECLARE_DEFAULT_CONSTRUCTORS(ArmLocallyStreamingAttr)
-  PASTA_DECLARE_BASE_OPERATORS(Attr, ArmLocallyStreamingAttr)
-  PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, ArmLocallyStreamingAttr)
-  std::string_view Spelling(void) const;
- protected:
-  PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(ArmLocallyStreamingAttr)
-};
-
-static_assert(sizeof(Attr) == sizeof(ArmLocallyStreamingAttr));
-
 class ArmMveStrictPolymorphismAttr : public TypeAttr {
  private:
   using TypeAttr::From;
@@ -5515,48 +5481,6 @@ class ArmMveStrictPolymorphismAttr : public TypeAttr {
 
 static_assert(sizeof(Attr) == sizeof(ArmMveStrictPolymorphismAttr));
 
-class ArmNewZAAttr : public InheritableAttr {
- private:
-  using InheritableAttr::From;
- public:
-  PASTA_DECLARE_DEFAULT_CONSTRUCTORS(ArmNewZAAttr)
-  PASTA_DECLARE_BASE_OPERATORS(Attr, ArmNewZAAttr)
-  PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, ArmNewZAAttr)
-  std::string_view Spelling(void) const;
- protected:
-  PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(ArmNewZAAttr)
-};
-
-static_assert(sizeof(Attr) == sizeof(ArmNewZAAttr));
-
-class ArmPreservesZAAttr : public TypeAttr {
- private:
-  using TypeAttr::From;
- public:
-  PASTA_DECLARE_DEFAULT_CONSTRUCTORS(ArmPreservesZAAttr)
-  PASTA_DECLARE_BASE_OPERATORS(Attr, ArmPreservesZAAttr)
-  PASTA_DECLARE_BASE_OPERATORS(TypeAttr, ArmPreservesZAAttr)
-  std::string_view Spelling(void) const;
- protected:
-  PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(ArmPreservesZAAttr)
-};
-
-static_assert(sizeof(Attr) == sizeof(ArmPreservesZAAttr));
-
-class ArmSharedZAAttr : public TypeAttr {
- private:
-  using TypeAttr::From;
- public:
-  PASTA_DECLARE_DEFAULT_CONSTRUCTORS(ArmSharedZAAttr)
-  PASTA_DECLARE_BASE_OPERATORS(Attr, ArmSharedZAAttr)
-  PASTA_DECLARE_BASE_OPERATORS(TypeAttr, ArmSharedZAAttr)
-  std::string_view Spelling(void) const;
- protected:
-  PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(ArmSharedZAAttr)
-};
-
-static_assert(sizeof(Attr) == sizeof(ArmSharedZAAttr));
-
 class ArmStreamingAttr : public TypeAttr {
  private:
   using TypeAttr::From;
@@ -5570,20 +5494,6 @@ class ArmStreamingAttr : public TypeAttr {
 };
 
 static_assert(sizeof(Attr) == sizeof(ArmStreamingAttr));
-
-class ArmStreamingCompatibleAttr : public TypeAttr {
- private:
-  using TypeAttr::From;
- public:
-  PASTA_DECLARE_DEFAULT_CONSTRUCTORS(ArmStreamingCompatibleAttr)
-  PASTA_DECLARE_BASE_OPERATORS(Attr, ArmStreamingCompatibleAttr)
-  PASTA_DECLARE_BASE_OPERATORS(TypeAttr, ArmStreamingCompatibleAttr)
-  std::string_view Spelling(void) const;
- protected:
-  PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(ArmStreamingCompatibleAttr)
-};
-
-static_assert(sizeof(Attr) == sizeof(ArmStreamingCompatibleAttr));
 
 class ArtificialAttr : public InheritableAttr {
  private:

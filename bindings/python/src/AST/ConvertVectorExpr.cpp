@@ -24,6 +24,7 @@ void RegisterConvertVectorExpr(nb::module_ &m) {
     .def_prop_ro("builtin_token", &ConvertVectorExpr::BuiltinToken)
     .def_prop_ro("end_token", &ConvertVectorExpr::EndToken)
     .def_prop_ro("r_paren_token", &ConvertVectorExpr::RParenToken)
-    .def_prop_ro("src_expression", &ConvertVectorExpr::SrcExpression);
+    .def_prop_ro("src_expression", &ConvertVectorExpr::SrcExpression)
+    .def_prop_ro("type", &ConvertVectorExpr::Type);
 }
 } // namespace pasta

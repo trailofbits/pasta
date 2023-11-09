@@ -22,7 +22,6 @@ void RegisterFunctionProtoType(nb::module_ &m) {
     .def_prop_ro("can_throw", &FunctionProtoType::CanThrow)
     .def_prop_ro("desugar", &FunctionProtoType::Desugar)
     .def_prop_ro("exceptions", &FunctionProtoType::Exceptions)
-    .def_prop_ro("a_arch64_sme_attributes", &FunctionProtoType::AArch64SMEAttributes)
     .def_prop_ro("ellipsis_token", &FunctionProtoType::EllipsisToken)
     .def_prop_ro("exception_spec_declaration", &FunctionProtoType::ExceptionSpecDeclaration)
     .def_prop_ro("exception_spec_template", &FunctionProtoType::ExceptionSpecTemplate)

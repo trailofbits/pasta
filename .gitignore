@@ -6,3 +6,5 @@ install/*
 .project
 .settings
 .vscode/
+*.pyc
+

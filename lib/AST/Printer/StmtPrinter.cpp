@@ -710,6 +710,7 @@ void StmtPrinter::VisitOMPCanonicalLoop(clang::OMPCanonicalLoop *Node) {
   PrintStmt(Node->getLoopStmt());
 }
 
+#ifndef PASTA_LLVM_18
 void StmtPrinter::PrintOMPExecutableDirective(clang::OMPExecutableDirective *S,
                                               bool ForceNoStmt) {
   TokenPrinterContext ctx(OS, S, tokens);
@@ -724,6 +725,7 @@ void StmtPrinter::PrintOMPExecutableDirective(clang::OMPExecutableDirective *S,
   if (!ForceNoStmt && S->hasAssociatedStmt())
     PrintStmt(S->getRawStmt());
 }
+#endif
 
 void StmtPrinter::VisitOMPMetaDirective(clang::OMPMetaDirective *Node) {
   TokenPrinterContext ctx(OS, Node, tokens);
@@ -779,10 +781,12 @@ void StmtPrinter::VisitOMPSectionDirective(clang::OMPSectionDirective *Node) {
   PrintOMPExecutableDirective(Node);
 }
 
+#ifdef PASTA_LLVM_18
 void StmtPrinter::VisitOMPScopeDirective(clang::OMPScopeDirective *Node) {
   Indent() << "#pragma omp scope";
   PrintOMPExecutableDirective(Node);
 }
+#endif
 
 void StmtPrinter::VisitOMPSingleDirective(clang::OMPSingleDirective *Node) {
   TokenPrinterContext ctx(OS, Node, tokens);

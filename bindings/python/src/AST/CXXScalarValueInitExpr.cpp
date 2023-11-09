@@ -22,6 +22,7 @@ void RegisterCXXScalarValueInitExpr(nb::module_ &m) {
     .def_prop_ro("children", &CXXScalarValueInitExpr::Children)
     .def_prop_ro("begin_token", &CXXScalarValueInitExpr::BeginToken)
     .def_prop_ro("end_token", &CXXScalarValueInitExpr::EndToken)
-    .def_prop_ro("r_paren_token", &CXXScalarValueInitExpr::RParenToken);
+    .def_prop_ro("r_paren_token", &CXXScalarValueInitExpr::RParenToken)
+    .def_prop_ro("type", &CXXScalarValueInitExpr::Type);
 }
 } // namespace pasta

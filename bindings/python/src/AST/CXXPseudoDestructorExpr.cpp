@@ -27,6 +27,7 @@ void RegisterCXXPseudoDestructorExpr(nb::module_ &m) {
     .def_prop_ro("destroyed_type_token", &CXXPseudoDestructorExpr::DestroyedTypeToken)
     .def_prop_ro("end_token", &CXXPseudoDestructorExpr::EndToken)
     .def_prop_ro("operator_token", &CXXPseudoDestructorExpr::OperatorToken)
+    .def_prop_ro("scope_type", &CXXPseudoDestructorExpr::ScopeType)
     .def_prop_ro("tilde_token", &CXXPseudoDestructorExpr::TildeToken)
     .def_prop_ro("has_qualifier", &CXXPseudoDestructorExpr::HasQualifier)
     .def_prop_ro("is_arrow", &CXXPseudoDestructorExpr::IsArrow);

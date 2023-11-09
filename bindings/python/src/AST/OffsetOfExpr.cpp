@@ -25,6 +25,7 @@ void RegisterOffsetOfExpr(nb::module_ &m) {
     .def_prop_ro("num_components", &OffsetOfExpr::NumComponents)
     .def_prop_ro("num_expressions", &OffsetOfExpr::NumExpressions)
     .def_prop_ro("operator_token", &OffsetOfExpr::OperatorToken)
-    .def_prop_ro("r_paren_token", &OffsetOfExpr::RParenToken);
+    .def_prop_ro("r_paren_token", &OffsetOfExpr::RParenToken)
+    .def_prop_ro("type", &OffsetOfExpr::Type);
 }
 } // namespace pasta

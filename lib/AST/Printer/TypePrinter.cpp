@@ -2299,6 +2299,7 @@ void TypePrinter::printAttributed(const clang::AttributedType *T,
       OS << "__arm_streaming";
       return;
 
+#ifdef PASTA_LLVM_18
     case clang::attr::ArmStreamingCompatible:
       printBeforeAfter(T->getModifiedType(), OS, std::move(IdentFn));
       OS << "__arm_streaming_compatible";
@@ -2313,6 +2314,7 @@ void TypePrinter::printAttributed(const clang::AttributedType *T,
       printBeforeAfter(T->getModifiedType(), OS, std::move(IdentFn));
       OS << "__arm_preserves_za";
       return;
+#endif
 
     default:
       printBeforeAfter(T->getModifiedType(), OS, std::move(IdentFn));
@@ -2376,9 +2378,11 @@ void TypePrinter::printAttributed(const clang::AttributedType *T,
         case clang::attr::AnnotateType:
         case clang::attr::WebAssemblyFuncref:
         case clang::attr::ArmStreaming:
+#ifdef PASTA_LLVM_18
         case clang::attr::ArmStreamingCompatible:
         case clang::attr::ArmSharedZA:
         case clang::attr::ArmPreservesZA:
+#endif
           llvm_unreachable("This attribute should have been handled already");
 
         case clang::attr::NSReturnsRetained:

@@ -245,20 +245,19 @@ std::string CxxName(llvm::StringRef name_) {
     return "RBraceToken";
   } else if (name == "ChildrenExpression") {
     return "Children";
-
-  } else if (name_.endswith("TypeSourceInfo")) {
-    return name.substr(0, name.size() - sizeof("SourceInfo") + 1);
-
-  } else if (name_.endswith("TypeSourceInfos")) {
-    return name.substr(0, name.size() - sizeof("SourceInfos") + 1) + "s";
-
-  } else if (name_.endswith("TypeInfo")) {
-    return name.substr(0, name.size() - sizeof("Info") + 1);
   }
   return name;
 }
 
 std::string CxxName(llvm::StringRef cls_name, llvm::StringRef meth_name) {
+  // Ignore these. Previously we mappend them to `Type`, but that was
+  // problematic with shadowing.
+  if (meth_name.ends_with("TypeSourceInfo") ||
+      meth_name.ends_with("TypeSourceInfos") ||
+      meth_name.ends_with("TypeInfo")) {
+    return "";
+  }
+
   auto ret = CxxName(meth_name);
   if (ret != "Kind") {
     return ret;

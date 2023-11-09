@@ -24,7 +24,6 @@ void RegisterCompoundLiteralExpr(nb::module_ &m) {
     .def_prop_ro("end_token", &CompoundLiteralExpr::EndToken)
     .def_prop_ro("initializer", &CompoundLiteralExpr::Initializer)
     .def_prop_ro("l_paren_token", &CompoundLiteralExpr::LParenToken)
-    .def_prop_ro("type", &CompoundLiteralExpr::Type)
     .def_prop_ro("is_file_scope", &CompoundLiteralExpr::IsFileScope);
 }
 } // namespace pasta

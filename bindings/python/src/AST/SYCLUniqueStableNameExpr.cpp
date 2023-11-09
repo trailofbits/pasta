@@ -25,7 +25,6 @@ void RegisterSYCLUniqueStableNameExpr(nb::module_ &m) {
     .def_prop_ro("end_token", &SYCLUniqueStableNameExpr::EndToken)
     .def_prop_ro("l_paren_token", &SYCLUniqueStableNameExpr::LParenToken)
     .def_prop_ro("token", &SYCLUniqueStableNameExpr::Token)
-    .def_prop_ro("r_paren_token", &SYCLUniqueStableNameExpr::RParenToken)
-    .def_prop_ro("type", &SYCLUniqueStableNameExpr::Type);
+    .def_prop_ro("r_paren_token", &SYCLUniqueStableNameExpr::RParenToken);
 }
 } // namespace pasta

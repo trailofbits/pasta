@@ -21,7 +21,6 @@ void RegisterTypedefNameDecl(nb::module_ &m) {
     .def("__eq__", [](const Decl &a, const Decl &b) { return a.RawDecl() == b.RawDecl(); })
     .def_prop_ro("anonymous_declaration_with_typedef_name", &TypedefNameDecl::AnonymousDeclarationWithTypedefName)
     .def_prop_ro("canonical_declaration", &TypedefNameDecl::CanonicalDeclaration)
-    .def_prop_ro("type", &TypedefNameDecl::Type)
     .def_prop_ro("underlying_type", &TypedefNameDecl::UnderlyingType)
     .def_prop_ro("is_moded", &TypedefNameDecl::IsModed)
     .def_prop_ro("is_transparent_tag", &TypedefNameDecl::IsTransparentTag);

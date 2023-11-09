@@ -1552,7 +1552,7 @@ class Expr : public ValueStmt {
   bool IsImplicitCXXThis(void) const;
   bool IsInstantiationDependent(void) const;
   std::optional<bool> IsIntegerConstantExpression(void) const;
-  bool IsKnownToHaveBooleanValue(void) const;
+  std::optional<bool> IsKnownToHaveBooleanValue(void) const;
   bool IsLValue(void) const;
   enum ExprisModifiableLvalueResult IsModifiableLvalue(void) const;
   // IsNullPointerConstant: (clang::Expr::NullPointerConstantKind)
@@ -1560,7 +1560,7 @@ class Expr : public ValueStmt {
   bool IsObjCSelfExpression(void) const;
   bool IsOrdinaryOrBitFieldObject(void) const;
   bool IsPRValue(void) const;
-  bool IsReadIfDiscardedInCPlusPlus11(void) const;
+  std::optional<bool> IsReadIfDiscardedInCPlusPlus11(void) const;
   // IsTemporaryObject: (bool)
   bool IsTypeDependent(void) const;
   // IsUnusedResultAWarning: (bool)
@@ -1808,7 +1808,6 @@ class GenericSelectionExpr : public Expr {
   // Associations: (llvm::iterator_range<clang::GenericSelectionExpr::AssociationIteratorTy<true>>)
   std::vector<::pasta::Stmt> Children(void) const;
   std::vector<::pasta::Expr> AssociationExpressions(void) const;
-  // AssociationTypes: (llvm::ArrayRef<clang::TypeSourceInfo *>)
   // Association: (clang::GenericSelectionExpr::AssociationTy<true>)
   ::pasta::Token BeginToken(void) const;
   ::pasta::Expr ControllingExpression(void) const;
@@ -3822,7 +3821,6 @@ class ObjCMessageExpr : public Expr {
   ::pasta::Token BeginToken(void) const;
   ::pasta::Type CallReturnType(void) const;
   ::pasta::Type ClassReceiver(void) const;
-  ::pasta::Type ClassReceiverType(void) const;
   ::pasta::Token EndToken(void) const;
   ::pasta::Expr InstanceReceiver(void) const;
   ::pasta::Token LeftToken(void) const;
@@ -3986,7 +3984,6 @@ class OffsetOfExpr : public Expr {
   uint32_t NumExpressions(void) const;
   ::pasta::Token OperatorToken(void) const;
   ::pasta::Token RParenToken(void) const;
-  ::pasta::Type Type(void) const;
   // !!! Component getNumComponents getComponent (empty ret type = (const clang::OffsetOfNode &))
  protected:
   PASTA_DEFINE_DEFAULT_STMT_CONSTRUCTOR(OffsetOfExpr)
@@ -4296,7 +4293,6 @@ class SYCLUniqueStableNameExpr : public Expr {
   ::pasta::Token LParenToken(void) const;
   ::pasta::Token Token(void) const;
   ::pasta::Token RParenToken(void) const;
-  ::pasta::Type Type(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_STMT_CONSTRUCTOR(SYCLUniqueStableNameExpr)
 };
@@ -4638,7 +4634,6 @@ class VAArgExpr : public Expr {
   ::pasta::Token EndToken(void) const;
   ::pasta::Token RParenToken(void) const;
   ::pasta::Expr SubExpression(void) const;
-  ::pasta::Type WrittenType(void) const;
   bool IsMicrosoftABI(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_STMT_CONSTRUCTOR(VAArgExpr)
@@ -5256,7 +5251,6 @@ class CXXPseudoDestructorExpr : public Expr {
   ::pasta::Token OperatorToken(void) const;
   // Qualifier: (clang::NestedNameSpecifier *)
   // QualifierToken: (clang::NestedNameSpecifierLoc)
-  std::optional<::pasta::Type> ScopeType(void) const;
   ::pasta::Token TildeToken(void) const;
   bool HasQualifier(void) const;
   bool IsArrow(void) const;
@@ -5307,7 +5301,6 @@ class CXXScalarValueInitExpr : public Expr {
   ::pasta::Token BeginToken(void) const;
   ::pasta::Token EndToken(void) const;
   ::pasta::Token RParenToken(void) const;
-  ::pasta::Type Type(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_STMT_CONSTRUCTOR(CXXScalarValueInitExpr)
 };
@@ -5344,7 +5337,6 @@ class CXXTemporaryObjectExpr : public CXXConstructExpr {
   PASTA_DECLARE_BASE_OPERATORS(ValueStmt, CXXTemporaryObjectExpr)
   ::pasta::Token BeginToken(void) const;
   ::pasta::Token EndToken(void) const;
-  ::pasta::Type Type(void) const;
   std::vector<::pasta::Expr> Arguments(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_STMT_CONSTRUCTOR(CXXTemporaryObjectExpr)
@@ -5432,7 +5424,6 @@ class CXXUnresolvedConstructExpr : public Expr {
   uint32_t NumArguments(void) const;
   ::pasta::Token RParenToken(void) const;
   ::pasta::Type TypeAsWritten(void) const;
-  ::pasta::Type Type(void) const;
   bool IsListInitialization(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_STMT_CONSTRUCTOR(CXXUnresolvedConstructExpr)
@@ -5618,7 +5609,6 @@ class CompoundLiteralExpr : public Expr {
   ::pasta::Token EndToken(void) const;
   ::pasta::Expr Initializer(void) const;
   ::pasta::Token LParenToken(void) const;
-  ::pasta::Type Type(void) const;
   bool IsFileScope(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_STMT_CONSTRUCTOR(CompoundLiteralExpr)
@@ -5709,7 +5699,6 @@ class ConvertVectorExpr : public Expr {
   ::pasta::Token EndToken(void) const;
   ::pasta::Token RParenToken(void) const;
   ::pasta::Expr SrcExpression(void) const;
-  ::pasta::Type Type(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_STMT_CONSTRUCTOR(ConvertVectorExpr)
 };

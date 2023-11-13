@@ -5318,9 +5318,9 @@ void RegisterEnums(nb::module_ &m) {
 
   nb::enum_<pasta::UnaryOperatorKind>(m, "UnaryOperatorKind")
     .value("POST_INCREMENT", pasta::UnaryOperatorKind::kPostIncrement)
-    .value("POST_DEC", pasta::UnaryOperatorKind::kPostDec)
+    .value("POST_DECREMENT", pasta::UnaryOperatorKind::kPostDecrement)
     .value("PRE_INCREMENT", pasta::UnaryOperatorKind::kPreIncrement)
-    .value("PRE_DEC", pasta::UnaryOperatorKind::kPreDec)
+    .value("PRE_DECREMENT", pasta::UnaryOperatorKind::kPreDecrement)
     .value("ADDRESS_OF", pasta::UnaryOperatorKind::kAddressOf)
     .value("DEREF", pasta::UnaryOperatorKind::kDeref)
     .value("PLUS", pasta::UnaryOperatorKind::kPlus)

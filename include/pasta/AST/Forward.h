@@ -7507,9 +7507,9 @@ enum class UnaryExprOrTypeTrait : unsigned int {
 
 enum class UnaryOperatorKind : unsigned int {
   kPostIncrement = 0,
-  kPostDec = 1,
+  kPostDecrement = 1,
   kPreIncrement = 2,
-  kPreDec = 3,
+  kPreDecrement = 3,
   kAddressOf = 4,
   kDeref = 5,
   kPlus = 6,

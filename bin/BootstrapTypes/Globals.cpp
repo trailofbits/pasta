@@ -1866,6 +1866,18 @@ std::map<std::pair<std::string, std::string>, std::string> kConditionalNullptr{
 //   "  } else {\n"
 //   "    return std::nullopt;\n"
 //   "  }\n"},
+  {{"GenericSelectionExpr", "ControllingType"},
+   "  if (!self.isTypePredicate()) {\n"
+   "    return std::nullopt;\n"
+   "  }\n"},
+  {{"GenericSelectionExpr", "ControllingExpression"},
+   "  if (!self.isExprPredicate()) {\n"
+   "    return std::nullopt;\n"
+   "  }\n"},
+  {{"GenericSelectionExpr", "ResultExpression"},
+   "  if (self.isResultDependent()) {\n"
+   "    return std::nullopt;\n"
+   "  }\n"},
 };
 
 std::unordered_map<std::string, uint32_t> gClassIDs;

@@ -1810,14 +1810,14 @@ class GenericSelectionExpr : public Expr {
   std::vector<::pasta::Expr> AssociationExpressions(void) const;
   // Association: (clang::GenericSelectionExpr::AssociationTy<true>)
   ::pasta::Token BeginToken(void) const;
-  ::pasta::Expr ControllingExpression(void) const;
-  ::pasta::Type ControllingType(void) const;
+  std::optional<::pasta::Expr> ControllingExpression(void) const;
+  std::optional<::pasta::Type> ControllingType(void) const;
   ::pasta::Token DefaultToken(void) const;
   ::pasta::Token EndToken(void) const;
   ::pasta::Token GenericToken(void) const;
   uint32_t NumAssociations(void) const;
   ::pasta::Token RParenToken(void) const;
-  ::pasta::Expr ResultExpression(void) const;
+  std::optional<::pasta::Expr> ResultExpression(void) const;
   uint32_t ResultIndex(void) const;
   bool IsExpressionPredicate(void) const;
   bool IsResultDependent(void) const;

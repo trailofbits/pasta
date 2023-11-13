@@ -109,6 +109,7 @@ std::string Capitalize(llvm::StringRef name) {
   return name.substr(0, 1).upper() + name.substr(1).str();
 }
 
+static const llvm::StringRef kDec = "Dec";
 static const llvm::StringRef kLoc = "Loc";
 static const llvm::StringRef kSourceRange = "SourceRange";
 
@@ -148,6 +149,9 @@ static std::string CxxNameImpl(llvm::StringRef name) {
   // Setters, ignore them.
   } else if (name.startswith("set") && !name.startswith("sets")) {
     return "";
+
+  } else if (name.endswith(kDec)) {
+    return CxxNameImpl(name.substr(0, name.size() - kDec.size()).str()) + "Decrement";
 
   } else if (name.endswith(kLoc)) {
     return CxxNameImpl(name.substr(0, name.size() - kLoc.size()).str()) + "Token";

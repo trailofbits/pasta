@@ -4472,20 +4472,30 @@ std::vector<::pasta::Expr> GenericSelectionExpr::AssociationExpressions(void) co
   return ast->TokenAt(val);
 }
 
-::pasta::Expr GenericSelectionExpr::ControllingExpression(void) const {
+std::optional<::pasta::Expr> GenericSelectionExpr::ControllingExpression(void) const {
   auto &self = *const_cast<clang::GenericSelectionExpr *>(u.GenericSelectionExpr);
+  if (!self.isExprPredicate()) {
+    return std::nullopt;
+  }
   decltype(auto) val = self.getControllingExpr();
+  if (!val) {
+    return std::nullopt;
+  }
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
-  throw std::runtime_error("GenericSelectionExpr::ControllingExpression can return nullptr!");
 }
 
-::pasta::Type GenericSelectionExpr::ControllingType(void) const {
+std::optional<::pasta::Type> GenericSelectionExpr::ControllingType(void) const {
   auto &self = *const_cast<clang::GenericSelectionExpr *>(u.GenericSelectionExpr);
+  if (!self.isTypePredicate()) {
+    return std::nullopt;
+  }
   decltype(auto) val = self.getControllingType();
+  if (!val) {
+    return std::nullopt;
+  }
   return TypeBuilder::Build(ast, val->getType());
-  throw std::runtime_error("GenericSelectionExpr::ControllingType can return nullptr!");
 }
 
 ::pasta::Token GenericSelectionExpr::DefaultToken(void) const {
@@ -4518,13 +4528,18 @@ uint32_t GenericSelectionExpr::NumAssociations(void) const {
   return ast->TokenAt(val);
 }
 
-::pasta::Expr GenericSelectionExpr::ResultExpression(void) const {
+std::optional<::pasta::Expr> GenericSelectionExpr::ResultExpression(void) const {
   auto &self = *const_cast<clang::GenericSelectionExpr *>(u.GenericSelectionExpr);
+  if (self.isResultDependent()) {
+    return std::nullopt;
+  }
   decltype(auto) val = self.getResultExpr();
+  if (!val) {
+    return std::nullopt;
+  }
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
-  throw std::runtime_error("GenericSelectionExpr::ResultExpression can return nullptr!");
 }
 
 uint32_t GenericSelectionExpr::ResultIndex(void) const {

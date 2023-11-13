@@ -225,9 +225,12 @@ static bool IsImplicitImpl(clang::Decl *decl) {
   return IsImplicitImpl(dc_decl);
 }
 
+// CXXRecord layout is only valid if the definition is complete and it is
+// not templated. If either case is true return null.
 static const clang::ASTRecordLayout *GetRecordLayout(const clang::RecordDecl *decl) {
   auto def = decl->getDefinition();
-  if (def && !def->isInvalidDecl() && def->isCompleteDefinition()) {
+  if (def && !def->isInvalidDecl() && def->isCompleteDefinition()
+      && !def->isTemplated()) {
     return &(def->getASTContext().getASTRecordLayout(def));
   }
   return nullptr;

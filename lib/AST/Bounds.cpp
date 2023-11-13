@@ -480,7 +480,7 @@ class DeclBoundsFinder : public clang::DeclVisitor<DeclBoundsFinder>,
       if (tok_kind == clang::tok::kw_namespace) {
         if (!(kind == clang::tok::kw_namespace ||
             tok[-1].Kind() == clang::tok::kw_using)) {
-          return &(tok[-1]);
+          return nullptr;
         }
       }
       if (tok_kind == kind && 0 >= nesting) {
@@ -897,7 +897,6 @@ class DeclBoundsFinder : public clang::DeclVisitor<DeclBoundsFinder>,
     if (!proto) {
       return;
     }
-
     if (proto->l_paren) {
       assert(lower_bound < proto->l_paren);
       assert(proto->r_paren <= upper_bound);
@@ -1133,9 +1132,9 @@ class DeclBoundsFinder : public clang::DeclVisitor<DeclBoundsFinder>,
       if (semi_tok) {
         assert(semi_tok >= name_tok);
         Expand(semi_tok);
-      } else {
-        assert(false);
-      }
+      } /*else {
+        //assert(false);
+      }*/
     } else {
       assert(false);
     }

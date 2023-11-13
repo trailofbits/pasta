@@ -299,6 +299,7 @@ CreateAdjustedCompilerCommand(FileSystemView &fs, const Compiler &compiler,
 
   std::vector<std::string> parsed_args;
   std::vector<std::string> parsed_inc_args;
+  std::vector<std::string> special_args;
 
   std::string target_triple = driver.getTargetTriple();
   std::filesystem::path working_dir = command.WorkingDirectory();
@@ -390,7 +391,7 @@ CreateAdjustedCompilerCommand(FileSystemView &fs, const Compiler &compiler,
                id == clang::driver::options::OPT_Xlinker ||
                id == clang::driver::options::OPT_Xassembler) {
       assert(false);
-      RenderPrefixed(arg, parsed_args, prefix);
+      // Skip.
 
     // If there is separator writing output to a file, add it as
     // an output file with the separator else it will be treated
@@ -416,7 +417,7 @@ CreateAdjustedCompilerCommand(FileSystemView &fs, const Compiler &compiler,
     // If we're parsing a `-cc1` command then that changes the interpretation
     // and rendering of some options.
     } else if (OmitOption(id)) {
-      // Skip
+      // Skip.
 
     // Rename these to `-target`.
     } else if (id == clang::driver::options::OPT_triple ||
@@ -430,6 +431,36 @@ CreateAdjustedCompilerCommand(FileSystemView &fs, const Compiler &compiler,
                id == clang::driver::options::OPT_nobuiltininc ||
                id == clang::driver::options::OPT_nostdsysteminc) {
       include_default_search_paths = false;
+
+    // Special semantics. Split:
+    //
+    //    -fpatchable-function-entry=M,N
+    //
+    // Into:
+    //
+    //    -fpatchable-function-entry=M
+    //    -fpatchable-function-entry-offset=n
+    } else if (id == clang::driver::options::OPT_fpatchable_function_entry_EQ) {
+      RenderPrefixed(arg, special_args, nullptr);
+
+      auto comma_index = special_args.back().find(",");
+      auto size = special_args.back().size();
+      if (comma_index == std::string::npos) {
+        RenderPrefixed(arg, parsed_args, prefix);
+      
+      } else {
+        parsed_args.emplace_back("-Xclang");
+        parsed_args.emplace_back(special_args.back().substr(0u, comma_index));
+        if ((comma_index + 1u) < size &&
+            std::isdigit(special_args.back()[comma_index + 1u])) {
+
+          parsed_args.emplace_back("-Xclang");
+          parsed_args.emplace_back(
+              "-fpatchable-function-entry-offset=" +
+              special_args.back().substr(comma_index + 1u, size));
+        }
+      }
+      special_args.clear();
 
     } else {
       RenderPrefixed(arg, parsed_args, prefix);

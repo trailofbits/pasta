@@ -1200,6 +1200,7 @@ std::set<std::pair<std::string, std::string>> kCanReturnNullptr{
   {"CXXRecordDecl", "Definition"},
   {"ObjCInterfaceDecl", "Definition"},
   {"ObjCProtocolDecl", "Definition"},
+  {"StaticAssertDecl", "Message"},
 //  {"FunctionProtoType", "EllipsisToken"},
 //  {"FunctionDecl", "EllipsisToken"},
 //  {"FunctionDecl", "PointOfInstantiation"},

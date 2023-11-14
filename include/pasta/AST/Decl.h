@@ -1200,7 +1200,7 @@ class StaticAssertDecl : public Decl {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(StaticAssertDecl)
   PASTA_DECLARE_BASE_OPERATORS(Decl, StaticAssertDecl)
   ::pasta::Expr AssertExpression(void) const;
-  ::pasta::Expr Message(void) const;
+  std::optional<::pasta::Expr> Message(void) const;
   ::pasta::Token RParenToken(void) const;
   bool IsFailed(void) const;
  protected:

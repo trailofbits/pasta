@@ -3312,13 +3312,15 @@ PASTA_DEFINE_BASE_OPERATORS(Decl, StaticAssertDecl)
   throw std::runtime_error("StaticAssertDecl::AssertExpression can return nullptr!");
 }
 
-::pasta::Expr StaticAssertDecl::Message(void) const {
+std::optional<::pasta::Expr> StaticAssertDecl::Message(void) const {
   auto &self = *const_cast<clang::StaticAssertDecl *>(u.StaticAssertDecl);
   decltype(auto) val = self.getMessage();
+  if (!val) {
+    return std::nullopt;
+  }
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
-  throw std::runtime_error("StaticAssertDecl::Message can return nullptr!");
 }
 
 ::pasta::Token StaticAssertDecl::RParenToken(void) const {

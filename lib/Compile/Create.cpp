@@ -20,7 +20,10 @@
 #include <system_error>
 
 #include "Compiler.h"
+
+#ifndef PASTA_DISABLE_HOST_COMPILER
 #include "Host.h"
+#endif
 
 namespace pasta {
 namespace {
@@ -482,6 +485,11 @@ static const std::string kErrUnrecognizedCompiler{
 Result<Compiler, std::string>
 Compiler::CreateHostCompiler(class FileManager file_manager,
                              enum TargetLanguage lang) {
+#ifdef PASTA_DISABLE_HOST_COMPILER
+  (void) file_manager;
+  (void) lang;
+  return "CreateHostCompiler is disabled";
+#else
   std::filesystem::path path;
   const char *version_info = nullptr;
   const char *version_info_fake_sysroot = nullptr;
@@ -518,6 +526,7 @@ Compiler::CreateHostCompiler(class FileManager file_manager,
     return maybe_compiler.TakeValue();
   }
   return maybe_compiler.TakeError();
+#endif  // PASTA_DISABLE_HOST_COMPILER
 }
 
 // Create a compiler from a version string.

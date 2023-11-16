@@ -303,6 +303,11 @@ add_library(pasta_compiler STATIC
     "lib/Compile/Run.cpp"
 )
 
+
+if(PASTA_DISABLE_HOST_COMPILER)
+    target_compile_definitions(pasta_compiler PRIVATE -DPASTA_DISABLE_HOST_COMPILER)
+endif()
+
 set_target_properties(
     pasta_compiler PROPERTIES
     VISIBILITY_INLINES_HIDDEN YES

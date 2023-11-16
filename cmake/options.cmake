@@ -16,3 +16,4 @@ cmake_dependent_option(PASTA_ENABLE_INSTALL "Set to true to enable the install t
 option(PASTA_ENABLE_PY_BINDINGS "Enable building the Python bindings" ON)
 option(PASTA_USE_VENDORED_CLANG "Set to OFF to disable default building of Clang+LLVM as a vendored library." ON)
 option(PASTA_USE_VENDORED_NANOBIND "Set to OFF to disable default building of nanobind as a vendored library." ON)
+option(PASTA_DISABLE_HOST_COMPILER "Set to ON to disable embedding host compiler information" OFF)

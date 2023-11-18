@@ -7,7 +7,9 @@
 #include <pasta/AST/AST.h>
 #include <pasta/AST/Attr.h>
 #include <pasta/AST/Decl.h>
+#include <pasta/AST/Printer.h>
 #include <pasta/AST/Stmt.h>
+#include <pasta/AST/Token.h>
 #include <pasta/AST/Type.h>
 
 #include "../Bindings.h"
@@ -17,8 +19,6 @@ namespace nb = nanobind;
 
 void RegisterFunctionTemplateDecl(nb::module_ &m) {
   nb::class_<FunctionTemplateDecl, RedeclarableTemplateDecl>(m, "FunctionTemplateDecl")
-    .def("__hash__", [](const FunctionTemplateDecl &decl) { return reinterpret_cast<intptr_t>(decl.RawDecl()); })
-    .def("__eq__", [](const Decl &a, const Decl &b) { return a.RawDecl() == b.RawDecl(); })
     .def_prop_ro("canonical_declaration", &FunctionTemplateDecl::CanonicalDeclaration)
     .def_prop_ro("instantiated_from_member_template", &FunctionTemplateDecl::InstantiatedFromMemberTemplate)
     .def_prop_ro("most_recent_declaration", &FunctionTemplateDecl::MostRecentDeclaration)

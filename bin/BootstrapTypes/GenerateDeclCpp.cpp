@@ -215,7 +215,9 @@ void GenerateDeclCpp(std::ostream &py_cmake, std::ostream &py_ast) {
 #include <pasta/AST/AST.h>
 #include <pasta/AST/Attr.h>
 #include <pasta/AST/Decl.h>
+#include <pasta/AST/Printer.h>
 #include <pasta/AST/Stmt.h>
+#include <pasta/AST/Token.h>
 #include <pasta/AST/Type.h>
  
 #include "../Bindings.h"
@@ -227,6 +229,11 @@ void RegisterDeclContext(nb::module_ &m) {
   nb::class_<DeclContext>(m, "DeclContext"))";
 
     DefineCppMethods(os, decl_context, gClassIDs[decl_context], decl_context_os);
+
+    decl_context_os
+        << "\n    .def(\"__hash__\", [](const DeclContext &decl) { return reinterpret_cast<intptr_t>(decl.RawDeclContext()); })"
+        << "\n    .def(\"__eq__\", [](const DeclContext &a, const DeclContext &b) { return a.RawDeclContext() == b.RawDeclContext(); })"
+        << "\n    .def(\"__ne__\", [](const DeclContext &a, const DeclContext &b) { return a.RawDeclContext() == b.RawDeclContext(); })";
 
     for (const auto &derived_cls_name : derived_from_decl_context) {
       decl_context_os
@@ -260,7 +267,9 @@ void RegisterDeclContext(nb::module_ &m) {
 #include <pasta/AST/AST.h>
 #include <pasta/AST/Attr.h>
 #include <pasta/AST/Decl.h>
+#include <pasta/AST/Printer.h>
 #include <pasta/AST/Stmt.h>
+#include <pasta/AST/Token.h>
 #include <pasta/AST/Type.h>
 
 #include "../Bindings.h"
@@ -350,14 +359,20 @@ void Register)" << name << "(nb::module_ &m) {\n"
       }
     }
 
-    os_py << ">(m, \"" << name << "\")"
-          << "\n    .def(\"__hash__\", [](const " << name << " &decl) { return reinterpret_cast<intptr_t>(decl.RawDecl()); })"
-          << "\n    .def(\"__eq__\", [](const Decl &a, const Decl &b) { return a.RawDecl() == b.RawDecl(); })";
+    os_py << ">(m, \"" << name << "\")";
 
     if (name == "Decl") {
       os_py
+          << "\n    .def(\"__hash__\", [](const Decl &decl) { return reinterpret_cast<intptr_t>(decl.RawDecl()); })"
+          << "\n    .def(\"__eq__\", [](const Decl &a, const Decl &b) { return a.RawDecl() == b.RawDecl(); })"
+          << "\n    .def(\"__ne__\", [](const Decl &a, const Decl &b) { return a.RawDecl() == b.RawDecl(); })"
+          << "\n    .def_static(\"cast\", nb::overload_cast<const TokenContext &>(&Decl::From))"
+          << "\n    .def_static(\"cast\", nb::overload_cast<const DeclContext &>(&Decl::From))"
           << "\n    .def_prop_ro(\"kind\", &Decl::Kind)"
-          << "\n    .def_prop_ro(\"kind_name\", &Decl::KindName)";
+          << "\n    .def_prop_ro(\"kind_name\", &Decl::KindName)"
+          << "\n    .def_prop_ro(\"token\", &Decl::Token)"
+          << "\n    .def_prop_ro(\"tokens\", &Decl::Tokens)"
+          << "\n    .def_prop_ro(\"is_implicit\", &Decl::IsImplicit)";
     
     } else if (name == "RecordDecl") {
       os_py
@@ -383,21 +398,21 @@ void Register)" << name << "(nb::module_ &m) {\n"
     // from the function definition itself.
     if (name == "FunctionDecl") {
       os
-      << "std::optional<::pasta::Stmt> FunctionDecl::Body(void) const noexcept {\n"
-      << "  const clang::FunctionDecl *decl = u.FunctionDecl;\n"
-      << "  const clang::FunctionDecl *def = nullptr;\n"
-      << "  if (!decl->hasBody(def) || decl != def) {\n"
-      << "    return std::nullopt;\n"
-      << "  } else if (def->getDefaultedFunctionInfo()) {\n"
-      << "    return std::nullopt;\n"
-      << "  } else if (auto body = def->getBody()) {\n"
-      << "    return StmtBuilder::Create<::pasta::Stmt>(ast, body);\n"
-      << "  } else {\n"
-      << "    return std::nullopt;\n"
-      << "  }\n"
-      << "}\n\n";
+        << "std::optional<::pasta::Stmt> FunctionDecl::Body(void) const noexcept {\n"
+        << "  const clang::FunctionDecl *decl = u.FunctionDecl;\n"
+        << "  const clang::FunctionDecl *def = nullptr;\n"
+        << "  if (!decl->hasBody(def) || decl != def) {\n"
+        << "    return std::nullopt;\n"
+        << "  } else if (def->getDefaultedFunctionInfo()) {\n"
+        << "    return std::nullopt;\n"
+        << "  } else if (auto body = def->getBody()) {\n"
+        << "    return StmtBuilder::Create<::pasta::Stmt>(ast, body);\n"
+        << "  } else {\n"
+        << "    return std::nullopt;\n"
+        << "  }\n"
+        << "}\n\n";
 
-      os_py << "\n    .def_prop_ro(\"Body\", &" << name << "::Body)";
+      os_py << "\n    .def_prop_ro(\"body\", &" << name << "::Body)";
     }
     os_py << ";\n"
           << "}\n"

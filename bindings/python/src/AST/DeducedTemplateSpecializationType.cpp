@@ -7,7 +7,9 @@
 #include <pasta/AST/AST.h>
 #include <pasta/AST/Attr.h>
 #include <pasta/AST/Decl.h>
+#include <pasta/AST/Printer.h>
 #include <pasta/AST/Stmt.h>
+#include <pasta/AST/Token.h>
 #include <pasta/AST/Type.h>
 
 #include "../Bindings.h"
@@ -16,8 +18,6 @@ namespace pasta {
 namespace nb = nanobind;
 
 void RegisterDeducedTemplateSpecializationType(nb::module_ &m) {
-  nb::class_<DeducedTemplateSpecializationType, DeducedType>(m, "DeducedTemplateSpecializationType")
-    .def("__hash__", [](const DeducedTemplateSpecializationType &type) { return reinterpret_cast<intptr_t>(type.RawType()); })
-    .def("__eq__", [](const Type &a, const Type &b) { return a.RawType() == b.RawType(); });
+  nb::class_<DeducedTemplateSpecializationType, DeducedType>(m, "DeducedTemplateSpecializationType");
 }
 } // namespace pasta

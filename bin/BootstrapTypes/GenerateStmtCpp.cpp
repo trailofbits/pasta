@@ -116,7 +116,9 @@ void GenerateStmtCpp(std::ostream& py_cmake, std::ostream& py_ast) {
 #include <pasta/AST/AST.h>
 #include <pasta/AST/Attr.h>
 #include <pasta/AST/Decl.h>
+#include <pasta/AST/Printer.h>
 #include <pasta/AST/Stmt.h>
+#include <pasta/AST/Token.h>
 #include <pasta/AST/Type.h>
 
 #include "../Bindings.h"
@@ -160,9 +162,15 @@ void Register)" << name << "(nb::module_ &m) {\n"
     for(const auto &base_class : gBaseClasses[name]) {
       os_py << ", " << base_class;
     }
-    os_py << ">(m, \"" << name << "\")"
+    os_py << ">(m, \"" << name << "\")";
+
+    if (name == "Stmt") {
+      os_py
           << "\n    .def(\"__hash__\", [](const " << name << "& stmt) { return reinterpret_cast<intptr_t>(stmt.RawStmt()); })"
-          << "\n    .def(\"__eq__\", [](const Stmt& a, const Stmt& b) { return a.RawStmt() == b.RawStmt(); })";
+          << "\n    .def(\"__eq__\", [](const Stmt& a, const Stmt& b) { return a.RawStmt() == b.RawStmt(); })"
+          << "\n    .def(\"__ne__\", [](const Stmt& a, const Stmt& b) { return a.RawStmt() != b.RawStmt(); })"
+          << "\n    .def_static(\"cast\", nb::overload_cast<const TokenContext &>(&Decl::From))";
+    }
 
     for (const auto &derived_class : gTransitiveDerivedClasses[name]) {
       os << "PASTA_DEFINE_DERIVED_OPERATORS("

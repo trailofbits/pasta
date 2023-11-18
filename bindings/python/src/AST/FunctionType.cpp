@@ -7,7 +7,9 @@
 #include <pasta/AST/AST.h>
 #include <pasta/AST/Attr.h>
 #include <pasta/AST/Decl.h>
+#include <pasta/AST/Printer.h>
 #include <pasta/AST/Stmt.h>
+#include <pasta/AST/Token.h>
 #include <pasta/AST/Type.h>
 
 #include "../Bindings.h"
@@ -17,8 +19,6 @@ namespace nb = nanobind;
 
 void RegisterFunctionType(nb::module_ &m) {
   nb::class_<FunctionType, Type>(m, "FunctionType")
-    .def("__hash__", [](const FunctionType &type) { return reinterpret_cast<intptr_t>(type.RawType()); })
-    .def("__eq__", [](const Type &a, const Type &b) { return a.RawType() == b.RawType(); })
     .def_prop_ro("call_conv", &FunctionType::CallConv)
     .def_prop_ro("call_result_type", &FunctionType::CallResultType)
     .def_prop_ro("cmse_ns_call_attribute", &FunctionType::CmseNSCallAttribute)

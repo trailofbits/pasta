@@ -7,7 +7,9 @@
 #include <pasta/AST/AST.h>
 #include <pasta/AST/Attr.h>
 #include <pasta/AST/Decl.h>
+#include <pasta/AST/Printer.h>
 #include <pasta/AST/Stmt.h>
+#include <pasta/AST/Token.h>
 #include <pasta/AST/Type.h>
 
 #include "../Bindings.h"
@@ -17,8 +19,6 @@ namespace nb = nanobind;
 
 void RegisterSEHExceptStmt(nb::module_ &m) {
   nb::class_<SEHExceptStmt, Stmt>(m, "SEHExceptStmt")
-    .def("__hash__", [](const SEHExceptStmt& stmt) { return reinterpret_cast<intptr_t>(stmt.RawStmt()); })
-    .def("__eq__", [](const Stmt& a, const Stmt& b) { return a.RawStmt() == b.RawStmt(); })
     .def_prop_ro("children", &SEHExceptStmt::Children)
     .def_prop_ro("begin_token", &SEHExceptStmt::BeginToken)
     .def_prop_ro("block", &SEHExceptStmt::Block)

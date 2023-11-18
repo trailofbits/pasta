@@ -7,7 +7,9 @@
 #include <pasta/AST/AST.h>
 #include <pasta/AST/Attr.h>
 #include <pasta/AST/Decl.h>
+#include <pasta/AST/Printer.h>
 #include <pasta/AST/Stmt.h>
+#include <pasta/AST/Token.h>
 #include <pasta/AST/Type.h>
 
 #include "../Bindings.h"
@@ -17,8 +19,6 @@ namespace nb = nanobind;
 
 void RegisterOMPAtomicDirective(nb::module_ &m) {
   nb::class_<OMPAtomicDirective, OMPExecutableDirective>(m, "OMPAtomicDirective")
-    .def("__hash__", [](const OMPAtomicDirective& stmt) { return reinterpret_cast<intptr_t>(stmt.RawStmt()); })
-    .def("__eq__", [](const Stmt& a, const Stmt& b) { return a.RawStmt() == b.RawStmt(); })
     .def_prop_ro("condition_expression", &OMPAtomicDirective::ConditionExpression)
     .def_prop_ro("d", &OMPAtomicDirective::D)
     .def_prop_ro("expression", &OMPAtomicDirective::Expression)

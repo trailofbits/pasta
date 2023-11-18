@@ -7,7 +7,9 @@
 #include <pasta/AST/AST.h>
 #include <pasta/AST/Attr.h>
 #include <pasta/AST/Decl.h>
+#include <pasta/AST/Printer.h>
 #include <pasta/AST/Stmt.h>
+#include <pasta/AST/Token.h>
 #include <pasta/AST/Type.h>
 
 #include "../Bindings.h"
@@ -17,8 +19,6 @@ namespace nb = nanobind;
 
 void RegisterInitListExpr(nb::module_ &m) {
   nb::class_<InitListExpr, Expr>(m, "InitListExpr")
-    .def("__hash__", [](const InitListExpr& stmt) { return reinterpret_cast<intptr_t>(stmt.RawStmt()); })
-    .def("__eq__", [](const Stmt& a, const Stmt& b) { return a.RawStmt() == b.RawStmt(); })
     .def_prop_ro("children", &InitListExpr::Children)
     .def_prop_ro("array_filler", &InitListExpr::ArrayFiller)
     .def_prop_ro("begin_token", &InitListExpr::BeginToken)

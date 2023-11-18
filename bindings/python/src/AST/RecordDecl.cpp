@@ -7,7 +7,9 @@
 #include <pasta/AST/AST.h>
 #include <pasta/AST/Attr.h>
 #include <pasta/AST/Decl.h>
+#include <pasta/AST/Printer.h>
 #include <pasta/AST/Stmt.h>
+#include <pasta/AST/Token.h>
 #include <pasta/AST/Type.h>
 
 #include "../Bindings.h"
@@ -17,8 +19,6 @@ namespace nb = nanobind;
 
 void RegisterRecordDecl(nb::module_ &m) {
   nb::class_<RecordDecl, TagDecl>(m, "RecordDecl")
-    .def("__hash__", [](const RecordDecl &decl) { return reinterpret_cast<intptr_t>(decl.RawDecl()); })
-    .def("__eq__", [](const Decl &a, const Decl &b) { return a.RawDecl() == b.RawDecl(); })
     .def_prop_ro("size", &RecordDecl::Size)
     .def_prop_ro("alignment", &RecordDecl::Alignment)
     .def_prop_ro("size_without_trailing_padding", &RecordDecl::SizeWithoutTrailingPadding)

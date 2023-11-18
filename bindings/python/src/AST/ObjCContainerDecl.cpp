@@ -7,7 +7,9 @@
 #include <pasta/AST/AST.h>
 #include <pasta/AST/Attr.h>
 #include <pasta/AST/Decl.h>
+#include <pasta/AST/Printer.h>
 #include <pasta/AST/Stmt.h>
+#include <pasta/AST/Token.h>
 #include <pasta/AST/Type.h>
 
 #include "../Bindings.h"
@@ -17,8 +19,6 @@ namespace nb = nanobind;
 
 void RegisterObjCContainerDecl(nb::module_ &m) {
   nb::class_<ObjCContainerDecl, NamedDecl>(m, "ObjCContainerDecl")
-    .def("__hash__", [](const ObjCContainerDecl &decl) { return reinterpret_cast<intptr_t>(decl.RawDecl()); })
-    .def("__eq__", [](const Decl &a, const Decl &b) { return a.RawDecl() == b.RawDecl(); })
     .def_prop_ro("class_methods", &ObjCContainerDecl::ClassMethods)
     .def_prop_ro("class_properties", &ObjCContainerDecl::ClassProperties)
     .def_prop_ro("at_end_range", &ObjCContainerDecl::AtEndRange)

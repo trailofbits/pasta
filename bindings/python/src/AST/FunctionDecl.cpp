@@ -7,7 +7,9 @@
 #include <pasta/AST/AST.h>
 #include <pasta/AST/Attr.h>
 #include <pasta/AST/Decl.h>
+#include <pasta/AST/Printer.h>
 #include <pasta/AST/Stmt.h>
+#include <pasta/AST/Token.h>
 #include <pasta/AST/Type.h>
 
 #include "../Bindings.h"
@@ -17,8 +19,6 @@ namespace nb = nanobind;
 
 void RegisterFunctionDecl(nb::module_ &m) {
   nb::class_<FunctionDecl, DeclaratorDecl>(m, "FunctionDecl")
-    .def("__hash__", [](const FunctionDecl &decl) { return reinterpret_cast<intptr_t>(decl.RawDecl()); })
-    .def("__eq__", [](const Decl &a, const Decl &b) { return a.RawDecl() == b.RawDecl(); })
     .def_prop_ro("body_contains_immediate_escalating_expressions", &FunctionDecl::BodyContainsImmediateEscalatingExpressions)
     .def_prop_ro("friend_constraint_refers_to_enclosing_template", &FunctionDecl::FriendConstraintRefersToEnclosingTemplate)
     .def_prop_ro("uses_fp_intrin", &FunctionDecl::UsesFPIntrin)
@@ -107,6 +107,6 @@ void RegisterFunctionDecl(nb::module_ &m) {
     .def_prop_ro("parameters", &FunctionDecl::Parameters)
     .def_prop_ro("uses_seh_try", &FunctionDecl::UsesSEHTry)
     .def_prop_ro("will_have_body", &FunctionDecl::WillHaveBody)
-    .def_prop_ro("Body", &FunctionDecl::Body);
+    .def_prop_ro("body", &FunctionDecl::Body);
 }
 } // namespace pasta

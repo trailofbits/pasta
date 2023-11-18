@@ -7,7 +7,9 @@
 #include <pasta/AST/AST.h>
 #include <pasta/AST/Attr.h>
 #include <pasta/AST/Decl.h>
+#include <pasta/AST/Printer.h>
 #include <pasta/AST/Stmt.h>
+#include <pasta/AST/Token.h>
 #include <pasta/AST/Type.h>
 
 #include "../Bindings.h"
@@ -17,8 +19,6 @@ namespace nb = nanobind;
 
 void RegisterBlockDecl(nb::module_ &m) {
   nb::class_<BlockDecl, Decl>(m, "BlockDecl")
-    .def("__hash__", [](const BlockDecl &decl) { return reinterpret_cast<intptr_t>(decl.RawDecl()); })
-    .def("__eq__", [](const Decl &a, const Decl &b) { return a.RawDecl() == b.RawDecl(); })
     .def_prop_ro("block_missing_return_type", &BlockDecl::BlockMissingReturnType)
     .def_prop_ro("can_avoid_copy_to_heap", &BlockDecl::CanAvoidCopyToHeap)
     .def_prop_ro("captures_cxx_this", &BlockDecl::CapturesCXXThis)

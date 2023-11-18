@@ -7,7 +7,9 @@
 #include <pasta/AST/AST.h>
 #include <pasta/AST/Attr.h>
 #include <pasta/AST/Decl.h>
+#include <pasta/AST/Printer.h>
 #include <pasta/AST/Stmt.h>
+#include <pasta/AST/Token.h>
 #include <pasta/AST/Type.h>
 
 #include "../Bindings.h"
@@ -17,8 +19,6 @@ namespace nb = nanobind;
 
 void RegisterNamedDecl(nb::module_ &m) {
   nb::class_<NamedDecl, Decl>(m, "NamedDecl")
-    .def("__hash__", [](const NamedDecl &decl) { return reinterpret_cast<intptr_t>(decl.RawDecl()); })
-    .def("__eq__", [](const Decl &a, const Decl &b) { return a.RawDecl() == b.RawDecl(); })
     .def_prop_ro("formal_linkage", &NamedDecl::FormalLinkage)
     .def_prop_ro("linkage_internal", &NamedDecl::LinkageInternal)
     .def_prop_ro("most_recent_declaration", &NamedDecl::MostRecentDeclaration)

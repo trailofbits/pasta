@@ -7,7 +7,9 @@
 #include <pasta/AST/AST.h>
 #include <pasta/AST/Attr.h>
 #include <pasta/AST/Decl.h>
+#include <pasta/AST/Printer.h>
 #include <pasta/AST/Stmt.h>
+#include <pasta/AST/Token.h>
 #include <pasta/AST/Type.h>
 
 #include "../Bindings.h"
@@ -17,8 +19,6 @@ namespace nb = nanobind;
 
 void RegisterObjCSubscriptRefExpr(nb::module_ &m) {
   nb::class_<ObjCSubscriptRefExpr, Expr>(m, "ObjCSubscriptRefExpr")
-    .def("__hash__", [](const ObjCSubscriptRefExpr& stmt) { return reinterpret_cast<intptr_t>(stmt.RawStmt()); })
-    .def("__eq__", [](const Stmt& a, const Stmt& b) { return a.RawStmt() == b.RawStmt(); })
     .def_prop_ro("children", &ObjCSubscriptRefExpr::Children)
     .def_prop_ro("at_index_method_declaration", &ObjCSubscriptRefExpr::AtIndexMethodDeclaration)
     .def_prop_ro("base_expression", &ObjCSubscriptRefExpr::BaseExpression)

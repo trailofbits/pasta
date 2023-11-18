@@ -7,7 +7,9 @@
 #include <pasta/AST/AST.h>
 #include <pasta/AST/Attr.h>
 #include <pasta/AST/Decl.h>
+#include <pasta/AST/Printer.h>
 #include <pasta/AST/Stmt.h>
+#include <pasta/AST/Token.h>
 #include <pasta/AST/Type.h>
 
 #include "../Bindings.h"
@@ -17,8 +19,6 @@ namespace nb = nanobind;
 
 void RegisterOMPParallelMasterTaskLoopDirective(nb::module_ &m) {
   nb::class_<OMPParallelMasterTaskLoopDirective, OMPLoopDirective>(m, "OMPParallelMasterTaskLoopDirective")
-    .def("__hash__", [](const OMPParallelMasterTaskLoopDirective& stmt) { return reinterpret_cast<intptr_t>(stmt.RawStmt()); })
-    .def("__eq__", [](const Stmt& a, const Stmt& b) { return a.RawStmt() == b.RawStmt(); })
     .def_prop_ro("has_cancel", &OMPParallelMasterTaskLoopDirective::HasCancel);
 }
 } // namespace pasta

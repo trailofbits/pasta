@@ -119,7 +119,9 @@ void GenerateTypeCpp(std::ostream &py_cmake, std::ostream &py_ast) {
 #include <pasta/AST/AST.h>
 #include <pasta/AST/Attr.h>
 #include <pasta/AST/Decl.h>
+#include <pasta/AST/Printer.h>
 #include <pasta/AST/Stmt.h>
+#include <pasta/AST/Token.h>
 #include <pasta/AST/Type.h>
 
 #include "../Bindings.h"
@@ -156,12 +158,14 @@ void Register)" << name << "(nb::module_ &m) {\n"
     for(const auto &base_class : gBaseClasses[name]) {
       os_py << ", " << base_class;
     }
-    os_py << ">(m, \"" << name << "\")"
-          << "\n    .def(\"__hash__\", [](const " << name << " &type) { return reinterpret_cast<intptr_t>(type.RawType()); })"
-          << "\n    .def(\"__eq__\", [](const Type &a, const Type &b) { return a.RawType() == b.RawType(); })";
+    os_py << ">(m, \"" << name << "\")";
 
     if (name == "Type") {
       os_py
+          << "\n    .def(\"__hash__\", [](const " << name << " &type) { return reinterpret_cast<intptr_t>(type.RawType()) | (static_cast<uint64_t>(type.RawQualifiers()) << 48); })"
+          << "\n    .def(\"__eq__\", [](const Type &a, const Type &b) { return a == b; })"
+          << "\n    .def(\"__ne__\", [](const Type &a, const Type &b) { return a != b; })"
+          << "\n    .def_static(\"cast\", nb::overload_cast<const TokenContext &>(&Decl::From))"
           << "\n    .def_prop_ro(\"kind\", &Type::Kind)"
           << "\n    .def_prop_ro(\"kind_name\", &Type::KindName)"
           << "\n    .def_prop_ro(\"size_in_bits\", &Type::SizeInBits)"

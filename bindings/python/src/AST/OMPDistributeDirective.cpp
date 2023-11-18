@@ -7,7 +7,9 @@
 #include <pasta/AST/AST.h>
 #include <pasta/AST/Attr.h>
 #include <pasta/AST/Decl.h>
+#include <pasta/AST/Printer.h>
 #include <pasta/AST/Stmt.h>
+#include <pasta/AST/Token.h>
 #include <pasta/AST/Type.h>
 
 #include "../Bindings.h"
@@ -16,8 +18,6 @@ namespace pasta {
 namespace nb = nanobind;
 
 void RegisterOMPDistributeDirective(nb::module_ &m) {
-  nb::class_<OMPDistributeDirective, OMPLoopDirective>(m, "OMPDistributeDirective")
-    .def("__hash__", [](const OMPDistributeDirective& stmt) { return reinterpret_cast<intptr_t>(stmt.RawStmt()); })
-    .def("__eq__", [](const Stmt& a, const Stmt& b) { return a.RawStmt() == b.RawStmt(); });
+  nb::class_<OMPDistributeDirective, OMPLoopDirective>(m, "OMPDistributeDirective");
 }
 } // namespace pasta

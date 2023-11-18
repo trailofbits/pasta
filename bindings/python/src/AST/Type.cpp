@@ -7,7 +7,9 @@
 #include <pasta/AST/AST.h>
 #include <pasta/AST/Attr.h>
 #include <pasta/AST/Decl.h>
+#include <pasta/AST/Printer.h>
 #include <pasta/AST/Stmt.h>
+#include <pasta/AST/Token.h>
 #include <pasta/AST/Type.h>
 
 #include "../Bindings.h"
@@ -17,8 +19,10 @@ namespace nb = nanobind;
 
 void RegisterType(nb::module_ &m) {
   nb::class_<Type>(m, "Type")
-    .def("__hash__", [](const Type &type) { return reinterpret_cast<intptr_t>(type.RawType()); })
-    .def("__eq__", [](const Type &a, const Type &b) { return a.RawType() == b.RawType(); })
+    .def("__hash__", [](const Type &type) { return reinterpret_cast<intptr_t>(type.RawType()) | (static_cast<uint64_t>(type.RawQualifiers()) << 48); })
+    .def("__eq__", [](const Type &a, const Type &b) { return a == b; })
+    .def("__ne__", [](const Type &a, const Type &b) { return a != b; })
+    .def_static("cast", nb::overload_cast<const TokenContext &>(&Decl::From))
     .def_prop_ro("kind", &Type::Kind)
     .def_prop_ro("kind_name", &Type::KindName)
     .def_prop_ro("size_in_bits", &Type::SizeInBits)

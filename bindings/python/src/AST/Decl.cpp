@@ -7,7 +7,9 @@
 #include <pasta/AST/AST.h>
 #include <pasta/AST/Attr.h>
 #include <pasta/AST/Decl.h>
+#include <pasta/AST/Printer.h>
 #include <pasta/AST/Stmt.h>
+#include <pasta/AST/Token.h>
 #include <pasta/AST/Type.h>
 
 #include "../Bindings.h"
@@ -19,8 +21,13 @@ void RegisterDecl(nb::module_ &m) {
   nb::class_<Decl>(m, "Decl")
     .def("__hash__", [](const Decl &decl) { return reinterpret_cast<intptr_t>(decl.RawDecl()); })
     .def("__eq__", [](const Decl &a, const Decl &b) { return a.RawDecl() == b.RawDecl(); })
+    .def("__ne__", [](const Decl &a, const Decl &b) { return a.RawDecl() == b.RawDecl(); })
+    .def_static("cast", nb::overload_cast<const TokenContext &>(&Decl::From))
+    .def_static("cast", nb::overload_cast<const DeclContext &>(&Decl::From))
     .def_prop_ro("kind", &Decl::Kind)
     .def_prop_ro("kind_name", &Decl::KindName)
+    .def_prop_ro("token", &Decl::Token)
+    .def_prop_ro("tokens", &Decl::Tokens)
     .def_prop_ro("attributes", &Decl::Attributes)
     .def_prop_ro("access", &Decl::Access)
     .def_prop_ro("as_function", &Decl::AsFunction)
@@ -87,6 +94,7 @@ void RegisterDecl(nb::module_ &m) {
     .def_prop_ro("is_unconditionally_visible", &Decl::IsUnconditionallyVisible)
     .def_prop_ro("is_used", &Decl::IsUsed)
     .def_prop_ro("is_weak_imported", &Decl::IsWeakImported)
-    .def_prop_ro("redeclarations", &Decl::Redeclarations);
+    .def_prop_ro("redeclarations", &Decl::Redeclarations)
+    .def_prop_ro("is_implicit", &Decl::IsImplicit);
 }
 } // namespace pasta

@@ -7,7 +7,9 @@
 #include <pasta/AST/AST.h>
 #include <pasta/AST/Attr.h>
 #include <pasta/AST/Decl.h>
+#include <pasta/AST/Printer.h>
 #include <pasta/AST/Stmt.h>
+#include <pasta/AST/Token.h>
 #include <pasta/AST/Type.h>
 
 #include "../Bindings.h"
@@ -17,8 +19,6 @@ namespace nb = nanobind;
 
 void RegisterStringLiteral(nb::module_ &m) {
   nb::class_<StringLiteral, Expr>(m, "StringLiteral")
-    .def("__hash__", [](const StringLiteral& stmt) { return reinterpret_cast<intptr_t>(stmt.RawStmt()); })
-    .def("__eq__", [](const Stmt& a, const Stmt& b) { return a.RawStmt() == b.RawStmt(); })
     .def_prop_ro("children", &StringLiteral::Children)
     .def_prop_ro("contains_non_ascii", &StringLiteral::ContainsNonAscii)
     .def_prop_ro("contains_non_ascii_or_null", &StringLiteral::ContainsNonAsciiOrNull)

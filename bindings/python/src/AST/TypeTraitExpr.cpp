@@ -7,7 +7,9 @@
 #include <pasta/AST/AST.h>
 #include <pasta/AST/Attr.h>
 #include <pasta/AST/Decl.h>
+#include <pasta/AST/Printer.h>
 #include <pasta/AST/Stmt.h>
+#include <pasta/AST/Token.h>
 #include <pasta/AST/Type.h>
 
 #include "../Bindings.h"
@@ -17,8 +19,6 @@ namespace nb = nanobind;
 
 void RegisterTypeTraitExpr(nb::module_ &m) {
   nb::class_<TypeTraitExpr, Expr>(m, "TypeTraitExpr")
-    .def("__hash__", [](const TypeTraitExpr& stmt) { return reinterpret_cast<intptr_t>(stmt.RawStmt()); })
-    .def("__eq__", [](const Stmt& a, const Stmt& b) { return a.RawStmt() == b.RawStmt(); })
     .def_prop_ro("children", &TypeTraitExpr::Children)
     .def_prop_ro("begin_token", &TypeTraitExpr::BeginToken)
     .def_prop_ro("end_token", &TypeTraitExpr::EndToken)

@@ -198,6 +198,7 @@ class SchemaLifter:
       SubstTemplateTypeParmType: self._lift_substituted_type,
       UsingType: self._lift_using_type,
       AdjustedType: self._lift_adjusted_type,
+      DecayedType: self._lift_adjusted_type,
       TemplateTypeParmType: self._lift_template_param_type,
       AutoType: self._lift_auto_type,
       RValueReferenceType: self._lift_unsupported,

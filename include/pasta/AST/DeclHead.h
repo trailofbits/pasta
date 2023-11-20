@@ -166,7 +166,9 @@ class TemplateArgument {
   TemplateArgumentKind Kind(void) const noexcept;
 
   // Determine whether this template argument has no value.
-  inline bool IsNull(void) const noexcept {
+  //
+  // NOTE(pag): This corresponds to `clang::TemplateArgument::isNull`.
+  inline bool IsEmpty(void) const noexcept {
     return Kind() == TemplateArgumentKind::kEmpty;
   }
 
@@ -195,6 +197,9 @@ class TemplateArgument {
   std::optional<Type> ParameterTypeForDeclaration(void) const noexcept;
 
   std::optional<Type> NullPointerType(void) const noexcept;
+
+  // If this argument is an argument pack, then return the inner arguments.
+  std::optional<std::vector<TemplateArgument>> PackElements(void) const noexcept;
 
   // TODO(pag): Others methods.
 #endif

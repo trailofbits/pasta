@@ -21,7 +21,7 @@ void RegisterDecl(nb::module_ &m) {
   nb::class_<Decl>(m, "Decl")
     .def("__hash__", [](const Decl &decl) { return reinterpret_cast<intptr_t>(decl.RawDecl()); })
     .def("__eq__", [](const Decl &a, const Decl &b) { return a.RawDecl() == b.RawDecl(); })
-    .def("__ne__", [](const Decl &a, const Decl &b) { return a.RawDecl() == b.RawDecl(); })
+    .def("__ne__", [](const Decl &a, const Decl &b) { return a.RawDecl() != b.RawDecl(); })
     .def_static("cast", nb::overload_cast<const TokenContext &>(&Decl::From))
     .def_static("cast", nb::overload_cast<const DeclContext &>(&Decl::From))
     .def_prop_ro("kind", &Decl::Kind)

@@ -393,6 +393,21 @@ std::optional<Type> TemplateArgument::NullPointerType(void) const noexcept {
   return std::nullopt;
 }
 
+// If this argument is an argument pack, then return the inner arguments.
+std::optional<std::vector<TemplateArgument>>
+TemplateArgument::PackElements(void) const noexcept {
+  if (Kind() != TemplateArgumentKind::kPack) {
+    return std::nullopt;
+  }
+
+  std::vector<TemplateArgument> nested_args;
+  for (const auto &nested_arg : arg->pack_elements()) {
+    nested_args.emplace_back(ast, &nested_arg); 
+  }
+
+  return nested_args;
+}
+
 // Total number of parameters.
 unsigned TemplateParameterList::NumParameters(void) const noexcept {
   return params->size();

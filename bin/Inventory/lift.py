@@ -158,6 +158,19 @@ def public_decls_in_tag_and_template_bases(tag: TagDecl) -> Iterable[Decl]:
     yield decl
 
 
+def _generate_args(arg: TemplateArgument) -> Iterable[TemplateArgument]:
+  """A template argument can actually be a bunch of nested arguments, so this
+  function recursively traverses the arguments and yields out only the leaf
+  arguments."""
+  if arg.is_empty:
+    return
+  if arg.kind == TemplateArgumentKind.PACK:
+    for sub_arg in arg.pack_elements:
+      yield from _generate_args(sub_arg)
+  else:
+    yield arg
+
+
 class SchemaLifter:
   """Lift declarations into schemas. This acts as one big recursive visitor.
   It primarily focuses on classes, methods, and enumerators. It tries to
@@ -263,15 +276,17 @@ class SchemaLifter:
       "std::set": self._make_1_parameter_lifter(StdSetSchema),
       "std::unordered_set": self._make_1_parameter_lifter(StdUnorderedSetSchema),
       "std::initializer_list": self._lift_unsupported,
-      "std::variant": self._lift_unsupported,
+      "std::variant": self._make_n_parameter_lifter(StdVariantSchema),
+      "std::monostate": self._make_lifter(StdMonostateSchema),
       "std::nullopt_t": self._lift_unsupported,
       "std::reverse_iterator": self._lift_unsupported,
-      "std::tuple": self._lift_unsupported,
-      "std::pair": self._lift_unsupported,
+      "std::tuple": self._make_n_parameter_lifter(StdVariantSchema),
+      "std::pair": self._make_n_parameter_lifter(StdPairSchema),
       "std::function": self._lift_unsupported,
       "std::__optional_destruct_base::": self._lift_unsupported,
       "std::aligned_storage::type": self._lift_unsupported,
-      "gap::generator": self._make_lifter(GapGeneratorSchema),
+      "std::span": self._make_1_parameter_lifter(StdSpanSchema),
+      "gap::generator": self._make_1_parameter_lifter(GapGeneratorSchema),
       "llvm::hash_code": self._lift_unsupported,
       "llvm::PointerUnion": self._lift_unsupported,  # TODO(pag): Adapt to variant.
       "llvm::function_ref": self._lift_unsupported,
@@ -293,12 +308,8 @@ class SchemaLifter:
       "llvm::SmallVectorImpl": self._make_1_parameter_lifter(LLVMSmallVectorSchema),
     }
 
-  def _lift_nth_template_argument(self, tag: TagDecl, n: int) -> Schema:
+  def _lift_template_argument(self, arg: TemplateArgument) -> Schema:
     """Lift the `n`th template argument to a schema."""
-    arg: Optional[TemplateArgument] = nth_template_argument(tag, n)
-    if not arg:
-      return self.unknown_schema
-
     decl: Optional[Decl] = arg.as_declaration
     tp: Optional[Type] = arg.as_type
     schema: Schema = self.unknown_schema
@@ -317,6 +328,14 @@ class SchemaLifter:
       schema = self.lift_type(tp)
 
     return schema
+
+  def _lift_nth_template_argument(self, tag: TagDecl, n: int) -> Schema:
+    """Lift the `n`th template argument to a schema."""
+    arg: Optional[TemplateArgument] = nth_template_argument(tag, n)
+    if not arg:
+      return self.unknown_schema
+
+    return self._lift_template_argument(arg)
 
   def _lift_method(self, method: CXXMethodDecl) -> Optional[MethodSchema]:
     """Lift a `CXXMethodDecl` into a `MethodSchema`. If this fails, then
@@ -529,9 +548,18 @@ class SchemaLifter:
       # Detect presence of `operator==` or `operator!=`, so that we can know if
       # this object induces an equivalence relation. 
       if decl.is_overloaded_operator and \
+         decl.access == AccessSpecifier.PUBLIC and \
          (decl.overloaded_operator == OverloadedOperatorKind.EQUAL_EQUAL or
           decl.overloaded_operator == OverloadedOperatorKind.EXCLAIM_EQUAL):
         schema.has_equivalence_relation = True
+
+      if decl.is_overloaded_operator and \
+         decl.access == AccessSpecifier.PUBLIC and \
+         decl.overloaded_operator == OverloadedOperatorKind.SUBSCRIPT and \
+         decl.parameters[0].type.is_integer_type:
+        rt = self.lift_type(decl.return_type)
+        if not isinstance(rt, UnknownSchema):
+          schema.indexed_type = rt
 
       # Skip these.
       if decl.is_implicit or decl.is_overloaded_operator:
@@ -567,6 +595,8 @@ class SchemaLifter:
       num_accessors += accessor_increment
       method_schema.is_const = decl.is_const
       method_schema.is_inherited = decl.parent != tag
+      method_schema.is_virtual = decl.is_virtual
+      method_schema.is_interface = decl.is_pure
 
       if section is not None:
         section[decl.name] = self._merge_method(
@@ -844,6 +874,24 @@ class SchemaLifter:
   def _make_2_parameter_lifter(self, constructor: type[Schema]) -> Callable[[TagDecl], Schema]:
     def do_lift(tag: TagDecl):
       return self._lift_2_parameter(tag, constructor)
+    return do_lift
+
+  def _make_n_parameter_lifter(self, constructor: type[Schema]) -> Callable[[TagDecl], Schema]:
+    def do_lift(tag: TagDecl):
+      args = []
+      for i in range(32):
+        arg: Optional[TemplateArgument] = nth_template_argument(tag, i)
+        if arg is None:
+          break
+        for sub_arg in _generate_args(arg):
+          schema = self._lift_template_argument(sub_arg)
+          if not isinstance(schema, StdMonostateSchema) and \
+             isinstance(schema, UnknownSchema):
+            return self.unknown_schema
+          args.append(schema)
+      if len(args):
+        return constructor(args)
+      return self.unknown_schema
     return do_lift
 
   def _lift_std_shared_ptr(self, tag: TagDecl) -> Schema:

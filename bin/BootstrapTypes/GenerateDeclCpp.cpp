@@ -233,7 +233,7 @@ void RegisterDeclContext(nb::module_ &m) {
     decl_context_os
         << "\n    .def(\"__hash__\", [](const DeclContext &decl) { return reinterpret_cast<intptr_t>(decl.RawDeclContext()); })"
         << "\n    .def(\"__eq__\", [](const DeclContext &a, const DeclContext &b) { return a.RawDeclContext() == b.RawDeclContext(); })"
-        << "\n    .def(\"__ne__\", [](const DeclContext &a, const DeclContext &b) { return a.RawDeclContext() == b.RawDeclContext(); })";
+        << "\n    .def(\"__ne__\", [](const DeclContext &a, const DeclContext &b) { return a.RawDeclContext() != b.RawDeclContext(); })";
 
     for (const auto &derived_cls_name : derived_from_decl_context) {
       decl_context_os
@@ -365,7 +365,7 @@ void Register)" << name << "(nb::module_ &m) {\n"
       os_py
           << "\n    .def(\"__hash__\", [](const Decl &decl) { return reinterpret_cast<intptr_t>(decl.RawDecl()); })"
           << "\n    .def(\"__eq__\", [](const Decl &a, const Decl &b) { return a.RawDecl() == b.RawDecl(); })"
-          << "\n    .def(\"__ne__\", [](const Decl &a, const Decl &b) { return a.RawDecl() == b.RawDecl(); })"
+          << "\n    .def(\"__ne__\", [](const Decl &a, const Decl &b) { return a.RawDecl() != b.RawDecl(); })"
           << "\n    .def_static(\"cast\", nb::overload_cast<const TokenContext &>(&Decl::From))"
           << "\n    .def_static(\"cast\", nb::overload_cast<const DeclContext &>(&Decl::From))"
           << "\n    .def_prop_ro(\"kind\", &Decl::Kind)"

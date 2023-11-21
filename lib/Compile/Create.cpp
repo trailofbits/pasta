@@ -488,7 +488,7 @@ Compiler::CreateHostCompiler(class FileManager file_manager,
 #ifdef PASTA_DISABLE_HOST_COMPILER
   (void) file_manager;
   (void) lang;
-  return "CreateHostCompiler is disabled";
+  return std::string("CreateHostCompiler is disabled");
 #else
   std::filesystem::path path;
   const char *version_info = nullptr;

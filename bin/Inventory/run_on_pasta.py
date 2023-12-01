@@ -1,6 +1,7 @@
 # Copyright (c) 2023 Trail of Bits, Inc., all rights reserved.
 
 from lift import *
+from wrap import wrap, Renamer
 
 def run_on_ast(ast: AST, ns_name: str):
   schemas: List[Schema] = []
@@ -8,16 +9,21 @@ def run_on_ast(ast: AST, ns_name: str):
 
   # Filter out all tag decls that aren't private `*Impl` classes, and also
   # only look at the definitions.
-  for ns in find_namespaces(ast.translation_unit, ns_name):
-    for tag in find_tags_in_dc_decl(ns):
-      if not tag.name.endswith("Impl") and tag.is_this_declaration_a_definition:
-        schema: Schema = lifter.lift_decl(tag)
-        if isinstance(schema, NamedSchema):
-          schemas.append(schema)
+  for tag in find_tags_in_namespace(ast.translation_unit, ns_name):
+    if not tag.name.endswith("Impl") and tag.is_this_declaration_a_definition:
+      schema: Schema = lifter.lift_decl(tag)
+      if isinstance(schema, NamedSchema):
+        yield schema
 
-  for schema in schemas:
-    schema.dump("")
-    print()
+
+class BasicRenamer(Renamer):
+  METHOD_RENAMES = {
+    "from": "cast",
+    "in": "contained_in",
+  }
+  def rename_method(self, class_schema: ClassSchema,
+                    method_schema: MethodSchema | OverloadSetSchema) -> str:
+    return self.METHOD_RENAMES.get(method_schema.name, method_schema.name)
 
 
 if __name__ == "__main__":
@@ -42,6 +48,7 @@ if __name__ == "__main__":
 
   cmd = CompileCommand.create_from_arguments(argv, args.working_dir)
   maybe_jobs = cxx.create_jobs_for_command(cmd)
+  renamer = BasicRenamer()
   
   if isinstance(maybe_jobs, str):
     print(maybe_jobs)
@@ -54,4 +61,6 @@ if __name__ == "__main__":
       sys.exit(1)
 
     elif isinstance(maybe_ast, AST):
-      run_on_ast(maybe_ast, args.namespace)
+      wrap(run_on_ast(maybe_ast, args.namespace), renamer)
+        
+

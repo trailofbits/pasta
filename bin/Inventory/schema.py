@@ -10,6 +10,16 @@ class Schema(ABC):
   def __str__(self) -> str:
     return self.__class__.__name__[:-6]  # `-len("Schema")`.
 
+  @property
+  @abstractmethod
+  def cxx_value_name(self):
+    ...
+
+  @property
+  def cxx_name(self):
+    return self.cxx_value_name
+  
+
 
 class NamedSchema(Schema, ABC):
   """Represents a schema for something with a name."""
@@ -22,13 +32,21 @@ class NamedSchema(Schema, ABC):
   def __str__(self) -> str:
     return self.name
 
+  @property
+  def cxx_value_name(self):
+    return self.name
+
 
 class UnknownSchema(Schema):
   """Represents some unknown type."""
-  pass
+  
+  @property
+  def cxx_value_name(self):
+    return "void"
 
 
 class VarSchema(NamedSchema):
+
   element_type: Schema
 
   def __init__(self, name: str, element_type: Schema):
@@ -88,6 +106,14 @@ class MethodSchema(NamedSchema):
     iface = self.is_interface and " INTERFACE" or ""
     print(f"{indent}{self.name}{const}{virtual}{iface}{inherited} :: {params}{self.return_type}")
 
+  @property
+  def min_num_parameters(self) -> int:
+    return len(self.parameters)
+
+  @property
+  def max_num_parameters(self) -> int:
+    return len(self.parameters)
+
 
 class OverloadSetSchema(NamedSchema):
   """Represents a set of method overloads, where the methods have the same
@@ -108,6 +134,30 @@ class OverloadSetSchema(NamedSchema):
     for method in self.overloads:
       method.dump(next_indent)
 
+  @property
+  def is_const(self) -> bool:
+    return all(m.is_const for m in self.overloads)
+
+  @property
+  def is_virtual(self) -> bool:
+    return all(m.is_virtual for m in self.overloads)
+
+  @property
+  def is_inherited(self) -> bool:
+    return all(m.is_inherited for m in self.overloads)
+
+  @property
+  def is_interface(self) -> bool:
+    return all(m.is_interface for m in self.overloads)
+
+  @property
+  def min_num_parameters(self) -> int:
+    return min(m.min_num_parameters for m in self.overloads)
+
+  @property
+  def max_num_parameters(self) -> int:
+    return max(m.max_num_parameters for m in self.overloads)
+
 
 class ClassSchema(NamedSchema, ABC):
   """Represents a schema for an arbitrary class in the Multiplier API. This
@@ -116,7 +166,10 @@ class ClassSchema(NamedSchema, ABC):
   # Relative path to the file where this alias is defined.
   location: Optional[str]
 
-  # `STRUCT` or `CLASS`.
+  # Path of namespaces containing this schema.
+  namespaces: Optional[List[str]]
+
+  # `struct` or `class`.
   elaborator: str
 
   # Bases classes, if any, of this class.
@@ -147,6 +200,7 @@ class ClassSchema(NamedSchema, ABC):
   def __init__(self, name: str):
     super().__init__(name)
     self.location = None
+    self.namespaces = None
     self.elaborator = "struct"
     self.bases = []
     self.constructor = None
@@ -170,8 +224,13 @@ class ClassSchema(NamedSchema, ABC):
 
   def dump(self, indent: str):
     print(f"{indent}{self.elaborator.upper()} {self.name}")
-    print(f"{indent}  LOCATION {self.location}")
+
+    if self.location is not None:
+      print(f"{indent}  LOCATION {self.location}")
     
+    if self.namespaces is not None:
+      print(f"{indent}  NAMESPACES {'::'.join(self.namespaces)}")
+
     if len(self.bases):
       print("{}  BASE_CLASSES {}".format(indent, ", ".join(str(base) for base in self.bases)))
 
@@ -194,6 +253,11 @@ class ClassSchema(NamedSchema, ABC):
     self._dump_section(indent, "METHODS", self.methods)
     self._dump_section(indent, "STATIC_METHODS", self.static_methods)
 
+  @property
+  def cxx_value_name(self) -> str:
+    ns_str = self.namespaces and "::".join(self.namespaces) or ""
+    return "{}{}{}".format(ns_str, ns_str and "::" or "", self.name)
+
 
 class StringLikeSchema(Schema, ABC):
   pass
@@ -201,37 +265,58 @@ class StringLikeSchema(Schema, ABC):
 
 class CStringSchema(StringLikeSchema):
   """Corresponds to a `const char *`."""
-  pass
+  
+  @property
+  def cxx_value_name(self):
+    return "const char *"
 
 
 class StdStringSchema(StringLikeSchema):
   """Corresponds to a `std::string`."""
-  pass
+  
+  @property
+  def cxx_value_name(self):
+    return "std::string"
 
 
 class StdStringViewSchema(StringLikeSchema):
   """Corresponds to a `std::string_view`."""
-  pass
+  
+  @property
+  def cxx_value_name(self):
+    return "std::string_view"
 
 
 class StdFilesystemPathSchema(StringLikeSchema):
   """Corresponds to a `std::filesystem::path`."""
-  pass
+  
+  @property
+  def cxx_value_name(self):
+    return "std::filesystem::path"
 
 
 class LLVMStringRefSchema(StringLikeSchema):
   """Corresponds to an `llvm::StringRef`."""
-  pass
+  
+  @property
+  def cxx_value_name(self):
+    return "llvm::StringRef"
 
 
 class LLVMTwineSchema(StringLikeSchema):
   """Corresponds to an `llvm::Twine`."""
-  pass
+  
+  @property
+  def cxx_value_name(self):
+    return "llvm::Twine"
 
 
 class LLVMTriple(StringLikeSchema):
   """Corresponds to an `llvm::Triple`."""
-  pass
+  
+  @property
+  def cxx_value_name(self):
+    return "llvm::Triple"
 
 
 class MutiplyParameterizedSchema(Schema, ABC):
@@ -255,21 +340,36 @@ class TupleLikeSchema(MutiplyParameterizedSchema, ABC):
 
 class StdPairSchema(TupleLikeSchema):
   """Corresponds to `std::pair<A, B>`."""
-  pass
+  
+  @property
+  def cxx_value_name(self):
+    return "std::pair<{}, {}>".format(
+        self.element_types[0].cxx_name, self.element_types[1].cxx_name)
 
 
 class StdTupleSchema(TupleLikeSchema):
   """Corresponds to `std::tuple<A, B, ..., X>`."""
-  pass
+  
+  @property
+  def cxx_value_name(self):
+    return "std::tuple<{}>".format(
+        ", ".join(et.cxx_name for et in self.element_types))
 
 
 class StdMonostateSchema(UnknownSchema):
-  pass
+  
+  @property
+  def cxx_value_name(self):
+    return "std::monostate"
 
 
 class StdVariantSchema(MutiplyParameterizedSchema):
   """Corresponds to `std::variant<A, B, ..., X>`."""
-  pass
+  
+  @property
+  def cxx_value_name(self):
+    return "std::variant<{}>".format(
+        ", ".join(et.cxx_name for et in self.element_types))
 
 
 class ParameterizedSchema(Schema, ABC):
@@ -289,12 +389,18 @@ class IteratorRangeSchema(ParameterizedSchema):
   """Represents a type having both a `begin` and `end` methods, and where we're
   able to infer the iterated type. This is also a class with no other meaningful
   accessors/state."""
-  pass 
+
+  @property
+  def cxx_value_name(self):
+    return "void"
 
 
 class StdOptionalSchema(ParameterizedSchema):
   """Corresponds to a `std::optional<T>`."""
-  pass
+  
+  @property
+  def cxx_value_name(self):
+    return "std::optional<{}>".format(self.element_type.cxx_name)
 
 
 class ContainerLikeSchema(ParameterizedSchema, ABC):
@@ -304,22 +410,34 @@ class ContainerLikeSchema(ParameterizedSchema, ABC):
 
 class StdSpanSchema(ContainerLikeSchema):
   """Corresponds to a `std::span<T>`."""
-  pass
+  
+  @property
+  def cxx_value_name(self):
+    return "std::span<{}>".format(self.element_type.cxx_name)
 
 
 class StdVectorSchema(ContainerLikeSchema):
   """Corresponds to a `std::vector<T>`."""
-  pass
+  
+  @property
+  def cxx_value_name(self):
+    return "std::vector<{}>".format(self.element_type.cxx_name)
 
 
 class StdSetSchema(ContainerLikeSchema):
   """Corresponds to a `std::set<T>`."""
-  pass
+  
+  @property
+  def cxx_value_name(self):
+    return "std::set<{}>".format(self.element_type.cxx_name)
 
 
 class StdUnorderedSetSchema(ContainerLikeSchema):
   """Corresponds to a `std::unordered_set<T>`."""
-  pass
+  
+  @property
+  def cxx_value_name(self):
+    return "std::unordered_set<{}>".format(self.element_type.cxx_name)
 
 
 class DictionaryLikeSchema(ContainerLikeSchema):
@@ -337,55 +455,88 @@ class DictionaryLikeSchema(ContainerLikeSchema):
 
 class StdMapSchema(DictionaryLikeSchema):
   """Corresponds to a `std::map<K, V>`."""
-  pass
+  
+  @property
+  def cxx_value_name(self):
+    return "std::map<{}, {}>".format(
+        self.key_type.cxx_name, self.element_type.cxx_name)
 
 
 class StdUnorderedMapSchema(DictionaryLikeSchema):
   """Corresponds to a `std::unordered_map<K, V>`."""
-  pass
+  
+  @property
+  def cxx_value_name(self):
+    return "std::unordered_map<{}, {}>".format(
+        self.key_type.cxx_name, self.element_type.cxx_name)
 
 
 class GapGeneratorSchema(ParameterizedSchema):
   """Corresponds to a `gap::generator<T>`."""
-  pass
+  
+  @property
+  def cxx_value_name(self):
+    return "gap::generator<{}>".format(self.element_type.cxx_name)
 
 
 class LLVMArrayRefSchema(ContainerLikeSchema):
   """Corresponds to an `llvm::ArrayRef<T>`."""
-  pass
+  
+  @property
+  def cxx_value_name(self):
+    return "llvm::ArrayRef<{}>".format(self.element_type.cxx_name)
 
 
 class LLVMSmallVectorSchema(ContainerLikeSchema):
   """Corresponds to an `llvm::SmallVector<T>`."""
-  pass
+  
+  @property
+  def cxx_value_name(self):
+    return "llvm::SmallVector<{}>".format(self.element_type.cxx_name)
 
 
 class LLVMNumericSchema(Schema, ABC):
   pass
 
+
 class LLVMAPIntSchema(LLVMNumericSchema):
   """Corresponds to an `llvm::APInt`."""
-  pass
+  
+  @property
+  def cxx_value_name(self):
+    return "llvm::APInt"
 
 
 class LLVMAPSIntSchema(LLVMNumericSchema):
   """Corresponds to an `llvm::APSInt`."""
-  pass
+  
+  @property
+  def cxx_value_name(self):
+    return "llvm::APSInt"
 
 
 class LLVMAPFloatSchema(LLVMNumericSchema):
   """Corresponds to an `llvm::APFloat`."""
-  pass
+  
+  @property
+  def cxx_value_name(self):
+    return "llvm::APFloat"
 
 
 class LLVMAPFixedPointSchema(LLVMNumericSchema):
   """Corresponds to an `llvm::APFixedPoint`."""
-  pass
+  
+  @property
+  def cxx_value_name(self):
+    return "llvm::APFixedPoint"
 
 
 class ClangASTContextSchema(Schema):
   """Corresponds to a `clang::ASTContext`."""
-  pass
+  
+  @property
+  def cxx_value_name(self):
+    return "clang::ASTContext"
 
 
 class BuiltinTypeSchema(Schema, ABC):
@@ -395,7 +546,10 @@ class BuiltinTypeSchema(Schema, ABC):
 
 class BooleanSchema(BuiltinTypeSchema):
   """Corresponds to a `bool` type in C++ and a `_Bool` type in C."""
-  pass
+  
+  @property
+  def cxx_value_name(self):
+    return "bool"
 
 
 class IntegerSchema(BuiltinTypeSchema, ABC):
@@ -414,10 +568,17 @@ class Int8Schema(IntegerSchema):
   def __init__(self):
     super().__init__(8, True)
 
+  @property
+  def cxx_value_name(self) -> str:
+    return "int8_t"
+
 
 class CharSchema(Int8Schema):
   """Corresponds to the `char` type in C/C++."""
-  pass
+
+  @property
+  def cxx_value_name(self) -> str:
+    return "char"
 
 
 class Int16Schema(IntegerSchema):
@@ -425,11 +586,19 @@ class Int16Schema(IntegerSchema):
   def __init__(self):
     super().__init__(16, True)
 
+  @property
+  def cxx_value_name(self) -> str:
+    return "int16_t"
+
 
 class Int32Schema(IntegerSchema):
   """Corresponds to a `int`, `signed int`, or `int32_t` in C/C++."""
   def __init__(self):
     super().__init__(32, True)
+
+  @property
+  def cxx_value_name(self) -> str:
+    return "int32_t"
 
 
 class Int64Schema(IntegerSchema):
@@ -438,11 +607,19 @@ class Int64Schema(IntegerSchema):
   def __init__(self):
     super().__init__(64, True)
 
+  @property
+  def cxx_value_name(self) -> str:
+    return "int64_t"
+
 
 class UInt8Schema(IntegerSchema):
   """Corresponds to a `unsigned char` or `uint8_t` in C/C++."""
   def __init__(self):
     super().__init__(8, False)
+
+  @property
+  def cxx_value_name(self) -> str:
+    return "uint8_t"
 
 
 class UInt16Schema(IntegerSchema):
@@ -450,11 +627,19 @@ class UInt16Schema(IntegerSchema):
   def __init__(self):
     super().__init__(16, False)
 
+  @property
+  def cxx_value_name(self) -> str:
+    return "uint16_t"
+
 
 class UInt32Schema(IntegerSchema):
   """Corresponds to a `unsinged`, `unsigned int`, or `uint32_t` in C/C++."""
   def __init__(self):
     super().__init__(32, False)
+
+  @property
+  def cxx_value_name(self) -> str:
+    return "uint32_t"
 
 
 class UInt64Schema(IntegerSchema):
@@ -463,6 +648,10 @@ class UInt64Schema(IntegerSchema):
 
   def __init__(self):
     super().__init__(64, False)
+
+  @property
+  def cxx_value_name(self) -> str:
+    return "uint64_t"
 
 
 class FloatingPointSchema(BuiltinTypeSchema, ABC):
@@ -479,6 +668,10 @@ class FloatSchema(FloatingPointSchema):
 
   def __init__(self):
     super().__init__(32)
+  
+  @property
+  def cxx_value_name(self):
+    return "float"
 
 
 class DoubleSchema(FloatingPointSchema):
@@ -486,13 +679,20 @@ class DoubleSchema(FloatingPointSchema):
 
   def __init__(self):
     super().__init__(64)
+  
+  @property
+  def cxx_value_name(self):
+    return "double"
 
 
 class EnumSchema(NamedSchema):
   """Corresponds to an `enum` type in C/C++."""
 
   # Relative path to the file where this enum is defined.
-  location: str
+  location: Optional[str]
+
+  # Path of namespaces containing this schema.
+  namespaces: Optional[List[str]]
 
   # Underlying integer type of this enum
   base_type: 'IntegerSchema'
@@ -512,6 +712,8 @@ class EnumSchema(NamedSchema):
 
   def __init__(self, name: str, is_scoped: bool, base_type: 'IntegerSchema'):
     super().__init__(name)
+    self.location = None
+    self.namespaces = None
     self.base_type = base_type
     self.enumerators = []
     self.is_scoped = is_scoped
@@ -522,13 +724,22 @@ class EnumSchema(NamedSchema):
     scoped = self.is_scoped and "_CLASS" or ""
     explicit = self.is_explicitly_typed and "EXPLICIT_" or ""
     print(f"{indent}ENUM{scoped} {self.name}")
-    print(f"{indent}  LOCATION {self.location}")
+    
+    if self.location is not None:
+      print(f"{indent}  LOCATION {self.location}")
+    if self.namespaces is not None:
+      print(f"{indent}  NAMESPACES {'::'.join(self.namespaces)}")
     print(f"{indent}  {explicit}BASE_TYPE {self.base_type}")
     if self.is_enumerable:
       print(f"{indent}  ENUMERABLE")
     print(f"{indent}  ENUMERATORS")
     for enumerator in self.enumerators:
       print(f"{indent}    {enumerator}")
+
+  @property
+  def cxx_value_name(self) -> str:
+    ns_str = self.namespaces and "::".join(self.namespaces) or ""
+    return "{}{}{}".format(ns_str, ns_str and "::" or "", self.name)
 
 
 class AliasSchema(NamedSchema):
@@ -558,29 +769,55 @@ class PointerLikeSchema(ParameterizedSchema, ABC):
 
 class ReferenceSchema(PointerLikeSchema):
   """Corresponds to an `T &` reference type."""
-  pass
+  
+  @property
+  def cxx_value_name(self):
+    return self.element_type.cxx_value_name
+  
+  @property
+  def cxx_name(self):
+    return "{} &".format(self.element_type.cxx_value_name)
 
 
 class ConstReferenceSchema(ReferenceSchema):
   """Corresponds to an `const T &` reference type."""
-  pass
+  
+  @property
+  def cxx_value_name(self):
+    return self.element_type.cxx_value_name
+  
+  @property
+  def cxx_name(self):
+    return "const {} &".format(self.element_type.cxx_value_name)
 
 
 class RawPointerSchema(PointerLikeSchema):
   """Corresponds to a `T *` in C/C++."""
-  pass
+  
+  @property
+  def cxx_value_name(self):
+    return "{} *".format(self.element_type.cxx_value_name)
 
 
 class ConstRawPointerSchema(RawPointerSchema):
   """Corresponds to a `const T *` in C/C++."""
-  pass
+  
+  @property
+  def cxx_value_name(self):
+    return "const {} *".format(self.element_type.cxx_value_name)
 
 
 class StdUniquePtrSchema(PointerLikeSchema):
   """Corresponds to a `std::unique_ptr<T>` in C/C++."""
-  pass
+  
+  @property
+  def cxx_value_name(self):
+    return "std::unique_ptr<{}>".format(self.element_type.cxx_name)
 
 
 class StdSharedPtrSchema(PointerLikeSchema):
   """Corresponds to a `std::shared_ptr<T>` in C/C++."""
-  pass
+  
+  @property
+  def cxx_value_name(self):
+    return "std::shared_ptr<{}>".format(self.element_type.cxx_name)

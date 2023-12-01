@@ -4887,18 +4887,25 @@ OwnerAttr::OwnerAttr(
 PASTA_DEFINE_BASE_OPERATORS(Attr, OwnerAttr)
 PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, OwnerAttr)
 // 1: OwnerAttr::Clone
-::pasta::Type OwnerAttr::DerefType(void) const {
+std::optional<::pasta::Type> OwnerAttr::DerefType(void) const {
   auto &self = *const_cast<clang::OwnerAttr *>(u.OwnerAttr);
+  if (!self.getDerefTypeLoc()) {
+    return std::nullopt;
+  }
   decltype(auto) val = self.getDerefType();
-  assert(!val.isNull());
+  if (val.isNull()) {
+    return std::nullopt;
+  }
   return TypeBuilder::Build(ast, val);
 }
 
-::pasta::Type OwnerAttr::DerefTypeToken(void) const {
+std::optional<::pasta::Type> OwnerAttr::DerefTypeToken(void) const {
   auto &self = *const_cast<clang::OwnerAttr *>(u.OwnerAttr);
   decltype(auto) val = self.getDerefTypeLoc();
+  if (!val) {
+    return std::nullopt;
+  }
   return TypeBuilder::Build(ast, val->getType());
-  throw std::runtime_error("OwnerAttr::DerefTypeToken can return nullptr!");
 }
 
 std::string_view OwnerAttr::Spelling(void) const {
@@ -5139,18 +5146,25 @@ PointerAttr::PointerAttr(
 PASTA_DEFINE_BASE_OPERATORS(Attr, PointerAttr)
 PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, PointerAttr)
 // 1: PointerAttr::Clone
-::pasta::Type PointerAttr::DerefType(void) const {
+std::optional<::pasta::Type> PointerAttr::DerefType(void) const {
   auto &self = *const_cast<clang::PointerAttr *>(u.PointerAttr);
+  if (!self.getDerefTypeLoc()) {
+    return std::nullopt;
+  }
   decltype(auto) val = self.getDerefType();
-  assert(!val.isNull());
+  if (val.isNull()) {
+    return std::nullopt;
+  }
   return TypeBuilder::Build(ast, val);
 }
 
-::pasta::Type PointerAttr::DerefTypeToken(void) const {
+std::optional<::pasta::Type> PointerAttr::DerefTypeToken(void) const {
   auto &self = *const_cast<clang::PointerAttr *>(u.PointerAttr);
   decltype(auto) val = self.getDerefTypeLoc();
+  if (!val) {
+    return std::nullopt;
+  }
   return TypeBuilder::Build(ast, val->getType());
-  throw std::runtime_error("PointerAttr::DerefTypeToken can return nullptr!");
 }
 
 std::string_view PointerAttr::Spelling(void) const {

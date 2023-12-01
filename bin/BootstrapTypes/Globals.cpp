@@ -1209,6 +1209,14 @@ std::set<std::pair<std::string, std::string>> kCanReturnNullptr{
   {"VarTemplatePartialSpecializationDecl", "InstantiatedFromMember"},
   {"ClassTemplatePartialSpecializationDecl", "InstantiatedFromMember"},
   {"CXXCatchStmt", "CaughtType"},
+  {"UnaryTransformType", "Desugar"},
+  {"UnaryTransformType", "UnderlyingType"},
+  {"UnaryTransformType", "BaseType"},
+  {"VarTemplateSpecializationDecl", "TypeAsWritten"},
+  {"PointerAttr", "DerefType"},
+  {"PointerAttr", "DerefTypeToken"},
+  {"OwnerAttr", "DerefType"},
+  {"OwnerAttr", "DerefTypeToken"},
 //  {"FunctionProtoType", "EllipsisToken"},
 //  {"FunctionDecl", "EllipsisToken"},
 //  {"FunctionDecl", "PointOfInstantiation"},
@@ -1884,6 +1892,14 @@ std::map<std::pair<std::string, std::string>, std::string> kConditionalNullptr{
    "  }\n"},
   {{"GenericSelectionExpr", "ResultExpression"},
    "  if (self.isResultDependent()) {\n"
+   "    return std::nullopt;\n"
+   "  }\n"},
+  {{"PointerAttr", "DerefType"},
+   "  if (!self.getDerefTypeLoc()) {\n"
+   "    return std::nullopt;\n"
+   "  }\n"},
+  {{"OwnerAttr", "DerefType"},
+   "  if (!self.getDerefTypeLoc()) {\n"
    "    return std::nullopt;\n"
    "  }\n"},
 };

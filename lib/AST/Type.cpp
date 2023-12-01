@@ -2051,17 +2051,21 @@ bool TypedefType::TypeMatchesDeclaration(void) const {
 }
 
 PASTA_DEFINE_BASE_OPERATORS(Type, UnaryTransformType)
-::pasta::Type UnaryTransformType::Desugar(void) const {
+std::optional<::pasta::Type> UnaryTransformType::Desugar(void) const {
   auto &self = *const_cast<clang::UnaryTransformType *>(u.UnaryTransformType);
   decltype(auto) val = self.desugar();
-  assert(!val.isNull());
+  if (val.isNull()) {
+    return std::nullopt;
+  }
   return TypeBuilder::Build(ast, val);
 }
 
-::pasta::Type UnaryTransformType::BaseType(void) const {
+std::optional<::pasta::Type> UnaryTransformType::BaseType(void) const {
   auto &self = *const_cast<clang::UnaryTransformType *>(u.UnaryTransformType);
   decltype(auto) val = self.getBaseType();
-  assert(!val.isNull());
+  if (val.isNull()) {
+    return std::nullopt;
+  }
   return TypeBuilder::Build(ast, val);
 }
 
@@ -2071,10 +2075,12 @@ enum UnaryTransformTypeUTTKind UnaryTransformType::UTTKind(void) const {
   return static_cast<::pasta::UnaryTransformTypeUTTKind>(val);
 }
 
-::pasta::Type UnaryTransformType::UnderlyingType(void) const {
+std::optional<::pasta::Type> UnaryTransformType::UnderlyingType(void) const {
   auto &self = *const_cast<clang::UnaryTransformType *>(u.UnaryTransformType);
   decltype(auto) val = self.getUnderlyingType();
-  assert(!val.isNull());
+  if (val.isNull()) {
+    return std::nullopt;
+  }
   return TypeBuilder::Build(ast, val);
 }
 

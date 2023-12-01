@@ -625,6 +625,10 @@ class DeclBoundsFinder : public clang::DeclVisitor<DeclBoundsFinder>,
 //    Expand(decl->getSourceRange());
 //  }
 
+  void VisitFunctionTemplateDecl(clang::FunctionTemplateDecl *decl) {
+    Expand(decl->getSourceRange());
+  }
+
   // TODO(pag): Deal with out-of-line methods and template shenanigans.
   void VisitCXXMethodDecl(clang::CXXMethodDecl *decl) {
     VisitCommonFunctionDecl(decl);

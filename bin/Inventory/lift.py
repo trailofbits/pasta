@@ -645,11 +645,15 @@ class SchemaLifter:
 
     # This class is a template specialization, or has no stateful accessors,
     # so try to convert it into an iterator range or outright drop it.
-    if isinstance(tag, ClassTemplateSpecializationDecl) or not num_accessors:
+    #
+    # If we have a base class that is non-empty then we can use that
+    if (not num_accessors and not len(schema.bases)) or \
+        isinstance(tag, ClassTemplateSpecializationDecl):
       new_schema: Schema = self.unknown_schema
       if schema.generated_type:
         new_schema = IteratorRangeSchema(schema.generated_type)
       return new_schema
+
 
     return schema
 

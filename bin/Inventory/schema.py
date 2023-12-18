@@ -269,7 +269,7 @@ class ClassSchema(NamedSchema, ABC):
   @property
   def python_value_name(self):
     ns_str = os.path.dirname(self.location).lower().replace("/", ".")
-    return "'{}{}'".format(ns_str and f"{ns_str}." or "", self.name)
+    return "{}{}".format(ns_str and f"{ns_str}." or "", self.name)
 
   @property
   def cxx_value_name(self) -> str:
@@ -847,7 +847,7 @@ class EnumSchema(NamedSchema):
   @property
   def python_value_name(self):
     ns_str = os.path.dirname(self.location).lower().replace("/", ".")
-    return "'{}{}'".format(ns_str and f"{ns_str}." or "", self.name)
+    return "{}{}".format(ns_str and f"{ns_str}." or "", self.name)
 
   @property
   def cxx_value_name(self) -> str:

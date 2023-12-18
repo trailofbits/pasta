@@ -372,10 +372,13 @@ class SchemaLifter:
 
     elif tp:
 
+      if isinstance(tp, QualifiedType):
+        tp = tp.unqualified_type
+
       # Only let us find basic things in the template arguments. This is a
       # simple way to prevent things like pointers-to-pointers.
-      if not isinstance(tp, (RecordType, ElaboratedType, BuiltinType, \
-                             TemplateSpecializationType)):
+      if not isinstance(tp, (RecordType, EnumType, ElaboratedType, \
+                             BuiltinType, TemplateSpecializationType)):
         return self.unknown_schema
 
       schema = self.lift_type(tp)
@@ -814,8 +817,6 @@ class SchemaLifter:
       return self.unknown_schema
 
     return is_const and ConstReferenceSchema(ps) or ReferenceSchema(ps)
-
-    return self.lift_type(tp.pointee_type)
 
   def _lift_builtin_type(self, tp: BuiltinType) -> Schema:
     return self.builtin_type_schemas.get(tp.builtin_kind, self.unknown_schema)

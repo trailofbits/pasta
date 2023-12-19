@@ -4990,7 +4990,7 @@ class CXXDefaultArgExpr : public Expr {
   ::pasta::Expr Expression(void) const;
   ::pasta::Token ExpressionToken(void) const;
   ::pasta::ParmVarDecl Parameter(void) const;
-  ::pasta::Expr RewrittenExpression(void) const;
+  std::optional<::pasta::Expr> RewrittenExpression(void) const;
   ::pasta::DeclContext UsedContext(void) const;
   ::pasta::Token UsedToken(void) const;
   bool HasRewrittenInitializer(void) const;
@@ -5035,9 +5035,9 @@ class CXXDeleteExpr : public Expr {
   bool DoesUsualArrayDeleteWantSize(void) const;
   ::pasta::Expr Argument(void) const;
   ::pasta::Token BeginToken(void) const;
-  ::pasta::Type DestroyedType(void) const;
+  std::optional<::pasta::Type> DestroyedType(void) const;
   ::pasta::Token EndToken(void) const;
-  ::pasta::FunctionDecl OperatorDelete(void) const;
+  std::optional<::pasta::FunctionDecl> OperatorDelete(void) const;
   bool IsArrayForm(void) const;
   bool IsArrayFormAsWritten(void) const;
   bool IsGlobalDelete(void) const;
@@ -5153,8 +5153,8 @@ class CXXNewExpr : public Expr {
   enum CXXNewExprInitializationStyle InitializationStyle(void) const;
   std::optional<::pasta::Expr> Initializer(void) const;
   uint32_t NumPlacementArguments(void) const;
-  ::pasta::FunctionDecl OperatorDelete(void) const;
-  ::pasta::FunctionDecl OperatorNew(void) const;
+  std::optional<::pasta::FunctionDecl> OperatorDelete(void) const;
+  std::optional<::pasta::FunctionDecl> OperatorNew(void) const;
   // PlacementArgument: (const clang::Expr *)
   ::pasta::TokenRange Tokens(void) const;
   ::pasta::TokenRange TypeIdParentheses(void) const;

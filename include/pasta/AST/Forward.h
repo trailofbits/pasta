@@ -2488,6 +2488,7 @@ enum class BuiltinTypeKind : unsigned int {
   kOMPArraySection = 465,
   kOMPArrayShaping = 466,
   kOMPIterator = 467,
+  kUnresolved = 468,
 };
 
 enum class CDeclAttrSpelling : unsigned int {

@@ -1218,6 +1218,13 @@ std::set<std::pair<std::string, std::string>> kCanReturnNullptr{
   {"OwnerAttr", "DerefType"},
   {"OwnerAttr", "DerefTypeToken"},
   {"TemplateDecl", "TemplatedDeclaration"},
+  {"CXXNewExpr", "OperatorNew"},
+  {"CXXNewExpr", "OperatorDelete"},
+  {"CXXDeleteExpr", "OperatorNew"},
+  {"CXXDeleteExpr", "OperatorDelete"},
+  {"CXXDefaultArgExpr", "RewrittenExpression"},
+  {"CXXDeleteExpr", "DestroyedType"},
+
 //  {"FunctionProtoType", "EllipsisToken"},
 //  {"FunctionDecl", "EllipsisToken"},
 //  {"FunctionDecl", "PointOfInstantiation"},

@@ -1875,6 +1875,12 @@ bool Type::IsUnionType(void) const {
   return val;
 }
 
+bool Type::IsUnresolvedType(void) const {
+  auto &self = *const_cast<clang::Type *>(u.Type);
+  decltype(auto) val = self.isUnresolvedType();
+  return val;
+}
+
 bool Type::IsUnsaturatedFixedPointType(void) const {
   auto &self = *const_cast<clang::Type *>(u.Type);
   decltype(auto) val = self.isUnsaturatedFixedPointType();

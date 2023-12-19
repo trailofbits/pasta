@@ -523,6 +523,7 @@ class Type {
   bool IsUndeducedAutoType(void) const;
   bool IsUndeducedType(void) const;
   bool IsUnionType(void) const;
+  bool IsUnresolvedType(void) const;
   bool IsUnsaturatedFixedPointType(void) const;
   bool IsUnscopedEnumerationType(void) const;
   bool IsUnsignedFixedPointType(void) const;

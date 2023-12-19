@@ -12486,13 +12486,15 @@ std::vector<::pasta::Stmt> CXXDefaultArgExpr::Children(void) const {
   throw std::runtime_error("CXXDefaultArgExpr::Parameter can return nullptr!");
 }
 
-::pasta::Expr CXXDefaultArgExpr::RewrittenExpression(void) const {
+std::optional<::pasta::Expr> CXXDefaultArgExpr::RewrittenExpression(void) const {
   auto &self = *const_cast<clang::CXXDefaultArgExpr *>(u.CXXDefaultArgExpr);
   decltype(auto) val = self.getRewrittenExpr();
+  if (!val) {
+    return std::nullopt;
+  }
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
-  throw std::runtime_error("CXXDefaultArgExpr::RewrittenExpression can return nullptr!");
 }
 
 ::pasta::DeclContext CXXDefaultArgExpr::UsedContext(void) const {
@@ -12642,10 +12644,12 @@ bool CXXDeleteExpr::DoesUsualArrayDeleteWantSize(void) const {
   return ast->TokenAt(val);
 }
 
-::pasta::Type CXXDeleteExpr::DestroyedType(void) const {
+std::optional<::pasta::Type> CXXDeleteExpr::DestroyedType(void) const {
   auto &self = *const_cast<clang::CXXDeleteExpr *>(u.CXXDeleteExpr);
   decltype(auto) val = self.getDestroyedType();
-  assert(!val.isNull());
+  if (val.isNull()) {
+    return std::nullopt;
+  }
   return TypeBuilder::Build(ast, val);
 }
 
@@ -12655,13 +12659,15 @@ bool CXXDeleteExpr::DoesUsualArrayDeleteWantSize(void) const {
   return ast->TokenAt(val);
 }
 
-::pasta::FunctionDecl CXXDeleteExpr::OperatorDelete(void) const {
+std::optional<::pasta::FunctionDecl> CXXDeleteExpr::OperatorDelete(void) const {
   auto &self = *const_cast<clang::CXXDeleteExpr *>(u.CXXDeleteExpr);
   decltype(auto) val = self.getOperatorDelete();
+  if (!val) {
+    return std::nullopt;
+  }
   if (val) {
     return DeclBuilder::Create<::pasta::FunctionDecl>(ast, val);
   }
-  throw std::runtime_error("CXXDeleteExpr::OperatorDelete can return nullptr!");
 }
 
 bool CXXDeleteExpr::IsArrayForm(void) const {
@@ -13096,22 +13102,26 @@ uint32_t CXXNewExpr::NumPlacementArguments(void) const {
   return val;
 }
 
-::pasta::FunctionDecl CXXNewExpr::OperatorDelete(void) const {
+std::optional<::pasta::FunctionDecl> CXXNewExpr::OperatorDelete(void) const {
   auto &self = *const_cast<clang::CXXNewExpr *>(u.CXXNewExpr);
   decltype(auto) val = self.getOperatorDelete();
+  if (!val) {
+    return std::nullopt;
+  }
   if (val) {
     return DeclBuilder::Create<::pasta::FunctionDecl>(ast, val);
   }
-  throw std::runtime_error("CXXNewExpr::OperatorDelete can return nullptr!");
 }
 
-::pasta::FunctionDecl CXXNewExpr::OperatorNew(void) const {
+std::optional<::pasta::FunctionDecl> CXXNewExpr::OperatorNew(void) const {
   auto &self = *const_cast<clang::CXXNewExpr *>(u.CXXNewExpr);
   decltype(auto) val = self.getOperatorNew();
+  if (!val) {
+    return std::nullopt;
+  }
   if (val) {
     return DeclBuilder::Create<::pasta::FunctionDecl>(ast, val);
   }
-  throw std::runtime_error("CXXNewExpr::OperatorNew can return nullptr!");
 }
 
 // 1: CXXNewExpr::PlacementArgument

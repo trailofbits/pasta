@@ -3357,13 +3357,15 @@ PASTA_DEFINE_DERIVED_OPERATORS(TemplateDecl, VarTemplateDecl)
   throw std::runtime_error("TemplateDecl::TemplateParameters can return nullptr!");
 }
 
-::pasta::NamedDecl TemplateDecl::TemplatedDeclaration(void) const {
+std::optional<::pasta::NamedDecl> TemplateDecl::TemplatedDeclaration(void) const {
   auto &self = *const_cast<clang::TemplateDecl *>(u.TemplateDecl);
   decltype(auto) val = self.getTemplatedDecl();
+  if (!val) {
+    return std::nullopt;
+  }
   if (val) {
     return DeclBuilder::Create<::pasta::NamedDecl>(ast, val);
   }
-  throw std::runtime_error("TemplateDecl::TemplatedDeclaration can return nullptr!");
 }
 
 bool TemplateDecl::HasAssociatedConstraints(void) const {

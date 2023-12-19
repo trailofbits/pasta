@@ -1217,6 +1217,7 @@ std::set<std::pair<std::string, std::string>> kCanReturnNullptr{
   {"PointerAttr", "DerefTypeToken"},
   {"OwnerAttr", "DerefType"},
   {"OwnerAttr", "DerefTypeToken"},
+  {"TemplateDecl", "TemplatedDeclaration"},
 //  {"FunctionProtoType", "EllipsisToken"},
 //  {"FunctionDecl", "EllipsisToken"},
 //  {"FunctionDecl", "PointOfInstantiation"},

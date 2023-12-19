@@ -1225,7 +1225,7 @@ class TemplateDecl : public NamedDecl {
   PASTA_DECLARE_DERIVED_OPERATORS(TemplateDecl, TypeAliasTemplateDecl)
   PASTA_DECLARE_DERIVED_OPERATORS(TemplateDecl, VarTemplateDecl)
   ::pasta::TemplateParameterList TemplateParameters(void) const;
-  ::pasta::NamedDecl TemplatedDeclaration(void) const;
+  std::optional<::pasta::NamedDecl> TemplatedDeclaration(void) const;
   bool HasAssociatedConstraints(void) const;
   bool IsTypeAlias(void) const;
  protected:

@@ -802,7 +802,7 @@ class NamedDecl : public Decl {
   std::optional<enum ObjCStringFormatFamily> ObjCFStringFormattingFamily(void) const;
   std::string QualifiedNameAsString(void) const;
   ::pasta::NamedDecl UnderlyingDeclaration(void) const;
-  enum Visibility Visibility(void) const;
+  std::optional<enum Visibility> Visibility(void) const;
   bool HasExternalFormalLinkage(void) const;
   bool HasLinkage(void) const;
   bool HasLinkageBeenComputed(void) const;

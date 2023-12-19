@@ -1938,8 +1938,14 @@ std::string NamedDecl::QualifiedNameAsString(void) const {
   throw std::runtime_error("NamedDecl::UnderlyingDeclaration can return nullptr!");
 }
 
-enum Visibility NamedDecl::Visibility(void) const {
+std::optional<enum Visibility> NamedDecl::Visibility(void) const {
   auto &self = *const_cast<clang::NamedDecl *>(u.NamedDecl);
+  if (auto td = clang::dyn_cast<clang::TemplateDecl>(
+                                 u.NamedDecl)) {
+    if (!td->getTemplatedDecl()) {
+      return std::nullopt;
+    }
+  }
   decltype(auto) val = self.getVisibility();
   return static_cast<::pasta::Visibility>(val);
 }

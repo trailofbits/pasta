@@ -1903,6 +1903,13 @@ std::map<std::pair<std::string, std::string>, std::string> kConditionalNullptr{
    "  if (!self.getDerefTypeLoc()) {\n"
    "    return std::nullopt;\n"
    "  }\n"},
+  {{"NamedDecl", "Visibility"},
+   "  if (auto td = clang::dyn_cast<clang::TemplateDecl>(\n"
+   "                                 u.NamedDecl)) {\n"
+   "    if (!td->getTemplatedDecl()) {\n"
+   "      return std::nullopt;\n"
+   "    }\n"
+   "  }\n"},
 };
 
 std::unordered_map<std::string, uint32_t> gClassIDs;

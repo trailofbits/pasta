@@ -563,6 +563,9 @@ std::optional<uint64_t> FieldDecl::OffsetInBits(void) const noexcept {
   if (self.getEllipsisLoc().isValid()) {
     auto [begin_tok, end_tok] = ast->DeclBounds(&self);
     if (auto it = ast->func_proto.find(&self); it != ast->func_proto.end()) {
+      if (it->second.ellipsis == nullptr) {
+        return ::pasta::Token(ast);
+      }
       assert(begin_tok < it->second.ellipsis);
       assert(it->second.ellipsis < end_tok);
       (void) begin_tok;

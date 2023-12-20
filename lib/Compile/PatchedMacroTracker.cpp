@@ -2706,9 +2706,7 @@ void PatchedMacroTracker::Event(const clang::Token &tok, EventKind kind,
     case SwitchToSubstitution: DoSwitchToSubstitution(tok, data); break;
     case EndSubstitution: DoEndSubstitution(tok, data); break;
 
-    // TODO(pag): Handle these:
-    case BeginSplitToken: break;
-    case EndSplitToken: break;
+    case SplitToken: break;
 
     case BeginConcatenation: DoBeginConcatenation(tok, data); break;
     case ConcatenationOperatorToken: DoConcatenationOperatorToken(tok, data); break;
@@ -2734,7 +2732,6 @@ void PatchedMacroTracker::Event(const clang::Token &tok, EventKind kind,
 
 #if D(1 -) 0
   switch (kind) {
-    case EndSplitToken:
     case EndDirective:
     case EndNonDirective:
     case EndMacroExpansion:
@@ -2771,8 +2768,7 @@ void PatchedMacroTracker::Event(const clang::Token &tok, EventKind kind,
     case SkippedVAOptToken: std::cerr << "SkippedVAOptToken(" << ast->tokens.size() << "; depth=" << depth << "; macro_skip_count=" << macro_skip_count << "; cond_skip_depth=" << cond_skip_depth << "; loc=" << tok.getLocation().getRawEncoding() << ")"; break;
     case ConcatenationOperatorToken: std::cerr << "ConcatenationOperatorToken(" << ast->tokens.size() << "; depth=" << depth << "; macro_skip_count=" << macro_skip_count << "; cond_skip_depth=" << cond_skip_depth << "; loc=" << tok.getLocation().getRawEncoding() << ")"; break;
     case ConcatenationAccumulationToken: std::cerr << "ConcatenationAccumulationToken(" << ast->tokens.size() << "; depth=" << depth << "; macro_skip_count=" << macro_skip_count << "; cond_skip_depth=" << cond_skip_depth << "; loc=" << tok.getLocation().getRawEncoding() << ")"; break;
-    case BeginSplitToken: std::cerr << "BeginSplitToken"; break;
-    case EndSplitToken: std::cerr << "EndSplitToken"; break;
+    case SplitToken: std::cerr << "SplitToken"; break;
     case BeginDirective: std::cerr << "BeginDirective"; break;
     case BeginSkippedArea: std::cerr << "BeginSkippedArea"; break;
     case SetNamedDirective: std::cerr << "SetNamedDirective"; break;
@@ -2849,7 +2845,6 @@ void PatchedMacroTracker::Event(const clang::Token &tok, EventKind kind,
   //            balance in all cases.
 
   switch (kind) {
-    case BeginSplitToken:
     case BeginDirective:
     case BeginSkippedArea:
     case BeginMacroExpansion:

@@ -217,7 +217,6 @@ class PatchedMacroTracker : public clang::PPCallbacks {
   void DoAfterStringify(const clang::Token &tok, uintptr_t data);
 
  public:
-  // PASTA PATCH:
   void Event(const clang::Token &tok, EventKind kind, uintptr_t data) final;
 
   // Callback invoked whenever an inclusion directive of any kind (`#include`,

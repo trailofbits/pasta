@@ -51,7 +51,7 @@
 # error "Missing PASTA patches to Clang for tracking macro events"
 #endif
 #include "PatchedMacroTracker.h"
-using MacroTracker = pasta::PatchedMacroTracker;
+#include "SplitTokenTracker.h"
 #pragma GCC diagnostic pop
 
 #include "../AST/AST.h"
@@ -214,7 +214,7 @@ Result<AST, std::string> CompileJob::Run(void) const {
   //            disable their generation. This will then hopefully mean
   //            fewer implicit decls in the indexer.
   clang::PreprocessorOptions &pp_options = invocation.getPreprocessorOpts();
-  pp_options.DetailedRecord = true;
+  pp_options.DetailedRecord = false;  // We do our own detailed record keeping.
   pp_options.SingleFileParseMode = false;
   pp_options.LexEditorPlaceholders = false;
   pp_options.RetainRemappedFileBuffers = true;
@@ -338,7 +338,8 @@ Result<AST, std::string> CompileJob::Run(void) const {
   // NOTE(pag): Add the macro tracker first so that it can observe changes to
   //            `ASTImpl::id_to_file` enacted by
   //            `ParsedFileTracker::FileChanged`.
-  MacroTracker *macro_tracker_ptr = new MacroTracker(pp, sm, ast.get());
+  PatchedMacroTracker *macro_tracker_ptr =
+      new PatchedMacroTracker(pp, sm, ast.get());
   {
     std::unique_ptr<clang::PPCallbacks> macro_tracker(macro_tracker_ptr);
     pp.addPPCallbacks(std::move(macro_tracker));
@@ -364,8 +365,12 @@ Result<AST, std::string> CompileJob::Run(void) const {
   // If we didn't end up tracking any files then something is seriously wrong.
   assert(!ast->id_to_file.empty());
 
+  // Wipe out the old callbacks and any temporary data they stored.
   file_tracker_ptr->Clear();
   macro_tracker_ptr->Clear();
+  pp.clearPPCallbacks();
+  macro_tracker_ptr = nullptr;
+  file_tracker_ptr = nullptr;
 
   // auto fd = open("/tmp/source.cpp", O_TRUNC | O_CREAT | O_WRONLY, 0666);
   // write(fd, ast->preprocessed_code.data(), ast->preprocessed_code.size());
@@ -424,6 +429,10 @@ Result<AST, std::string> CompileJob::Run(void) const {
   clang::Preprocessor &pp2 = ci.getPreprocessor();
   ast->token_per_line_pp = ci.getPreprocessorPtr();
 
+  std::unique_ptr<clang::PPCallbacks> split_tracker(
+      new SplitTokenTracker(pp2, sm, ast.get()));
+  pp2.addPPCallbacks(std::move(split_tracker));
+
   assert(pp2.getLangOpts().EmitAllDecls);
   assert(lang_opts.EmitAllDecls);
 
@@ -455,6 +464,8 @@ Result<AST, std::string> CompileJob::Run(void) const {
 
   // Finalize any leftover instantiations.
   sema.PerformPendingInstantiations(false);
+
+  pp2.clearPPCallbacks();
 
   if (diagnostics_engine->hasUncompilableErrorOccurred() ||
       diagnostics_engine->hasFatalErrorOccurred()) {

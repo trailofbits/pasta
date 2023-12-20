@@ -295,7 +295,8 @@ add_library(pasta_compiler STATIC
     "lib/Compile/Job.h"
     "lib/Compile/PatchedMacroTracker.h"
     "lib/Compile/ParsedFileTracker.h"
-    
+    "lib/Compile/SplitTokenTracker.h"
+
     "lib/Compile/Builtins.cpp"
     "lib/Compile/Command.cpp"
     "lib/Compile/Compiler.cpp"
@@ -306,6 +307,7 @@ add_library(pasta_compiler STATIC
     "lib/Compile/PatchedMacroTracker.cpp"
     "lib/Compile/Preprocess.cpp"
     "lib/Compile/Run.cpp"
+    "lib/Compile/SplitTokenTracker.cpp"
 )
 
 

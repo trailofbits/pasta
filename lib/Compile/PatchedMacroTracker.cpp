@@ -64,7 +64,7 @@ static void InjectArgumentNode(std::vector<MacroNodeImpl *> &nodes,
     }
   }
 
-  D( assert(found); )
+  D( (void) found; assert(found); )
 
   nodes.swap(new_nodes);
   arguments.swap(new_arguments);
@@ -2714,7 +2714,7 @@ void PatchedMacroTracker::Event(const clang::Token &tok, EventKind kind,
     case SwitchToSubstitution: DoSwitchToSubstitution(tok, data); break;
     case EndSubstitution: DoEndSubstitution(tok, data); break;
 
-    case SplitToken: break;
+    case SplitToken: assert(false); break;
 
     case BeginConcatenation: DoBeginConcatenation(tok, data); break;
     case ConcatenationOperatorToken: DoConcatenationOperatorToken(tok, data); break;

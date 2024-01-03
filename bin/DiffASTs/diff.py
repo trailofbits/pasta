@@ -28,7 +28,10 @@ def _generate_ast(source_file: str, cxx: Compiler) -> AST:
     return ast
 
 
-if __name__ == "__main__":
+def main():
+    """Using pasta, generate two Clang ASTs from two source files and diff them
+    using graphtage.
+    """
     parser = ArgumentParser(description="diff two Clang ASTs using pasta")
     parser.add_argument("source_file1", type=str)
     parser.add_argument("source_file2", type=str)
@@ -44,3 +47,7 @@ if __name__ == "__main__":
 
     with printer.DEFAULT_PRINTER as p:
         print_diff(ast1.main_file.tokens, ast2.main_file.tokens, printer=p)
+
+
+if __name__ == "__main__":
+    main()

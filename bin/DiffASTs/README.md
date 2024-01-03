@@ -13,7 +13,7 @@ pip install graphtage
 ## Usage
 ```shell
 PYTHONPATH=/path/to/build/pasta/bindings/python \
-python diff.py test_before.cpp test_after.cpp
+python diff.py test_before.c test_after.c
 ```
 
 ## Output

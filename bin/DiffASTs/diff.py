@@ -10,7 +10,7 @@ def _generate_ast(source_file: str, cxx: Compiler) -> AST:
     ast = None
 
     argv = ArgumentVector(
-        [str(cxx.executable_path), "-x", "c++", "-std=c++20", source_file]
+        [str(cxx.executable_path), "-x", "c", "-std=c18", source_file]
     )
     cmd = CompileCommand.create_from_arguments(argv, os.path.dirname(__file__))
     jobs = cxx.create_jobs_for_command(cmd)
@@ -40,7 +40,7 @@ def main():
 
     fs: FileSystem = FileSystem.create_native()
     fm: FileManager = FileManager(fs)
-    cxx: Compiler = Compiler.create_host_compiler(fm, TargetLanguage.CXX)
+    cxx: Compiler = Compiler.create_host_compiler(fm, TargetLanguage.C)
 
     ast1 = _generate_ast(args.source_file1, cxx)
     ast2 = _generate_ast(args.source_file2, cxx)

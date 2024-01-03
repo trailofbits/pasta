@@ -46,7 +46,7 @@ def main():
     ast2 = _generate_ast(args.source_file2, cxx)
 
     with printer.DEFAULT_PRINTER as p:
-        print_diff(ast1.main_file.tokens, ast2.main_file.tokens, printer=p)
+        print_diff(str(ast1.main_file), str(ast2.main_file), printer=p)
 
 
 if __name__ == "__main__":

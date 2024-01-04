@@ -1,6 +1,4 @@
-#include <stdio.h>
-
-int main() {
-  printf("Hello World!");
-  return 0;
+int foo(int bar) {
+  int baz = -1;
+  return baz + bar;
 }

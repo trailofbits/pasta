@@ -1,6 +1,4 @@
-#include <stdio.h>
-
-int main() {
-  printf("Goodbye!");
-  return 0;
+int foo(int bar) {
+  unsigned baz = -1;
+  return baz + bar;
 }

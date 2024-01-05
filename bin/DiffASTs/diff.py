@@ -1,8 +1,12 @@
 from pypasta import *
 from graphtage import printer
-from graphtage.pydiff import print_diff, build_tree
+from graphtage.tree import TreeNode
+from graphtage.pydiff import print_diff
 from argparse import ArgumentParser
 import os, sys
+
+from typing import Optional
+from collections.abc import Iterator
 
 
 def _generate_ast(source_file: str, cc: Compiler, system_include_dir: str) -> AST:
@@ -34,6 +38,49 @@ def _generate_ast(source_file: str, cc: Compiler, system_include_dir: str) -> AS
             sys.exit(1)
 
     return ast
+
+
+def _build_tree(ast: AST) -> TreeNode:
+    """Converts a Pasta AST into Graphtage IR."""
+    pass
+
+
+def _view_ast(ast: AST):
+    """Prints out the Clang AST similar to https://godbolt.org/."""
+    # Get TranslationUnitDecl
+    tu = ast.translation_unit
+    print(tu)
+    dc = DeclContext.cast(tu)
+
+    # Get FunctionDecl
+    fd = None
+    for decl in dc.declarations:
+        if isinstance(decl, FunctionDecl):
+            fd = decl
+            print(decl, decl.token)
+            break
+
+    # Get ParmVarDecl
+    fdc = DeclContext.cast(fd)
+    for decl in fdc.declarations:
+        if isinstance(decl, ParmVarDecl):
+            print(decl, decl.token)
+
+    # Get function body
+    print(fd.body)
+    for child in fd.body.children:
+        print(child)
+        if not isinstance(child, ReturnStmt):
+            for decl in child.declarations:
+                print(decl, decl.token)
+
+        def _print_children(parent):
+            for child in parent.children:
+                print(child)
+                if len(child.children) != 0:
+                    _print_children(child)
+
+        _print_children(child)
 
 
 def main():

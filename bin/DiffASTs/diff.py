@@ -8,6 +8,9 @@ from argparse import ArgumentParser
 import os, sys
 from typing import List
 
+from typing import Optional
+from collections.abc import Iterator
+
 
 def _generate_ast(source_file: str, cc: Compiler, system_include_dir: str) -> AST:
     """Generate a Clang AST from a source file."""
@@ -107,6 +110,44 @@ class PastaASTBuilder(BasicBuilder):
             decls=ListNode(children[1:num_declarations+1]),
             body=ListNode(children[1+num_declarations:])
         )
+
+
+def _view_ast(ast: AST):
+    """Prints out the Clang AST similar to https://godbolt.org/."""
+    # Get TranslationUnitDecl
+    tu = ast.translation_unit
+    print(tu)
+    dc = DeclContext.cast(tu)
+
+    # Get FunctionDecl
+    fd = None
+    for decl in dc.declarations:
+        if isinstance(decl, FunctionDecl):
+            fd = decl
+            print(decl, decl.token)
+            break
+
+    # Get ParmVarDecl
+    fdc = DeclContext.cast(fd)
+    for decl in fdc.declarations:
+        if isinstance(decl, ParmVarDecl):
+            print(decl, decl.token)
+
+    # Get function body
+    print(fd.body)
+    for child in fd.body.children:
+        print(child)
+        if not isinstance(child, ReturnStmt):
+            for decl in child.declarations:
+                print(decl, decl.token)
+
+        def _print_children(parent):
+            for child in parent.children:
+                print(child)
+                if len(child.children) != 0:
+                    _print_children(child)
+
+        _print_children(child)
 
 
 def main():

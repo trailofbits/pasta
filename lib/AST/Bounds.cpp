@@ -462,6 +462,12 @@ class DeclBoundsFinder : public clang::DeclVisitor<DeclBoundsFinder>,
         case clang::tok::l_paren:
         case clang::tok::l_brace:
         case clang::tok::l_square:
+          // The nesting does not work if the token it is looking for is one
+          // of `l_paren`, `l_brace` or `l_square`. Check if the token it is
+          // looking for is one of them and return early.
+          if (tok_kind == kind) {
+            return tok;
+          }
           nesting += increment;
           break;
         case clang::tok::r_paren:
@@ -969,7 +975,16 @@ class DeclBoundsFinder : public clang::DeclVisitor<DeclBoundsFinder>,
     // taken from the function type itself, which is subject to deduplication,
     // and thus may point to some other place.
     auto has_ellipsis = func->getEllipsisLoc().isValid();
+
+    // NOTE(kumarak): If the function parameters are ellipsis, can't rely on the
+    //                source range of parameters. The parameters can only be ellipsis
+    //                that may have wrong params_begin & params_end. Invalidate both
+    //                and depend entirely on the location of function name token.
+    //                e.g:
+    //                  false_type __call_helper(...)
+    //
     if (has_ellipsis) {
+      params_begin = nullptr;
       params_end = nullptr;
     }
 
@@ -1044,11 +1059,32 @@ class DeclBoundsFinder : public clang::DeclVisitor<DeclBoundsFinder>,
     if (has_ellipsis && params_end) {
       proto.ellipsis = FindPrev(&(params_end[-1]), clang::tok::ellipsis);
       assert(params_begin < proto.ellipsis);
+    } else if (func->isTemplateInstantiation()) {
+      // NOTE(kumarak):  Incase of function template instantiation, the template pattern
+      //                 may have ellipsis but resolved during the instantiation with
+      //                 template arguments. The function parameter tokens in that case
+      //                 will still be ellipsis. Explicitly check if the ellipsis token
+      //                 exist between `params_begin` and `params_end`.
+      //                 Set proto.ellipsis to the last ellipsis token found in parameters
+
+      auto maybe_ellipsis = FindPrev(&(params_end[-1]), clang::tok::ellipsis);
+      if (maybe_ellipsis && maybe_ellipsis > params_begin) {
+        proto.ellipsis = maybe_ellipsis;
+        has_ellipsis = true;
+      }
     }
 
     auto begin_tok = params_begin;
+    auto next_begin_tok = params_begin;
     auto end_tok = params_begin;
 
+    // Function prototype can have multiple ellipsis tokens and we don't have
+    // ways to track nesting of `<` & `>` tokens. To identify the parameters
+    // token boundaries, we need to accomodate the presence of multiple ellipsis
+    // tokens.
+    // e.g:
+    //      void __make_fmatrix_impl(index_sequence<_Is...>, index_sequence<_Js...>, _Ls... __ls)
+    //
     unsigned num_params = func->getNumParams();
     for (clang::ParmVarDecl *param : func->parameters()) {
       ASTImpl::BoundingTokens &param_proto = ast.bounds[param];
@@ -1060,20 +1096,35 @@ class DeclBoundsFinder : public clang::DeclVisitor<DeclBoundsFinder>,
         continue;  // Also handles `nullptr` case.
       }
 
-      begin_tok = &(end_tok[1]);  // Skip the `(` or the `,`.
+      begin_tok = &(next_begin_tok[1]);  // Skip the `(` or the `,`.
       if ((i + 1) == num_params) {
 
         // The ellipsis can be on its own after a comma, or directly after
         // the variable, e.g. `a, ...` vs. `a...`.
         if (has_ellipsis) {
-          assert(proto.ellipsis == FindNext(begin_tok, clang::tok::ellipsis));
-          end_tok = proto.ellipsis;
-
+          auto ellipsis_tok = FindNext(begin_tok, clang::tok::ellipsis);
+          if (ellipsis_tok && ellipsis_tok < params_end) {
+            end_tok = ellipsis_tok;
+          } else {
+            // fallback of the ellipsis is not there in the last parameter
+            end_tok = params_end;
+          }
         } else {
           end_tok = params_end;
         }
       } else {
-        end_tok = FindNext(begin_tok, clang::tok::comma);
+        auto comma_tok = FindNext(begin_tok, clang::tok::comma);
+
+        // If it finds the comma token and it is within the params_end bound.
+        if (comma_tok && comma_tok < params_end) {
+          end_tok = comma_tok;
+          next_begin_tok = comma_tok;
+        } else {
+          // Expect this case only if the function
+          // parameters have ellipsis
+          assert(has_ellipsis == true);
+          end_tok = params_end;
+        }
       }
 
       if (begin_tok < end_tok) {
@@ -1139,9 +1190,7 @@ class DeclBoundsFinder : public clang::DeclVisitor<DeclBoundsFinder>,
       if (semi_tok) {
         assert(semi_tok >= name_tok);
         Expand(semi_tok);
-      } /*else {
-        //assert(false);
-      }*/
+      }
     } else {
       assert(false);
     }

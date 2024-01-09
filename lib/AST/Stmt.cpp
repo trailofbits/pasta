@@ -2205,13 +2205,15 @@ std::vector<::pasta::Stmt> CXXForRangeStmt::Children(void) const {
   return ast->TokenAt(val);
 }
 
-::pasta::DeclStmt CXXForRangeStmt::BeginStatement(void) const {
+std::optional<::pasta::DeclStmt> CXXForRangeStmt::BeginStatement(void) const {
   auto &self = *const_cast<clang::CXXForRangeStmt *>(u.CXXForRangeStmt);
   decltype(auto) val = self.getBeginStmt();
+  if (!val) {
+    return std::nullopt;
+  }
   if (val) {
     return StmtBuilder::Create<::pasta::DeclStmt>(ast, val);
   }
-  throw std::runtime_error("CXXForRangeStmt::BeginStatement can return nullptr!");
 }
 
 ::pasta::Stmt CXXForRangeStmt::Body(void) const {
@@ -2235,13 +2237,15 @@ std::vector<::pasta::Stmt> CXXForRangeStmt::Children(void) const {
   return ast->TokenAt(val);
 }
 
-::pasta::Expr CXXForRangeStmt::Condition(void) const {
+std::optional<::pasta::Expr> CXXForRangeStmt::Condition(void) const {
   auto &self = *const_cast<clang::CXXForRangeStmt *>(u.CXXForRangeStmt);
   decltype(auto) val = self.getCond();
+  if (!val) {
+    return std::nullopt;
+  }
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
-  throw std::runtime_error("CXXForRangeStmt::Condition can return nullptr!");
 }
 
 ::pasta::Token CXXForRangeStmt::EndToken(void) const {
@@ -2250,13 +2254,15 @@ std::vector<::pasta::Stmt> CXXForRangeStmt::Children(void) const {
   return ast->TokenAt(val);
 }
 
-::pasta::DeclStmt CXXForRangeStmt::EndStatement(void) const {
+std::optional<::pasta::DeclStmt> CXXForRangeStmt::EndStatement(void) const {
   auto &self = *const_cast<clang::CXXForRangeStmt *>(u.CXXForRangeStmt);
   decltype(auto) val = self.getEndStmt();
+  if (!val) {
+    return std::nullopt;
+  }
   if (val) {
     return StmtBuilder::Create<::pasta::DeclStmt>(ast, val);
   }
-  throw std::runtime_error("CXXForRangeStmt::EndStatement can return nullptr!");
 }
 
 ::pasta::Token CXXForRangeStmt::ForToken(void) const {
@@ -9372,13 +9378,15 @@ std::vector<::pasta::Stmt> OpaqueValueExpr::Children(void) const {
   return ast->TokenAt(val);
 }
 
-::pasta::Expr OpaqueValueExpr::SourceExpression(void) const {
+std::optional<::pasta::Expr> OpaqueValueExpr::SourceExpression(void) const {
   auto &self = *const_cast<clang::OpaqueValueExpr *>(u.OpaqueValueExpr);
   decltype(auto) val = self.getSourceExpr();
+  if (!val) {
+    return std::nullopt;
+  }
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
-  throw std::runtime_error("OpaqueValueExpr::SourceExpression can return nullptr!");
 }
 
 bool OpaqueValueExpr::IsUnique(void) const {
@@ -9674,13 +9682,15 @@ std::vector<::pasta::Stmt> PredefinedExpr::Children(void) const {
   return ast->TokenAt(val);
 }
 
-::pasta::StringLiteral PredefinedExpr::FunctionName(void) const {
+std::optional<::pasta::StringLiteral> PredefinedExpr::FunctionName(void) const {
   auto &self = *const_cast<clang::PredefinedExpr *>(u.PredefinedExpr);
   decltype(auto) val = self.getFunctionName();
+  if (!val) {
+    return std::nullopt;
+  }
   if (val) {
     return StmtBuilder::Create<::pasta::StringLiteral>(ast, val);
   }
-  throw std::runtime_error("PredefinedExpr::FunctionName can return nullptr!");
 }
 
 enum PredefinedExprIdentKind PredefinedExpr::IdentifierKind(void) const {
@@ -12844,13 +12854,15 @@ std::vector<::pasta::Stmt> CXXFoldExpr::Children(void) const {
   return ast->TokenAt(val);
 }
 
-::pasta::UnresolvedLookupExpr CXXFoldExpr::Callee(void) const {
+std::optional<::pasta::UnresolvedLookupExpr> CXXFoldExpr::Callee(void) const {
   auto &self = *const_cast<clang::CXXFoldExpr *>(u.CXXFoldExpr);
   decltype(auto) val = self.getCallee();
+  if (!val) {
+    return std::nullopt;
+  }
   if (val) {
     return StmtBuilder::Create<::pasta::UnresolvedLookupExpr>(ast, val);
   }
-  throw std::runtime_error("CXXFoldExpr::Callee can return nullptr!");
 }
 
 ::pasta::Token CXXFoldExpr::EllipsisToken(void) const {
@@ -12865,22 +12877,26 @@ std::vector<::pasta::Stmt> CXXFoldExpr::Children(void) const {
   return ast->TokenAt(val);
 }
 
-::pasta::Expr CXXFoldExpr::Initializer(void) const {
+std::optional<::pasta::Expr> CXXFoldExpr::Initializer(void) const {
   auto &self = *const_cast<clang::CXXFoldExpr *>(u.CXXFoldExpr);
   decltype(auto) val = self.getInit();
+  if (!val) {
+    return std::nullopt;
+  }
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
-  throw std::runtime_error("CXXFoldExpr::Initializer can return nullptr!");
 }
 
-::pasta::Expr CXXFoldExpr::LHS(void) const {
+std::optional<::pasta::Expr> CXXFoldExpr::LHS(void) const {
   auto &self = *const_cast<clang::CXXFoldExpr *>(u.CXXFoldExpr);
   decltype(auto) val = self.getLHS();
+  if (!val) {
+    return std::nullopt;
+  }
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
-  throw std::runtime_error("CXXFoldExpr::LHS can return nullptr!");
 }
 
 ::pasta::Token CXXFoldExpr::LParenToken(void) const {
@@ -12914,13 +12930,15 @@ enum BinaryOperatorKind CXXFoldExpr::Operator(void) const {
   throw std::runtime_error("CXXFoldExpr::Pattern can return nullptr!");
 }
 
-::pasta::Expr CXXFoldExpr::RHS(void) const {
+std::optional<::pasta::Expr> CXXFoldExpr::RHS(void) const {
   auto &self = *const_cast<clang::CXXFoldExpr *>(u.CXXFoldExpr);
   decltype(auto) val = self.getRHS();
+  if (!val) {
+    return std::nullopt;
+  }
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
-  throw std::runtime_error("CXXFoldExpr::RHS can return nullptr!");
 }
 
 ::pasta::Token CXXFoldExpr::RParenToken(void) const {

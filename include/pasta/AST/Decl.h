@@ -2587,7 +2587,7 @@ class CXXDeductionGuideDecl : public FunctionDecl {
   PASTA_DECLARE_BASE_OPERATORS(FunctionDecl, CXXDeductionGuideDecl)
   PASTA_DECLARE_BASE_OPERATORS(NamedDecl, CXXDeductionGuideDecl)
   PASTA_DECLARE_BASE_OPERATORS(ValueDecl, CXXDeductionGuideDecl)
-  ::pasta::CXXConstructorDecl CorrespondingConstructor(void) const;
+  std::optional<::pasta::CXXConstructorDecl> CorrespondingConstructor(void) const;
   ::pasta::TemplateDecl DeducedTemplate(void) const;
   enum DeductionCandidate DeductionCandidateKind(void) const;
   // ExplicitSpecifier: (const clang::ExplicitSpecifier)

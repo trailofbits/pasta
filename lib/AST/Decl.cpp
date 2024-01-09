@@ -7176,13 +7176,15 @@ PASTA_DEFINE_BASE_OPERATORS(DeclaratorDecl, CXXDeductionGuideDecl)
 PASTA_DEFINE_BASE_OPERATORS(FunctionDecl, CXXDeductionGuideDecl)
 PASTA_DEFINE_BASE_OPERATORS(NamedDecl, CXXDeductionGuideDecl)
 PASTA_DEFINE_BASE_OPERATORS(ValueDecl, CXXDeductionGuideDecl)
-::pasta::CXXConstructorDecl CXXDeductionGuideDecl::CorrespondingConstructor(void) const {
+std::optional<::pasta::CXXConstructorDecl> CXXDeductionGuideDecl::CorrespondingConstructor(void) const {
   auto &self = *const_cast<clang::CXXDeductionGuideDecl *>(u.CXXDeductionGuideDecl);
   decltype(auto) val = self.getCorrespondingConstructor();
+  if (!val) {
+    return std::nullopt;
+  }
   if (val) {
     return DeclBuilder::Create<::pasta::CXXConstructorDecl>(ast, val);
   }
-  throw std::runtime_error("CXXDeductionGuideDecl::CorrespondingConstructor can return nullptr!");
 }
 
 ::pasta::TemplateDecl CXXDeductionGuideDecl::DeducedTemplate(void) const {

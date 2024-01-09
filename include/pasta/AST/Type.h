@@ -944,7 +944,7 @@ class DependentSizedArrayType : public ArrayType {
   ::pasta::TokenRange BracketsRange(void) const;
   ::pasta::Token LBracketToken(void) const;
   ::pasta::Token RBracketToken(void) const;
-  ::pasta::Expr SizeExpression(void) const;
+  std::optional<::pasta::Expr> SizeExpression(void) const;
   bool IsSugared(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_TYPE_CONSTRUCTOR(DependentSizedArrayType)

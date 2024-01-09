@@ -2768,13 +2768,15 @@ PASTA_DEFINE_BASE_OPERATORS(Type, DependentSizedArrayType)
   return ast->TokenAt(val);
 }
 
-::pasta::Expr DependentSizedArrayType::SizeExpression(void) const {
+std::optional<::pasta::Expr> DependentSizedArrayType::SizeExpression(void) const {
   auto &self = *const_cast<clang::DependentSizedArrayType *>(u.DependentSizedArrayType);
   decltype(auto) val = self.getSizeExpr();
+  if (!val) {
+    return std::nullopt;
+  }
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
-  throw std::runtime_error("DependentSizedArrayType::SizeExpression can return nullptr!");
 }
 
 bool DependentSizedArrayType::IsSugared(void) const {

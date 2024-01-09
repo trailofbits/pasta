@@ -1136,13 +1136,13 @@ class CXXForRangeStmt : public Stmt {
   PASTA_DECLARE_BASE_OPERATORS(Stmt, CXXForRangeStmt)
   std::vector<::pasta::Stmt> Children(void) const;
   ::pasta::Token BeginToken(void) const;
-  ::pasta::DeclStmt BeginStatement(void) const;
+  std::optional<::pasta::DeclStmt> BeginStatement(void) const;
   ::pasta::Stmt Body(void) const;
   ::pasta::Token CoawaitToken(void) const;
   ::pasta::Token ColonToken(void) const;
-  ::pasta::Expr Condition(void) const;
+  std::optional<::pasta::Expr> Condition(void) const;
   ::pasta::Token EndToken(void) const;
-  ::pasta::DeclStmt EndStatement(void) const;
+  std::optional<::pasta::DeclStmt> EndStatement(void) const;
   ::pasta::Token ForToken(void) const;
   ::pasta::Expr Increment(void) const;
   std::optional<::pasta::Stmt> Initializer(void) const;
@@ -4004,7 +4004,7 @@ class OpaqueValueExpr : public Expr {
   ::pasta::Token EndToken(void) const;
   ::pasta::Token ExpressionToken(void) const;
   ::pasta::Token Token(void) const;
-  ::pasta::Expr SourceExpression(void) const;
+  std::optional<::pasta::Expr> SourceExpression(void) const;
   bool IsUnique(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_STMT_CONSTRUCTOR(OpaqueValueExpr)
@@ -4117,7 +4117,7 @@ class PredefinedExpr : public Expr {
   std::vector<::pasta::Stmt> Children(void) const;
   ::pasta::Token BeginToken(void) const;
   ::pasta::Token EndToken(void) const;
-  ::pasta::StringLiteral FunctionName(void) const;
+  std::optional<::pasta::StringLiteral> FunctionName(void) const;
   enum PredefinedExprIdentKind IdentifierKind(void) const;
   std::string_view IdentifierKindName(void) const;
   ::pasta::Token Token(void) const;
@@ -5093,16 +5093,16 @@ class CXXFoldExpr : public Expr {
   PASTA_DECLARE_BASE_OPERATORS(ValueStmt, CXXFoldExpr)
   std::vector<::pasta::Stmt> Children(void) const;
   ::pasta::Token BeginToken(void) const;
-  ::pasta::UnresolvedLookupExpr Callee(void) const;
+  std::optional<::pasta::UnresolvedLookupExpr> Callee(void) const;
   ::pasta::Token EllipsisToken(void) const;
   ::pasta::Token EndToken(void) const;
-  ::pasta::Expr Initializer(void) const;
-  ::pasta::Expr LHS(void) const;
+  std::optional<::pasta::Expr> Initializer(void) const;
+  std::optional<::pasta::Expr> LHS(void) const;
   ::pasta::Token LParenToken(void) const;
   std::optional<unsigned> NumExpansions(void) const;
   enum BinaryOperatorKind Operator(void) const;
   ::pasta::Expr Pattern(void) const;
-  ::pasta::Expr RHS(void) const;
+  std::optional<::pasta::Expr> RHS(void) const;
   ::pasta::Token RParenToken(void) const;
   bool IsLeftFold(void) const;
   bool IsRightFold(void) const;

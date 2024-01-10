@@ -1059,7 +1059,12 @@ class DeclBoundsFinder : public clang::DeclVisitor<DeclBoundsFinder>,
     if (has_ellipsis && params_end) {
       proto.ellipsis = FindPrev(&(params_end[-1]), clang::tok::ellipsis);
       assert(params_begin < proto.ellipsis);
-    } else if (func->isTemplateInstantiation()) {
+
+      // Should we always fallback and check the presence of ellipsis ??
+      // `isTemplateInstantiation` does not reliably retuns if the
+      // function is a template instantion especially for CXXConstructorDecl,
+      // CXXDestructorDecl node causing it to be unware of ellipsis token.
+    } else /*if (func->isTemplateInstantiation())*/ {
       // NOTE(kumarak):  Incase of function template instantiation, the template pattern
       //                 may have ellipsis but resolved during the instantiation with
       //                 template arguments. The function parameter tokens in that case
@@ -1086,11 +1091,12 @@ class DeclBoundsFinder : public clang::DeclVisitor<DeclBoundsFinder>,
     //      void __make_fmatrix_impl(index_sequence<_Is...>, index_sequence<_Js...>, _Ls... __ls)
     //
     unsigned num_params = func->getNumParams();
-    for (clang::ParmVarDecl *param : func->parameters()) {
+    // getFunctionScopeIndex uses ParameterIndex bit to get the index and
+    // it is not reliable. Traverse through the parameters using its indices.
+    for (unsigned i = 0; i < num_params; i++) {
+      clang::ParmVarDecl *param = func->getParamDecl(i);
       ASTImpl::BoundingTokens &param_proto = ast.bounds[param];
       proto.params.emplace_back(&param_proto);
-
-      unsigned i = param->getFunctionScopeIndex();
 
       if (end_tok >= params_end) {
         continue;  // Also handles `nullptr` case.
@@ -1120,8 +1126,9 @@ class DeclBoundsFinder : public clang::DeclVisitor<DeclBoundsFinder>,
           end_tok = comma_tok;
           next_begin_tok = comma_tok;
         } else {
-          // Expect this case only if the function
-          // parameters have ellipsis
+          // Expect this case only if the function parameters have
+          // ellipsis; If it falls here and `has_ellipsis` is false,
+          // something is wrong.
           assert(has_ellipsis == true);
           end_tok = params_end;
         }

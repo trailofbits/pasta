@@ -902,6 +902,20 @@ class DeclBoundsFinder : public clang::DeclVisitor<DeclBoundsFinder>,
         }
       }
 
+    } else if (decl->isTemplateInstantiation()) {
+      // In case of the template instantion, the parsed token will map
+      // to the template pattern. Check here is the pattern has body and
+      // expand the token range accodingly.
+      if (auto pattern_decl = decl->getTemplateInstantiationPattern()) {
+        auto pattern_def = pattern_decl->getDefinition();
+        if (pattern_def == pattern_decl) {
+          Expand(pattern_def->getSourceRange());
+
+        } else if (!pattern_decl->doesThisDeclarationHaveABody()) {
+          // Fallback to template pattern having declaration only.
+          ExpandToTrailingToken(tok_loc, clang::tok::semi);
+        }
+      }
     } else if (!decl->doesThisDeclarationHaveABody()) {
       ExpandToTrailingToken(tok_loc, clang::tok::semi);
     }

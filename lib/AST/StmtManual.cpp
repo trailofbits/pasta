@@ -66,7 +66,7 @@ std::optional<::pasta::FieldDecl> Designator::Field(void) const noexcept {
   // Cast the void pointers to `clang::DesignatedInitExpr::Designator`
   auto design = reinterpret_cast<const clang::DesignatedInitExpr::Designator *>(spec);
   assert(design != nullptr);
-  if (!design->isFieldDesignator()) {
+  if (!design->isFieldDesignator() || !design->getFieldDecl()) {
     return std::nullopt;
   }
   return DeclBuilder::Create<pasta::FieldDecl>(ast, design->getFieldDecl());

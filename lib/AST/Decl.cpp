@@ -8321,19 +8321,6 @@ bool CXXConstructorDecl::IsSpecializationCopyingObject(void) const {
   return val;
 }
 
-std::vector<::pasta::TemplateParameterList> CXXConstructorDecl::TemplateParameterLists(void) const {
-  std::vector<::pasta::TemplateParameterList> ret;
-  auto convert_elem = [&] (clang::TemplateParameterList * val) {
-    return ::pasta::TemplateParameterList(ast, val);
-  };
-  auto count = u.CXXConstructorDecl->getNumTemplateParameterLists();
-  decltype(count) i = 0;
-  for (; i < count; ++i) {
-    ret.emplace_back(convert_elem(u.CXXConstructorDecl->getTemplateParameterList(i)));
-  }
-  return ret;
-}
-
 std::vector<::pasta::ParmVarDecl> CXXConstructorDecl::ParameterDeclarations(void) const {
   std::vector<::pasta::ParmVarDecl> ret;
   auto convert_elem = [&] (const clang::ParmVarDecl * val) {
@@ -8346,6 +8333,19 @@ std::vector<::pasta::ParmVarDecl> CXXConstructorDecl::ParameterDeclarations(void
   decltype(count) i = 0;
   for (; i < count; ++i) {
     ret.emplace_back(convert_elem(u.CXXConstructorDecl->getParamDecl(i)));
+  }
+  return ret;
+}
+
+std::vector<::pasta::TemplateParameterList> CXXConstructorDecl::TemplateParameterLists(void) const {
+  std::vector<::pasta::TemplateParameterList> ret;
+  auto convert_elem = [&] (clang::TemplateParameterList * val) {
+    return ::pasta::TemplateParameterList(ast, val);
+  };
+  auto count = u.CXXConstructorDecl->getNumTemplateParameterLists();
+  decltype(count) i = 0;
+  for (; i < count; ++i) {
+    ret.emplace_back(convert_elem(u.CXXConstructorDecl->getTemplateParameterList(i)));
   }
   return ret;
 }
@@ -8391,19 +8391,6 @@ bool CXXConversionDecl::IsLambdaToBlockPointerConversion(void) const {
   return val;
 }
 
-std::vector<::pasta::TemplateParameterList> CXXConversionDecl::TemplateParameterLists(void) const {
-  std::vector<::pasta::TemplateParameterList> ret;
-  auto convert_elem = [&] (clang::TemplateParameterList * val) {
-    return ::pasta::TemplateParameterList(ast, val);
-  };
-  auto count = u.CXXConversionDecl->getNumTemplateParameterLists();
-  decltype(count) i = 0;
-  for (; i < count; ++i) {
-    ret.emplace_back(convert_elem(u.CXXConversionDecl->getTemplateParameterList(i)));
-  }
-  return ret;
-}
-
 std::vector<::pasta::ParmVarDecl> CXXConversionDecl::ParameterDeclarations(void) const {
   std::vector<::pasta::ParmVarDecl> ret;
   auto convert_elem = [&] (const clang::ParmVarDecl * val) {
@@ -8416,6 +8403,19 @@ std::vector<::pasta::ParmVarDecl> CXXConversionDecl::ParameterDeclarations(void)
   decltype(count) i = 0;
   for (; i < count; ++i) {
     ret.emplace_back(convert_elem(u.CXXConversionDecl->getParamDecl(i)));
+  }
+  return ret;
+}
+
+std::vector<::pasta::TemplateParameterList> CXXConversionDecl::TemplateParameterLists(void) const {
+  std::vector<::pasta::TemplateParameterList> ret;
+  auto convert_elem = [&] (clang::TemplateParameterList * val) {
+    return ::pasta::TemplateParameterList(ast, val);
+  };
+  auto count = u.CXXConversionDecl->getNumTemplateParameterLists();
+  decltype(count) i = 0;
+  for (; i < count; ++i) {
+    ret.emplace_back(convert_elem(u.CXXConversionDecl->getTemplateParameterList(i)));
   }
   return ret;
 }
@@ -8463,19 +8463,6 @@ std::optional<::pasta::Expr> CXXDestructorDecl::OperatorDeleteThisArgument(void)
   }
 }
 
-std::vector<::pasta::TemplateParameterList> CXXDestructorDecl::TemplateParameterLists(void) const {
-  std::vector<::pasta::TemplateParameterList> ret;
-  auto convert_elem = [&] (clang::TemplateParameterList * val) {
-    return ::pasta::TemplateParameterList(ast, val);
-  };
-  auto count = u.CXXDestructorDecl->getNumTemplateParameterLists();
-  decltype(count) i = 0;
-  for (; i < count; ++i) {
-    ret.emplace_back(convert_elem(u.CXXDestructorDecl->getTemplateParameterList(i)));
-  }
-  return ret;
-}
-
 std::vector<::pasta::ParmVarDecl> CXXDestructorDecl::ParameterDeclarations(void) const {
   std::vector<::pasta::ParmVarDecl> ret;
   auto convert_elem = [&] (const clang::ParmVarDecl * val) {
@@ -8488,6 +8475,19 @@ std::vector<::pasta::ParmVarDecl> CXXDestructorDecl::ParameterDeclarations(void)
   decltype(count) i = 0;
   for (; i < count; ++i) {
     ret.emplace_back(convert_elem(u.CXXDestructorDecl->getParamDecl(i)));
+  }
+  return ret;
+}
+
+std::vector<::pasta::TemplateParameterList> CXXDestructorDecl::TemplateParameterLists(void) const {
+  std::vector<::pasta::TemplateParameterList> ret;
+  auto convert_elem = [&] (clang::TemplateParameterList * val) {
+    return ::pasta::TemplateParameterList(ast, val);
+  };
+  auto count = u.CXXDestructorDecl->getNumTemplateParameterLists();
+  decltype(count) i = 0;
+  for (; i < count; ++i) {
+    ret.emplace_back(convert_elem(u.CXXDestructorDecl->getTemplateParameterList(i)));
   }
   return ret;
 }

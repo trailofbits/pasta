@@ -2907,8 +2907,8 @@ class CXXConstructorDecl : public CXXMethodDecl {
   bool IsExplicit(void) const;
   bool IsInheritingConstructor(void) const;
   bool IsSpecializationCopyingObject(void) const;
-  std::vector<::pasta::TemplateParameterList> TemplateParameterLists(void) const;
   std::vector<::pasta::ParmVarDecl> ParameterDeclarations(void) const;
+  std::vector<::pasta::TemplateParameterList> TemplateParameterLists(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_DECL_CONSTRUCTOR(CXXConstructorDecl)
 };
@@ -2932,8 +2932,8 @@ class CXXConversionDecl : public CXXMethodDecl {
   // ExplicitSpecifier: (const clang::ExplicitSpecifier)
   bool IsExplicit(void) const;
   bool IsLambdaToBlockPointerConversion(void) const;
-  std::vector<::pasta::TemplateParameterList> TemplateParameterLists(void) const;
   std::vector<::pasta::ParmVarDecl> ParameterDeclarations(void) const;
+  std::vector<::pasta::TemplateParameterList> TemplateParameterLists(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_DECL_CONSTRUCTOR(CXXConversionDecl)
 };
@@ -2955,8 +2955,8 @@ class CXXDestructorDecl : public CXXMethodDecl {
   ::pasta::CXXDestructorDecl CanonicalDeclaration(void) const;
   std::optional<::pasta::FunctionDecl> OperatorDelete(void) const;
   std::optional<::pasta::Expr> OperatorDeleteThisArgument(void) const;
-  std::vector<::pasta::TemplateParameterList> TemplateParameterLists(void) const;
   std::vector<::pasta::ParmVarDecl> ParameterDeclarations(void) const;
+  std::vector<::pasta::TemplateParameterList> TemplateParameterLists(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_DECL_CONSTRUCTOR(CXXDestructorDecl)
 };

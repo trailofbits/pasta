@@ -4887,7 +4887,7 @@ OwnerAttr::OwnerAttr(
 PASTA_DEFINE_BASE_OPERATORS(Attr, OwnerAttr)
 PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, OwnerAttr)
 // 1: OwnerAttr::Clone
-std::optional<::pasta::Type> OwnerAttr::DerefType(void) const {
+std::optional<::pasta::Type> OwnerAttr::DereferencedType(void) const {
   auto &self = *const_cast<clang::OwnerAttr *>(u.OwnerAttr);
   if (!self.getDerefTypeLoc()) {
     return std::nullopt;
@@ -4899,7 +4899,7 @@ std::optional<::pasta::Type> OwnerAttr::DerefType(void) const {
   return TypeBuilder::Build(ast, val);
 }
 
-std::optional<::pasta::Type> OwnerAttr::DerefTypeToken(void) const {
+std::optional<::pasta::Type> OwnerAttr::DereferencedTypeToken(void) const {
   auto &self = *const_cast<clang::OwnerAttr *>(u.OwnerAttr);
   decltype(auto) val = self.getDerefTypeLoc();
   if (!val) {
@@ -5146,7 +5146,7 @@ PointerAttr::PointerAttr(
 PASTA_DEFINE_BASE_OPERATORS(Attr, PointerAttr)
 PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, PointerAttr)
 // 1: PointerAttr::Clone
-std::optional<::pasta::Type> PointerAttr::DerefType(void) const {
+std::optional<::pasta::Type> PointerAttr::DereferencedType(void) const {
   auto &self = *const_cast<clang::PointerAttr *>(u.PointerAttr);
   if (!self.getDerefTypeLoc()) {
     return std::nullopt;
@@ -5158,7 +5158,7 @@ std::optional<::pasta::Type> PointerAttr::DerefType(void) const {
   return TypeBuilder::Build(ast, val);
 }
 
-std::optional<::pasta::Type> PointerAttr::DerefTypeToken(void) const {
+std::optional<::pasta::Type> PointerAttr::DereferencedTypeToken(void) const {
   auto &self = *const_cast<clang::PointerAttr *>(u.PointerAttr);
   decltype(auto) val = self.getDerefTypeLoc();
   if (!val) {

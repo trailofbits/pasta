@@ -1758,21 +1758,21 @@ class GCCAsmStmt : public AsmStmt {
   ::pasta::Token RParenToken(void) const;
   bool IsAssemblyGoto(void) const;
   std::vector<::pasta::AddrLabelExpr> Labels(void) const;
-  std::vector<std::string_view> OutputConstraints(void) const;
-  std::vector<::pasta::StringLiteral> OutputConstraintLiterals(void) const;
-  std::vector<::pasta::Expr> OutputExpressions(void) const;
-  // !!! Output getNumOutputs getOutputIdentifier (empty ret type = (clang::IdentifierInfo *))
-  std::vector<std::string_view> OutputNames(void) const;
-  std::vector<std::string_view> InputConstraints(void) const;
-  std::vector<::pasta::StringLiteral> InputConstraintLiterals(void) const;
-  std::vector<::pasta::Expr> InputExpressions(void) const;
-  // !!! Input getNumInputs getInputIdentifier (empty ret type = (clang::IdentifierInfo *))
-  std::vector<std::string_view> InputNames(void) const;
   std::vector<std::string_view> Clobbers(void) const;
   std::vector<::pasta::StringLiteral> ClobberStringLiterals(void) const;
+  std::vector<std::string_view> OutputConstraints(void) const;
+  std::vector<::pasta::Expr> OutputExpressions(void) const;
+  std::vector<std::string_view> OutputNames(void) const;
+  // !!! Output getNumOutputs getOutputIdentifier (empty ret type = (clang::IdentifierInfo *))
+  std::vector<::pasta::StringLiteral> OutputConstraintLiterals(void) const;
+  std::vector<std::string_view> InputConstraints(void) const;
+  std::vector<::pasta::Expr> InputExpressions(void) const;
+  std::vector<std::string_view> InputNames(void) const;
+  // !!! Input getNumInputs getInputIdentifier (empty ret type = (clang::IdentifierInfo *))
+  std::vector<::pasta::StringLiteral> InputConstraintLiterals(void) const;
   std::vector<::pasta::AddrLabelExpr> LabelExpressions(void) const;
-  // !!! Label getNumLabels getLabelIdentifier (empty ret type = (clang::IdentifierInfo *))
   std::vector<std::string_view> LabelNames(void) const;
+  // !!! Label getNumLabels getLabelIdentifier (empty ret type = (clang::IdentifierInfo *))
  protected:
   PASTA_DEFINE_DEFAULT_STMT_CONSTRUCTOR(GCCAsmStmt)
 };
@@ -2066,10 +2066,10 @@ class MSAsmStmt : public AsmStmt {
   // OutputConstraint: (llvm::StringRef)
   // OutputExpression: (const clang::Expr *)
   bool HasBraces(void) const;
-  std::vector<std::string_view> OutputConstraints(void) const;
-  std::vector<::pasta::Expr> OutputExpressions(void) const;
   std::vector<std::string_view> InputConstraints(void) const;
   std::vector<::pasta::Expr> InputExpressions(void) const;
+  std::vector<std::string_view> OutputConstraints(void) const;
+  std::vector<::pasta::Expr> OutputExpressions(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_STMT_CONSTRUCTOR(MSAsmStmt)
 };

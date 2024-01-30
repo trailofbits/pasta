@@ -148,6 +148,7 @@ const std::unordered_map<std::string, std::string> kCxxMethodRenames{
   {"InnerLocStart", "FirstInnerToken"},
   {"RightLoc", "RBracketToken"},
   {"LeftLoc", "LBracketToken"},
+  {"DerefType", "DereferencedType"},
 };
 
 // Maps return types from the macros file to their replacements in the
@@ -1213,10 +1214,10 @@ std::set<std::pair<std::string, std::string>> kCanReturnNullptr{
   {"UnaryTransformType", "UnderlyingType"},
   {"UnaryTransformType", "BaseType"},
   {"VarTemplateSpecializationDecl", "TypeAsWritten"},
-  {"PointerAttr", "DerefType"},
-  {"PointerAttr", "DerefTypeToken"},
-  {"OwnerAttr", "DerefType"},
-  {"OwnerAttr", "DerefTypeToken"},
+  {"PointerAttr", "DereferencedType"},
+  {"PointerAttr", "DereferencedTypeToken"},
+  {"OwnerAttr", "DereferencedType"},
+  {"OwnerAttr", "DereferencedTypeToken"},
   {"TemplateDecl", "TemplatedDeclaration"},
   {"CXXNewExpr", "OperatorNew"},
   {"CXXNewExpr", "OperatorDelete"},
@@ -1913,11 +1914,11 @@ std::map<std::pair<std::string, std::string>, std::string> kConditionalNullptr{
    "  if (self.isResultDependent()) {\n"
    "    return std::nullopt;\n"
    "  }\n"},
-  {{"PointerAttr", "DerefType"},
+  {{"PointerAttr", "DereferencedType"},
    "  if (!self.getDerefTypeLoc()) {\n"
    "    return std::nullopt;\n"
    "  }\n"},
-  {{"OwnerAttr", "DerefType"},
+  {{"OwnerAttr", "DereferencedType"},
    "  if (!self.getDerefTypeLoc()) {\n"
    "    return std::nullopt;\n"
    "  }\n"},

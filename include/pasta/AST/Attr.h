@@ -3201,8 +3201,8 @@ class OwnerAttr : public InheritableAttr {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(OwnerAttr)
   PASTA_DECLARE_BASE_OPERATORS(Attr, OwnerAttr)
   PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, OwnerAttr)
-  std::optional<::pasta::Type> DerefType(void) const;
-  std::optional<::pasta::Type> DerefTypeToken(void) const;
+  std::optional<::pasta::Type> DereferencedType(void) const;
+  std::optional<::pasta::Type> DereferencedTypeToken(void) const;
   std::string_view Spelling(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(OwnerAttr)
@@ -3349,8 +3349,8 @@ class PointerAttr : public InheritableAttr {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(PointerAttr)
   PASTA_DECLARE_BASE_OPERATORS(Attr, PointerAttr)
   PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, PointerAttr)
-  std::optional<::pasta::Type> DerefType(void) const;
-  std::optional<::pasta::Type> DerefTypeToken(void) const;
+  std::optional<::pasta::Type> DereferencedType(void) const;
+  std::optional<::pasta::Type> DereferencedTypeToken(void) const;
   std::string_view Spelling(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(PointerAttr)

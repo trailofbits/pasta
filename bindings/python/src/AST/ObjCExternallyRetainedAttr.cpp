@@ -19,6 +19,7 @@ void RegisterObjCExternallyRetainedAttr(nb::module_ &m) {
   nb::class_<ObjCExternallyRetainedAttr, InheritableAttr>(m, "ObjCExternallyRetainedAttr")
     .def("__hash__", [](const ObjCExternallyRetainedAttr &attr) { return reinterpret_cast<intptr_t>(attr.RawAttr()); })
     .def("__eq__", [](const Attr &a, const Attr &b) { return a.RawAttr() == b.RawAttr(); })
+    .def("__ne__", [](const Attr &a, const Attr &b) { return a.RawAttr() != b.RawAttr(); })
     .def_prop_ro("spelling", &ObjCExternallyRetainedAttr::Spelling);
 }
 } // namespace pasta

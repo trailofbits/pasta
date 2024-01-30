@@ -18,6 +18,7 @@ namespace nb = nanobind;
 void RegisterTypeAttr(nb::module_ &m) {
   nb::class_<TypeAttr, Attr>(m, "TypeAttr")
     .def("__hash__", [](const TypeAttr &attr) { return reinterpret_cast<intptr_t>(attr.RawAttr()); })
-    .def("__eq__", [](const Attr &a, const Attr &b) { return a.RawAttr() == b.RawAttr(); });
+    .def("__eq__", [](const Attr &a, const Attr &b) { return a.RawAttr() == b.RawAttr(); })
+    .def("__ne__", [](const Attr &a, const Attr &b) { return a.RawAttr() != b.RawAttr(); });
 }
 } // namespace pasta

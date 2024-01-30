@@ -19,6 +19,7 @@ void RegisterArmStreamingAttr(nb::module_ &m) {
   nb::class_<ArmStreamingAttr, TypeAttr>(m, "ArmStreamingAttr")
     .def("__hash__", [](const ArmStreamingAttr &attr) { return reinterpret_cast<intptr_t>(attr.RawAttr()); })
     .def("__eq__", [](const Attr &a, const Attr &b) { return a.RawAttr() == b.RawAttr(); })
+    .def("__ne__", [](const Attr &a, const Attr &b) { return a.RawAttr() != b.RawAttr(); })
     .def_prop_ro("spelling", &ArmStreamingAttr::Spelling);
 }
 } // namespace pasta

@@ -19,6 +19,7 @@ void RegisterOSReturnsNotRetainedAttr(nb::module_ &m) {
   nb::class_<OSReturnsNotRetainedAttr, InheritableAttr>(m, "OSReturnsNotRetainedAttr")
     .def("__hash__", [](const OSReturnsNotRetainedAttr &attr) { return reinterpret_cast<intptr_t>(attr.RawAttr()); })
     .def("__eq__", [](const Attr &a, const Attr &b) { return a.RawAttr() == b.RawAttr(); })
+    .def("__ne__", [](const Attr &a, const Attr &b) { return a.RawAttr() != b.RawAttr(); })
     .def_prop_ro("spelling", &OSReturnsNotRetainedAttr::Spelling);
 }
 } // namespace pasta

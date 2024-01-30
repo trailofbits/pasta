@@ -19,6 +19,7 @@ void RegisterCodeSegAttr(nb::module_ &m) {
   nb::class_<CodeSegAttr, InheritableAttr>(m, "CodeSegAttr")
     .def("__hash__", [](const CodeSegAttr &attr) { return reinterpret_cast<intptr_t>(attr.RawAttr()); })
     .def("__eq__", [](const Attr &a, const Attr &b) { return a.RawAttr() == b.RawAttr(); })
+    .def("__ne__", [](const Attr &a, const Attr &b) { return a.RawAttr() != b.RawAttr(); })
     .def_prop_ro("name", &CodeSegAttr::Name)
     .def_prop_ro("name_length", &CodeSegAttr::NameLength)
     .def_prop_ro("spelling", &CodeSegAttr::Spelling);

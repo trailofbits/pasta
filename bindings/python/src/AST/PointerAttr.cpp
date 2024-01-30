@@ -19,6 +19,7 @@ void RegisterPointerAttr(nb::module_ &m) {
   nb::class_<PointerAttr, InheritableAttr>(m, "PointerAttr")
     .def("__hash__", [](const PointerAttr &attr) { return reinterpret_cast<intptr_t>(attr.RawAttr()); })
     .def("__eq__", [](const Attr &a, const Attr &b) { return a.RawAttr() == b.RawAttr(); })
+    .def("__ne__", [](const Attr &a, const Attr &b) { return a.RawAttr() != b.RawAttr(); })
     .def_prop_ro("dereferenced_type", &PointerAttr::DereferencedType)
     .def_prop_ro("dereferenced_type_token", &PointerAttr::DereferencedTypeToken)
     .def_prop_ro("spelling", &PointerAttr::Spelling);

@@ -19,6 +19,7 @@ void RegisterReadOnlyPlacementAttr(nb::module_ &m) {
   nb::class_<ReadOnlyPlacementAttr, InheritableAttr>(m, "ReadOnlyPlacementAttr")
     .def("__hash__", [](const ReadOnlyPlacementAttr &attr) { return reinterpret_cast<intptr_t>(attr.RawAttr()); })
     .def("__eq__", [](const Attr &a, const Attr &b) { return a.RawAttr() == b.RawAttr(); })
+    .def("__ne__", [](const Attr &a, const Attr &b) { return a.RawAttr() != b.RawAttr(); })
     .def_prop_ro("spelling", &ReadOnlyPlacementAttr::Spelling);
 }
 } // namespace pasta

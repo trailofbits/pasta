@@ -19,6 +19,7 @@ void RegisterAMDGPUNumVGPRAttr(nb::module_ &m) {
   nb::class_<AMDGPUNumVGPRAttr, InheritableAttr>(m, "AMDGPUNumVGPRAttr")
     .def("__hash__", [](const AMDGPUNumVGPRAttr &attr) { return reinterpret_cast<intptr_t>(attr.RawAttr()); })
     .def("__eq__", [](const Attr &a, const Attr &b) { return a.RawAttr() == b.RawAttr(); })
+    .def("__ne__", [](const Attr &a, const Attr &b) { return a.RawAttr() != b.RawAttr(); })
     .def_prop_ro("num_vgpr", &AMDGPUNumVGPRAttr::NumVGPR)
     .def_prop_ro("spelling", &AMDGPUNumVGPRAttr::Spelling);
 }

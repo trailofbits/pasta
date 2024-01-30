@@ -19,6 +19,7 @@ void RegisterIBOutletAttr(nb::module_ &m) {
   nb::class_<IBOutletAttr, InheritableAttr>(m, "IBOutletAttr")
     .def("__hash__", [](const IBOutletAttr &attr) { return reinterpret_cast<intptr_t>(attr.RawAttr()); })
     .def("__eq__", [](const Attr &a, const Attr &b) { return a.RawAttr() == b.RawAttr(); })
+    .def("__ne__", [](const Attr &a, const Attr &b) { return a.RawAttr() != b.RawAttr(); })
     .def_prop_ro("spelling", &IBOutletAttr::Spelling);
 }
 } // namespace pasta

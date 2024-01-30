@@ -19,6 +19,7 @@ void RegisterStrictFPAttr(nb::module_ &m) {
   nb::class_<StrictFPAttr, InheritableAttr>(m, "StrictFPAttr")
     .def("__hash__", [](const StrictFPAttr &attr) { return reinterpret_cast<intptr_t>(attr.RawAttr()); })
     .def("__eq__", [](const Attr &a, const Attr &b) { return a.RawAttr() == b.RawAttr(); })
+    .def("__ne__", [](const Attr &a, const Attr &b) { return a.RawAttr() != b.RawAttr(); })
     .def_prop_ro("spelling", &StrictFPAttr::Spelling);
 }
 } // namespace pasta

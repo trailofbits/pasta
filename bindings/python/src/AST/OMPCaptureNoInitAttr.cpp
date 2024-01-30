@@ -19,6 +19,7 @@ void RegisterOMPCaptureNoInitAttr(nb::module_ &m) {
   nb::class_<OMPCaptureNoInitAttr, InheritableAttr>(m, "OMPCaptureNoInitAttr")
     .def("__hash__", [](const OMPCaptureNoInitAttr &attr) { return reinterpret_cast<intptr_t>(attr.RawAttr()); })
     .def("__eq__", [](const Attr &a, const Attr &b) { return a.RawAttr() == b.RawAttr(); })
+    .def("__ne__", [](const Attr &a, const Attr &b) { return a.RawAttr() != b.RawAttr(); })
     .def_prop_ro("spelling", &OMPCaptureNoInitAttr::Spelling);
 }
 } // namespace pasta

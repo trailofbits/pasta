@@ -19,6 +19,7 @@ void RegisterObjCBoxableAttr(nb::module_ &m) {
   nb::class_<ObjCBoxableAttr, Attr>(m, "ObjCBoxableAttr")
     .def("__hash__", [](const ObjCBoxableAttr &attr) { return reinterpret_cast<intptr_t>(attr.RawAttr()); })
     .def("__eq__", [](const Attr &a, const Attr &b) { return a.RawAttr() == b.RawAttr(); })
+    .def("__ne__", [](const Attr &a, const Attr &b) { return a.RawAttr() != b.RawAttr(); })
     .def_prop_ro("spelling", &ObjCBoxableAttr::Spelling);
 }
 } // namespace pasta

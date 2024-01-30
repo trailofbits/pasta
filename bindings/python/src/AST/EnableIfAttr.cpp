@@ -19,6 +19,7 @@ void RegisterEnableIfAttr(nb::module_ &m) {
   nb::class_<EnableIfAttr, InheritableAttr>(m, "EnableIfAttr")
     .def("__hash__", [](const EnableIfAttr &attr) { return reinterpret_cast<intptr_t>(attr.RawAttr()); })
     .def("__eq__", [](const Attr &a, const Attr &b) { return a.RawAttr() == b.RawAttr(); })
+    .def("__ne__", [](const Attr &a, const Attr &b) { return a.RawAttr() != b.RawAttr(); })
     .def_prop_ro("condition", &EnableIfAttr::Condition)
     .def_prop_ro("message", &EnableIfAttr::Message)
     .def_prop_ro("message_length", &EnableIfAttr::MessageLength)

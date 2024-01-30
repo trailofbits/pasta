@@ -19,6 +19,7 @@ void RegisterRequiresCapabilityAttr(nb::module_ &m) {
   nb::class_<RequiresCapabilityAttr, InheritableAttr>(m, "RequiresCapabilityAttr")
     .def("__hash__", [](const RequiresCapabilityAttr &attr) { return reinterpret_cast<intptr_t>(attr.RawAttr()); })
     .def("__eq__", [](const Attr &a, const Attr &b) { return a.RawAttr() == b.RawAttr(); })
+    .def("__ne__", [](const Attr &a, const Attr &b) { return a.RawAttr() != b.RawAttr(); })
     .def_prop_ro("semantic_spelling", &RequiresCapabilityAttr::SemanticSpelling)
     .def_prop_ro("spelling", &RequiresCapabilityAttr::Spelling)
     .def_prop_ro("is_shared", &RequiresCapabilityAttr::IsShared);

@@ -19,6 +19,7 @@ void RegisterIntelOclBiccAttr(nb::module_ &m) {
   nb::class_<IntelOclBiccAttr, InheritableAttr>(m, "IntelOclBiccAttr")
     .def("__hash__", [](const IntelOclBiccAttr &attr) { return reinterpret_cast<intptr_t>(attr.RawAttr()); })
     .def("__eq__", [](const Attr &a, const Attr &b) { return a.RawAttr() == b.RawAttr(); })
+    .def("__ne__", [](const Attr &a, const Attr &b) { return a.RawAttr() != b.RawAttr(); })
     .def_prop_ro("spelling", &IntelOclBiccAttr::Spelling);
 }
 } // namespace pasta

@@ -19,6 +19,7 @@ void RegisterMSStructAttr(nb::module_ &m) {
   nb::class_<MSStructAttr, InheritableAttr>(m, "MSStructAttr")
     .def("__hash__", [](const MSStructAttr &attr) { return reinterpret_cast<intptr_t>(attr.RawAttr()); })
     .def("__eq__", [](const Attr &a, const Attr &b) { return a.RawAttr() == b.RawAttr(); })
+    .def("__ne__", [](const Attr &a, const Attr &b) { return a.RawAttr() != b.RawAttr(); })
     .def_prop_ro("spelling", &MSStructAttr::Spelling);
 }
 } // namespace pasta

@@ -54,7 +54,7 @@ void RegisterDeclContext(nb::module_ &m) {
     .def_prop_ro("should_use_qualified_lookup", &DeclContext::ShouldUseQualifiedLookup)
     .def("__hash__", [](const DeclContext &decl) { return reinterpret_cast<intptr_t>(decl.RawDeclContext()); })
     .def("__eq__", [](const DeclContext &a, const DeclContext &b) { return a.RawDeclContext() == b.RawDeclContext(); })
-    .def("__ne__", [](const DeclContext &a, const DeclContext &b) { return a.RawDeclContext() == b.RawDeclContext(); })
+    .def("__ne__", [](const DeclContext &a, const DeclContext &b) { return a.RawDeclContext() != b.RawDeclContext(); })
     .def_static("cast", +[] (const BlockDecl &cls) { return DeclContext(cls); })
     .def_static("cast", +[] (const CXXConstructorDecl &cls) { return DeclContext(cls); })
     .def_static("cast", +[] (const CXXConversionDecl &cls) { return DeclContext(cls); })

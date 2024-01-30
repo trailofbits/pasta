@@ -1119,7 +1119,7 @@ class CXXCatchStmt : public Stmt {
   std::vector<::pasta::Stmt> Children(void) const;
   ::pasta::Token BeginToken(void) const;
   ::pasta::Token CatchToken(void) const;
-  ::pasta::Type CaughtType(void) const;
+  std::optional<::pasta::Type> CaughtType(void) const;
   ::pasta::Token EndToken(void) const;
   std::optional<::pasta::VarDecl> ExceptionDeclaration(void) const;
   ::pasta::Stmt HandlerBlock(void) const;
@@ -1136,13 +1136,13 @@ class CXXForRangeStmt : public Stmt {
   PASTA_DECLARE_BASE_OPERATORS(Stmt, CXXForRangeStmt)
   std::vector<::pasta::Stmt> Children(void) const;
   ::pasta::Token BeginToken(void) const;
-  ::pasta::DeclStmt BeginStatement(void) const;
+  std::optional<::pasta::DeclStmt> BeginStatement(void) const;
   ::pasta::Stmt Body(void) const;
   ::pasta::Token CoawaitToken(void) const;
   ::pasta::Token ColonToken(void) const;
-  ::pasta::Expr Condition(void) const;
+  std::optional<::pasta::Expr> Condition(void) const;
   ::pasta::Token EndToken(void) const;
-  ::pasta::DeclStmt EndStatement(void) const;
+  std::optional<::pasta::DeclStmt> EndStatement(void) const;
   ::pasta::Token ForToken(void) const;
   ::pasta::Expr Increment(void) const;
   std::optional<::pasta::Stmt> Initializer(void) const;
@@ -1758,21 +1758,21 @@ class GCCAsmStmt : public AsmStmt {
   ::pasta::Token RParenToken(void) const;
   bool IsAssemblyGoto(void) const;
   std::vector<::pasta::AddrLabelExpr> Labels(void) const;
-  std::vector<std::string_view> OutputConstraints(void) const;
-  std::vector<::pasta::StringLiteral> OutputConstraintLiterals(void) const;
-  std::vector<::pasta::Expr> OutputExpressions(void) const;
-  // !!! Output getNumOutputs getOutputIdentifier (empty ret type = (clang::IdentifierInfo *))
-  std::vector<std::string_view> OutputNames(void) const;
-  std::vector<std::string_view> InputConstraints(void) const;
-  std::vector<::pasta::StringLiteral> InputConstraintLiterals(void) const;
-  std::vector<::pasta::Expr> InputExpressions(void) const;
-  // !!! Input getNumInputs getInputIdentifier (empty ret type = (clang::IdentifierInfo *))
-  std::vector<std::string_view> InputNames(void) const;
   std::vector<std::string_view> Clobbers(void) const;
   std::vector<::pasta::StringLiteral> ClobberStringLiterals(void) const;
+  std::vector<std::string_view> OutputConstraints(void) const;
+  std::vector<::pasta::Expr> OutputExpressions(void) const;
+  std::vector<std::string_view> OutputNames(void) const;
+  // !!! Output getNumOutputs getOutputIdentifier (empty ret type = (clang::IdentifierInfo *))
+  std::vector<::pasta::StringLiteral> OutputConstraintLiterals(void) const;
+  std::vector<std::string_view> InputConstraints(void) const;
+  std::vector<::pasta::Expr> InputExpressions(void) const;
+  std::vector<std::string_view> InputNames(void) const;
+  // !!! Input getNumInputs getInputIdentifier (empty ret type = (clang::IdentifierInfo *))
+  std::vector<::pasta::StringLiteral> InputConstraintLiterals(void) const;
   std::vector<::pasta::AddrLabelExpr> LabelExpressions(void) const;
-  // !!! Label getNumLabels getLabelIdentifier (empty ret type = (clang::IdentifierInfo *))
   std::vector<std::string_view> LabelNames(void) const;
+  // !!! Label getNumLabels getLabelIdentifier (empty ret type = (clang::IdentifierInfo *))
  protected:
   PASTA_DEFINE_DEFAULT_STMT_CONSTRUCTOR(GCCAsmStmt)
 };
@@ -2066,10 +2066,10 @@ class MSAsmStmt : public AsmStmt {
   // OutputConstraint: (llvm::StringRef)
   // OutputExpression: (const clang::Expr *)
   bool HasBraces(void) const;
-  std::vector<std::string_view> OutputConstraints(void) const;
-  std::vector<::pasta::Expr> OutputExpressions(void) const;
   std::vector<std::string_view> InputConstraints(void) const;
   std::vector<::pasta::Expr> InputExpressions(void) const;
+  std::vector<std::string_view> OutputConstraints(void) const;
+  std::vector<::pasta::Expr> OutputExpressions(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_STMT_CONSTRUCTOR(MSAsmStmt)
 };
@@ -4004,7 +4004,7 @@ class OpaqueValueExpr : public Expr {
   ::pasta::Token EndToken(void) const;
   ::pasta::Token ExpressionToken(void) const;
   ::pasta::Token Token(void) const;
-  ::pasta::Expr SourceExpression(void) const;
+  std::optional<::pasta::Expr> SourceExpression(void) const;
   bool IsUnique(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_STMT_CONSTRUCTOR(OpaqueValueExpr)
@@ -4117,7 +4117,7 @@ class PredefinedExpr : public Expr {
   std::vector<::pasta::Stmt> Children(void) const;
   ::pasta::Token BeginToken(void) const;
   ::pasta::Token EndToken(void) const;
-  ::pasta::StringLiteral FunctionName(void) const;
+  std::optional<::pasta::StringLiteral> FunctionName(void) const;
   enum PredefinedExprIdentKind IdentifierKind(void) const;
   std::string_view IdentifierKindName(void) const;
   ::pasta::Token Token(void) const;
@@ -4990,7 +4990,7 @@ class CXXDefaultArgExpr : public Expr {
   ::pasta::Expr Expression(void) const;
   ::pasta::Token ExpressionToken(void) const;
   ::pasta::ParmVarDecl Parameter(void) const;
-  ::pasta::Expr RewrittenExpression(void) const;
+  std::optional<::pasta::Expr> RewrittenExpression(void) const;
   ::pasta::DeclContext UsedContext(void) const;
   ::pasta::Token UsedToken(void) const;
   bool HasRewrittenInitializer(void) const;
@@ -5035,9 +5035,9 @@ class CXXDeleteExpr : public Expr {
   bool DoesUsualArrayDeleteWantSize(void) const;
   ::pasta::Expr Argument(void) const;
   ::pasta::Token BeginToken(void) const;
-  ::pasta::Type DestroyedType(void) const;
+  std::optional<::pasta::Type> DestroyedType(void) const;
   ::pasta::Token EndToken(void) const;
-  ::pasta::FunctionDecl OperatorDelete(void) const;
+  std::optional<::pasta::FunctionDecl> OperatorDelete(void) const;
   bool IsArrayForm(void) const;
   bool IsArrayFormAsWritten(void) const;
   bool IsGlobalDelete(void) const;
@@ -5093,16 +5093,16 @@ class CXXFoldExpr : public Expr {
   PASTA_DECLARE_BASE_OPERATORS(ValueStmt, CXXFoldExpr)
   std::vector<::pasta::Stmt> Children(void) const;
   ::pasta::Token BeginToken(void) const;
-  ::pasta::UnresolvedLookupExpr Callee(void) const;
+  std::optional<::pasta::UnresolvedLookupExpr> Callee(void) const;
   ::pasta::Token EllipsisToken(void) const;
   ::pasta::Token EndToken(void) const;
-  ::pasta::Expr Initializer(void) const;
-  ::pasta::Expr LHS(void) const;
+  std::optional<::pasta::Expr> Initializer(void) const;
+  std::optional<::pasta::Expr> LHS(void) const;
   ::pasta::Token LParenToken(void) const;
   std::optional<unsigned> NumExpansions(void) const;
   enum BinaryOperatorKind Operator(void) const;
   ::pasta::Expr Pattern(void) const;
-  ::pasta::Expr RHS(void) const;
+  std::optional<::pasta::Expr> RHS(void) const;
   ::pasta::Token RParenToken(void) const;
   bool IsLeftFold(void) const;
   bool IsRightFold(void) const;
@@ -5153,8 +5153,8 @@ class CXXNewExpr : public Expr {
   enum CXXNewExprInitializationStyle InitializationStyle(void) const;
   std::optional<::pasta::Expr> Initializer(void) const;
   uint32_t NumPlacementArguments(void) const;
-  ::pasta::FunctionDecl OperatorDelete(void) const;
-  ::pasta::FunctionDecl OperatorNew(void) const;
+  std::optional<::pasta::FunctionDecl> OperatorDelete(void) const;
+  std::optional<::pasta::FunctionDecl> OperatorNew(void) const;
   // PlacementArgument: (const clang::Expr *)
   ::pasta::TokenRange Tokens(void) const;
   ::pasta::TokenRange TypeIdParentheses(void) const;

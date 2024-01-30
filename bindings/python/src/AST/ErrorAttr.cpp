@@ -19,6 +19,7 @@ void RegisterErrorAttr(nb::module_ &m) {
   nb::class_<ErrorAttr, InheritableAttr>(m, "ErrorAttr")
     .def("__hash__", [](const ErrorAttr &attr) { return reinterpret_cast<intptr_t>(attr.RawAttr()); })
     .def("__eq__", [](const Attr &a, const Attr &b) { return a.RawAttr() == b.RawAttr(); })
+    .def("__ne__", [](const Attr &a, const Attr &b) { return a.RawAttr() != b.RawAttr(); })
     .def_prop_ro("semantic_spelling", &ErrorAttr::SemanticSpelling)
     .def_prop_ro("spelling", &ErrorAttr::Spelling)
     .def_prop_ro("user_diagnostic", &ErrorAttr::UserDiagnostic)

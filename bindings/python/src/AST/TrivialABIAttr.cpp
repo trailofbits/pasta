@@ -19,6 +19,7 @@ void RegisterTrivialABIAttr(nb::module_ &m) {
   nb::class_<TrivialABIAttr, InheritableAttr>(m, "TrivialABIAttr")
     .def("__hash__", [](const TrivialABIAttr &attr) { return reinterpret_cast<intptr_t>(attr.RawAttr()); })
     .def("__eq__", [](const Attr &a, const Attr &b) { return a.RawAttr() == b.RawAttr(); })
+    .def("__ne__", [](const Attr &a, const Attr &b) { return a.RawAttr() != b.RawAttr(); })
     .def_prop_ro("spelling", &TrivialABIAttr::Spelling);
 }
 } // namespace pasta

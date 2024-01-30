@@ -19,6 +19,7 @@ void RegisterOpenCLPrivateAddressSpaceAttr(nb::module_ &m) {
   nb::class_<OpenCLPrivateAddressSpaceAttr, TypeAttr>(m, "OpenCLPrivateAddressSpaceAttr")
     .def("__hash__", [](const OpenCLPrivateAddressSpaceAttr &attr) { return reinterpret_cast<intptr_t>(attr.RawAttr()); })
     .def("__eq__", [](const Attr &a, const Attr &b) { return a.RawAttr() == b.RawAttr(); })
+    .def("__ne__", [](const Attr &a, const Attr &b) { return a.RawAttr() != b.RawAttr(); })
     .def_prop_ro("semantic_spelling", &OpenCLPrivateAddressSpaceAttr::SemanticSpelling)
     .def_prop_ro("spelling", &OpenCLPrivateAddressSpaceAttr::Spelling);
 }

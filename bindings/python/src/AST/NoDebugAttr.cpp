@@ -19,6 +19,7 @@ void RegisterNoDebugAttr(nb::module_ &m) {
   nb::class_<NoDebugAttr, InheritableAttr>(m, "NoDebugAttr")
     .def("__hash__", [](const NoDebugAttr &attr) { return reinterpret_cast<intptr_t>(attr.RawAttr()); })
     .def("__eq__", [](const Attr &a, const Attr &b) { return a.RawAttr() == b.RawAttr(); })
+    .def("__ne__", [](const Attr &a, const Attr &b) { return a.RawAttr() != b.RawAttr(); })
     .def_prop_ro("spelling", &NoDebugAttr::Spelling);
 }
 } // namespace pasta

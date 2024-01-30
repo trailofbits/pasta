@@ -19,6 +19,7 @@ void RegisterAsmLabelAttr(nb::module_ &m) {
   nb::class_<AsmLabelAttr, InheritableAttr>(m, "AsmLabelAttr")
     .def("__hash__", [](const AsmLabelAttr &attr) { return reinterpret_cast<intptr_t>(attr.RawAttr()); })
     .def("__eq__", [](const Attr &a, const Attr &b) { return a.RawAttr() == b.RawAttr(); })
+    .def("__ne__", [](const Attr &a, const Attr &b) { return a.RawAttr() != b.RawAttr(); })
     .def_prop_ro("is_literal_label", &AsmLabelAttr::IsLiteralLabel)
     .def_prop_ro("label", &AsmLabelAttr::Label)
     .def_prop_ro("label_length", &AsmLabelAttr::LabelLength)

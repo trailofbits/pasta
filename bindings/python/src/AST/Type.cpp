@@ -250,6 +250,7 @@ void RegisterType(nb::module_ &m) {
     .def_prop_ro("is_undeduced_auto_type", &Type::IsUndeducedAutoType)
     .def_prop_ro("is_undeduced_type", &Type::IsUndeducedType)
     .def_prop_ro("is_union_type", &Type::IsUnionType)
+    .def_prop_ro("is_unresolved_type", &Type::IsUnresolvedType)
     .def_prop_ro("is_unsaturated_fixed_point_type", &Type::IsUnsaturatedFixedPointType)
     .def_prop_ro("is_unscoped_enumeration_type", &Type::IsUnscopedEnumerationType)
     .def_prop_ro("is_unsigned_fixed_point_type", &Type::IsUnsignedFixedPointType)

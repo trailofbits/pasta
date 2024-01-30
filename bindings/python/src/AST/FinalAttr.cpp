@@ -19,6 +19,7 @@ void RegisterFinalAttr(nb::module_ &m) {
   nb::class_<FinalAttr, InheritableAttr>(m, "FinalAttr")
     .def("__hash__", [](const FinalAttr &attr) { return reinterpret_cast<intptr_t>(attr.RawAttr()); })
     .def("__eq__", [](const Attr &a, const Attr &b) { return a.RawAttr() == b.RawAttr(); })
+    .def("__ne__", [](const Attr &a, const Attr &b) { return a.RawAttr() != b.RawAttr(); })
     .def_prop_ro("semantic_spelling", &FinalAttr::SemanticSpelling)
     .def_prop_ro("spelling", &FinalAttr::Spelling)
     .def_prop_ro("is_spelled_as_sealed", &FinalAttr::IsSpelledAsSealed);

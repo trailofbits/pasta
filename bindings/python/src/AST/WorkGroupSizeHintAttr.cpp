@@ -19,6 +19,7 @@ void RegisterWorkGroupSizeHintAttr(nb::module_ &m) {
   nb::class_<WorkGroupSizeHintAttr, InheritableAttr>(m, "WorkGroupSizeHintAttr")
     .def("__hash__", [](const WorkGroupSizeHintAttr &attr) { return reinterpret_cast<intptr_t>(attr.RawAttr()); })
     .def("__eq__", [](const Attr &a, const Attr &b) { return a.RawAttr() == b.RawAttr(); })
+    .def("__ne__", [](const Attr &a, const Attr &b) { return a.RawAttr() != b.RawAttr(); })
     .def_prop_ro("spelling", &WorkGroupSizeHintAttr::Spelling)
     .def_prop_ro("x_dim", &WorkGroupSizeHintAttr::XDim)
     .def_prop_ro("y_dim", &WorkGroupSizeHintAttr::YDim)

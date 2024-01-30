@@ -19,6 +19,7 @@ void RegisterGuardedByAttr(nb::module_ &m) {
   nb::class_<GuardedByAttr, InheritableAttr>(m, "GuardedByAttr")
     .def("__hash__", [](const GuardedByAttr &attr) { return reinterpret_cast<intptr_t>(attr.RawAttr()); })
     .def("__eq__", [](const Attr &a, const Attr &b) { return a.RawAttr() == b.RawAttr(); })
+    .def("__ne__", [](const Attr &a, const Attr &b) { return a.RawAttr() != b.RawAttr(); })
     .def_prop_ro("argument", &GuardedByAttr::Argument)
     .def_prop_ro("spelling", &GuardedByAttr::Spelling);
 }

@@ -802,7 +802,7 @@ class NamedDecl : public Decl {
   std::optional<enum ObjCStringFormatFamily> ObjCFStringFormattingFamily(void) const;
   std::string QualifiedNameAsString(void) const;
   ::pasta::NamedDecl UnderlyingDeclaration(void) const;
-  enum Visibility Visibility(void) const;
+  std::optional<enum Visibility> Visibility(void) const;
   bool HasExternalFormalLinkage(void) const;
   bool HasLinkage(void) const;
   bool HasLinkageBeenComputed(void) const;
@@ -1225,7 +1225,7 @@ class TemplateDecl : public NamedDecl {
   PASTA_DECLARE_DERIVED_OPERATORS(TemplateDecl, TypeAliasTemplateDecl)
   PASTA_DECLARE_DERIVED_OPERATORS(TemplateDecl, VarTemplateDecl)
   ::pasta::TemplateParameterList TemplateParameters(void) const;
-  ::pasta::NamedDecl TemplatedDeclaration(void) const;
+  std::optional<::pasta::NamedDecl> TemplatedDeclaration(void) const;
   bool HasAssociatedConstraints(void) const;
   bool IsTypeAlias(void) const;
  protected:
@@ -2208,7 +2208,7 @@ class RedeclarableTemplateDecl : public TemplateDecl {
   PASTA_DECLARE_DERIVED_OPERATORS(RedeclarableTemplateDecl, TypeAliasTemplateDecl)
   PASTA_DECLARE_DERIVED_OPERATORS(RedeclarableTemplateDecl, VarTemplateDecl)
   ::pasta::RedeclarableTemplateDecl CanonicalDeclaration(void) const;
-  ::pasta::RedeclarableTemplateDecl InstantiatedFromMemberTemplate(void) const;
+  std::optional<::pasta::RedeclarableTemplateDecl> InstantiatedFromMemberTemplate(void) const;
   bool IsMemberSpecialization(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_DECL_CONSTRUCTOR(RedeclarableTemplateDecl)
@@ -2532,7 +2532,7 @@ class VarTemplateDecl : public RedeclarableTemplateDecl {
   PASTA_DECLARE_BASE_OPERATORS(RedeclarableTemplateDecl, VarTemplateDecl)
   PASTA_DECLARE_BASE_OPERATORS(TemplateDecl, VarTemplateDecl)
   ::pasta::VarTemplateDecl CanonicalDeclaration(void) const;
-  ::pasta::VarTemplateDecl InstantiatedFromMemberTemplate(void) const;
+  std::optional<::pasta::VarTemplateDecl> InstantiatedFromMemberTemplate(void) const;
   ::pasta::VarTemplateDecl MostRecentDeclaration(void) const;
   std::optional<::pasta::VarTemplateDecl> PreviousDeclaration(void) const;
   ::pasta::VarDecl TemplatedDeclaration(void) const;
@@ -2565,7 +2565,7 @@ class VarTemplateSpecializationDecl : public VarDecl {
   // TemplateArgumentsInfo: (const clang::ASTTemplateArgumentListInfo *)
   std::vector<::pasta::TemplateArgument> TemplateInstantiationArguments(void) const;
   ::pasta::Token TemplateKeywordToken(void) const;
-  ::pasta::Type TypeAsWritten(void) const;
+  std::optional<::pasta::Type> TypeAsWritten(void) const;
   bool IsClassScopeExplicitSpecialization(void) const;
   bool IsExplicitInstantiationOrSpecialization(void) const;
   bool IsExplicitSpecialization(void) const;
@@ -2587,7 +2587,7 @@ class CXXDeductionGuideDecl : public FunctionDecl {
   PASTA_DECLARE_BASE_OPERATORS(FunctionDecl, CXXDeductionGuideDecl)
   PASTA_DECLARE_BASE_OPERATORS(NamedDecl, CXXDeductionGuideDecl)
   PASTA_DECLARE_BASE_OPERATORS(ValueDecl, CXXDeductionGuideDecl)
-  ::pasta::CXXConstructorDecl CorrespondingConstructor(void) const;
+  std::optional<::pasta::CXXConstructorDecl> CorrespondingConstructor(void) const;
   ::pasta::TemplateDecl DeducedTemplate(void) const;
   enum DeductionCandidate DeductionCandidateKind(void) const;
   // ExplicitSpecifier: (const clang::ExplicitSpecifier)
@@ -2654,7 +2654,7 @@ class ClassTemplateDecl : public RedeclarableTemplateDecl {
   PASTA_DECLARE_BASE_OPERATORS(RedeclarableTemplateDecl, ClassTemplateDecl)
   PASTA_DECLARE_BASE_OPERATORS(TemplateDecl, ClassTemplateDecl)
   ::pasta::ClassTemplateDecl CanonicalDeclaration(void) const;
-  ::pasta::ClassTemplateDecl InstantiatedFromMemberTemplate(void) const;
+  std::optional<::pasta::ClassTemplateDecl> InstantiatedFromMemberTemplate(void) const;
   ::pasta::ClassTemplateDecl MostRecentDeclaration(void) const;
   std::optional<::pasta::ClassTemplateDecl> PreviousDeclaration(void) const;
   ::pasta::CXXRecordDecl TemplatedDeclaration(void) const;
@@ -2733,7 +2733,7 @@ class FunctionTemplateDecl : public RedeclarableTemplateDecl {
   PASTA_DECLARE_BASE_OPERATORS(RedeclarableTemplateDecl, FunctionTemplateDecl)
   PASTA_DECLARE_BASE_OPERATORS(TemplateDecl, FunctionTemplateDecl)
   ::pasta::FunctionTemplateDecl CanonicalDeclaration(void) const;
-  ::pasta::FunctionTemplateDecl InstantiatedFromMemberTemplate(void) const;
+  std::optional<::pasta::FunctionTemplateDecl> InstantiatedFromMemberTemplate(void) const;
   ::pasta::FunctionTemplateDecl MostRecentDeclaration(void) const;
   std::optional<::pasta::FunctionTemplateDecl> PreviousDeclaration(void) const;
   ::pasta::FunctionDecl TemplatedDeclaration(void) const;
@@ -2872,7 +2872,7 @@ class VarTemplatePartialSpecializationDecl : public VarTemplateSpecializationDec
   PASTA_DECLARE_BASE_OPERATORS(ValueDecl, VarTemplatePartialSpecializationDecl)
   PASTA_DECLARE_BASE_OPERATORS(VarDecl, VarTemplatePartialSpecializationDecl)
   PASTA_DECLARE_BASE_OPERATORS(VarTemplateSpecializationDecl, VarTemplatePartialSpecializationDecl)
-  ::pasta::VarTemplatePartialSpecializationDecl InstantiatedFromMember(void) const;
+  std::optional<::pasta::VarTemplatePartialSpecializationDecl> InstantiatedFromMember(void) const;
   // TemplateArgumentsAsWritten: (const clang::ASTTemplateArgumentListInfo *)
   ::pasta::TemplateParameterList TemplateParameters(void) const;
   bool HasAssociatedConstraints(void) const;
@@ -2907,8 +2907,8 @@ class CXXConstructorDecl : public CXXMethodDecl {
   bool IsExplicit(void) const;
   bool IsInheritingConstructor(void) const;
   bool IsSpecializationCopyingObject(void) const;
-  std::vector<::pasta::TemplateParameterList> TemplateParameterLists(void) const;
   std::vector<::pasta::ParmVarDecl> ParameterDeclarations(void) const;
+  std::vector<::pasta::TemplateParameterList> TemplateParameterLists(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_DECL_CONSTRUCTOR(CXXConstructorDecl)
 };
@@ -2932,8 +2932,8 @@ class CXXConversionDecl : public CXXMethodDecl {
   // ExplicitSpecifier: (const clang::ExplicitSpecifier)
   bool IsExplicit(void) const;
   bool IsLambdaToBlockPointerConversion(void) const;
-  std::vector<::pasta::TemplateParameterList> TemplateParameterLists(void) const;
   std::vector<::pasta::ParmVarDecl> ParameterDeclarations(void) const;
+  std::vector<::pasta::TemplateParameterList> TemplateParameterLists(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_DECL_CONSTRUCTOR(CXXConversionDecl)
 };
@@ -2955,8 +2955,8 @@ class CXXDestructorDecl : public CXXMethodDecl {
   ::pasta::CXXDestructorDecl CanonicalDeclaration(void) const;
   std::optional<::pasta::FunctionDecl> OperatorDelete(void) const;
   std::optional<::pasta::Expr> OperatorDeleteThisArgument(void) const;
-  std::vector<::pasta::TemplateParameterList> TemplateParameterLists(void) const;
   std::vector<::pasta::ParmVarDecl> ParameterDeclarations(void) const;
+  std::vector<::pasta::TemplateParameterList> TemplateParameterLists(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_DECL_CONSTRUCTOR(CXXDestructorDecl)
 };
@@ -3178,8 +3178,8 @@ class ClassTemplatePartialSpecializationDecl : public ClassTemplateSpecializatio
   PASTA_DECLARE_BASE_OPERATORS(TagDecl, ClassTemplatePartialSpecializationDecl)
   PASTA_DECLARE_BASE_OPERATORS(TypeDecl, ClassTemplatePartialSpecializationDecl)
   ::pasta::Type InjectedSpecializationType(void) const;
-  ::pasta::ClassTemplatePartialSpecializationDecl InstantiatedFromMember(void) const;
-  ::pasta::ClassTemplatePartialSpecializationDecl InstantiatedFromMemberTemplate(void) const;
+  std::optional<::pasta::ClassTemplatePartialSpecializationDecl> InstantiatedFromMember(void) const;
+  std::optional<::pasta::ClassTemplatePartialSpecializationDecl> InstantiatedFromMemberTemplate(void) const;
   // TemplateArgumentsAsWritten: (const clang::ASTTemplateArgumentListInfo *)
   ::pasta::TemplateParameterList TemplateParameters(void) const;
   bool HasAssociatedConstraints(void) const;

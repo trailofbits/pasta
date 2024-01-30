@@ -148,6 +148,7 @@ const std::unordered_map<std::string, std::string> kCxxMethodRenames{
   {"InnerLocStart", "FirstInnerToken"},
   {"RightLoc", "RBracketToken"},
   {"LeftLoc", "LBracketToken"},
+  {"DerefType", "DereferencedType"},
 };
 
 // Maps return types from the macros file to their replacements in the
@@ -1174,6 +1175,11 @@ std::set<std::pair<std::string, std::string>> kCanReturnNullptr{
   {"FriendDecl", "FriendType"},
   {"CXXPseudoDestructorExpr", "ScopeType"},
   {"TypeAliasTemplateDecl", "InstantiatedFromMemberTemplate"},
+  {"RedeclarableTemplateDecl", "InstantiatedFromMemberTemplate"},
+  {"VarTemplateDecl", "InstantiatedFromMemberTemplate"},
+  {"ClassTemplateDecl", "InstantiatedFromMemberTemplate"},
+  {"FunctionTemplateDecl", "InstantiatedFromMemberTemplate"},
+  {"ClassTemplatePartialSpecializationDecl", "InstantiatedFromMemberTemplate"},
   {"NonTypeTemplateParmDecl", "DefaultArgument"},
   {"Type", "StripObjCKindOfType"},
   {"NonTypeTemplateParmDecl", "NumExpansionTypes"},
@@ -1201,6 +1207,36 @@ std::set<std::pair<std::string, std::string>> kCanReturnNullptr{
   {"ObjCInterfaceDecl", "Definition"},
   {"ObjCProtocolDecl", "Definition"},
   {"StaticAssertDecl", "Message"},
+  {"VarTemplatePartialSpecializationDecl", "InstantiatedFromMember"},
+  {"ClassTemplatePartialSpecializationDecl", "InstantiatedFromMember"},
+  {"CXXCatchStmt", "CaughtType"},
+  {"UnaryTransformType", "Desugar"},
+  {"UnaryTransformType", "UnderlyingType"},
+  {"UnaryTransformType", "BaseType"},
+  {"VarTemplateSpecializationDecl", "TypeAsWritten"},
+  {"PointerAttr", "DereferencedType"},
+  {"PointerAttr", "DereferencedTypeToken"},
+  {"OwnerAttr", "DereferencedType"},
+  {"OwnerAttr", "DereferencedTypeToken"},
+  {"TemplateDecl", "TemplatedDeclaration"},
+  {"CXXNewExpr", "OperatorNew"},
+  {"CXXNewExpr", "OperatorDelete"},
+  {"CXXDeleteExpr", "OperatorNew"},
+  {"CXXDeleteExpr", "OperatorDelete"},
+  {"CXXDefaultArgExpr", "RewrittenExpression"},
+  {"CXXDeleteExpr", "DestroyedType"},
+  {"CXXFoldExpr", "Callee"},
+  {"CXXFoldExpr", "Initializer"},
+  {"CXXFoldExpr", "RHS"},
+  {"CXXFoldExpr", "LHS"},
+  {"CXXForRangeStmt", "BeginStatement"},
+  {"CXXForRangeStmt", "EndStatement"},
+  {"CXXForRangeStmt", "Condition"},
+  {"CXXDeductionGuideDecl", "CorrespondingConstructor"},
+  {"PredefinedExpr", "FunctionName"},
+  {"OpaqueValueExpr", "SourceExpression"},
+  {"DependentSizedArrayType", "SizeExpression"},
+
 //  {"FunctionProtoType", "EllipsisToken"},
 //  {"FunctionDecl", "EllipsisToken"},
 //  {"FunctionDecl", "PointOfInstantiation"},
@@ -1462,7 +1498,6 @@ std::map<std::pair<std::string, std::string>, std::string> kConditionalNullptr{
    "      self.getOp() > clang::AtomicExpr::AO__opencl_atomic_fetch_max) {\n"
    "    return std::nullopt;\n"
    "  }\n"},
-
 
 #define SELF_IS_DEFINITION \
     "  if (!self.getDefinition()) {\n" \
@@ -1878,6 +1913,21 @@ std::map<std::pair<std::string, std::string>, std::string> kConditionalNullptr{
   {{"GenericSelectionExpr", "ResultExpression"},
    "  if (self.isResultDependent()) {\n"
    "    return std::nullopt;\n"
+   "  }\n"},
+  {{"PointerAttr", "DereferencedType"},
+   "  if (!self.getDerefTypeLoc()) {\n"
+   "    return std::nullopt;\n"
+   "  }\n"},
+  {{"OwnerAttr", "DereferencedType"},
+   "  if (!self.getDerefTypeLoc()) {\n"
+   "    return std::nullopt;\n"
+   "  }\n"},
+  {{"NamedDecl", "Visibility"},
+   "  if (auto td = clang::dyn_cast<clang::TemplateDecl>(\n"
+   "                                 u.NamedDecl)) {\n"
+   "    if (!td->getTemplatedDecl()) {\n"
+   "      return std::nullopt;\n"
+   "    }\n"
    "  }\n"},
 };
 

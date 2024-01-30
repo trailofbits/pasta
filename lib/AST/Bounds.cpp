@@ -462,6 +462,12 @@ class DeclBoundsFinder : public clang::DeclVisitor<DeclBoundsFinder>,
         case clang::tok::l_paren:
         case clang::tok::l_brace:
         case clang::tok::l_square:
+          // The nesting does not work if the token it is looking for is one
+          // of `l_paren`, `l_brace` or `l_square`. Check if the token it is
+          // looking for is one of them and return early.
+          if (tok_kind == kind) {
+            return tok;
+          }
           nesting += increment;
           break;
         case clang::tok::r_paren:
@@ -474,9 +480,14 @@ class DeclBoundsFinder : public clang::DeclVisitor<DeclBoundsFinder>,
       }
 
       // NOTE(pag): This is a heuristic for detecting when things go "too far."
+      // NOTE(kumarak): We have gone too far and the token bound should end
+      //                if it reaches to a namespace. Return previous token in
+      //                that case
       if (tok_kind == clang::tok::kw_namespace) {
-        assert(kind == clang::tok::kw_namespace ||
-               tok[-1].Kind() == clang::tok::kw_using);
+        if (!(kind == clang::tok::kw_namespace ||
+            tok[-1].Kind() == clang::tok::kw_using)) {
+          return nullptr;
+        }
       }
       if (tok_kind == kind && 0 >= nesting) {
         return tok;
@@ -619,6 +630,13 @@ class DeclBoundsFinder : public clang::DeclVisitor<DeclBoundsFinder>,
 //  void VisitObjCMethodDecl(clang::ObjCMethodDecl *decl) {
 //    Expand(decl->getSourceRange());
 //  }
+
+  void VisitFunctionTemplateDecl(clang::FunctionTemplateDecl *decl) {
+    Expand(decl->getSourceRange());
+    if (auto tdl = decl->getTemplatedDecl()) {
+      VisitCommonFunctionDecl(tdl);
+    }
+  }
 
   // TODO(pag): Deal with out-of-line methods and template shenanigans.
   void VisitCXXMethodDecl(clang::CXXMethodDecl *decl) {
@@ -884,6 +902,20 @@ class DeclBoundsFinder : public clang::DeclVisitor<DeclBoundsFinder>,
         }
       }
 
+    } else if (decl->isTemplateInstantiation()) {
+      // In case of the template instantion, the parsed token will map
+      // to the template pattern. Check here is the pattern has body and
+      // expand the token range accodingly.
+      if (auto pattern_decl = decl->getTemplateInstantiationPattern()) {
+        auto pattern_def = pattern_decl->getDefinition();
+        if (pattern_def == pattern_decl) {
+          Expand(pattern_def->getSourceRange());
+
+        } else if (!pattern_decl->doesThisDeclarationHaveABody()) {
+          // Fallback to template pattern having declaration only.
+          ExpandToTrailingToken(tok_loc, clang::tok::semi);
+        }
+      }
     } else if (!decl->doesThisDeclarationHaveABody()) {
       ExpandToTrailingToken(tok_loc, clang::tok::semi);
     }
@@ -892,10 +924,9 @@ class DeclBoundsFinder : public clang::DeclVisitor<DeclBoundsFinder>,
     if (!proto) {
       return;
     }
-
     if (proto->l_paren) {
       assert(lower_bound < proto->l_paren);
-      assert(proto->r_paren < upper_bound);
+      assert(proto->r_paren <= upper_bound);
     }
   }
 
@@ -958,7 +989,16 @@ class DeclBoundsFinder : public clang::DeclVisitor<DeclBoundsFinder>,
     // taken from the function type itself, which is subject to deduplication,
     // and thus may point to some other place.
     auto has_ellipsis = func->getEllipsisLoc().isValid();
+
+    // NOTE(kumarak): If the function parameters are ellipsis, can't rely on the
+    //                source range of parameters. The parameters can only be ellipsis
+    //                that may have wrong params_begin & params_end. Invalidate both
+    //                and depend entirely on the location of function name token.
+    //                e.g:
+    //                  false_type __call_helper(...)
+    //
     if (has_ellipsis) {
+      params_begin = nullptr;
       params_end = nullptr;
     }
 
@@ -1033,36 +1073,79 @@ class DeclBoundsFinder : public clang::DeclVisitor<DeclBoundsFinder>,
     if (has_ellipsis && params_end) {
       proto.ellipsis = FindPrev(&(params_end[-1]), clang::tok::ellipsis);
       assert(params_begin < proto.ellipsis);
+
+      // Should we always fallback and check the presence of ellipsis ??
+      // `isTemplateInstantiation` does not reliably retuns if the
+      // function is a template instantion especially for CXXConstructorDecl,
+      // CXXDestructorDecl node causing it to be unware of ellipsis token.
+    } else /*if (func->isTemplateInstantiation())*/ {
+      // NOTE(kumarak):  Incase of function template instantiation, the template pattern
+      //                 may have ellipsis but resolved during the instantiation with
+      //                 template arguments. The function parameter tokens in that case
+      //                 will still be ellipsis. Explicitly check if the ellipsis token
+      //                 exist between `params_begin` and `params_end`.
+      //                 Set proto.ellipsis to the last ellipsis token found in parameters
+
+      auto maybe_ellipsis = FindPrev(&(params_end[-1]), clang::tok::ellipsis);
+      if (maybe_ellipsis && maybe_ellipsis > params_begin) {
+        proto.ellipsis = maybe_ellipsis;
+        has_ellipsis = true;
+      }
     }
 
     auto begin_tok = params_begin;
+    auto next_begin_tok = params_begin;
     auto end_tok = params_begin;
 
+    // Function prototype can have multiple ellipsis tokens and we don't have
+    // ways to track nesting of `<` & `>` tokens. To identify the parameters
+    // token boundaries, we need to accomodate the presence of multiple ellipsis
+    // tokens.
+    // e.g:
+    //      void __make_fmatrix_impl(index_sequence<_Is...>, index_sequence<_Js...>, _Ls... __ls)
+    //
     unsigned num_params = func->getNumParams();
-    for (clang::ParmVarDecl *param : func->parameters()) {
+    // getFunctionScopeIndex uses ParameterIndex bit to get the index and
+    // it is not reliable. Traverse through the parameters using its indices.
+    for (unsigned i = 0; i < num_params; i++) {
+      clang::ParmVarDecl *param = func->getParamDecl(i);
       ASTImpl::BoundingTokens &param_proto = ast.bounds[param];
       proto.params.emplace_back(&param_proto);
-
-      unsigned i = param->getFunctionScopeIndex();
 
       if (end_tok >= params_end) {
         continue;  // Also handles `nullptr` case.
       }
 
-      begin_tok = &(end_tok[1]);  // Skip the `(` or the `,`.
+      begin_tok = &(next_begin_tok[1]);  // Skip the `(` or the `,`.
       if ((i + 1) == num_params) {
 
         // The ellipsis can be on its own after a comma, or directly after
         // the variable, e.g. `a, ...` vs. `a...`.
         if (has_ellipsis) {
-          assert(proto.ellipsis == FindNext(begin_tok, clang::tok::ellipsis));
-          end_tok = proto.ellipsis;
-
+          auto ellipsis_tok = FindNext(begin_tok, clang::tok::ellipsis);
+          if (ellipsis_tok && ellipsis_tok < params_end) {
+            end_tok = ellipsis_tok;
+          } else {
+            // fallback of the ellipsis is not there in the last parameter
+            end_tok = params_end;
+          }
         } else {
           end_tok = params_end;
         }
       } else {
-        end_tok = FindNext(begin_tok, clang::tok::comma);
+        auto comma_tok = FindNext(begin_tok, clang::tok::comma);
+
+        // If it finds the comma token and it is within the params_end bound.
+        if (comma_tok && comma_tok < params_end) {
+          end_tok = comma_tok;
+          next_begin_tok = comma_tok;
+        } else {
+          // Expect this case only if the function parameters have
+          // ellipsis; If it falls here and `has_ellipsis` is false,
+          // something is wrong.
+          assert(has_ellipsis == true);
+          end_tok = params_end;
+        }
       }
 
       if (begin_tok < end_tok) {
@@ -1080,7 +1163,11 @@ class DeclBoundsFinder : public clang::DeclVisitor<DeclBoundsFinder>,
 
     clang::FunctionDecl *func =
         clang::dyn_cast<clang::FunctionDecl>(decl->getDeclContext());
-    if (!func) {
+    // Note: If the ParamVarDecl is from the implicitly defaulted FunctionDecl
+    //       then the corresponding token does not exist. No need to look for
+    //       token bounds in that case; Return early with the default initialization
+    //       of `lower_bounds` and `upper_bounds`
+    if (!func || func->isDefaulted()) {
       return;
     }
 
@@ -1124,8 +1211,6 @@ class DeclBoundsFinder : public clang::DeclVisitor<DeclBoundsFinder>,
       if (semi_tok) {
         assert(semi_tok >= name_tok);
         Expand(semi_tok);
-      } else {
-        assert(false);
       }
     } else {
       assert(false);

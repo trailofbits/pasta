@@ -1875,6 +1875,12 @@ bool Type::IsUnionType(void) const {
   return val;
 }
 
+bool Type::IsUnresolvedType(void) const {
+  auto &self = *const_cast<clang::Type *>(u.Type);
+  decltype(auto) val = self.isUnresolvedType();
+  return val;
+}
+
 bool Type::IsUnsaturatedFixedPointType(void) const {
   auto &self = *const_cast<clang::Type *>(u.Type);
   decltype(auto) val = self.isUnsaturatedFixedPointType();
@@ -2051,17 +2057,21 @@ bool TypedefType::TypeMatchesDeclaration(void) const {
 }
 
 PASTA_DEFINE_BASE_OPERATORS(Type, UnaryTransformType)
-::pasta::Type UnaryTransformType::Desugar(void) const {
+std::optional<::pasta::Type> UnaryTransformType::Desugar(void) const {
   auto &self = *const_cast<clang::UnaryTransformType *>(u.UnaryTransformType);
   decltype(auto) val = self.desugar();
-  assert(!val.isNull());
+  if (val.isNull()) {
+    return std::nullopt;
+  }
   return TypeBuilder::Build(ast, val);
 }
 
-::pasta::Type UnaryTransformType::BaseType(void) const {
+std::optional<::pasta::Type> UnaryTransformType::BaseType(void) const {
   auto &self = *const_cast<clang::UnaryTransformType *>(u.UnaryTransformType);
   decltype(auto) val = self.getBaseType();
-  assert(!val.isNull());
+  if (val.isNull()) {
+    return std::nullopt;
+  }
   return TypeBuilder::Build(ast, val);
 }
 
@@ -2071,10 +2081,12 @@ enum UnaryTransformTypeUTTKind UnaryTransformType::UTTKind(void) const {
   return static_cast<::pasta::UnaryTransformTypeUTTKind>(val);
 }
 
-::pasta::Type UnaryTransformType::UnderlyingType(void) const {
+std::optional<::pasta::Type> UnaryTransformType::UnderlyingType(void) const {
   auto &self = *const_cast<clang::UnaryTransformType *>(u.UnaryTransformType);
   decltype(auto) val = self.getUnderlyingType();
-  assert(!val.isNull());
+  if (val.isNull()) {
+    return std::nullopt;
+  }
   return TypeBuilder::Build(ast, val);
 }
 
@@ -2756,13 +2768,15 @@ PASTA_DEFINE_BASE_OPERATORS(Type, DependentSizedArrayType)
   return ast->TokenAt(val);
 }
 
-::pasta::Expr DependentSizedArrayType::SizeExpression(void) const {
+std::optional<::pasta::Expr> DependentSizedArrayType::SizeExpression(void) const {
   auto &self = *const_cast<clang::DependentSizedArrayType *>(u.DependentSizedArrayType);
   decltype(auto) val = self.getSizeExpr();
+  if (!val) {
+    return std::nullopt;
+  }
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
-  throw std::runtime_error("DependentSizedArrayType::SizeExpression can return nullptr!");
 }
 
 bool DependentSizedArrayType::IsSugared(void) const {

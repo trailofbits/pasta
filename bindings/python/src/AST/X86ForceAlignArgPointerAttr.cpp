@@ -19,6 +19,7 @@ void RegisterX86ForceAlignArgPointerAttr(nb::module_ &m) {
   nb::class_<X86ForceAlignArgPointerAttr, InheritableAttr>(m, "X86ForceAlignArgPointerAttr")
     .def("__hash__", [](const X86ForceAlignArgPointerAttr &attr) { return reinterpret_cast<intptr_t>(attr.RawAttr()); })
     .def("__eq__", [](const Attr &a, const Attr &b) { return a.RawAttr() == b.RawAttr(); })
+    .def("__ne__", [](const Attr &a, const Attr &b) { return a.RawAttr() != b.RawAttr(); })
     .def_prop_ro("spelling", &X86ForceAlignArgPointerAttr::Spelling);
 }
 } // namespace pasta

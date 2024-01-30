@@ -19,6 +19,7 @@ void RegisterLoopHintAttr(nb::module_ &m) {
   nb::class_<LoopHintAttr, Attr>(m, "LoopHintAttr")
     .def("__hash__", [](const LoopHintAttr &attr) { return reinterpret_cast<intptr_t>(attr.RawAttr()); })
     .def("__eq__", [](const Attr &a, const Attr &b) { return a.RawAttr() == b.RawAttr(); })
+    .def("__ne__", [](const Attr &a, const Attr &b) { return a.RawAttr() != b.RawAttr(); })
     .def_prop_ro("option", &LoopHintAttr::Option)
     .def_prop_ro("semantic_spelling", &LoopHintAttr::SemanticSpelling)
     .def_prop_ro("spelling", &LoopHintAttr::Spelling)

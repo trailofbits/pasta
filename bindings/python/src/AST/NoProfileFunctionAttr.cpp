@@ -19,6 +19,7 @@ void RegisterNoProfileFunctionAttr(nb::module_ &m) {
   nb::class_<NoProfileFunctionAttr, InheritableAttr>(m, "NoProfileFunctionAttr")
     .def("__hash__", [](const NoProfileFunctionAttr &attr) { return reinterpret_cast<intptr_t>(attr.RawAttr()); })
     .def("__eq__", [](const Attr &a, const Attr &b) { return a.RawAttr() == b.RawAttr(); })
+    .def("__ne__", [](const Attr &a, const Attr &b) { return a.RawAttr() != b.RawAttr(); })
     .def_prop_ro("spelling", &NoProfileFunctionAttr::Spelling);
 }
 } // namespace pasta

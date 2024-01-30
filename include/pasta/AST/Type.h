@@ -523,6 +523,7 @@ class Type {
   bool IsUndeducedAutoType(void) const;
   bool IsUndeducedType(void) const;
   bool IsUnionType(void) const;
+  bool IsUnresolvedType(void) const;
   bool IsUnsaturatedFixedPointType(void) const;
   bool IsUnscopedEnumerationType(void) const;
   bool IsUnsignedFixedPointType(void) const;
@@ -591,10 +592,10 @@ class UnaryTransformType : public Type {
  public:
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(UnaryTransformType)
   PASTA_DECLARE_BASE_OPERATORS(Type, UnaryTransformType)
-  ::pasta::Type Desugar(void) const;
-  ::pasta::Type BaseType(void) const;
+  std::optional<::pasta::Type> Desugar(void) const;
+  std::optional<::pasta::Type> BaseType(void) const;
   enum UnaryTransformTypeUTTKind UTTKind(void) const;
-  ::pasta::Type UnderlyingType(void) const;
+  std::optional<::pasta::Type> UnderlyingType(void) const;
   bool IsSugared(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_TYPE_CONSTRUCTOR(UnaryTransformType)
@@ -943,7 +944,7 @@ class DependentSizedArrayType : public ArrayType {
   ::pasta::TokenRange BracketsRange(void) const;
   ::pasta::Token LBracketToken(void) const;
   ::pasta::Token RBracketToken(void) const;
-  ::pasta::Expr SizeExpression(void) const;
+  std::optional<::pasta::Expr> SizeExpression(void) const;
   bool IsSugared(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_TYPE_CONSTRUCTOR(DependentSizedArrayType)

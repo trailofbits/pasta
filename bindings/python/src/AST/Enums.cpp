@@ -811,7 +811,8 @@ void RegisterEnums(nb::module_ &m) {
     .value("INCOMPLETE_MATRIX_INDEX", pasta::BuiltinTypeKind::kIncompleteMatrixIndex)
     .value("OMP_ARRAY_SECTION", pasta::BuiltinTypeKind::kOMPArraySection)
     .value("OMP_ARRAY_SHAPING", pasta::BuiltinTypeKind::kOMPArrayShaping)
-    .value("OMP_ITERATOR", pasta::BuiltinTypeKind::kOMPIterator);
+    .value("OMP_ITERATOR", pasta::BuiltinTypeKind::kOMPIterator)
+    .value("UNRESOLVED", pasta::BuiltinTypeKind::kUnresolved);
 
   nb::enum_<pasta::CDeclAttrSpelling>(m, "CDeclAttrSpelling")
     .value("GNU_CDECL", pasta::CDeclAttrSpelling::kGNUCdecl)

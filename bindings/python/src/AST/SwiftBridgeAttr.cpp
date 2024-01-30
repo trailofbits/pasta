@@ -19,6 +19,7 @@ void RegisterSwiftBridgeAttr(nb::module_ &m) {
   nb::class_<SwiftBridgeAttr, InheritableAttr>(m, "SwiftBridgeAttr")
     .def("__hash__", [](const SwiftBridgeAttr &attr) { return reinterpret_cast<intptr_t>(attr.RawAttr()); })
     .def("__eq__", [](const Attr &a, const Attr &b) { return a.RawAttr() == b.RawAttr(); })
+    .def("__ne__", [](const Attr &a, const Attr &b) { return a.RawAttr() != b.RawAttr(); })
     .def_prop_ro("spelling", &SwiftBridgeAttr::Spelling)
     .def_prop_ro("swift_type", &SwiftBridgeAttr::SwiftType)
     .def_prop_ro("swift_type_length", &SwiftBridgeAttr::SwiftTypeLength);

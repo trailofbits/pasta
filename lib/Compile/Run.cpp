@@ -250,6 +250,10 @@ Result<AST, std::string> CompileJob::Run(void) const {
   lang_opts.CommentOpts.ParseAllComments = false;
   lang_opts.ForceEmitVTables = lang_opts.CPlusPlus;
 
+  // This is a patch that preserve the lexical context of the
+  // template instantiations in AST.
+  lang_opts.LexicalTemplateInstantiation = true;
+
   // This is a patch that introduces transparent support for unknown attributes,
   // converting them into annotation attributes.
   lang_opts.UnknownAttrAnnotate = true;

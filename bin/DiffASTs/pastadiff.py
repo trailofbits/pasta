@@ -199,15 +199,16 @@ class PastaASTBuilder(BasicBuilder):
         )
 
 # ==================== Formatter ====================
-
-# prints out children for each node. Extension of SequenceFormatter.
 class ChildrenFormatter(SequenceFormatter):
+    """
+    Prints out the children of a node. Extends SequenceFormatter.
+    """
     is_partial = True
 
     def __init__(self):
         # for debugging
         # super().__init__('[', '', ']')
-        super().__init__('', '', '')
+        super().__init__('[', '', ']')
     
     # def print_FunctionDeclNode(self, printer: Printer, node: FunctionDeclNode):
     #     printer.write("FunctionDecl ")
@@ -219,7 +220,7 @@ class ChildrenFormatter(SequenceFormatter):
     def print_CompoundStmtNode(self, printer: Printer, node: CompoundStmtNode):
         printer.write("CompoundStmt")
         printer.newline()
-        self.print_ListNode(printer, node.stmts)
+        self.print(printer, node.stmts)
     
     def print_ChildrenListNode(self, printer: Printer, *args, **kwargs):
         # printer.newline()
@@ -227,6 +228,8 @@ class ChildrenFormatter(SequenceFormatter):
         printer.indent()
         printer.newline()
         super().print_SequenceNode(printer, *args, **kwargs)
+
+
 
 class PastaDiffFormatter(GraphtageFormatter):
     sub_format_types = [ChildrenFormatter]

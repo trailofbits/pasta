@@ -109,6 +109,10 @@ def main():
     with printer.DEFAULT_PRINTER as p:
         d = tree1.diff(tree2)
         PastaDiffFormatter.DEFAULT_INSTANCE.print(p, d)
+    
+    # with printer.HTMLPrinter(title="Pasta Diff") as p:
+    #     d = tree1.diff(tree2)
+    #     PastaDiffFormatter.DEFAULT_INSTANCE.print(p, d)
 
 
 if __name__ == "__main__":

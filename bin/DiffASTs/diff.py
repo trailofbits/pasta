@@ -6,7 +6,7 @@ from pypasta import *
 from graphtage import BuildOptions, printer
 from graphtage.pydiff import PyDiffFormatter  # print_diff, build_tree
 
-from pastadiff import PastaASTBuilder
+from pastadiff import PastaASTBuilder, PastaDiffFormatter
 
 
 def _generate_ast(source_file: str, cc: Compiler, system_include_dir: str) -> AST:
@@ -108,7 +108,7 @@ def main():
 
     with printer.DEFAULT_PRINTER as p:
         d = tree1.diff(tree2)
-        PyDiffFormatter.DEFAULT_INSTANCE.print(p, d)
+        PastaDiffFormatter.DEFAULT_INSTANCE.print(p, d)
 
 
 if __name__ == "__main__":

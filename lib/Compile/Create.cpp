@@ -25,6 +25,8 @@
 #include "Host.h"
 #endif
 
+#include <iostream>
+
 namespace pasta {
 namespace {
 
@@ -204,8 +206,7 @@ static void ParseOutputInto(FileSystemView &fs, std::stringstream &ss,
       state = kInSystemIncludeList;
 
     // TODO(pag): Handle absolute paths on Windows.
-    } else if (line.startswith(" /") || line.startswith(" ./") ||
-               line.startswith(" ../")) {
+    } else if (line.startswith(" ")) {
       if (kUnknown == state) {
         continue;
       }
@@ -223,6 +224,8 @@ static void ParseOutputInto(FileSystemView &fs, std::stringstream &ss,
 
       auto status = fs.Stat(fs.ParsePath(line.substr(1).str()));
       if (!status.Succeeded() || !status->IsDirectory()) {
+
+        std::cerr << "IGNORING " << line.str() << '\n';
 
         // Silently ignore non-existant directories.
         continue;

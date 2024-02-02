@@ -25,8 +25,6 @@
 #include "Host.h"
 #endif
 
-#include <iostream>
-
 namespace pasta {
 namespace {
 
@@ -224,8 +222,6 @@ static void ParseOutputInto(FileSystemView &fs, std::stringstream &ss,
 
       auto status = fs.Stat(fs.ParsePath(line.substr(1).str()));
       if (!status.Succeeded() || !status->IsDirectory()) {
-
-        std::cerr << "IGNORING " << line.str() << '\n';
 
         // Silently ignore non-existant directories.
         continue;

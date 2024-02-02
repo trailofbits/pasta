@@ -204,7 +204,7 @@ static void ParseOutputInto(FileSystemView &fs, std::stringstream &ss,
       state = kInSystemIncludeList;
 
     // TODO(pag): Handle absolute paths on Windows.
-    } else if (line.startswith(" /")) {
+    } else if (line.startswith(" ")) {
       if (kUnknown == state) {
         continue;
       }

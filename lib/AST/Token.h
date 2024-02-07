@@ -284,6 +284,9 @@ class TokenImpl {
   TokenKindBase is_in_pragma_directive:1;
 };
 
+void SkipTrailingWhitespace(std::string &tok_data);
+void SkipLeadingWhitspace(std::string &tok_data);
+
 // Strip off leading whitespace from a token that has been read.
 void SkipLeadingWhitspace(clang::Token &tok, clang::SourceLocation &tok_loc,
                           std::string &tok_data);

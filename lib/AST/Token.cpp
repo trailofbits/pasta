@@ -884,10 +884,8 @@ TokenRange::AlignedSubstitutions(bool heuristic) noexcept {
   return result;
 }
 
-// Strip off leading whitespace from a token that has been read.
-void SkipLeadingWhitspace(clang::Token &tok, clang::SourceLocation &tok_loc,
-                          std::string &tok_data) {
-  std::reverse(tok_data.begin(), tok_data.end());
+// Strip off trailing whitespace from a token that has been read.
+void SkipTrailingWhitespace(std::string &tok_data) {
   while (!tok_data.empty()) {
     switch (tok_data.back()) {
       case '\\':
@@ -896,15 +894,28 @@ void SkipLeadingWhitspace(clang::Token &tok, clang::SourceLocation &tok_loc,
       case '\r':
       case '\n':
         tok_data.pop_back();
-        tok_loc = tok_loc.getLocWithOffset(1);
         break;
       default:
-        goto done;
+        return;
     }
   }
-done:
-  tok.setLocation(tok_loc);
+}
+
+// Strip off leading whitespace from a token that has been read.
+void SkipLeadingWhitspace(std::string &tok_data) {
   std::reverse(tok_data.begin(), tok_data.end());
+  SkipTrailingWhitespace(tok_data);
+  std::reverse(tok_data.begin(), tok_data.end());
+}
+
+// Strip off leading whitespace from a token that has been read.
+void SkipLeadingWhitspace(clang::Token &tok, clang::SourceLocation &tok_loc,
+                          std::string &tok_data) {
+  auto old_size = tok_data.size();
+  SkipLeadingWhitspace(tok_data);
+  tok_loc = tok_loc.getLocWithOffset(
+      static_cast<int>(old_size - tok_data.size()));
+  tok.setLocation(tok_loc);
 }
 
 bool TryReadRawToken(clang::SourceManager &source_manager,

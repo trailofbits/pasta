@@ -13,7 +13,7 @@
 #include <clang/Frontend/CompilerInstance.h>
 #pragma GCC diagnostic pop
 
-//#define D(...) __VA_ARGS__
+// #define D(...) __VA_ARGS__
 #ifndef D
 # define D(...)
 #endif
@@ -829,6 +829,7 @@ void PatchedMacroTracker::DoToken(const clang::Token &tok_, uintptr_t data) {
   tok_data.clear();
   if (TryReadRawToken(sm, lo, tok, &tok_data)) {
     SkipLeadingWhitspace(tok, tok_loc, tok_data);
+    SkipTrailingWhitespace(tok_data);
   }
 
   // We want to skip tokens *between* disabled conditional directives, but
@@ -2363,13 +2364,20 @@ void PatchedMacroTracker::DoBeforeMacroParameterUse(
   MacroNodeImpl *parent = nodes.back();
 
   const clang::Token *tok = &tok_;
-  const clang::Token &ident = tok[num_tokens - 1u];
+  clang::Token ident = tok[num_tokens - 1u];
   assert(ident.isAnyIdentifier() ||
          clang::tok::getKeywordSpelling(ident.getKind()));
 
+  // Parameter uses can have leading whitespace following line continuations.
+  clang::SourceLocation ident_loc = ident.getLocation();
+  std::string &ident_data = tok_data_vec[next_tok_data++ % tok_data_vec.size()];
+  ident_data.clear();
+  if (TryReadRawToken(sm, lo, ident, &ident_data)) {
+    SkipLeadingWhitspace(ident, ident_loc, ident_data);
+  }
+
   // Fill the preceding tokens.
-  expansion->CopyFromBody(
-      *ast, parent, ident.getLocation().getRawEncoding());
+  expansion->CopyFromBody(*ast, parent, ident_loc.getRawEncoding());
 
   // Then put our new node in.
   param->parent = parent;
@@ -2398,7 +2406,7 @@ void PatchedMacroTracker::DoBeforeMacroParameterUse(
   nodes.push_back(param);
   params.push_back(param);
 
-  DoToken(tok[num_tokens - 1u], 0);
+  DoToken(ident, 0);
 
   assert(!param->nodes.empty());
   assert(param->use_nodes.empty());

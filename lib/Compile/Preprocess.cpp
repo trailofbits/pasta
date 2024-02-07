@@ -159,6 +159,7 @@ void PreprocessCode(ASTImpl &impl, clang::CompilerInstance &ci,
     tok_data.clear();
     (void) TryReadRawToken(source_manager, lang_opts, tok, &tok_data);
     SkipLeadingWhitspace(tok, tok_loc, tok_data);
+    SkipTrailingWhitespace(tok_data);
 
     // It's a macro expansion token. We will already have a copy of this token
     // as the most recently added token, so we need to transfer its data to
@@ -213,7 +214,6 @@ void PreprocessCode(ASTImpl &impl, clang::CompilerInstance &ci,
             impl.preprocessed_code.size());
         os << tok_data << '\n';
       }
-
 
       // Put the macro ending marker back on. If we don't put it back on, then
       // `PatchedMacroTracker::CloseUnclosedExpansion` will go and re-inject it,

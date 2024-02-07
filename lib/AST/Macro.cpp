@@ -315,6 +315,7 @@ void MacroExpansionImpl::CopyFromBody(
     MacroTokenImpl *last_def_tok = std::get<MacroTokenImpl *>(*last_def_node);
     TokenImpl last_def_atok = ast.tokens[last_def_tok->token_offset];
     DEBUG( std::cerr << "Attempting 2: " << last_def_atok.Data(ast)
+                     << " " << last_def_atok.opaque_source_loc << " ?= " << loc
                      << '\n'; )
 
     if (last_def_atok.opaque_source_loc != loc) {

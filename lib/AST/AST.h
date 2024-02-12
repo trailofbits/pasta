@@ -128,6 +128,10 @@ class ASTImpl : public std::enable_shared_from_this<ASTImpl> {
   // List of macro directives.
   RootMacroNode root_macro_node;
 
+  // Tracks parsed and macro tokens.
+  ParsedTokenStorage parsed_tokens;
+  MacroTokenStorage macro_tokens;
+
   // List of parsed tokens. We run the pre-processor, and each lexed token is
   // added here. We also inject in some other tokens, such as whitespace and
   // comments.

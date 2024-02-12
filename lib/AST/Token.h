@@ -9,7 +9,9 @@
 #include <pasta/AST/Forward.h>
 
 #include <cstdint>
+#include <deque>
 #include <string>
+#include <vector>
 
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wbitfield-enum-conversion"
@@ -312,5 +314,92 @@ TokenContextIndex MigrateContexts(
     std::vector<TokenContextImpl> &to_contexts,
     std::unordered_multimap<const void *, TokenContextIndex> &data_to_context,
     std::vector<TokenContextIndex> &context_map);
+
+
+class ParsedTokenStorage {
+ private:
+  // This is the data that will get parsed by Clang. It includes all tokens that
+  // make it through the lexing process.
+  std::string data;
+
+  // Ending position of a token.
+  std::vector<unsigned> token_offset;
+
+  std::vector<TokenRole> role;
+
+  std::vector<TokenKind> kind;
+
+  // Is this token associated with a macro definition? If so, then we have a
+  // lookup mechanism in `ASTImpl` to go from the token index to the macro
+  // definition.
+  std::vector<bool> is_macro_name;
+
+  // Is this token part of a `#pragma` macro directive region?
+  //
+  // Clang supports the following:
+  //
+  //    #pragma attribute push(__attribute__((....)), apply_to = (...))
+  //    ...
+  //
+  // In this case, we don't want to let the locations of any of these
+  // attributes influence the locations of the declarations enclosed by
+  // this `#pragma`.
+  std::vector<bool> is_in_pragma_directive;
+
+ public:
+  inline ParsedTokenStorage(void) {
+    data.reserve(4096u * 16u);
+    data.push_back('\0');
+    data.pop_back();
+    token_offset.reserve(4096u);
+    role.reserve(4096u);
+    kind.reserve(4096u);
+    is_macro_name.reserve(4096u);
+    is_in_pragma_directive.reserve(4096u);
+    token_offset.push_back(0u);
+  }
+
+  inline std::string_view Data(unsigned offset) const {
+    auto begin_offset = token_offset[offset];
+    auto end_offset = token_offset[offset + 1u];
+    auto raw_data = data.data();
+    return std::string_view(&(raw_data[begin_offset]),
+                            &(raw_data[end_offset]));
+  }
+
+  inline TokenKind Kind(unsigned offset) const {
+    return kind[offset];
+  }
+
+  inline TokenKind Role(unsigned offset) const {
+    return role[offset];
+  }
+
+  inline bool IsInPragmaDirective(unsigned offset) const {
+    return is_in_pragma_directive[offset];
+  }
+
+  // Finish off a token.
+  inline void FinishToken(void) {
+    token_offset.emplace_back(static_cast<unsigned>(data.size()));
+  }
+};
+
+class MacroTokenStorage : public ParsedTokenStorage {
+ private:
+  // Is this token associated with a macro definition? If so, then we have a
+  // lookup mechanism in `ASTImpl` to go from the token index to the macro
+  // definition.
+  std::vector<bool> is_macro_name;
+
+ public:
+  inline MacroTokenStorage(void) {
+    is_macro_name.reserve(4096u);
+  }
+
+  inline bool IsMacroName(unsigned offset) const {
+    return is_macro_name[offset];
+  }
+};
 
 } // namespace pasta

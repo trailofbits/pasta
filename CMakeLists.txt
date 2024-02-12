@@ -15,6 +15,7 @@ list(PREPEND CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake/modules")
 # build-time options -------------------------
 # --------------------------------------------
 
+option(PASTA_ENABLE_INSTALL "Set to OFF to disable installing pasta." ON)
 if(PASTA_ENABLE_INSTALL)
     include("cmake/packaging.cmake")
 endif(PASTA_ENABLE_INSTALL)
@@ -52,10 +53,14 @@ target_include_directories(pasta_cxx_settings INTERFACE
 
 target_compile_options(pasta_cxx_settings INTERFACE ${CXX_WARNING_OPTIONS})
 
+option(PASTA_WARNINGS_AS_ERRORS "Set to ON to enalbe -Werror." OFF)
 if(PASTA_WARNINGS_AS_ERRORS)
     target_compile_options(pasta_cxx_settings INTERFACE ${CXX_WARNINGS_AS_ERRORS_OPTION})
 endif()
 
+
+option(PASTA_BOOTSTRAP_MACROS "Set to ON to enable type bootstrapping macros. Developer option only." OFF)
+option(PASTA_BOOTSTRAP_TYPES "Set to ON to enable type bootstrapping types. Developer option only." OFF)
 if(PASTA_BOOTSTRAP_MACROS OR PASTA_BOOTSTRAP_TYPES)
     target_compile_definitions(pasta_cxx_settings INTERFACE -DPASTA_IN_BOOTSTRAP)
 endif()
@@ -431,8 +436,12 @@ if(PASTA_ENABLE_INSTALL AND NOT PASTA_BOOTSTRAP_MACROS AND NOT PASTA_BOOTSTRAP_T
   )
 endif()
 
-add_subdirectory(bin)
+option(PASTA_ENABLE_TOOLS "Set to OFF to disable default building of tools." ON)
+if(PASTA_ENABLE_TOOLS)
+  add_subdirectory(bin)
+endif(PASTA_ENABLE_TOOLS)
 
+option(PASTA_ENABLE_TESTING "Set to ON to enable building test code." OFF)
 if(PASTA_ENABLE_TESTING)
   enable_testing()
   add_subdirectory(test)

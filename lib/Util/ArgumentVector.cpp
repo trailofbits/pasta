@@ -39,36 +39,34 @@ namespace {
 //
 
 // Try to strip a single level of quotes from some input data.
-static char *StripSlashesAndQuotes(char *data) {
+static char *StripSlashesAndQuotes(char *data, std::string &buff) {
   size_t len = strlen(data);
-  size_t read_i = 0;
-  char quote_ch = '\0';
-  size_t write_i = 0;
-
-  while (read_i < len) {
-    auto ch = data[read_i++];
-    if (ch == quote_ch) {
-      quote_ch = '\0';
-      continue;
-
-    } else if (ch == '\'') {
-      if (!quote_ch) {
-        quote_ch = '\'';
-        continue;
-      }
-
-    } else if (ch == '\\') {
-      if (read_i < len) {
-        ch = data[read_i++];
-      } else {
-        ch = '\0';
-      }
-    }
-
-    data[write_i++] = ch;
+  if (!len) {
+    return data;
   }
-  data[write_i] = '\0';
 
+  auto quote = data[len - 1u];
+  if (quote != '"' && quote != '\'') {
+    return data;
+  }
+
+  buff.clear();
+  buff.insert(buff.end(), data, data + len);
+  buff.push_back('\0');
+
+  auto j = 0u;
+  for (auto i = 0u; i < len - 1u; ++i) {
+    auto ch = buff[i];
+    if (ch == '\\') {
+      ++i;
+      data[j++] = buff[i];
+
+    } else if (ch != quote) {
+      data[j++] = ch;
+    }
+  }
+
+  data[j] = '\0';
   return data;
 }
 
@@ -89,6 +87,8 @@ void ArgumentVector::Reset(std::string_view command) {
   auto next = &(data[0]);
   next[0] = '\0';
 
+  std::string buf;
+
   for (size_t i = 0; i < command.size();) {
     const auto ch = command[i];
 
@@ -96,7 +96,7 @@ void ArgumentVector::Reset(std::string_view command) {
     if (' ' == ch || '\t' == ch) {
       *next++ = '\0';
       if (last_token) {
-        argv.push_back(StripSlashesAndQuotes(last_token));
+        argv.push_back(StripSlashesAndQuotes(last_token, buf));
         last_token = nullptr;
       }
       ++i;
@@ -163,7 +163,7 @@ void ArgumentVector::Reset(std::string_view command) {
 
   *next = '\0';
   if (last_token) {
-    argv.push_back(StripSlashesAndQuotes(last_token));
+    argv.push_back(StripSlashesAndQuotes(last_token, buf));
   }
 
   argv.push_back(nullptr);

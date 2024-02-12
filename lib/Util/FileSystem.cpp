@@ -14,6 +14,14 @@
 
 #include <pasta/Util/Error.h>
 
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wimplicit-int-conversion"
+#pragma clang diagnostic ignored "-Wsign-conversion"
+#pragma clang diagnostic ignored "-Wshorten-64-to-32"
+#pragma clang diagnostic ignored "-Wfloat-conversion"
+#include <llvm/Support/JSON.h>
+#pragma clang diagnostic pop
+
 namespace pasta {
 namespace {
 
@@ -149,7 +157,12 @@ Result<std::string, std::error_code> NativeFileSystem::ReadFile(
 
   f.close();
 
-  return ret;
+  // A lot of code in PASTA relies on the file being formatted as UTF-8.
+  if (llvm::json::isUTF8(ret)) {
+    return ret;
+  }
+
+  return llvm::json::fixUTF8(ret);
 }
 
 // Return the root directory of `path`, possibly within the context of `cwd`.

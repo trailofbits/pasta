@@ -16,8 +16,13 @@ static llvm::sys::fs::file_type ToLLVM(std::filesystem::file_type ft) {
       return llvm::sys::fs::file_type::status_error;
     case std::filesystem::file_type::not_found:
       return llvm::sys::fs::file_type::file_not_found;
+
+    // NOTE(pag): We might have to convert files to UTF-8, and so to prevent
+    //            Clang from reporting an error when it detects a file size
+    //            change, we report the file kind as a FIFO, i.e. a named pipe.
     case std::filesystem::file_type::regular:
-      return llvm::sys::fs::file_type::regular_file;
+      return llvm::sys::fs::file_type::fifo_file;
+
     case std::filesystem::file_type::directory:
       return llvm::sys::fs::file_type::directory_file;
     case std::filesystem::file_type::symlink:

@@ -1829,21 +1829,8 @@ void TypePrinter::printTag(clang::TagDecl *D, raw_string_ostream &OS) {
   if (!Policy.SuppressTagKeyword && !D->getTypedefNameForAnonDecl()) {
     HasKindDecoration = true;
     OS << D->getKindName();
-
-    if (tokens.ast) {
-      auto tag_loc = D->getInnerLocStart();
-      if (auto tag_tok = tokens.ast->RawTokenAt(tag_loc)) {
-        switch (tag_tok->Kind()) {
-          case clang::tok::kw_struct:
-          case clang::tok::kw_union:
-            ctx.MarkLocation(tag_loc);
-            break;
-          default:
-            break;
-        }
-      }
-    }
-
+    ctx.MarkLocationIfOneOf(D->getInnerLocStart(), clang::tok::kw_struct,
+                            clang::tok::kw_union, clang::tok::kw_class);
     OS << ' ';
   }
 

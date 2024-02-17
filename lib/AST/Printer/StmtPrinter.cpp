@@ -1927,7 +1927,8 @@ void StmtPrinter::VisitInitListExpr(clang::InitListExpr *Node) {
 
   OS << "{";
   ctx.MarkLocation(Node->getLBraceLoc());
-  const TokenImpl *comma_loc = nullptr;
+
+  std::optional<DerivedTokenIndex> comma_loc;
   for (unsigned i = 0, e = Node->getNumInits(); i != e; ++i) {
     if (i) {
       OS << ", ";
@@ -1936,27 +1937,33 @@ void StmtPrinter::VisitInitListExpr(clang::InitListExpr *Node) {
       //            lists are *giant* and that can cause bad computational
       //            complexity in AlignTokens.
       if (comma_loc) {
-        ctx.MarkLocation(*comma_loc);
+        ctx.MarkLocation(comma_loc.value());
       }
     }
 
-    comma_loc = nullptr;
-    if (auto E = Node->getInit(i)) {
-      PrintExpr(E);
-
-      if (tokens.ast) {
-        if (const TokenImpl *raw_tok = tokens.ast->RawTokenAt(E->getEndLoc())) {
-          for (auto i = 0u; i <= 1u; ++i) {
-            if (raw_tok[i].Kind() == clang::tok::TokenKind::comma) {
-              comma_loc = &(raw_tok[i]);
-              break;
-            }
-          }
-        }
-      }
-
-    } else {
+    comma_loc.reset();
+    auto E = Node->getInit(i);
+    if (!E) {
       OS << "{}";
+      continue;
+    }
+    PrintExpr(E);
+
+    if (!tokens.ast) {
+      continue;
+    }
+
+    auto raw_tok = tokens.ast->ParsedTokenOffset(E->getEndLoc());
+    if (!raw_tok) {
+      continue;
+    }
+
+    for (auto j = 0u; j <= 1u; ++j) {
+      if (tokens.ast->TokenKind(raw_tok.value() + j) ==
+          clang::tok::TokenKind::comma) {
+        comma_loc = raw_tok.value() + j;
+        break;
+      }
     }
   }
   OS << "}";

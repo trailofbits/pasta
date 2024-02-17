@@ -994,7 +994,7 @@ std::string_view ParsedTokenStorage::Data(DerivedTokenIndex offset) const {
 }
 
 std::optional<DerivedTokenIndex> ParsedTokenStorage::DataOffsetToTokenIndex(
-    unsigned offset) {
+    unsigned offset) const {
   if (offset >= data.size()) {
     assert(false);
     return std::nullopt;

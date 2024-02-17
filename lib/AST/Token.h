@@ -45,7 +45,7 @@ using OpaqueSourceLoc = clang::SourceLocation::UIntTy;
 using SignedOpaqueSourceLoc = clang::SourceLocation::IntTy;
 using TokenContextIndex = uint32_t;
 using DerivedTokenIndex = uint32_t;
-using TokenDataOffset = int32_t;
+using TokenDataOffset = uint32_t;
 using TokenDataIndex = uint32_t;
 static constexpr DerivedTokenIndex kInvalidDerivedTokenIndex = ~0u;
 static constexpr TokenContextIndex kInvalidTokenContextIndex = ~0u;
@@ -144,156 +144,8 @@ class TokenContextImpl {
 
 using TokenKindBase = std::underlying_type_t<clang::tok::TokenKind>;
 
-// Backing implementation of a token.
-class TokenImpl {
- public:
-  static constexpr OpaqueSourceLoc kInvalidSourceLocation = 0u;
-
-  static constexpr uint32_t kTokenSizeMask = ((1u << 20) - 1u);
-
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wconversion"
-  inline TokenImpl(
-      OpaqueSourceLoc opaque_source_loc_, int32_t data_offset_,
-      uint32_t data_len_, clang::tok::TokenKind kind_, TokenRole role_,
-      TokenContextIndex token_context_index_=kInvalidTokenContextIndex)
-      : opaque_source_loc(opaque_source_loc_),
-        context_index(token_context_index_),
-        data_offset(data_offset_),
-        data_len(static_cast<uint32_t>(data_len_ & kTokenSizeMask)),
-        kind(static_cast<TokenKindBase>(kind_)),
-        role(static_cast<TokenKindBase>(role_)),
-        is_macro_name(0),
-        is_in_pragma_directive(0) {}
-#pragma GCC diagnostic pop
-
-  // Return the source location of this token.
-  inline clang::SourceLocation Location(void) const {
-    return clang::SourceLocation::getFromRawEncoding(opaque_source_loc);
-  }
-
-  std::string_view Data(const ASTImpl &ast) const noexcept;
-  std::string_view Data(const PrintedTokenRangeImpl &range) const noexcept;
-
-  inline TokenRole Role(void) const noexcept {
-    return static_cast<TokenRole>(role);
-  }
-
-  inline bool IsParsed(void) const noexcept {
-    switch (Role()) {
-      case TokenRole::kInvalid:
-      case TokenRole::kBeginOfFileMarker:
-      case TokenRole::kEndOfFileMarker:
-      // case TokenRole::kBeginOfMacroExpansionMarker:
-      // case TokenRole::kEndOfMacroExpansionMarker:
-      case TokenRole::kInitialMacroUseToken:
-      case TokenRole::kIntermediateMacroExpansionToken:
-      case TokenRole::kEmptyOrSpecialMacroToken:
-        return false;
-
-      case TokenRole::kFinalMacroExpansionToken:
-      case TokenRole::kFileToken:
-        // Clang supports the following:
-        //
-        //    #pragma attribute push(__attribute__((....)), apply_to = (...))
-        //    ...
-        //
-        // In this case, we don't want to let the locations of any of these
-        // attributes influence the locations of the declarations enclosed by
-        // this pragma.
-        //
-        // Although pragmas are indeed parsed, we "hide" their tokens from the
-        // ASTs via some the `PatchedMacroTracker`: when a pragma directive is
-        // finished, we inject a zero-length marker token, and also render the
-        // full, macro-expanded directive into `ASTImpl::preprocessed_code`.
-        // These pragmas are visible to Clang's Sema, but not to our parsed
-        // token list.
-        return !is_in_pragma_directive && data_len;
-    }
-  }
-
-  inline bool HasMacroRole(void) const noexcept {
-    switch (Role()) {
-      // case TokenRole::kBeginOfMacroExpansionMarker:
-      case TokenRole::kInitialMacroUseToken:
-      case TokenRole::kIntermediateMacroExpansionToken:
-      case TokenRole::kFinalMacroExpansionToken:
-      // case TokenRole::kEndOfMacroExpansionMarker:
-      case TokenRole::kEmptyOrSpecialMacroToken:
-        return true;
-      default:
-        return false;
-    }
-  }
-
-  inline clang::tok::TokenKind Kind(void) const noexcept {
-    return static_cast<clang::tok::TokenKind>(kind);
-  }
-
-  // Return the context of this token, or `nullptr`.
-  const TokenContextImpl *Context(
-      const ASTImpl &ast,
-      const std::vector<TokenContextImpl> &contexts) const noexcept;
-
-  // If this number is positive, then it is the raw encoding of the source
-  // location of the token, which references a `FileToken`. If this number is
-  // negative, then this token was derived from a prior token in a macro
-  // expansion. That prior token is at `ast->tokens[derived_index]`. This
-  // process is enacted by `PatchedMacroTracker::FixupDerivedLocations`. If the
-  // index points to itself, then it's a macro token that makes it into the
-  // final parse (and is thus relevant to token alignment), but that also
-  // doesn't have any associated source location, e.g. how `__FILE__` expands to
-  // a provenanceless string.
-  //
-  // NOTE(pag): These locations DO NOT point into `ASTImpl::preprocessed_code`.
-  //            These are the *original* source locations, as produced by Clang
-  //            when we ran the preprocessor in `PreprocessCode` from `Run.cpp`.
-  OpaqueSourceLoc opaque_source_loc{kInvalidSourceLocation};
-
-  DerivedTokenIndex derived_index{kInvalidDerivedTokenIndex};
-
-  // If this is a `PrintedTokenImpl` in a `PrintedTokenRangeImpl`, then this
-  // represents the index of the token context in
-  // `PrintedTokenRangeImpl::contexts`.
-  //
-  // If this is a `TokenImpl` in a `ASTImpl`, then this represents the index of
-  // a `MacroTokenImpl` in `ASTImpl::root_macro_node.token_nodes`.
-  //
-  // TODO(pag): Split `PrintedTokenImpl` off into its own thing.
-  TokenContextIndex context_index{kInvalidTokenContextIndex};
-
-  // Offset and length of this token's data. If `data_offset` is positive, then
-  // the data is located in `ast->preprocessed_code`, otherwise it's located in
-  // `ast->backup_code`.
-  TokenDataOffset data_offset{0u};
-
-  // The Linux kernel has some *massive* comments, e.g. comments in
-  // `tools/include/uapi/linux/bpf.h`.
-  uint32_t data_len;
-
-  // The original token kind.
-  TokenKindBase kind;
-
-  // The role of this token, e.g. parsed, printed, macro expansion, etc.
-  TokenKindBase role:4;
-
-  // Is this token associated with a macro definition? If so, then we have a
-  // lookup mechanism in `ASTImpl` to go from the token index to the macro
-  // definition.
-  TokenKindBase is_macro_name:1;
-
-  // Is this token part of a `#pragma` macro directive region?
-  //
-  // Clang supports the following:
-  //
-  //    #pragma attribute push(__attribute__((....)), apply_to = (...))
-  //    ...
-  //
-  // In this case, we don't want to let the locations of any of these
-  // attributes influence the locations of the declarations enclosed by
-  // this `#pragma`.
-  TokenKindBase is_in_pragma_directive:1;
-};
+static constexpr uint32_t kTokenSizeMask = ((1u << 20) - 1u);
+static constexpr OpaqueSourceLoc kInvalidSourceLocation = 0u;
 
 void SkipTrailingWhitespace(std::string &tok_data);
 void SkipLeadingWhitespace(std::string &tok_data);
@@ -449,7 +301,8 @@ class ParsedTokenStorage {
     kind[offset] = kind_;
   }
 
-  std::optional<DerivedTokenIndex> DataOffsetToTokenIndex(unsigned offset);
+  std::optional<DerivedTokenIndex> DataOffsetToTokenIndex(
+      unsigned offset) const;
 
   void AppendFileToken(std::string_view data, const clang::Token &tok);
   void AppendMacroToken(MacroTokenStorage &tokens, const clang::Token &tok);

@@ -803,7 +803,7 @@ void DeclPrinter::VisitRecordDecl(clang::RecordDecl *D) {
   Out << D->getKindName();
 
   ctx.MarkLocationIfOneOf(D->getInnerLocStart(), clang::tok::kw_struct,
-                          clang::tok::kw_union);
+                          clang::tok::kw_union, clang::tok::kw_class);
 
   prettyPrintAttributes(D);
 
@@ -2448,12 +2448,12 @@ static const char *OptionalTrailingSemiColon(
     }
 
     if (!tokens->tokens.empty() &&
-        tokens->tokens.back().Kind() == clang::tok::semi) {
+        tokens->tokens.back().kind == clang::tok::semi) {
       return "";
     }
 
   } else if (tokens->tokens.empty() ||
-             tokens->tokens.back().Kind() != clang::tok::semi) {
+             tokens->tokens.back().kind != clang::tok::semi) {
     return ";";
   }
 
@@ -2514,7 +2514,7 @@ PrintedTokenRange PrintedTokenRange::Create(const std::shared_ptr<ASTImpl> &ast,
     // Mark the location of the trailing semicolon, if any.
     auto [begin_tok, end_tok] = ast->DeclBounds(decl);
     if (begin_tok < end_tok && ast->TokenKind(end_tok) == clang::tok::semi &&
-        tokens.back().Kind() == clang::tok::semi) {
+        tokens->tokens.back().kind == clang::tok::semi) {
       ctx.MarkLocation(end_tok);
     }
   }

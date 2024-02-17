@@ -91,7 +91,7 @@ static void TryLocateAttribute(const clang::Attr *A,
   PrintedTokenImpl *opener_toks[2u] = {};
   for (size_t i = old_num_toks; i < max_i; ++i) {
     PrintedTokenImpl &tok = tokens.tokens[i];
-    clang::tok::TokenKind kind = tok.Kind();
+    clang::tok::TokenKind kind = tok.kind;
 
     // Look for the keyword.
     switch (kind) {
@@ -151,16 +151,14 @@ static void TryLocateAttribute(const clang::Attr *A,
 
     --fudge;
 
-    auto tok_kind = static_cast<clang::tok::TokenKind>(
-        tokens.ast->parsed_tokens.Kind(parsed_tok));
-
     // Match an opener.
+    auto tok_kind = tokens.ast->TokenKind(parsed_tok);
     if (tok_kind == opener_kind && num_found_openers) {
       tokens.MarkLocation(*opener_toks[--num_found_openers], parsed_tok);
       fudge = 32u;
     }
 
-    if (attr_tok && tok_kind == attr_tok->Kind()) {
+    if (attr_tok && tok_kind == attr_tok->kind) {
       tokens.MarkLocation(*attr_tok, parsed_tok);
       fudge = 32u;
       attr_tok = nullptr;
@@ -296,7 +294,7 @@ std::string_view PrintedToken::Data(void) const {
 // Kind of this token.
 TokenKind PrintedToken::Kind(void) const {
   if (impl) {
-    return static_cast<TokenKind>(impl->Kind());
+    return static_cast<TokenKind>(impl->kind);
   }
   return TokenKind::kUnknown;
 }
@@ -423,7 +421,7 @@ void PrintedTokenRangeImpl::FixupInvalidTokenContexts(TokenContextIndex index) {
 }
 
 void PrintedTokenRangeImpl::AddTrailingEOF(void) {
-  if (tokens.empty() || tokens.back().Kind() != clang::tok::eof) {
+  if (tokens.empty() || tokens.back().kind != clang::tok::eof) {
     tokens.emplace_back(
         0u  /* data_offset */,
         0u  /* data_len */,
@@ -615,7 +613,7 @@ void TokenPrinterContext::Tokenize(void) {
         ++last_i) {
       tokens.data.push_back(token_data[last_i]);
       ++data_len;
-      assert(static_cast<uint32_t>(data_len & TokenImpl::kTokenSizeMask) != 0u);
+      assert(static_cast<uint32_t>(data_len & kTokenSizeMask) != 0u);
     }
     tokens.data.push_back('\0');  // Make sure all tokens end up NUL-terminated.
 
@@ -672,15 +670,12 @@ void PrintedTokenRangeImpl::MarkLocation(
   // Go figure it out from the AST. We need to go through a lot of indirection
   // because the source locations inside of the parsed AST relate to a huge
   // in-memory file where each post-preprocessed token is on its own line.
-  if (ast) {
-    if (auto parsed = ast->ParsedTokenOffset(loc)) {
-      tokens[printed_tok_index].derived_index = parsed.value();
-    }
+  if (!ast) {
+    return;
+  }
 
-  // We don't have an `ASTImpl`, so we'll assume that `loc` is a "real" source
-  // location and not our weird indirect kind.
-  } else {
-    tokens[printed_tok_index].opaque_source_loc = loc.getRawEncoding();
+  if (auto parsed = ast->ParsedTokenOffset(loc)) {
+    tokens[printed_tok_index].derived_index = parsed.value();
   }
 }
 
@@ -800,7 +795,7 @@ std::optional<PrintedTokenRange> PrintedTokenRange::Concatenate(
   context_map.assign(a.impl->contexts.size(), kInvalidTokenContextIndex);
 
   for (auto a_tok = a.first; a_tok < a.after_last; ++a_tok) {
-    if (a_tok->Kind() != clang::tok::eof) {
+    if (a_tok->kind != clang::tok::eof) {
       PrintedTokenImpl &new_tok = new_impl->tokens.emplace_back(*a_tok);
       new_tok.matched_in_align = false;
       new_tok.context_index = MigrateContexts(
@@ -813,7 +808,7 @@ std::optional<PrintedTokenRange> PrintedTokenRange::Concatenate(
 
   auto a_data_size = static_cast<TokenDataOffset>(a.impl->data.size());
   for (auto b_tok = b.first; b_tok < b.after_last; ++b_tok) {
-    if (b_tok->Kind() != clang::tok::eof) {
+    if (b_tok->kind != clang::tok::eof) {
       PrintedTokenImpl &new_tok = new_impl->tokens.emplace_back(*b_tok);
       new_tok.matched_in_align = false;
       new_tok.data_offset += a_data_size;
@@ -863,11 +858,10 @@ PrintedTokenRange PrintedTokenRange::Adopt(const TokenRange &a) {
         kASTTokenContextIndex,
         0u  /* Leading new lines */,
         num_leading_spaces,
-        tok.impl->Kind());
+        static_cast<clang::tok::TokenKind>(tok.Kind()));
 
     num_leading_spaces = 1u;
 
-    new_tok.role = static_cast<TokenKindBase>(TokenRole::kFileToken);
     new_tok.derived_index = static_cast<DerivedTokenIndex>(tok.Index());
     new_impl->data.insert(new_impl->data.end(), data.begin(), data.end());
     new_impl->data.push_back('\0');
@@ -886,7 +880,6 @@ PrintedTokenRange PrintedTokenRange::Copy(const PrintedTokenRange &a) {
 // Dump token provenance information.
 void PrintedTokenRange::DumpProvenanceInformation(void) {
   for (auto tok = first; tok < after_last; ++tok) {
-    tok->opaque_source_loc = TokenImpl::kInvalidSourceLocation;
     tok->derived_index = kInvalidDerivedTokenIndex;
   }
 }

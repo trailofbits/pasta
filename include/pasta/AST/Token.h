@@ -125,7 +125,7 @@ class Token {
   std::string_view Data(void) const;
 
   // Index of this token in the AST's token list.
-  inline uint64_t Index(void) const {
+  inline unsigned Index(void) const {
     return offset;
   }
 

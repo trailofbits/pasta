@@ -47,7 +47,6 @@ void PreprocessCode(ASTImpl &impl, clang::CompilerInstance &ci,
   pp.EnterMainSourceFile();
 
   clang::Token tok;
-  auto num_tokens = 0u;
   for (;;) {
     pp.Lex(tok);
 
@@ -65,7 +64,6 @@ void PreprocessCode(ASTImpl &impl, clang::CompilerInstance &ci,
     // the code to be parsed, rather than the backup data area.
     if (tok_loc.isMacroID()) {
       impl.parsed_tokens.AppendMacroToken(impl.macro_tokens, tok);
-      ++num_tokens;
     
     // It's a file token.    
     } else if (tok_loc.isFileID()) {
@@ -74,7 +72,6 @@ void PreprocessCode(ASTImpl &impl, clang::CompilerInstance &ci,
       SkipLeadingWhitespace(tok, tok_loc, tok_data);
       SkipTrailingWhitespace(tok_data);
       impl.parsed_tokens.AppendFileToken(tok_data, tok);
-      ++num_tokens;
 
     } else {
       assert(tok_loc.isValid());

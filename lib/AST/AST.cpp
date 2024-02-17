@@ -127,7 +127,6 @@ std::optional<DerivedTokenIndex> ASTImpl::ParsedTokenOffset(
     return std::nullopt;
   }
 
-  bool invalid = false;
   auto &sm = ci->getSourceManager();
   const auto [file_id, file_offset] = sm.getDecomposedLoc(loc);
 

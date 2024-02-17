@@ -20,7 +20,7 @@
 #include <string>
 #include <unordered_map>
 
-#include "../Token.h"
+#include "../AST.h"
 
 namespace clang {
 class ClassTemplatePartialSpecializationDecl;
@@ -49,8 +49,34 @@ class raw_string_ostream;
 class PrintingPolicyAdaptor;
 
 // TODO(pag): Make `PrintedTokenImpl` independent of `TokenImpl`.
-class PrintedTokenImpl : public TokenImpl {
+class PrintedTokenImpl final {
  public:
+  // Offset and length of this token's data. If `data_offset` is positive, then
+  // the data is located in `ast->preprocessed_code`, otherwise it's located in
+  // `ast->backup_code`.
+  TokenDataOffset data_offset{0u};
+
+  // The Linux kernel has some *massive* comments, e.g. comments in
+  // `tools/include/uapi/linux/bpf.h`.
+  uint32_t data_len{0u};
+
+  // Index of the token context in `PrintedTokenRangeImpl::contexts`.
+  //
+  // If this is a `TokenImpl` in a `ASTImpl`, then this represents the index of
+  // a `MacroTokenImpl` in `ASTImpl::root_macro_node.token_nodes`.
+  //
+  // TODO(pag): Split `PrintedTokenImpl` off into its own thing.
+  TokenContextIndex context_index{kInvalidTokenContextIndex};
+
+  // Index of a token in `ASTImpl::parsed_tokens`.
+  DerivedTokenIndex derived_index{kInvalidDerivedTokenIndex};
+
+  // Kind of this token.
+  clang::tok::TokenKind kind{clang::tok::unknown};
+
+  // Number of leading spaces and new lines; this is for printing.
+  uint16_t num_leading_spaces{0};
+  uint8_t num_leading_new_lines{0};
 
   // NOTE(pag): Printed tokens are not just superficially used. They are
   //            critical to how PASTA maps tokens back into the AST's nodes.
@@ -61,23 +87,23 @@ class PrintedTokenImpl : public TokenImpl {
   //            that we don't need to repeatedly check it.
   bool matched_in_align{false};
 
-  uint8_t num_leading_new_lines{0};
-  uint16_t num_leading_spaces{0};
-
   inline PrintedTokenImpl(TokenDataOffset data_offset_, uint32_t data_len_,
-                          TokenContextIndex token_context_index_,
+                          TokenContextIndex context_index_,
                           unsigned num_leading_new_lines_,
                           unsigned num_leading_spaces_,
                           clang::tok::TokenKind kind_)
-      : TokenImpl(TokenImpl::kInvalidSourceLocation, data_offset_,
-                  data_len_, kind_, TokenRole::kInvalid,
-                  token_context_index_),
-        matched_in_align(false),
+      : data_offset(data_offset_),
+        data_len(data_len_),
+        context_index(context_index_),
+        kind(kind_),
+        num_leading_spaces(static_cast<uint16_t>(num_leading_spaces_)),
         num_leading_new_lines(static_cast<uint8_t>(num_leading_new_lines_)),
-        num_leading_spaces(static_cast<uint16_t>(num_leading_spaces_)) {
+        matched_in_align(false) {
     assert(num_leading_new_lines == num_leading_new_lines_);
     assert(num_leading_spaces == num_leading_spaces_);
   }
+
+  inline std::string_view Data(const PrintedTokenRangeImpl &range) const;
 };
 
 // The range of data contained in a token.
@@ -170,6 +196,12 @@ class PrintedTokenRangeImpl {
     return PrintedTokenRange(std::move(self), first_tok, after_last_tok);
   }
 };
+
+std::string_view PrintedTokenImpl::Data(
+    const PrintedTokenRangeImpl &range) const {
+  std::string_view data(range.data);
+  return data.substr(data_offset, data_len);
+}
 
 class PrintingPolicyAdaptor final {
  private:
@@ -265,7 +297,7 @@ class TokenPrinterContext {
       return false;
     }
 
-    auto tok = tokens.ast->ParsedTokenOffset(loc)
+    auto tok = tokens.ast->ParsedTokenOffset(loc);
     if (!tok) {
       return false;
     }

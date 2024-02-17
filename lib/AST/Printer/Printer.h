@@ -149,8 +149,8 @@ class PrintedTokenRangeImpl {
   const TokenContextIndex CreateAlias(
       TokenPrinterContext *tokenizer, TokenContextIndex aliasee);
 
-  void MarkLocation(PrintedTokenImpl &, const TokenImpl &tok);
-  void MarkLocation(size_t tok_index, const TokenImpl &tok);
+  void MarkLocation(PrintedTokenImpl &, DerivedTokenIndex tok_index);
+  void MarkLocation(size_t tok_index, DerivedTokenIndex tok);
   void MarkLocation(size_t tok_index, const clang::SourceLocation &loc);
 
   // Try to align parsed tokens with printed tokens. See `AlignTokens.cpp`.
@@ -256,12 +256,41 @@ class TokenPrinterContext {
 
   void Tokenize(void);
 
+
+  // Mark the last printed token as having location `loc`. This helps to
+  // correlate things in the actual parsed tokens with printed tokens.
+  template <typename ...Kinds>
+  bool MarkLocationIfOneOf(clang::SourceLocation loc, Kinds... kinds) {
+    if (!tokens.ast) {
+      return false;
+    }
+
+    auto tok = tokens.ast->ParsedTokenOffset(loc)
+    if (!tok) {
+      return false;
+    }
+
+    return MarkLocationIfOneOf<Kinds...>(tok.value(), kinds...);
+  }
+
+  // Mark the last printed token as having location `loc`. This helps to
+  // correlate things in the actual parsed tokens with printed tokens.
+  template <typename ...Kinds>
+  bool MarkLocationIfOneOf(DerivedTokenIndex offset, Kinds... kinds) {
+    auto kind = tokens.ast->TokenKind(offset);
+    if ((false || ... || (kind == kinds))) {
+      MarkLocation(offset);
+      return true;
+    }
+    return false;
+  }
+
   // Mark the last printed token as having location `loc`. This helps to
   // correlate things in the actual parsed tokens with printed tokens.
   void MarkLocation(clang::SourceLocation loc);
 
   // Mark the last printed token as having the same location as `tok`.
-  void MarkLocation(const TokenImpl &tok);
+  void MarkLocation(DerivedTokenIndex tok);
 
   ~TokenPrinterContext(void);
 

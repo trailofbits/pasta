@@ -96,6 +96,8 @@ void GenerateDeclCpp(std::ostream &py_cmake, std::ostream &py_ast) {
       << "      u.DeclContext = clang::dyn_cast<clang::derived>(that.u.Decl); \\\n"
       << "      return *this; \\\n"
       << "    }\n\n"
+      << "#pragma clang diagnostic push\n"
+      << "#pragma clang diagnostic ignored \"-Wreturn-type\"\n"
       << "namespace pasta {\n"
       << "namespace {\n"
       << "// Return the PASTA `DeclKind` for a Clang `Decl`.\n"
@@ -421,5 +423,6 @@ void Register)" << name << "(nb::module_ &m) {\n"
 
   os
       << "}  // namespace pasta\n"
+      << "#pragma clang diagnostic pop\n"
       << "#endif  // PASTA_IN_BOOTSTRAP\n";
 }

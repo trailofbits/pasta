@@ -141,10 +141,22 @@ FileTokenRange File::Tokens(void) const noexcept {
   }
 }
 
-// Return a token at a specific file offset.
-std::optional<FileToken> File::TokenAtOffset(unsigned offset) const noexcept {
+// Return the Nth token.
+std::optional<FileToken> File::TokenAtIndex(size_t n) const noexcept {
+  std::unique_lock<std::mutex> locker(impl->tokens_lock);
+  const auto num_toks = impl->tokens.size();
+  if (n >= num_toks) {
+    return std::nullopt;
+  }
 
-  FileTokenImpl fake_tok(offset, 0, 0, 0, clang::tok::unknown);
+  return FileToken(impl, &(impl->tokens[n]));
+}
+
+// Return a token at a specific file offset.
+std::optional<FileToken> File::TokenAtOffset(size_t offset) const noexcept {
+
+  FileTokenImpl fake_tok(static_cast<unsigned>(offset), 0, 0, 0,
+                         clang::tok::unknown);
 
   {
     std::unique_lock<std::mutex> locker(impl->tokens_lock);

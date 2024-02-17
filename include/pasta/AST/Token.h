@@ -10,6 +10,7 @@
 #include <string_view>
 #include <type_traits>
 #include <utility>
+#include <variant>
 #include <vector>
 
 namespace pasta {
@@ -26,6 +27,7 @@ class FunctionDecl;
 class Macro;
 class MacroSubstitution;
 class MacroToken;
+class ParsedTokenStorage;
 class PrintedToken;
 class PrintedTokenRange;
 class PrintedTokenRangeImpl;
@@ -33,7 +35,6 @@ class TemplateArgument;
 class TemplateParameterList;
 class TokenIterator;
 class TokenPrinterContext;
-class TokenImpl;
 class TokenRange;
 
 // X-macro for repeated operations on TokenRole values
@@ -42,14 +43,18 @@ class TokenRange;
     m(BeginOfFileMarker) \
     m(FileToken) \
     m(EndOfFileMarker) \
-    m(BeginOfMacroExpansionMarker) \
     m(InitialMacroUseToken) \
     m(IntermediateMacroExpansionToken) \
     m(FinalMacroExpansionToken) \
-    m(EndOfMacroExpansionMarker) \
-    m(EndOfInternalMacroEventMarker) \
+    m(EmptyOrSpecialMacroToken)
 
 enum class TokenKind : unsigned short;
+
+// Different token roles.
+//
+// NOTE(pag): `kEmptyOrSpecialMacroToken` signals something like a macro
+//            expansion that expands to nothing, or the retention of a `#pragma`
+//            directive into the parsed toekns.
 enum class TokenRole : unsigned char {
 #define PASTA_DEFINE_ROLE_ENUMERATOR(role) k ## role ,
   PASTA_FOR_EACH_TOKEN_ROLE(PASTA_DEFINE_ROLE_ENUMERATOR)
@@ -57,105 +62,18 @@ enum class TokenRole : unsigned char {
 };
 
 // Vector of all token roles for iteration.
-extern std::vector<TokenRole> TokenRoles;
+extern const std::vector<TokenRole> gTokenRoles;
 
 // Returns the name of the specified TokenRole as a string.
-std::string TokenRoleName(const TokenRole role);
+std::string_view TokenRoleName(TokenRole role);
 
 bool IsIdentifierTokenKind(TokenKind) noexcept;
 const char *KeywordSpellingOrNull(TokenKind) noexcept;
 
+using DerivedToken = std::variant<std::monostate, MacroToken, FileToken>;
+
 // Represents a token that has been pre-processed and parsed.
 class Token {
- private:
-  std::shared_ptr<ASTImpl> ast;
-  const TokenImpl *impl;
-
- public:
-  ~Token(void);
-
-  Token(const Token &) = default;
-  Token(Token &&) noexcept = default;
-  Token &operator=(const Token &) = default;
-  Token &operator=(Token &&) noexcept = default;
-
-  inline const void *RawToken(void) const noexcept {
-    return impl;
-  }
-
-  // Find the token from which this token was derived.
-  std::optional<Token> DerivedLocation(void) const;
-
-  // Follow this token's derived token list and accumulate results along the
-  // way. The result vector's first element is this token, and the last element
-  // is the first token this token was derived from.
-  std::vector<Token> DerivationChain(void) const;
-
-  // Location of the token in a file.
-  std::optional<FileToken> FileLocation(void) const;
-
-  // Location of the token in a macro expansion.
-  std::optional<MacroToken> MacroLocation(void) const;
-
-  // `#define` associated with the name of this token. This doesn't
-  // necessarily mean that this token is actually expanded as the macro,
-  // just that it could be referring to it at the point of use. An example
-  // of where this can seem misleading is:
-  //
-  //      #define FOO() ...
-  //      #define not_FOO
-  //      #define BAR(x) not_ ## x
-  //
-  //      BAR(FOO)
-  //
-  // Here, `FOO` in the parameter to `BAR` refers to the macro `FOO`, but it
-  // actually ends up being concatenated with `not_`, becoming a different
-  // macro, `not_FOO`, which expands to nothing.
-  std::optional<DefineMacroDirective> AssociatedMacro(void) const;
-
-  // Returns true if we can follow the token's derived location chain to a token
-  // expanded under the given macro.
-  bool IsDerivedFromMacro(const Macro &macro) const noexcept;
-
-  // Return the data associated with this token.
-  std::string_view Data(void) const;
-
-  // Index of this token in the AST's token list.
-  uint64_t Index(void) const;
-
-  // Kind of this token.
-  TokenKind Kind(void) const noexcept;
-
-  // Return the role of this token.
-  TokenRole Role(void) const noexcept;
-
-  // Return the printable kind of this token.
-  const char *KindName(void) const noexcept;
-
-  inline operator bool(void) const noexcept {
-    return !!impl;
-  }
-
-  inline uint64_t Hash(void) const noexcept {
-    return std::hash<const TokenImpl *>{}(impl);
-  }
-
-  inline bool operator==(const Token &that) const noexcept {
-    return impl == that.impl;
-  }
-
-  inline bool operator<(const Token &that) const noexcept {
-    return impl < that.impl;
-  }
-
-  // Returns the first final expansion or file token in the AST after this
-  // token.
-  std::optional<Token> NextFinalExpansionOrFileToken(void) const noexcept;
-
-  // Returns the first final expansion or file token in the AST before this
-  // token.
-  std::optional<Token> PrevFinalExpansionOrFileToken(void) const noexcept;
-
  private:
   friend class AST;
   friend class ASTImpl;
@@ -169,28 +87,93 @@ class Token {
   friend class TokenPrinterContext;
   friend class TokenRange;
 
+  std::shared_ptr<ParsedTokenStorage> storage;
+  unsigned offset;
+
   Token(void) = delete;
 
-  inline explicit Token(std::shared_ptr<ASTImpl> ast_)
-      : ast(std::move(ast_)),
-        impl(nullptr) {}
+  explicit Token(std::shared_ptr<ASTImpl> ast_);
 
-  inline explicit Token(std::shared_ptr<ASTImpl> ast_, const TokenImpl *impl_)
-      : ast(std::move(ast_)),
-        impl(impl_) {}
+  inline explicit Token(std::shared_ptr<ParsedTokenStorage> storage_,
+                        unsigned offset_=0u)
+      : storage(std::move(storage_)),
+        offset(offset_) {}
+
+ public:
+  ~Token(void);
+
+  Token(const Token &) = default;
+  Token(Token &&) noexcept = default;
+  Token &operator=(const Token &) = default;
+  Token &operator=(Token &&) noexcept = default;
+
+  const void *RawToken(void) const noexcept;
+
+  // Find the token from which this token was derived. This is a single-hop
+  // operation.
+  DerivedToken DerivedLocation(void) const;
+
+  // Location of the token in a file. This will try to track the token back to
+  // any file token, so it's really a multi-step process, unlike
+  // `DerivedLocation`.
+  std::optional<FileToken> FileLocation(void) const;
+
+  // Location of the token in a macro expansion.
+  std::optional<MacroToken> MacroLocation(void) const;
+
+  // Return the data associated with this token.
+  std::string_view Data(void) const;
+
+  // Index of this token in the AST's token list.
+  inline uint64_t Index(void) const {
+    return offset;
+  }
+
+  // Kind of this token.
+  TokenKind Kind(void) const noexcept;
+
+  // Return the role of this token.
+  TokenRole Role(void) const noexcept;
+
+  // Return the printable kind of this token.
+  const char *KindName(void) const noexcept;
+
+  // Returns whether or no this token is valid.
+  //
+  // PASTA supports "nullable" tokens because it's impossible to ensure that
+  // all Clang AST nodes have source locations, and it would be rather "spammy"
+  // for every AST node to have to use `std::optional<Token>`. In places
+  // where PASTA is in control, it uses the more verbose `std::optional<Token>`,
+  // communicating absence with `std::nullopt` and that presence guarantees
+  // "non-nullness."
+  //
+  // In general, a "null" token is still entirely usable. All of its methods
+  // will work. 
+  operator bool(void) const noexcept;
+
+  inline uint64_t Hash(void) const noexcept {
+    return std::hash<const void *>{}(RawToken());
+  }
+
+  inline bool operator==(const Token &that) const noexcept {
+    return storage == that.storage && offset == that.offset;
+  }
+
+  inline bool operator<(const Token &that) const noexcept {
+    return storage == that.storage && offset < that.offset;
+  }
 };
 
-// A bi-directional, random-access iterator over tokens.
+// A bi-directional iterator over tokens.
 class TokenIterator {
  private:
   Token token;
 
  public:
   typedef Token value_type;
-  typedef ptrdiff_t difference_type;
   typedef const Token *pointer;
   typedef const Token &reference;
-  typedef std::random_access_iterator_tag iterator_category;
+  typedef std::bidirectional_iterator_tag iterator_category;
 
   TokenIterator(const TokenIterator &) = default;
   TokenIterator(TokenIterator &&) noexcept = default;
@@ -213,35 +196,13 @@ class TokenIterator {
   TokenIterator operator++(int) noexcept;
   TokenIterator &operator--(void) noexcept;
   TokenIterator operator--(int) noexcept;
-  TokenIterator operator+(size_t offset) const noexcept;
-  TokenIterator operator-(size_t offset) const noexcept;
-  TokenIterator &operator+=(size_t offset) noexcept;
-  TokenIterator &operator-=(size_t offset) noexcept;
-  Token operator[](size_t offset) const noexcept;
-  ptrdiff_t operator-(const TokenIterator &that) const noexcept;
-
-  inline bool operator!=(const TokenIterator &that) const noexcept {
-    return token.impl != that.token.impl;
-  }
 
   inline bool operator==(const TokenIterator &that) const noexcept {
-    return token.impl == that.token.impl;
-  }
-
-  inline bool operator<=(const TokenIterator &that) const noexcept {
-    return token.impl <= that.token.impl;
-  }
-
-  inline bool operator>=(const TokenIterator &that) const noexcept {
-    return token.impl >= that.token.impl;
+    return token == that.token;
   }
 
   inline bool operator<(const TokenIterator &that) const noexcept {
-    return token.impl < that.token.impl;
-  }
-
-  inline bool operator>(const TokenIterator &that) const noexcept {
-    return token.impl > that.token.impl;
+    return token < that.token;
   }
 
  private:
@@ -249,17 +210,44 @@ class TokenIterator {
 
   TokenIterator(void) = delete;
 
-  inline explicit TokenIterator(const std::shared_ptr<ASTImpl> &ast_,
-                                const TokenImpl *it_)
-      : token(ast_, it_) {}
+  inline explicit TokenIterator(
+      const std::shared_ptr<ParsedTokenStorage> &storage_, unsigned offset_)
+      : token(storage_, offset_) {}
 };
 
 // Range of tokens.
 class TokenRange {
  private:
-  std::shared_ptr<ASTImpl> ast;
-  const TokenImpl *first;
-  const TokenImpl *after_last;
+  friend class AST;
+  friend class ASTImpl;
+  friend class CXXBaseSpecifier;
+  friend class DeclPrinter;
+  friend class FunctionDecl;
+  friend class PrintedTokenRange;
+  friend class Token;
+
+  std::shared_ptr<ParsedTokenStorage> storage;
+  unsigned first;
+  unsigned after_last;
+
+  TokenRange(void) = delete;
+
+  explicit TokenRange(std::shared_ptr<ASTImpl> ast_);
+
+  inline explicit TokenRange(std::shared_ptr<ParsedTokenStorage> storage_)
+      : storage(std::move(storage_)),
+        first(0u),
+        after_last(0u) {}
+
+
+  explicit TokenRange(std::shared_ptr<ASTImpl> ast_,
+                      unsigned first_, unsigned after_last_);
+
+  inline explicit TokenRange(std::shared_ptr<ParsedTokenStorage> storage_,
+                             unsigned first_, unsigned after_last_)
+      : storage(std::move(storage_)),
+        first(first_),
+        after_last(after_last_) {}
 
  public:
   TokenRange(const TokenRange &) = default;
@@ -268,12 +256,15 @@ class TokenRange {
   TokenRange &operator=(TokenRange &&) noexcept = default;
 
   inline TokenIterator begin(void) const noexcept {
-    return TokenIterator(ast, first);
+    return TokenIterator(storage, first);
   }
 
   inline TokenIterator end(void) const noexcept {
-    return TokenIterator(ast, after_last);
+    return TokenIterator(storage, after_last);
   }
+
+  // Tries to create a TokenRange from an individual token.
+  static TokenRange From(Token tok);
 
   // Tries to create a TokenRange from the given beginning and ending tokens.
   // Fails if the tokens don't belong to the same AST, or if the beginning token
@@ -281,23 +272,35 @@ class TokenRange {
   static std::optional<TokenRange> From(Token begin, Token end);
 
   inline size_t size(void) const noexcept {
-    return Size();
+    return after_last - first;
+  }
+
+  // Number of tokens in this range.
+  inline size_t Size(void) const noexcept {
+    return after_last - first;
   }
 
   inline bool empty(void) const noexcept {
-    return !Size();
+    return first >= after_last;
   }
 
   // If this range is not empty, returns the first token. Otherwise returns
   // std::nullopt.
-  std::optional<Token> Front(void) const noexcept;
+  inline std::optional<Token> Front(void) const noexcept {
+    if (first >= after_last) {
+      return std::nullopt;
+    }
+    return Token(storage, first);
+  }
 
   // If this range is not empty, returns the last token. Otherwise returns
   // std::nullopt.
-  std::optional<Token> Back(void) const noexcept;
-
-  // Number of tokens in this range.
-  size_t Size(void) const noexcept;
+  inline std::optional<Token> Back(void) const noexcept {
+    if (first >= after_last) {
+      return std::nullopt;
+    }
+    return Token(storage, after_last - 1u);
+  }
 
   // Return the `index`th token in this range. If `index` is too big, then
   // return nothing.
@@ -319,28 +322,6 @@ class TokenRange {
   inline operator bool(void) const noexcept {
     return first < after_last;
   }
-
- private:
-  friend class AST;
-  friend class ASTImpl;
-  friend class CXXBaseSpecifier;
-  friend class DeclPrinter;
-  friend class FunctionDecl;
-  friend class PrintedTokenRange;
-  friend class Token;
-
-  TokenRange(void) = delete;
-
-  inline explicit TokenRange(std::shared_ptr<ASTImpl> ast_)
-      : ast(std::move(ast_)),
-        first(nullptr),
-        after_last(nullptr) {}
-
-  inline explicit TokenRange(std::shared_ptr<ASTImpl> ast_,
-                             const TokenImpl *begin_, const TokenImpl *end_)
-      : ast(std::move(ast_)),
-        first(begin_),
-        after_last(end_) {}
 };
 
 }  // namespace pasta

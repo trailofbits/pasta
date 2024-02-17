@@ -25,12 +25,13 @@
 #include <clang/Lex/Token.h>
 #pragma GCC diagnostic pop
 
+// NOTE(pag): `include/pasta/Stmt.h` has a method called `D` on an OMP class.
 #if 0
 #include <pasta/Util/File.h>
 #include <iostream>
-#define DEBUG(...) __VA_ARGS__
+#define DD(...) __VA_ARGS__
 #else
-#define DEBUG(...)
+#define DD(...)
 #endif
 
 #include "AST.h"
@@ -131,28 +132,15 @@ static const Node *LastTokenImpl(const std::vector<Node> &nodes) {
 // Clone this token into the AST.
 MacroTokenImpl *MacroTokenImpl::Clone(ASTImpl &ast,
                                       MacroNodeImpl *new_parent) const {
-  TokenImpl ast_tok = ast.tokens[token_offset];
-  size_t new_offset = ast.tokens.size();
-  ast.tokens.emplace_back(std::move(ast_tok));
+  auto clone_offset = static_cast<DerivedTokenIndex>(
+      ast.root_macro_node.tokens.size());
 
   MacroTokenImpl *clone = &(ast.root_macro_node.tokens.emplace_back());
-  clone->token_offset = static_cast<uint32_t>(new_offset);
-  assert(clone->token_offset == new_offset);
+  clone->token_offset = ast.macro_tokens.CloneMacroToken(
+      token_offset, clone_offset);
   clone->parent = new_parent;
   clone->kind = kind;
   clone->is_ignored_comma = is_ignored_comma;
-
-  // Associate the clone node's token offset with the macro definition.
-  if (ast_tok.is_macro_name) {
-    auto old_node_it = ast.tokens_to_macro_definitions.find(token_offset);
-    if (old_node_it != ast.tokens_to_macro_definitions.end()) {
-      ast.tokens_to_macro_definitions.emplace(
-          new_offset, old_node_it->second);
-    }
-  }
-
-  ast.preprocessed_code.push_back('\n');
-  ast.num_lines += 1u;
   return clone;
 }
 
@@ -249,48 +237,51 @@ MacroNodeImpl *MacroVAOptArgumentImpl::Clone(ASTImpl &, MacroNodeImpl *) const {
 }
 
 // Copy tokens from the body of the macro that come before the token with
-// location `loc`.
+// location `end_loc`.
 void MacroExpansionImpl::CopyFromBody(
-    ASTImpl &ast, MacroNodeImpl *curr, OpaqueSourceLoc loc) {
+    ASTImpl &ast, MacroNodeImpl *curr, OpaqueSourceLoc end_loc) {
   if (!definition_impl || !has_body) {
     return;
   }
 
+  auto &amt = ast.macro_tokens;
   auto max = definition_impl->nodes.size();
   auto orig_next_body_token_to_copy = next_body_token_to_copy;
 
   if (const Node *last_node = LastTokenImpl(body)) {
     MacroTokenImpl *last_tok = std::get<MacroTokenImpl *>(*last_node);
-    TokenImpl last_atok = ast.tokens[last_tok->token_offset];
+    OpaqueSourceLoc last_loc
+        = amt.OriginalLocation(last_tok->token_offset).getRawEncoding();
 
-    DEBUG( std::cerr << "Last added to body: " << last_atok.Data(ast)
-                     << '\n'; )
+    DD( std::cerr << "Last added to body: "
+                 << amt.Data(last_tok->token_offset)
+                 << '\n'; )
 
     while (next_body_token_to_copy < max) {
-      DEBUG( std::cerr << next_body_token_to_copy << '\t'; )
+      DD( std::cerr << next_body_token_to_copy << '\t'; )
       const Node &node = definition_impl->nodes[next_body_token_to_copy++];
       const Node *last_def_node = LastTokenImpl(node);
       if (!last_def_node) {
-        DEBUG( std::cerr << "Skipping:\n"; )
+        DD( std::cerr << "Skipping:\n"; )
         continue;
       }
 
       MacroTokenImpl *last_def_tok = std::get<MacroTokenImpl *>(*last_def_node);
-      TokenImpl last_def_atok = ast.tokens[last_def_tok->token_offset];
-      DEBUG( std::cerr << "Attempting 1: " << last_def_atok.Data(ast) << ' '
-                   << last_def_atok.opaque_source_loc << " ?= "
-                   << last_atok.opaque_source_loc << '\n'; )
+      OpaqueSourceLoc last_def_loc
+          = amt.OriginalLocation(last_def_tok->token_offset).getRawEncoding();
 
-      if (last_def_atok.opaque_source_loc == loc) {
-        DEBUG( std::cerr << "Early exit: " << last_def_atok.Data(ast)
-                         << '\n'; )
+      DD( std::cerr << "Attempting 1: "
+                   << amt.Data(last_def_tok->token_offset)
+                   << ' ' << last_def_loc << " ?= " << last_loc << '\n'; )
+
+      if (last_def_loc == end_loc) {
+        DD( std::cerr << "Early exit at boundary: " << last_def_loc << '\n'; )
         next_body_token_to_copy -= 1u;
         break;
       }
 
-      if (last_atok.opaque_source_loc == last_def_atok.opaque_source_loc) {
-        DEBUG( std::cerr << "Aligned at 1: " << last_def_atok.Data(ast)
-                         << '\n'; )
+      if (last_loc == last_def_loc) {
+        DD( std::cerr << "Aligned at 1: " << last_def_loc << '\n'; )
         break;   // Aligned to the end of the last added thing.
       }
     }
@@ -300,12 +291,12 @@ void MacroExpansionImpl::CopyFromBody(
 
   // Now that we're aligned, start copying the missing things.
   while (next_body_token_to_copy < max) {
-    DEBUG( std::cerr << next_body_token_to_copy << '\t'; )
+    DD( std::cerr << next_body_token_to_copy << '\t'; )
 
     const Node &node = definition_impl->nodes[next_body_token_to_copy++];
     const Node *last_def_node = LastTokenImpl(node);
     if (!last_def_node) {
-      DEBUG( std::cerr << "Injecting 1: (unknown)\n"; )
+      DD( std::cerr << "Injecting 1: (unknown)\n"; )
       CloneNode(ast, definition_impl, node, 0u, curr,
                 curr_nodes, NoOnTokenCB, NoOnNodeCB);
       has_interesting_body = true;
@@ -313,14 +304,16 @@ void MacroExpansionImpl::CopyFromBody(
     }
 
     MacroTokenImpl *last_def_tok = std::get<MacroTokenImpl *>(*last_def_node);
-    TokenImpl last_def_atok = ast.tokens[last_def_tok->token_offset];
-    DEBUG( std::cerr << "Attempting 2: " << last_def_atok.Data(ast)
-                     << " " << last_def_atok.opaque_source_loc << " ?= " << loc
-                     << '\n'; )
+    OpaqueSourceLoc last_def_loc
+        = amt.OriginalLocation(last_def_tok->token_offset).getRawEncoding();
 
-    if (last_def_atok.opaque_source_loc != loc) {
-      DEBUG( std::cerr << "Injecting 2: " << last_def_atok.Data(ast)
-                       << '\n'; )
+    DD( std::cerr << "Attempting 2: " << amt.Data(last_def_tok->token_offset)
+                 << " " << last_def_loc << " ?= " << end_loc
+                 << '\n'; )
+
+    if (last_def_loc != end_loc) {
+      DD( std::cerr << "Injecting 2: " << amt.Data(last_def_tok->token_offset)
+                   << '\n'; )
 
       CloneNode(ast, definition_impl, node, 0u, curr,
                 curr_nodes, NoOnTokenCB, NoOnNodeCB);
@@ -328,9 +321,7 @@ void MacroExpansionImpl::CopyFromBody(
       continue;
     }
 
-
-    DEBUG( std::cerr << "Aligned at 2: " << last_def_atok.Data(ast)
-                 << '\n'; )
+    DD( std::cerr << "Aligned at boundary: " << end_loc << '\n'; )
     break;  // Aligned.
   }
 
@@ -484,7 +475,7 @@ MacroKind Macro::Kind(void) const noexcept {
   }
 
   assert(false);
-  DEBUG( std::cerr << "Bad macro kind on main file: "
+  DD( std::cerr << "Bad macro kind on main file: "
                    << ast->main_source_file.Path().generic_string() << '\n'; )
   abort();
   __builtin_unreachable();
@@ -515,7 +506,9 @@ std::string_view Macro::KindName(void) const noexcept {
 const void *Macro::RawMacro(void) const noexcept {
   Node node = *reinterpret_cast<const Node *>(impl);
   if (std::holds_alternative<MacroTokenImpl *>(node)) {
-    return &(ast->tokens[std::get<MacroTokenImpl *>(node)->token_offset]);
+    auto ret = std::get<MacroTokenImpl *>(node);
+    assert(ret != nullptr);
+    return ret;
   }
 
   if (std::holds_alternative<MacroNodeImpl *>(node)) {
@@ -525,8 +518,8 @@ const void *Macro::RawMacro(void) const noexcept {
   }
 
   assert(false);
-  DEBUG( std::cerr << "Bad macro kind on main file: "
-                   << ast->main_source_file.Path().generic_string() << '\n'; )
+  DD( std::cerr << "Bad macro kind on main file: "
+               << ast->main_source_file.Path().generic_string() << '\n'; )
   return nullptr;
 }
 
@@ -586,7 +579,7 @@ std::optional<MacroToken> Macro::BeginToken(void) const noexcept {
   }
 
   assert(false);
-  DEBUG( std::cerr << "Bad macro kind on main file: "
+  DD( std::cerr << "Bad macro kind on main file: "
                    << ast->main_source_file.Path().generic_string() << '\n'; )
   return std::nullopt;
 }
@@ -605,13 +598,26 @@ std::optional<MacroToken> Macro::EndToken(void) const noexcept {
   }
 
   assert(false);
-  DEBUG( std::cerr << "Bad macro kind on main file: "
+  DD( std::cerr << "Bad macro kind on main file: "
                    << ast->main_source_file.Path().generic_string() << '\n'; )
   return std::nullopt;
 }
 
+namespace {
+
+inline static DerivedTokenIndex MacroTokenOffset(const void *impl) {
+  Node node = *reinterpret_cast<const Node *>(impl);
+  return std::get<MacroTokenImpl *>(node)->token_offset;
+}
+
+}  // namespace
+
 enum TokenKind MacroToken::TokenKind(void) const noexcept {
-  return ParsedLocation().Kind();
+  return ast->macro_tokens.Kind(MacroTokenOffset(impl));
+}
+
+enum TokenRole MacroToken::TokenRole(void) const noexcept {
+  return ast->macro_tokens.Role(MacroTokenOffset(impl));
 }
 
 std::string_view MacroToken::TokenKindName(void) const noexcept {
@@ -621,30 +627,51 @@ std::string_view MacroToken::TokenKindName(void) const noexcept {
 
 // Return the data associated with this token.
 std::string_view MacroToken::Data(void) const noexcept {
-  return ParsedLocation().Data();
+  return ast->macro_tokens.Data(MacroTokenOffset(impl));
 }
 
 // Location of the token in a file.
 std::optional<FileToken> MacroToken::FileLocation(void) const noexcept {
-  return ParsedLocation().FileLocation();
+  return Token(
+      std::shared_ptr<ParsedTokenStorage>(ast, &(ast->macro_tokens)),
+      MacroTokenOffset(impl)).FileLocation();
+}
+
+// Find the token from which this token was derived.
+DerivedToken MacroToken::DerivedLocation(void) const {
+  return Token(
+      std::shared_ptr<ParsedTokenStorage>(ast, &(ast->macro_tokens)),
+      MacroTokenOffset(impl)).DerivedLocation();
 }
 
 // Location of the token as parsed.
-Token MacroToken::ParsedLocation(void) const noexcept {
-  Node node = *reinterpret_cast<const Node *>(impl);
-  auto offset = std::get<MacroTokenImpl *>(node)->token_offset;
-  if (offset >= ast->tokens.size()) {
-    assert(false);  // Not sure what's going on here.
-    return Token(ast);
+std::optional<Token> MacroToken::ParsedLocation(void) const noexcept {
+  auto offset = MacroTokenOffset(impl);
+  auto role = ast->macro_tokens.Role(offset);
+  if (role != TokenRole::kFinalMacroExpansionToken) {
+    return std::nullopt;
   }
 
-  const TokenImpl &tok = ast->tokens[offset];
-  if (!tok.HasMacroRole()) {
-    assert(false);  // Not sure what's going on here.
-    return Token(ast);
+  auto parsed_offset = ast->macro_tokens.ParsedTokenOffset(offset);
+  if (!parsed_offset.has_value()) {
+    assert(false);
+    return std::nullopt;
   }
 
-  return Token(ast, &tok);
+  return Token(
+      std::shared_ptr<ParsedTokenStorage>(ast, &(ast->parsed_tokens)),
+      parsed_offset.value());
+}
+
+std::optional<DefineMacroDirective> MacroToken::AssociatedMacro(void) const {
+  auto offset = MacroTokenOffset(impl);
+  auto &macro_storage = ast->macro_tokens;
+  auto it = macro_storage.macro_definition.find(offset);
+  if (it == macro_storage.macro_definition.end()) {
+    return std::nullopt;
+  }
+
+  return DefineMacroDirective(ast, &(it->second));
 }
 
 std::optional<MacroDirective> MacroDirective::From(const Macro &node) noexcept {

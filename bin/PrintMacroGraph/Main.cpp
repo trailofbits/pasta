@@ -50,28 +50,24 @@ static std::string TokData(const TokT &tok) {
 #if PRINT_ROLE_COLORS
 static inline std::string TokRoleColor(const pasta::TokenRole role) {
   std::stringstream ss;
-  switch (role)
-  {
-  case pasta::TokenRole::kInvalid: ss << "red"; break;
-  case pasta::TokenRole::kBeginOfFileMarker: ss << "cyan"; break;
-  case pasta::TokenRole::kFileToken: ss << "blue"; break;
-  case pasta::TokenRole::kEndOfFileMarker: ss << "darkblue"; break;
-  case pasta::TokenRole::kBeginOfMacroExpansionMarker: ss << "lightblue"; break;
-  case pasta::TokenRole::kInitialMacroUseToken: ss << "purple"; break;
-  case pasta::TokenRole::kIntermediateMacroExpansionToken: ss << "yellow"; break;
-  case pasta::TokenRole::kFinalMacroExpansionToken: ss << "lime"; break;
-  case pasta::TokenRole::kEndOfMacroExpansionMarker: ss << "magenta"; break;
-  case pasta::TokenRole::kEndOfInternalMacroEventMarker: ss << "pink"; break;
+  switch (role) {
+    case pasta::TokenRole::kInvalid: ss << "red"; break;
+    case pasta::TokenRole::kBeginOfFileMarker: ss << "cyan"; break;
+    case pasta::TokenRole::kFileToken: ss << "blue"; break;
+    case pasta::TokenRole::kEndOfFileMarker: ss << "darkblue"; break;
+    case pasta::TokenRole::kInitialMacroUseToken: ss << "purple"; break;
+    case pasta::TokenRole::kIntermediateMacroExpansionToken: ss << "yellow"; break;
+    case pasta::TokenRole::kFinalMacroExpansionToken: ss << "lime"; break;
 
-  default:
-    assert(false && "unknown token role");
+    default:
+      assert(false && "unknown token role");
   }
   return ss.str();
 }
 
 static inline void PrintLegend(std::ostream &os) {
   os << "legend [label=<<TABLE cellpadding=\"2\" cellspacing=\"0\" border=\"1\">";
-  for (const auto role : pasta::TokenRoles) {
+  for (const auto role : pasta::gTokenRoles) {
     os << "<TR><TD BGCOLOR=\"" << TokRoleColor(role) << "\">"
        << pasta::TokenRoleName(role)
        << "</TD></TR>";
@@ -90,27 +86,29 @@ static void PrintMacroGraph(std::ostream &os,
       << "n" << a
       << " [label=<<TABLE"
       #if PRINT_ROLE_COLORS
-      << " BGCOLOR=\"" << TokRoleColor(tok.ParsedLocation().Role()) << "\""
+      << " BGCOLOR=\"" << TokRoleColor(tok.TokenRole()) << "\""
       #endif
       << " cellpadding=\"2\" cellspacing=\"0\" border=\"1\"><TR>"
       << "<TD>" << TokData(tok) << "</TD></TR></TABLE>>];\n";
 
 #if PRINT_DEFINITIONS
-  if (auto def = tok.ParsedLocation().AssociatedMacro()) {
+  if (auto def = tok.AssociatedMacro()) {
     os << "n" << a << " -> n" << reinterpret_cast<uintptr_t>(def->RawMacro())
        << " [style=dashed];\n";
   }
 #endif
 
 #if PRINT_DERIVED
-  auto pt = tok.ParsedLocation();
-  if (auto dt = pt.DerivedLocation()) {
-    assert(tok.Data() == dt->Data());
-    if (auto mt = dt->MacroLocation()) {
-      assert(tok.Data() == mt->Data());
-      os << "n" << a << " -> n" << reinterpret_cast<uintptr_t>(mt->RawMacro())
-         << " [style=dotted];\n";
-    }
+  if (auto pt = tok.ParsedLocation()) {
+    os << "n" << reinterpret_cast<uintptr_t>(pt->RawToken()) << " -> n" << a
+       << " [style=dotted];\n";
+  }
+
+  auto dt = tok.DerivedLocation();
+  if (std::holds_alternative<pasta::MacroToken>(dt)) {
+    auto &mt = std::get<pasta::MacroToken>(dt);
+    os << "n" << a << " -> n" << reinterpret_cast<uintptr_t>(mt.RawMacro())
+       << " [style=dotted];\n";
   }
 #endif
 }
@@ -493,12 +491,6 @@ static void PrintMacroGraph(std::ostream &os, pasta::AST ast) {
       case pasta::TokenRole::kFileToken:
         std::cerr << "FT  ";
         break;
-      case pasta::TokenRole::kBeginOfMacroExpansionMarker:
-        std::cerr << "BME ";
-        break;
-      case pasta::TokenRole::kEndOfMacroExpansionMarker:
-        std::cerr << "EME ";
-        break;
       case pasta::TokenRole::kInitialMacroUseToken:
         std::cerr << "IMU ";
         break;
@@ -508,25 +500,18 @@ static void PrintMacroGraph(std::ostream &os, pasta::AST ast) {
       case pasta::TokenRole::kFinalMacroExpansionToken:
         std::cerr << "FME ";
         break;
-      case pasta::TokenRole::kEndOfInternalMacroEventMarker:
-        std::cerr << "IEM ";
+      case pasta::TokenRole::kEmptyOrSpecialMacroToken:
+        std::cerr << "EOS ";
         break;
     }
     std::cerr << tok.KindName() << ' ' << tok.Data();
     if (auto ft = tok.FileLocation()) {
       std::cerr << " PFI=" << ft->Index();
-
     }
 
     if (auto mt = tok.MacroLocation()) {
       if (auto mft = mt->FileLocation()) {
         std::cerr << " MFI=" << mft->Index();
-      }
-    }
-
-    if (auto dl = tok.DerivedLocation()) {
-      if (auto dft = dl->FileLocation()) {
-        std::cerr << " DFI=" << dft->Index();
       }
     }
     std::cerr << '\n';

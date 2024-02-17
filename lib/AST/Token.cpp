@@ -29,6 +29,8 @@
 namespace pasta {
 namespace {
 
+// static const std::string_view kEmptyStringView("");
+
 // Try to use the kind of the token to get its representation.
 static bool ReadRawTokenByKind(clang::SourceManager &source_manager,
                                clang::Token tok, std::string *out) {
@@ -159,19 +161,19 @@ static bool ReadRawTokenData(clang::SourceManager &source_manager,
 
 } // namespace
 
-std::vector<pasta::TokenRole> TokenRoles = std::vector({
+const std::vector<pasta::TokenRole> gTokenRoles{
 #define ROLE(role) TokenRole::k##role ,
   PASTA_FOR_EACH_TOKEN_ROLE(ROLE)
 #undef ROLE
-});
+};
 
-std::string TokenRoleName(const TokenRole role) {
-  const static std::string TokenRoleNames[] = {
+std::string_view TokenRoleName(TokenRole role) {
+  const static std::string_view kTokenRoleNames[] = {
 #define ROLE(role) #role,
   PASTA_FOR_EACH_TOKEN_ROLE(ROLE)
 #undef ROLE
   };
-  return TokenRoleNames[static_cast<size_t>(role)];
+  return kTokenRoleNames[static_cast<size_t>(role)];
 }
 
 // Return the common ancestor between two contexts. This focuses on the data
@@ -405,481 +407,247 @@ bool TokenContext::TryUpdateToAliasee(void) {
 }
 
 // Find the token from which this token was derived.
-std::optional<Token> Token::DerivedLocation(void) const {
-  if (!impl || impl->derived_index == kInvalidDerivedTokenIndex) {
-    return std::nullopt;
+DerivedToken Token::DerivedLocation(void) const {
+  auto bit_loc = storage->location[offset];
+  if (bit_loc == kInvalidBitPackedLocation) {
+    return {};
   }
 
-  if (impl->derived_index < Index()) {
-    return Token(ast, &(ast->tokens[impl->derived_index]));
+  if (auto file_pair = UnpackFileAndTokenOffset(bit_loc)) {
+    auto [file_offset, tok_offset] = *file_pair;
+    auto &file = storage->ast->parsed_files[file_offset];
+    auto file_loc = file.TokenAtIndex(tok_offset);
+    if (file_loc) {
+      return std::move(file_loc.value());
+    }
+
+  } else if (auto macro_loc = MacroLocation()) {
+    return std::move(macro_loc.value());
   }
 
   assert(false);
-  return std::nullopt;
+  return {};
 }
 
-// Follow this token's derived token list and accumulate results along the
-// way. The result vector's first element is this token, and the last element
-// is the first token this token was derived from.
-std::vector<Token> Token::DerivationChain(void) const {
-  std::optional<Token> cur = std::optional(*this);
-  std::vector<Token> derivation_chain;
-  do {
-    derivation_chain.push_back(*cur);
-    cur = cur->DerivedLocation();
-  } while (cur.has_value());
-  return derivation_chain;
-}
-
-// Location of the token in a file.
+// Location of the token in a file. This will try to track the token back to
+// any file token, so it's really a multi-step process, unlike
+// `DerivedLocation`.
 std::optional<FileToken> Token::FileLocation(void) const {
-  if (!impl) {
-    return std::nullopt;
-  }
-
-  size_t tok_index = Index();
-  size_t max_index = ast->tokens.size();
-
-  clang::SourceLocation loc;
-  while (tok_index < max_index) {
-    const TokenImpl &tok = ast->tokens[tok_index];
-    loc = tok.Location();
-    if (loc.isInvalid()) {
+  auto target_offset = offset;
+  auto target_storage = storage.get();
+  auto ast = target_storage->ast;
+  auto &macro_tokens = ast->macro_tokens;
+  for (;;) {
+    BitPackedLocation raw_loc = target_storage->location[target_offset];
+    if (IsMacroTokenOffset(raw_loc)) {
+      target_offset = MacroTokenOffset(raw_loc);
+      target_storage = &macro_tokens;
+      continue;
+    } else if (auto file_pair = UnpackFileAndTokenOffset(raw_loc)) {
+      auto [file_offset, tok_offset] = *file_pair;
+      return ast->parsed_files[file_offset].TokenAtIndex(tok_offset);
+    } else {
       return std::nullopt;
     }
-
-    if (loc.isFileID()) {
-      break;
-    }
-
-    max_index = tok_index;
-    tok_index = tok.derived_index;
   }
-
-  return ast->FileTokenAt(loc);
+  return std::nullopt;
 }
 
 // Location of the token in a macro expansion.
 std::optional<MacroToken> Token::MacroLocation(void) const {
-  switch (Role()) {
-    default:
-    case TokenRole::kBeginOfMacroExpansionMarker:
-    case TokenRole::kEndOfMacroExpansionMarker:
-      return std::nullopt;
-    case TokenRole::kEndOfInternalMacroEventMarker:
-    case TokenRole::kInitialMacroUseToken:
-    case TokenRole::kIntermediateMacroExpansionToken:
-    case TokenRole::kFinalMacroExpansionToken:
-      if (impl->context_index == kInvalidTokenContextIndex) {
-        return std::nullopt;
-      }
-      if (impl->context_index >= ast->root_macro_node.token_nodes.size()) {
-        assert(false);
-        return std::nullopt;
-      }
-      return MacroToken(
-          ast, &(ast->root_macro_node.token_nodes[impl->context_index]));
-  }
-}
-
-// `#define` associated with the name of this token. This doesn't
-// necessarily mean that this token is actually expanded as the macro,
-// just that it could be referring to it at the point of use. An example
-// of where this can seem misleading is:
-//
-//      #define FOO() ...
-//      #define not_FOO
-//      #define BAR(x) not_ ## x
-//
-//      BAR(FOO)
-//
-// Here, `FOO` in the parameter to `BAR` refers to the macro `FOO`, but it
-// actually ends up being concatenated with `not_`, becoming a different
-// macro, `not_FOO`, which expands to nothing.
-std::optional<DefineMacroDirective> Token::AssociatedMacro(void) const {
-  if (!impl->is_macro_name) {
+  auto bit_loc = storage->location[offset];
+  if (IsInvalidOrFileBitPackedLocation(bit_loc)) {
     return std::nullopt;
   }
 
-  auto node_it = ast->tokens_to_macro_definitions.find(
-      static_cast<unsigned>(Index()));
-  if (node_it == ast->tokens_to_macro_definitions.end()) {
-    return std::nullopt;
-  }
-
-  return DefineMacroDirective(ast, &(node_it->second));
-}
-
-// Returns true if we can follow the token's derived location chain to a token
-// expanded under the given macro.
-bool Token::IsDerivedFromMacro(const Macro &macro) const noexcept {
-  for (auto derived_tok = std::optional(*this); derived_tok;
-       derived_tok = derived_tok->DerivedLocation()) {
-    if (auto derived_macro_tok = derived_tok->MacroLocation()) {
-      if (auto derived_macro_parent = derived_macro_tok->Parent()) {
-        if (macro == *derived_macro_parent) {
-          return true;
-        }
-      }
-    }
-  }
-  return false;
+  auto ast = storage->ast;
+  auto &macro_tokens = ast->macro_tokens;
+  return MacroToken(
+      std::shared_ptr<ASTImpl>(storage, ast),
+      &(ast->root_macro_node.token_nodes[
+          macro_tokens.macro_token_offset[offset]]));
 }
 
 // Kind of this token.
 TokenKind Token::Kind(void) const noexcept {
-  if (impl) {
-    return static_cast<TokenKind>(impl->Kind());
-  }
-  return TokenKind::kUnknown;
+  return storage->Kind(offset);
 }
 
 // Return the role of this token.
 TokenRole Token::Role(void) const noexcept {
-  if (impl) {
-    return impl->Role();
-  }
-  return TokenRole::kInvalid;
+  return storage->Role(offset);
 }
 
 // Kind of this token.
 const char *Token::KindName(void) const noexcept {
-  if (impl) {
-    return clang::tok::getTokenName(impl->Kind());
-  }
-  return clang::tok::getTokenName(clang::tok::unknown);
+  return clang::tok::getTokenName(static_cast<clang::tok::TokenKind>(Kind()));
 }
 
-// Return the context of this token, or `nullptr`.
-//
-// TODO(pag): Eventually migrate this to `PrintedTokenImpl`.
-const TokenContextImpl *TokenImpl::Context(
-    const ASTImpl &ast,
-    const std::vector<TokenContextImpl> &contexts) const noexcept {
+// // Return the context of this token, or `nullptr`.
+// //
+// // TODO(pag): Eventually migrate this to `PrintedTokenImpl`.
+// const TokenContextImpl *TokenImpl::Context(
+//     const ASTImpl &ast,
+//     const std::vector<TokenContextImpl> &contexts) const noexcept {
 
-  if (Role() != TokenRole::kFileToken) {
-    assert(false);
-    return nullptr;
-  }
+//   if (Role() != TokenRole::kFileToken) {
+//     assert(false);
+//     return nullptr;
+//   }
 
-  if (context_index == kInvalidTokenContextIndex) {
-    return nullptr;
-  }
+//   if (context_index == kInvalidTokenContextIndex) {
+//     return nullptr;
+//   }
 
-  if (context_index >= contexts.size()) {
-    assert(false);
-    return nullptr;
-  }
+//   if (context_index >= contexts.size()) {
+//     assert(false);
+//     return nullptr;
+//   }
 
-  return &(contexts[context_index]);
-}
-
-std::string_view TokenImpl::Data(const ASTImpl &ast) const noexcept {
-  if (data_len) {
-    if (0 <= data_offset) {
-      return std::string_view(ast.preprocessed_code).substr(
-          static_cast<uint32_t>(data_offset), data_len);
-    }
-    return std::string_view(ast.backup_token_data).substr(
-        static_cast<uint32_t>(-data_offset), data_len);
-  }
-  return {};
-}
-
-std::string_view TokenImpl::Data(
-    const PrintedTokenRangeImpl &range) const noexcept {
-  if (data_len) {
-    return std::string_view(range.data).substr(
-        static_cast<uint32_t>(data_offset), data_len);
-  }
-  return {};
-}
+//   return &(contexts[context_index]);
+// }
 
 // Return the data associated with this token.
 std::string_view Token::Data(void) const {
-  if (ast && impl) {
-    return impl->Data(*ast);
-  }
-  return {};
+  return storage->Data(offset);
 }
 
-// Index of this token in the AST's token list.
-uint64_t Token::Index(void) const {
-  if (ast && impl) {
-    return static_cast<uint64_t>(impl - ast->tokens.data());
-  }
-  return kInvalidDerivedTokenIndex;
+const void *Token::RawToken(void) const noexcept {
+  return &(storage->data[storage->data_offset[offset]]);
 }
 
-// Returns the first final expansion or file token in the AST after this token.
-std::optional<Token> Token::NextFinalExpansionOrFileToken(void) const noexcept {
-  const auto &tokens = ast->tokens;
-  for (auto i = Index() + 1; i < tokens.size(); i++) {
-    const auto tok_impl = tokens.at(i);
-    const auto tok_impl_role = tok_impl.Role();
-    if (tok_impl_role == TokenRole::kFinalMacroExpansionToken ||
-        tok_impl_role == TokenRole::kFileToken) {
-      return Token(ast, tokens.data() + i);
-    }
-  }
-  return std::nullopt;
+// Returns whether or no this token is valid.
+Token::operator bool(void) const noexcept {
+  assert(!!storage);
+  return storage.get() != &(storage->ast->invalid_tokens);
 }
 
-// Returns the first final expansion or file token in the AST before this token.
-std::optional<Token> Token::PrevFinalExpansionOrFileToken(void) const noexcept {
-  uint64_t i = Index();
-  // If this is the first token in the AST, then no token precedes it. Return
-  // early to avoid accidental integer underflow.
-  if (!i) {
-    return std::nullopt;
-  }
-  const auto &tokens = ast->tokens;
-  for (; i > 0; i--) {
-    const auto tok_impl = tokens.at(i - 1);
-    const auto tok_impl_role = tok_impl.Role();
-    if (tok_impl_role == TokenRole::kFinalMacroExpansionToken ||
-        tok_impl_role == TokenRole::kFileToken) {
-      return Token(ast, tokens.data() + (i - 1));
-    }
-  }
-  return std::nullopt;
-}
+// // Index of this token in the AST's token list.
+// uint64_t Token::Index(void) const {
+//   if (ast && impl) {
+//     return static_cast<uint64_t>(impl - ast->tokens.data());
+//   }
+//   return kInvalidDerivedTokenIndex;
+// }
 
 // Prefix increment operator.
 TokenIterator &TokenIterator::operator++(void) noexcept {
-  ++token.impl;
+  ++token.offset;
   return *this;
 }
 
 // Postfix increment operator.
 TokenIterator TokenIterator::operator++(int) noexcept {
   auto ret = *this;
-  ++token.impl;
+  ++token.offset;
   return ret;
 }
 
 // Prefix decrement operator.
 TokenIterator &TokenIterator::operator--(void) noexcept {
-  --token.impl;
+  --token.offset;
   return *this;
 }
 
 // Postfix decrement operator.
 TokenIterator TokenIterator::operator--(int) noexcept {
   auto ret = *this;
-  --token.impl;
+  --token.offset;
   return ret;
 }
 
-TokenIterator TokenIterator::operator-(size_t offset) const noexcept {
-  return TokenIterator(token.ast, token.impl - offset);
+namespace {
+
+inline static std::shared_ptr<ParsedTokenStorage> ValidFrom(
+    std::shared_ptr<ASTImpl> ast) {
+  auto raw = &(ast->parsed_tokens);
+  return std::shared_ptr<ParsedTokenStorage>(std::move(ast), raw);
 }
 
-TokenIterator &TokenIterator::operator+=(size_t offset) noexcept {
-  token.impl += offset;
-  return *this;
+inline static std::shared_ptr<ParsedTokenStorage> InvalidFrom(
+    std::shared_ptr<ASTImpl> ast) {
+  auto raw = &(ast->invalid_tokens);
+  return std::shared_ptr<ParsedTokenStorage>(std::move(ast), raw);
 }
 
-TokenIterator &TokenIterator::operator-=(size_t offset) noexcept {
-  token.impl -= offset;
-  return *this;
-}
+}  // namespace
 
-Token TokenIterator::operator[](size_t offset) const noexcept {
-  return Token(token.ast, &(token.impl[offset]));
-}
+Token::Token(std::shared_ptr<ASTImpl> ast_)
+    : Token(InvalidFrom(std::move(ast_))) {}
 
-ptrdiff_t TokenIterator::operator-(const TokenIterator &that) const noexcept {
-  return token.impl - that.token.impl;
+TokenRange::TokenRange(std::shared_ptr<ASTImpl> ast_)
+    : TokenRange(InvalidFrom(std::move(ast_)), 0u, 0u) {}
+
+TokenRange::TokenRange(std::shared_ptr<ASTImpl> ast_,
+                       unsigned first_, unsigned after_last_)
+    : TokenRange(ValidFrom(std::move(ast_)), first_, after_last_) {}
+
+TokenRange TokenRange::From(Token tok) {
+  if (tok) {
+    return TokenRange(std::move(tok.storage), tok.offset, tok.offset + 1u);
+  } else {
+    return TokenRange(std::move(tok.storage));
+  }
 }
 
 std::optional<TokenRange> TokenRange::From(Token begin, Token end) {
-  if (begin.ast != end.ast || begin > end) {
+  if (begin.storage != end.storage || begin.offset > end.offset) {
     return std::nullopt;
   }
-  return TokenRange(begin.ast, begin.impl, &(end.impl[1]));
-}
-
-// Number of tokens in this range.
-size_t TokenRange::Size(void) const noexcept {
-  return static_cast<size_t>(after_last - first);
-}
-
-// If this range is not empty, returns the first token. Otherwise returns
-// std::nullopt.
-std::optional<Token> TokenRange::Front(void) const noexcept {
-  return empty() ? std::nullopt : At(0);
-}
-
-// If this range is not empty, returns the last token. Otherwise returns
-// std::nullopt.
-std::optional<Token> TokenRange::Back(void) const noexcept {
-  return empty() ? std::nullopt : At(Size() - 1);
+  return TokenRange(begin.storage, begin.offset, end.offset + 1u);
 }
 
 // Return the `index`th token in this range. If `index` is too big, then
 // return nothing.
 std::optional<Token> TokenRange::At(size_t index) const noexcept {
-  auto size = static_cast<size_t>(after_last - first);
-  if (index < size) {
-    return Token(ast, &(first[index]));
+ auto indexed_offset = first + index;
+  if (indexed_offset >= after_last) {
+    return std::nullopt;
   }
-  return std::nullopt;
+  return Token(storage, static_cast<unsigned>(indexed_offset));
 }
 
 // Unsafe indexed access into the token range.
 Token TokenRange::operator[](size_t index) const {
-  return Token(ast, &(first[index]));
+  auto indexed_offset = first + index;
+  if (indexed_offset >= after_last) {
+    assert(false);
+    return Token(
+        std::shared_ptr<ParsedTokenStorage>(
+            storage, &(storage->ast->invalid_tokens)),
+        0u);
+  }
+  return Token(storage, static_cast<unsigned>(indexed_offset));
 }
 
 // Returns `true` if this range contains a specific token.
 bool TokenRange::Contains(const Token &tok) const noexcept {
-  return ast == tok.ast && first <= tok.impl && tok.impl < after_last;
+  return storage == tok.storage && first <= tok.offset &&
+         tok.offset < after_last;
 }
 
 std::vector<MacroSubstitution>
 TokenRange::AlignedSubstitutions(bool heuristic) noexcept {
-  // The big idea is that we want to find the all macros that aligns in the
-  // front and back with the given statement. The catch is that a macro might
-  // contain nested substitutions, e.g. argument expansions or nested
-  // expansions. Also, we should match statements which were expanded from
-  // macros containing a trailing semicolon.
-
-  // Algorithm:
-  // 1. Walk the first token's derived token chain from final expansion token to
-  //    the initial macro use token.
-  // 2. Walk up this token's expansion tree. If we encounter a non-substitution
-  //    macro, stop traversing the expansion tree and ascend the derivation
-  //    tree. If we encounter a macro substitution, check that this token is the
-  //    first in the macro's replacement list. If so, the continue to the next
-  //    step; otherwise keep ascending the token derivation tree. There is also
-  //    an edge-case to check for: If the current token is the first token in
-  //    the macro's intermediate expansion children, then we must immediately
-  //    return early, because otherwise we might erroneously match a macro with
-  //    one of its arguments if they share a derivation tree. For example:
-  //      #define ADD(X, Y)
-  //      int x = ADD(ADD(1, 2), 3)
-  //    This check prevents 1 + 2 + 3 from aligning with both invocations of
-  //    ADD(), and ensures that it will only align with the top-level
-  //    invocation.
-  // 3. Walk up the last token's derived token chain from the initial macro use
-  //    token to the final macro expansion token.
-  // 4. Walk up the last derived token's derivation tree. If the last token is
-  //    ever derived from the same token that the first token is derived from,
-  //    then exit this iteration early to avoid false positives. If we encounter
-  //    a macro substitution, check that this token is the last in the macro's
-  //    replacement list. Follow similar logic as when checking for
-  //    front-alignment. This also where we incorporate the heuristic for
-  //    aligning macros that contain semicolons. If this check succeeds, then we
-  //    have found an aligned invocation.
-  // 5. The algorithm ends once we have walked the first token's entire
-  //    derivation chain.
-  auto b_tok = Front(), e_tok = Back();
-
+  auto maybe_front = Front();
   std::vector<MacroSubstitution> result;
-  if (!b_tok || !*b_tok || !e_tok || !*e_tok) {
+  if (!maybe_front) {
     return result;
   }
 
-  auto b_tok_deriv_chain = b_tok->DerivationChain();
+  Token front = std::move(maybe_front.value());
+  Token back = Back().value();
 
-  auto e_tok_deriv_chain = e_tok->DerivationChain();
-
-  // If the heuristic is enabled, keep track of the token that immediately
-  // follows this statement to check if it's a semicolon.
-  auto tok_after_e_tok = (heuristic
-                          ? e_tok->NextFinalExpansionOrFileToken()
-                          : std::nullopt);
-  bool semi = tok_after_e_tok && tok_after_e_tok->Kind() == TokenKind::kSemi;
-
-  for (auto b_deriv : b_tok_deriv_chain) {
-    std::optional<Macro> b_macro = b_deriv.MacroLocation();
-    if (!b_macro) {
-      continue;
-    }
-
-    for (auto b_parent = b_macro->Parent(); b_parent;
-         b_macro = *b_parent, b_parent = b_parent->Parent()) {
-      auto b_parent_sub = MacroSubstitution::From(*b_parent);
-      if (!b_parent_sub) {
-        break;
-      }
-
-      // Here is the first edge-case. We only allow a macro token to be the
-      // first child in its parent's intermediate replacement list if the macro
-      // token is a parameter substitution.
-      if (auto b_parent_exp = MacroExpansion::From(*b_parent_sub)) {
-        MacroRange body = b_parent_exp->IntermediateChildren();
-        bool is_psub = b_macro->Kind() == MacroKind::kParameterSubstitution;
-        if (b_macro == body.Front() && !is_psub) {
-          return result;
-        }
-      }
-
-      auto b_parent_replacement = b_parent_sub->ReplacementChildren();
-      bool front_aligned = (b_macro == b_parent_replacement.Front());
-      if (!front_aligned) {
-        break;
-      }
-
-      for (auto e_deriv : e_tok_deriv_chain) {
-        // Here's the rub: If the begin and end tokens ever converge to the same
-        // derived token, then their derivation trees have started mixing. This
-        // can happen if two separate arguments of the macro are invocations of
-        // the same macro definition. To see an example, print the macro graph
-        // of the following invocation code snippet:
-        //
-        // #define ONE 1
-        // #define ADD(x, y) x + y
-        // ADD(ONE, ONE)
-        //
-        // This isn't a problem if the begin and end tokens were the same tokens
-        // to begin with (then of course their derivation trees would be the
-        // same). Otherwise we should exit early, since this mixing might cause
-        // us to return a false positive.
-
-        // NOTE(bpappas): I am fairly certain that returning here will prevent
-        // false positives, but I am not sure if it will create false negatives.
-        if (b_deriv == e_deriv && b_tok != e_tok) {
-          break;
-        }
-
-        std::optional<Macro> e_macro = e_deriv.MacroLocation();
-        if (!e_macro) {
-          continue;
-        }
-
-        for (auto e_parent = e_macro->Parent(); e_parent;
-             e_macro = *e_parent, e_parent = e_parent->Parent()) {
-          auto e_parent_sub = MacroSubstitution::From(*e_parent);
-          if (!e_parent_sub) {
-            break;
-          }
-
-          if (auto e_parent_exp = MacroExpansion::From(*e_parent_sub)) {
-            MacroRange body = e_parent_exp->IntermediateChildren();
-            bool is_psub = e_macro->Kind() == MacroKind::kParameterSubstitution;
-            if (e_macro == body.Back() && !is_psub) {
-              break;
-            }
-          }
-
-          auto psub_last_tok = e_parent_sub->LastFullySubstitutedToken();
-          auto e_parent_replacement = e_parent_sub->ReplacementChildren();
-          bool back_aligned = ((e_macro == e_parent_replacement.Back()) ||
-                               (semi && tok_after_e_tok == psub_last_tok));
-
-          if (!back_aligned) {
-            break;
-          }
-
-          if (b_parent == e_parent) {
-            result.push_back(*b_parent_sub);
-          }
-        }
-      }
-    }
+  auto maybe_front_macro = front.MacroLocation();
+  auto maybe_back_macro = front.MacroLocation();
+  if (!maybe_front_macro || !maybe_back_macro) {
+    return result;
   }
+
+  MacroToken fm = std::move(maybe_front_macro.value());
+  MacroToken bm = std::move(maybe_back_macro.value());
+
+  (void) fm;
+  (void) bm;
 
   return result;
 }
@@ -902,17 +670,17 @@ void SkipTrailingWhitespace(std::string &tok_data) {
 }
 
 // Strip off leading whitespace from a token that has been read.
-void SkipLeadingWhitspace(std::string &tok_data) {
+void SkipLeadingWhitespace(std::string &tok_data) {
   std::reverse(tok_data.begin(), tok_data.end());
   SkipTrailingWhitespace(tok_data);
   std::reverse(tok_data.begin(), tok_data.end());
 }
 
 // Strip off leading whitespace from a token that has been read.
-void SkipLeadingWhitspace(clang::Token &tok, clang::SourceLocation &tok_loc,
+void SkipLeadingWhitespace(clang::Token &tok, clang::SourceLocation &tok_loc,
                           std::string &tok_data) {
   auto old_size = tok_data.size();
-  SkipLeadingWhitspace(tok_data);
+  SkipLeadingWhitespace(tok_data);
   tok_loc = tok_loc.getLocWithOffset(
       static_cast<int>(old_size - tok_data.size()));
   tok.setLocation(tok_loc);
@@ -996,11 +764,16 @@ bool TryReadRawToken(clang::SourceManager &source_manager,
 bool TryLexRawToken(clang::SourceManager &source_manager,
                     const clang::LangOptions &lang_opts,
                     clang::SourceLocation loc, clang::Token *out) {
-  if (loc.isFileID()) {
-    return !clang::Lexer::getRawToken(
-        loc, *out, source_manager, lang_opts, true);
+
+  // NOTE(pag): Giving a macro source location ID to a raw lexer will go and
+  //            find the expansion/usage location, and not just lex whatever
+  //            backing buffer `loc` is referencing.
+  if (!loc.isFileID()) {
+    return false;
   }
-  return false;
+
+  return !clang::Lexer::getRawToken(
+      loc, *out, source_manager, lang_opts, true);
 }
 
 // Try to lex the data at `loc` into the token `*out`.
@@ -1077,6 +850,439 @@ TokenContextIndex MigrateContexts(
 
   assert(ret_id != kInvalidTokenContextIndex);
   return ret_id;
+}
+
+BitPackedLocation ParsedTokenStorage::CreateFileLocation(
+    clang::SourceLocation loc) {
+  if (!loc.isFileID()) {
+    assert(false);
+    return kInvalidBitPackedLocation;
+  }
+
+  auto &sm = ast->ci->getSourceManager();
+  auto [file_id, offset] = sm.getDecomposedLoc(loc);
+  auto raw_file_id = file_id.getHashValue();
+  auto file_it = ast->id_to_file.find(raw_file_id);
+  if (file_it == ast->id_to_file.end()) {
+    assert(false);
+    return kInvalidBitPackedLocation;
+  }
+
+  auto file_tok = file_it->second.TokenAtOffset(offset);
+  if (!file_tok) {
+    assert(false);
+    return kInvalidBitPackedLocation;
+  }
+
+  auto file_index = ast->id_to_file_offset[raw_file_id];
+  auto tok_index = file_tok->Index();
+  return (static_cast<BitPackedLocation>(file_index + 1u) << 32u) |
+         static_cast<BitPackedLocation>(tok_index + 1u);
+}
+
+BitPackedLocation ParsedTokenStorage::CreateInitialMacroLocation(
+    clang::SourceLocation loc) {
+  static_assert(sizeof(uint32_t) == sizeof(OpaqueSourceLoc));
+  return (static_cast<BitPackedLocation>(~0u) << 32u) |
+         static_cast<BitPackedLocation>(loc.getRawEncoding());
+}
+
+BitPackedLocation ParsedTokenStorage::CreateMacroLocation(
+    DerivedTokenIndex offset) {
+  return static_cast<BitPackedLocation>(offset + 1u) << 32u;
+}
+
+void ParsedTokenStorage::AppendFileToken(
+    std::string_view tok_data, const clang::Token &tok) {
+  if ((tok.hasLeadingSpace() || tok.hasLeadingEmptyMacro()) &&
+      !data.empty() && !std::isspace(data.back())) {
+    data.push_back('\n');
+    data_offset.back() += 1u;
+  }
+
+  data.insert(data.end(), tok_data.begin(), tok_data.end());
+  kind.emplace_back(static_cast<TokenKind>(tok.getKind()));
+  role.emplace_back(TokenRole::kFileToken);
+  is_in_pragma_directive.emplace_back(false);
+  location.emplace_back(CreateFileLocation(tok.getLocation()));
+  FinishToken();
+}
+
+void ParsedTokenStorage::AppendMacroToken(
+    MacroTokenStorage &macro_tokens, const clang::Token &tok) {
+#ifndef NDEBUG
+  auto loc = tok.getLocation();
+  assert(loc.isMacroID());
+  assert(!macro_tokens.role.empty());
+  assert(macro_tokens.role.back() == TokenRole::kIntermediateMacroExpansionToken);
+  assert(static_cast<TokenKind>(tok.getKind()) == macro_tokens.kind.back());
+#endif
+
+  (void) tok;
+
+  auto token_offset = static_cast<DerivedTokenIndex>(role.size());
+  auto macro_token_offset = static_cast<DerivedTokenIndex>(
+      macro_tokens.role.size() - 1u);
+
+  // Update the role in the macro tokens to make it as having made it into
+  // the parsed tokens.
+  macro_tokens.role.back() = TokenRole::kFinalMacroExpansionToken;
+  
+  // Keep a mapping between the "shadow" copies of a token in `macro_tokens`
+  // and the corresponding version in `parsed_tokens` so that we can implement
+  // `MacroToken::ParsedToken`.
+  macro_tokens.parsed_token_offset.emplace(macro_token_offset, token_offset);
+
+  kind.emplace_back(macro_tokens.kind.back());
+  role.emplace_back(macro_tokens.role.back());
+  is_in_pragma_directive.emplace_back(
+      macro_tokens.is_in_pragma_directive.back());
+
+  location.emplace_back(CreateMacroLocation(macro_token_offset));
+
+  auto tok_data = macro_tokens.Data(macro_token_offset);
+  data.insert(data.end(), tok_data.begin(), tok_data.end());
+  FinishToken();
+}
+
+// Append an internal preprocessor token. This is to handle things like
+// pragma directives. We observe these directives inside of preprocessing,
+// and sometimes only as a result of macro expansion (e.g. with `_Pragma`),
+// but we need to reify the intrinsic back into the parsed token representation.
+// Another reason for this is to embed the presence of an "empty" expansion.
+void ParsedTokenStorage::AppendInternalToken(std::string_view tok_data,
+                                             clang::SourceLocation loc) {
+  if (!data.empty() && data.back() != '\n') {
+    data.push_back('\n');
+    data_offset.back() += 1u;
+  }
+
+  data.insert(data.end(), tok_data.begin(), tok_data.end());
+  data.push_back('\n');
+
+  kind.emplace_back(TokenKind::kUnknown);
+  role.emplace_back(TokenRole::kEmptyOrSpecialMacroToken);
+  is_in_pragma_directive.emplace_back(true);
+  location.emplace_back(CreateFileLocation(loc));
+  FinishToken();
+}
+
+// Append a marker token to the parsed token list.
+void ParsedTokenStorage::AppendMarkerToken(
+    clang::SourceLocation loc, TokenRole role_) {
+  data.push_back('\n');
+
+  is_in_pragma_directive.emplace_back(false);
+  kind.emplace_back(TokenKind::kUnknown);
+  role.emplace_back(role_);
+
+  assert(loc.isMacroID());
+  location.emplace_back(CreateInitialMacroLocation(loc));
+  FinishToken();
+}
+
+std::string_view ParsedTokenStorage::Data(DerivedTokenIndex offset) const {
+  auto begin_offset = data_offset[offset];
+  auto end_offset = data_offset[offset + 1u];
+  auto raw_data = data.data();
+  std::string_view ret(&(raw_data[begin_offset]),
+                       &(raw_data[end_offset]));
+  while (!ret.empty() && std::isspace(ret.back())) {
+    ret.remove_suffix(1u);
+  }
+  return ret;
+}
+
+std::optional<DerivedTokenIndex> ParsedTokenStorage::DataOffsetToTokenIndex(
+    unsigned offset) {
+  if (offset >= data.size()) {
+    assert(false);
+    return std::nullopt;
+  }
+
+  auto begin = data_offset.begin();
+  auto end = data_offset.end();
+  auto it = std::upper_bound(begin, end, offset);
+  auto index = static_cast<DerivedTokenIndex>(it - begin);
+  assert(offset >= data_offset[index]);
+  return index;
+}
+
+void ParsedTokenStorage::InitInvalid(void) {
+  role.push_back(TokenRole::kInvalid);
+  kind.push_back(TokenKind::kUnknown);
+  data_offset.push_back(0u);
+  data.push_back('\0');
+  location.push_back(kInvalidBitPackedLocation);
+  is_in_pragma_directive.push_back(false);
+}
+
+ParsedTokenStorage::~ParsedTokenStorage(void) {}
+MacroTokenStorage::~MacroTokenStorage(void) {}
+
+void ParsedTokenStorage::Finalize(void) {
+  assert(role.size() == kind.size());
+  assert(role.size() == location.size());
+  assert(role.size() == is_in_pragma_directive.size());
+  assert((role.size() + 1u) == data_offset.size());
+  assert(data_offset.back() == data.size());
+  data.push_back('\0');
+}
+
+DerivedTokenIndex MacroTokenStorage::AppendMacroToken(
+    std::string_view tok_data, const clang::Token &tok, TokenRole role_,
+    DerivedTokenIndex macro_token_offset_) {
+
+  if (tok.hasLeadingSpace() || tok.hasLeadingEmptyMacro()) {
+    data.push_back('\n');
+    data_offset.back() += 1u;
+  }
+
+  auto offset = static_cast<DerivedTokenIndex>(kind.size());
+  data.insert(data.end(), tok_data.begin(), tok_data.end());
+  kind.emplace_back(static_cast<TokenKind>(tok.getKind()));
+  role.emplace_back(role_);
+  is_in_pragma_directive.emplace_back(false);
+  is_start_of_macro_expansion.emplace_back(next_is_begin_expansion);
+  is_end_of_macro_expansion.emplace_back(false);
+  macro_token_offset.emplace_back(macro_token_offset_);
+  next_is_begin_expansion = false;
+  location.emplace_back(CreateInitialMacroLocation(tok.getLocation()));
+  FinishToken();
+  return offset;
+}
+
+DerivedTokenIndex MacroTokenStorage::CloneMacroToken(
+    DerivedTokenIndex offset, DerivedTokenIndex macro_token_offset_) {
+  assert(!next_is_begin_expansion);
+
+  if (data[data_offset[offset]] == '\n') {
+    data.push_back('\n');
+    data_offset.back() += 1u;
+  }
+
+  auto data_len = data_offset[offset + 1u] - data_offset[offset];
+  data.reserve(data.size() + data_len);
+
+  auto tok_data = Data(offset);
+  data.insert(data.end(), tok_data.begin(), tok_data.end());
+
+  auto new_offset = static_cast<DerivedTokenIndex>(kind.size());
+  kind.emplace_back(kind[offset]);
+  role.emplace_back(TokenRole::kIntermediateMacroExpansionToken);
+  is_in_pragma_directive.emplace_back(is_in_pragma_directive[offset]);
+  is_start_of_macro_expansion.emplace_back(false);
+  is_end_of_macro_expansion.emplace_back(false);
+  macro_token_offset.emplace_back(macro_token_offset_);
+  location.emplace_back(location[offset]);
+  FinishToken();
+
+  auto it = macro_definition.find(offset);
+  if (it != macro_definition.end()) {
+    macro_definition.emplace(new_offset, it->second);
+  }
+
+  return new_offset;
+}
+
+// // Take the last thing token off of the tracker. 
+// std::tuple<std::string, clang::Token, TokenRole, DerivedTokenIndex>
+// MacroTokenStorage::PopToken(void) {
+//   std::string ret_data;
+//   clang::Token ret_tok;
+//   ret_tok.startToken();
+//   TokenRole ret_role = TokenRole::kInvalid;
+//   DerivedTokenIndex ret_dti = ~DerivedTokenIndex();
+
+//   if (auto size_ = size()) {
+//     auto offset = size_ - 1u;
+//     auto tok_data = Data(offset);
+//     ret_data.insert(ret_data.end(), tok_data.begin(), tok_data.end());
+//     ret_tok.setKind(static_cast<clang::tok::TokenKind>(Kind(offset)));
+//     ret_tok.setLength(static_cast<unsigned>(tok_data.size()));
+//     ret_tok.setLocation(OriginalLocation(offset));
+//     ret_role = Role(offset);
+//     ret_dti = macro_token_offset[offset];
+  
+//     if (is_start_of_macro_expansion[offset]) {
+//       next_is_begin_expansion = true;
+//       last_expansion_begin_offset = offset;
+//     }
+
+//     assert(data_offset.back() == data.size());
+//     data_offset.pop_back();
+//     kind.pop_back();
+//     role.pop_back();
+//     is_in_pragma_directive.pop_back();
+//     is_start_of_macro_expansion.pop_back();
+//     is_end_of_macro_expansion.pop_back();
+//     location.pop_back();
+//     macro_token_offset.pop_back();
+
+//     assert(data_offset.back() <= data.size());
+//     data.resize(data_offset.back());
+//   }
+
+//   return std::tuple<std::string, clang::Token, TokenRole, DerivedTokenIndex>(
+//       std::move(ret_data), std::move(ret_tok), ret_role, ret_dti);
+// }
+
+void MacroTokenStorage::FixupTokenProvenance(
+    DerivedTokenIndex tok_index, DerivedTokenIndex min_derived_index,
+    bool can_be_derived, int depth, clang::SourceLocation loc) {
+
+  // Make the token point to itself.
+  if (!loc.isValid()) {
+    location[tok_index] = kInvalidBitPackedLocation;
+    return;
+  }
+
+  auto raw_loc = loc.getRawEncoding();
+  auto it = macro_token_refs.find(raw_loc);
+  auto has_tok_for_loc = it != macro_token_refs.end();
+  auto has_derived = false;
+  if (has_tok_for_loc) {
+    assert(min_derived_index <= MacroTokenOffset(it->second));
+    assert(MacroTokenOffset(it->second) < tok_index);
+    assert(Data(tok_index) == Data(MacroTokenOffset(it->second)));
+    location[tok_index] = it->second;
+    has_derived = true;
+  
+  } else if (loc.isMacroID()) {
+    auto &sm = ast->ci->getSourceManager();
+    FixupTokenProvenance(tok_index, min_derived_index, can_be_derived,
+                         depth + 1, sm.getImmediateSpellingLoc(loc));
+  }
+
+  if (can_be_derived) {
+    auto next_loc = CreateMacroLocation(tok_index);
+    if (has_tok_for_loc) {
+      it->second = next_loc;  // Overwrite.
+    } else {
+      macro_token_refs.emplace(raw_loc, next_loc);
+    }
+  }
+
+  if (!loc.isFileID()) {
+    return;
+  }
+
+  it = file_token_refs.find(raw_loc);
+  has_tok_for_loc = it != file_token_refs.end();
+  
+  // TODO(pag): May be able to simplify this logic to not trigger if
+  //            `has_derived` is true.
+
+  if (has_tok_for_loc) {
+    assert(min_derived_index <= MacroTokenOffset(it->second));
+    assert(Data(tok_index) == Data(MacroTokenOffset(it->second)));
+    location[tok_index] = it->second;
+
+  } else {
+    
+    // NOTE(pag): Might trigger for pre-expansions. Added during split token
+    //            rework.
+    assert(!has_derived);
+    location[tok_index] = CreateFileLocation(loc);
+  }
+
+  if (!can_be_derived) {
+    return;
+  }
+
+  auto next_loc = CreateMacroLocation(tok_index);
+  if (has_tok_for_loc) {
+    it->second = next_loc;  // Overwrite.
+
+  } else if (!depth) {
+    assert(!has_derived);
+    file_token_refs.emplace(raw_loc, next_loc);
+  }
+}
+
+clang::SourceLocation MacroTokenStorage::OriginalLocation(
+    DerivedTokenIndex offset) const {
+
+  auto bit_packed_loc = location[offset];
+  if (!bit_packed_loc || (bit_packed_loc >> 32u) != ~0u) {
+    return {};
+  }
+
+  // We can only ask for the original location of a macro token while we are
+  // still processing the the expansion itself. Otherwise the above
+  // `FixupTokenProvenance` might have altered it.
+  assert(last_expansion_begin_offset.has_value());
+  assert(offset < last_expansion_begin_offset.value());
+
+  static_assert(sizeof(uint32_t) == sizeof(OpaqueSourceLoc));
+
+  return clang::SourceLocation::getFromRawEncoding(
+      static_cast<uint32_t>(location[offset]));
+}
+
+void MacroTokenStorage::MarkPreviousTokenAsEndOfExpansion(void) {
+  if (!last_expansion_begin_offset) {
+    return;
+  }
+
+  auto begin_offset = last_expansion_begin_offset.value();
+  auto end_offset = static_cast<unsigned>(is_end_of_macro_expansion.size());
+  is_end_of_macro_expansion.back() = true;
+  last_expansion_begin_offset.reset();
+
+  for (auto i = begin_offset; i < end_offset; ++i) {
+    auto tok_role = Role(i);
+    auto can_be_derived =
+        tok_role == TokenRole::kInitialMacroUseToken ||
+        tok_role == TokenRole::kIntermediateMacroExpansionToken;
+    auto loc = OriginalLocation(i);
+    location[i] = kInvalidBitPackedLocation;
+    FixupTokenProvenance(i, begin_offset, can_be_derived, 0u, loc);
+  }
+}
+
+void MacroTokenStorage::MarkNextTokenAsBeginOfExpansion(void) {
+  MarkPreviousTokenAsEndOfExpansion();
+
+  next_is_begin_expansion = true;
+  last_expansion_begin_offset = static_cast<unsigned>(kind.size());
+}
+
+// Map a macro token offset into a parsed token offset. This is only valid for
+// tokens that actually get parsed.
+std::optional<DerivedTokenIndex> MacroTokenStorage::ParsedTokenOffset(
+      DerivedTokenIndex offset) const {
+  auto it = parsed_token_offset.find(offset);
+  if (it == parsed_token_offset.end()) {
+    assert(role[offset] != TokenRole::kFinalMacroExpansionToken);
+    return std::nullopt;
+  }
+
+  assert(role[offset] == TokenRole::kFinalMacroExpansionToken);
+  return it->second;
+}
+
+void MacroTokenStorage::Finalize(void) {
+  ParsedTokenStorage::Finalize();
+  MarkPreviousTokenAsEndOfExpansion();
+  TokenProvenanceMap().swap(file_token_refs);
+  TokenProvenanceMap().swap(macro_token_refs);
+
+  assert(role.size() == macro_token_offset.size());
+  assert(role.size() == is_start_of_macro_expansion.size());
+  assert(role.size() == is_end_of_macro_expansion.size());
+}
+
+const Node *MacroTokenStorage::MacroName(DerivedTokenIndex offset) const {
+  auto it = macro_definition.find(offset);
+  if (it == macro_definition.end()) {
+    return nullptr;
+  }
+  return &(it->second);
+}
+
+void MacroTokenStorage::MarkAsMacroName(DerivedTokenIndex offset, Node macro) {
+  macro_definition.emplace(offset, std::move(macro));
 }
 
 } // namespace pasta

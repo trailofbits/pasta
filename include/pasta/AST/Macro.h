@@ -9,6 +9,7 @@
 #include <memory>
 #include <optional>
 #include <string_view>
+#include <variant>
 #include <vector>
 
 namespace pasta {
@@ -16,6 +17,7 @@ namespace pasta {
 class AST;
 class ASTImpl;
 class Decl;
+class DefineMacroDirective;
 class File;
 class FileToken;
 class FileTokenRange;
@@ -44,6 +46,8 @@ class Token;
 class TokenContext;
 class TokenImpl;
 class TokenRange;
+
+using DerivedToken = std::variant<std::monostate, MacroToken, FileToken>;
 
 #define PASTA_FOR_EACH_MACRO_IMPL(m, t, d, cd, dd, id, a) \
     a(Macro) \
@@ -93,6 +97,7 @@ enum class MacroKind : unsigned char {
 #undef PASTA_IGNORE
 };
 
+enum class TokenRole : unsigned char;
 enum class TokenKind : unsigned short;
 
 // Base for all macro nodes.
@@ -101,6 +106,7 @@ class Macro {
   friend class AST;
   friend class MacroIterator;
   friend class MacroRange;
+  friend class MacroToken;
   friend class PatchedMacroTracker;
   friend class Token;
 
@@ -177,17 +183,38 @@ class MacroToken final : public Macro {
     }
   }
 
+  enum TokenRole TokenRole(void) const noexcept;
   enum TokenKind TokenKind(void) const noexcept;
   std::string_view TokenKindName(void) const noexcept;
 
   // Return the data associated with this token.
   std::string_view Data(void) const noexcept;
 
-  // Location of the token in a file.
+  // Location of the token in a file. Note: this is a multi-step process that
+  // follows the chain backward.
   std::optional<FileToken> FileLocation(void) const noexcept;
 
   // Location of the token as parsed.
-  Token ParsedLocation(void) const noexcept;
+  std::optional<Token> ParsedLocation(void) const noexcept;
+
+  // Find the token from which this token was derived.
+  DerivedToken DerivedLocation(void) const;
+
+  // `#define` associated with the name of this token. This doesn't
+  // necessarily mean that this token is actually expanded as the macro,
+  // just that it could be referring to it at the point of use. An example
+  // of where this can seem misleading is:
+  //
+  //      #define FOO() ...
+  //      #define not_FOO
+  //      #define BAR(x) not_ ## x
+  //
+  //      BAR(FOO)
+  //
+  // Here, `FOO` in the parameter to `BAR` refers to the macro `FOO`, but it
+  // actually ends up being concatenated with `not_`, becoming a different
+  // macro, `not_FOO`, which expands to nothing.
+  std::optional<DefineMacroDirective> AssociatedMacro(void) const;
 };
 
 static_assert(sizeof(MacroToken) == sizeof(Macro));

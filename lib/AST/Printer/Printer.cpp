@@ -77,10 +77,12 @@ static void TryLocateAttribute(const clang::Attr *A,
   // something that is "inside" of the attribute, e.g. `nonnull` in
   // `__attribute__((nonnull))`.
   clang::SourceLocation loc = A->getLocation();
-  const TokenImpl *parsed_tok = tokens.ast->RawTokenAt(loc);
-  if (!parsed_tok) {
+  auto maybe_parsed_tok = tokens.ast->ParsedTokenOffset(loc);
+  if (!maybe_parsed_tok) {
     return;
   }
+
+  DerivedTokenIndex parsed_tok = maybe_parsed_tok.value();
 
   // Go look for the printed attribute keyword token in the most recently
   // printed tokens, storing the discovered keyword token in `attr_tok`. If we
@@ -140,33 +142,26 @@ static void TryLocateAttribute(const clang::Attr *A,
     return;
   }
 
-  // Starting at where we have found the attribute in the parsed tokens, use a
-  // fudge factor to scan backwards through the parsed tokens and match the
-  // keyword itself.
-  const TokenImpl *first_parsed_tok = tokens.ast->tokens.data();
-
   // Limiter used to prevent us from going too far once we've matched either
   // a keyword or an opener.
   auto fudge = ~0ull;
 
   // Try to find the location of `__attribute__`, `__asm`, etc.
-  for (; first_parsed_tok < parsed_tok && fudge &&
-         (attr_tok || num_found_openers); --parsed_tok) {
-    if (!parsed_tok->IsParsed()) {
-      continue;
-    }
+  for (; parsed_tok && fudge && (attr_tok || num_found_openers); --parsed_tok) {
 
     --fudge;
 
+    auto tok_kind = static_cast<clang::tok::TokenKind>(
+        tokens.ast->parsed_tokens.Kind(parsed_tok));
+
     // Match an opener.
-    auto tok_kind = parsed_tok->Kind();
     if (tok_kind == opener_kind && num_found_openers) {
-      tokens.MarkLocation(*opener_toks[--num_found_openers], *parsed_tok);
+      tokens.MarkLocation(*opener_toks[--num_found_openers], parsed_tok);
       fudge = 32u;
     }
 
     if (attr_tok && tok_kind == attr_tok->Kind()) {
-      tokens.MarkLocation(*attr_tok, *parsed_tok);
+      tokens.MarkLocation(*attr_tok, parsed_tok);
       fudge = 32u;
       attr_tok = nullptr;
     }
@@ -280,10 +275,13 @@ PrintedToken::~PrintedToken(void) {}
 std::optional<Token> PrintedToken::DerivedLocation(void) const {
   if (!impl || !range->ast ||
       impl->derived_index == kInvalidDerivedTokenIndex ||
-      impl->derived_index >= range->ast->tokens.size()) {
+      impl->derived_index >= range->ast->parsed_tokens.size()) {
     return std::nullopt;
   }
-  return Token(range->ast, &(range->ast->tokens[impl->derived_index]));
+  return Token(
+      std::shared_ptr<ParsedTokenStorage>(
+          range->ast, &(range->ast->parsed_tokens)),
+      impl->derived_index);
 }
 
 // Return the data associated with this token.
@@ -653,19 +651,20 @@ void TokenPrinterContext::Tokenize(void) {
 }
 
 void PrintedTokenRangeImpl::MarkLocation(PrintedTokenImpl &printed,
-                                         const TokenImpl &parsed) {
-  printed.derived_index =
-      static_cast<DerivedTokenIndex>(&parsed - ast->tokens.data());
+                                         DerivedTokenIndex parsed) {
+  printed.derived_index = parsed;
 }
 
 void PrintedTokenRangeImpl::MarkLocation(
-    size_t printed_tok_index, const TokenImpl &parsed) {
+    size_t printed_tok_index, DerivedTokenIndex parsed) {
   assert(printed_tok_index < tokens.size());
-  MarkLocation(tokens[printed_tok_index], parsed);
+  tokens[printed_tok_index].derived_index = parsed;
 }
 
-void PrintedTokenRangeImpl::MarkLocation(size_t tok_index,
-                                         const clang::SourceLocation &loc) {
+void PrintedTokenRangeImpl::MarkLocation(
+    size_t printed_tok_index, const clang::SourceLocation &loc) {
+  assert(printed_tok_index < tokens.size());
+
   if (!loc.isValid()) {
     return;
   }
@@ -674,14 +673,14 @@ void PrintedTokenRangeImpl::MarkLocation(size_t tok_index,
   // because the source locations inside of the parsed AST relate to a huge
   // in-memory file where each post-preprocessed token is on its own line.
   if (ast) {
-    if (const TokenImpl *raw_tok = ast->RawTokenAt(loc)) {
-      MarkLocation(tok_index, *raw_tok);
+    if (auto parsed = ast->ParsedTokenOffset(loc)) {
+      tokens[printed_tok_index].derived_index = parsed.value();
     }
 
   // We don't have an `ASTImpl`, so we'll assume that `loc` is a "real" source
   // location and not our weird indirect kind.
   } else {
-    tokens[tok_index].opaque_source_loc = loc.getRawEncoding();
+    tokens[printed_tok_index].opaque_source_loc = loc.getRawEncoding();
   }
 }
 
@@ -693,10 +692,10 @@ void TokenPrinterContext::MarkLocation(clang::SourceLocation loc) {
 }
 
 // Mark the last printed token as having the same location as `tok`.
-void TokenPrinterContext::MarkLocation(const TokenImpl &tok) {
+void TokenPrinterContext::MarkLocation(DerivedTokenIndex parsed) {
   Tokenize();
   if (auto num_tokens = tokens.tokens.size()) {
-    tokens.MarkLocation(num_tokens - 1u, tok);
+    tokens.MarkLocation(num_tokens - 1u, parsed);
   }
 }
 
@@ -846,8 +845,8 @@ static bool IsParsedToken(const pasta::Token &tok) {
 PrintedTokenRange PrintedTokenRange::Adopt(const TokenRange &a) {
   
   auto new_impl = std::make_shared<PrintedTokenRangeImpl>(
-      a.ast->ci->getASTContext());
-  new_impl->ast = a.ast;
+      a.storage->ast->ci->getASTContext());
+  new_impl->ast = std::shared_ptr<ASTImpl>(a.storage, a.storage->ast);
   new_impl->tokens.reserve(a.Size() + 1u);
   new_impl->contexts.emplace_back(*(new_impl->ast));  // AST context.
 

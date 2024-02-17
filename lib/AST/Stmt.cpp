@@ -59,6 +59,8 @@
       return *this; \
     }
 
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wreturn-type"
 namespace pasta {
 
 StmtVisitor::~StmtVisitor(void) {}
@@ -16189,4 +16191,5 @@ bool CXXDynamicCastExpr::IsAlwaysNull(void) const {
 }
 
 }  // namespace pasta
+#pragma clang diagnostic pop
 #endif  // PASTA_IN_BOOTSTRAP

@@ -43,9 +43,7 @@ class Type;
 class AST {
  public:
   // Return the AST containing a token.
-  inline static AST From(const Token &token) {
-    return AST(token.ast);
-  }
+  static AST From(const Token &token);
 
   // Return the AST containing a declaration.
   static AST From(const Decl &decl);
@@ -112,6 +110,5 @@ class AST {
 
   std::shared_ptr<ASTImpl> impl;
 };
-
 
 }  // namespace pasta

@@ -50,6 +50,8 @@
       return *this; \
     }
 
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wreturn-type"
 namespace pasta {
 
 AttrVisitor::~AttrVisitor(void) {}
@@ -11761,4 +11763,5 @@ bool AlwaysInlineAttr::IsClangAlwaysInline(void) const {
 }
 
 }  // namespace pasta
+#pragma clang diagnostic pop
 #endif  // PASTA_IN_BOOTSTRAP

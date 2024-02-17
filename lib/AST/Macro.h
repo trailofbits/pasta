@@ -8,7 +8,6 @@
 
 #include <cassert>
 #include <deque>
-#include <variant>
 
 #include <pasta/Util/File.h>
 
@@ -26,9 +25,6 @@ namespace clang {
 class MacroInfo;
 }  // namespace clang
 namespace pasta {
-
-using Node = std::variant<std::monostate, MacroNodeImpl *, MacroTokenImpl *>;
-using NodeList = std::vector<Node>;
 
 inline static void NoOnTokenCB(unsigned, MacroTokenImpl *, MacroTokenImpl *) {}
 inline static void NoOnNodeCB(unsigned, MacroNodeImpl *, MacroNodeImpl *) {}
@@ -65,9 +61,7 @@ class MacroTokenImpl final {
  public:
   Node parent;
 
-  // Offset of `TokenImpl` in `ASTImpl::tokens`. We don't use a pointer as
-  // `ASTImpl::tokens` is a vector, so the pointers aren't stable as it is
-  // extended.
+  // Offset of the token in `ASTImpl::macro_tokens`.
   uint32_t token_offset;
 
   // Copy of `TokenImpl::kind`. We often need to do checks on kinds to find

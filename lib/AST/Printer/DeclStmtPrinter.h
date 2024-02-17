@@ -130,11 +130,9 @@ class Printer {
     if (!tokens.ast) {
       return;
     }
-    
-    auto name_tok = tokens.ast->RawTokenAt(D->getLocation());
-    if (name_tok && name_tok->Kind() == clang::tok::identifier) {
-      ctx.MarkLocation(*name_tok);
-    }
+
+    ctx.MarkLocationIfOneOf(D->getLocation(), clang::tok::identifier,
+                            clang::tok::raw_identifier);
   }
 
   PrintedTokenRangeImpl &tokens;

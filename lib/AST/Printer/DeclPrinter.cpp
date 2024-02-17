@@ -744,14 +744,7 @@ void DeclPrinter::VisitEnumDecl(clang::EnumDecl *D) {
     Out << "__module_private__ ";
   Out << "enum";
 
-  if (tokens.ast) {
-    auto tag_loc = D->getInnerLocStart();
-    if (auto tag_tok = tokens.ast->RawTokenAt(tag_loc)) {
-      if (tag_tok->Kind() == clang::tok::kw_enum) {
-        ctx.MarkLocation(tag_loc);
-      }
-    }
-  }
+  ctx.MarkLocationIfOneOf(D->getInnerLocStart(), clang::tok::kw_enum);
 
   if (D->isScoped()) {
     if (D->isScopedUsingClassTag())
@@ -771,12 +764,9 @@ void DeclPrinter::VisitEnumDecl(clang::EnumDecl *D) {
     Out << " :";
 
     if (tokens.ast) {
-      const TokenImpl *tok =
-          tokens.ast->RawTokenAt(ITR.getBegin());
-      for (auto i = 0; tok && i < 4; ++i) {
-        const TokenImpl &t = tok[-i];
-        if (t.Kind() == clang::tok::colon) {
-          ctx.MarkLocation(t);
+      const auto tok = tokens.ast->ParsedTokenOffset(ITR.getBegin());
+      for (auto i = 0u; tok && i < 4u && (tok.value() - i); ++i) {
+        if (ctx.MarkLocationIfOneOf(tok.value() - i, clang::tok::colon)) {
           break;
         }
       }
@@ -812,19 +802,8 @@ void DeclPrinter::VisitRecordDecl(clang::RecordDecl *D) {
     Out << "__module_private__ ";
   Out << D->getKindName();
 
-  if (tokens.ast) {
-    auto tag_loc = D->getInnerLocStart();
-    if (auto tag_tok = tokens.ast->RawTokenAt(tag_loc)) {
-      switch (tag_tok->Kind()) {
-        case clang::tok::kw_struct:
-        case clang::tok::kw_union:
-          ctx.MarkLocation(tag_loc);
-          break;
-        default:
-          break;
-      }
-    }
-  }
+  ctx.MarkLocationIfOneOf(D->getInnerLocStart(), clang::tok::kw_struct,
+                          clang::tok::kw_union);
 
   prettyPrintAttributes(D);
 
@@ -2530,10 +2509,13 @@ PrintedTokenRange PrintedTokenRange::Create(const std::shared_ptr<ASTImpl> &ast,
     TokenPrinterContext ctx(out, decl, *tokens);
     out << OptionalTrailingSemiColon(tokens, decl);
 
+    ctx.Tokenize();
+
     // Mark the location of the trailing semicolon, if any.
     auto [begin_tok, end_tok] = ast->DeclBounds(decl);
-    if (end_tok && end_tok->Kind() == clang::tok::semi) {
-      ctx.MarkLocation(*end_tok);
+    if (begin_tok < end_tok && ast->TokenKind(end_tok) == clang::tok::semi &&
+        tokens.back().Kind() == clang::tok::semi) {
+      ctx.MarkLocation(end_tok);
     }
   }
 

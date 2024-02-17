@@ -81,6 +81,8 @@ using OMPDeclarativeDirectiveValueDecl = OMPDeclarativeDirective<ValueDecl>;
       return *this; \
     }
 
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wreturn-type"
 namespace pasta {
 namespace {
 // Return the PASTA `DeclKind` for a Clang `Decl`.
@@ -9993,4 +9995,5 @@ std::vector<::pasta::TemplateParameterList> ClassTemplatePartialSpecializationDe
 }
 
 }  // namespace pasta
+#pragma clang diagnostic pop
 #endif  // PASTA_IN_BOOTSTRAP

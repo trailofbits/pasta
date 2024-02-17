@@ -372,16 +372,12 @@ Result<AST, std::string> CompileJob::Run(void) const {
   macro_tracker_ptr = nullptr;
   file_tracker_ptr = nullptr;
 
-  // auto fd = open("/tmp/source.cpp", O_TRUNC | O_CREAT | O_WRONLY, 0666);
-  // write(fd, ast->preprocessed_code.data(), ast->preprocessed_code.size());
-  // close(fd);
-
   // Replace the main source file with the preprocessed file.
   const std::string main_file_name = input_files[0].getFile().str();
   bool added_file = mem_vfs->addFile(
-      "<pasta-input>", std::numeric_limits<time_t>::max(),
-      llvm::MemoryBuffer::getMemBuffer(ast->preprocessed_code,
-                                       "<pasta-input>", false),
+      "/pasta", std::numeric_limits<time_t>::max(),
+      llvm::MemoryBuffer::getMemBuffer(ast->parsed_tokens.Data(),
+                                       "/pasta", false),
       std::nullopt, std::nullopt, llvm::sys::fs::file_type::regular_file,
       llvm::sys::fs::perms::all_read);
 
@@ -390,7 +386,7 @@ Result<AST, std::string> CompileJob::Run(void) const {
     return err.str();
   }
 
-  const auto file_entry = fm->getFile("<pasta-input>");
+  const auto file_entry = fm->getFile("/pasta");
   if (!file_entry) {
     err << "Could not add overlay file entry for file '"
         << main_file_name << "'";
@@ -427,7 +423,7 @@ Result<AST, std::string> CompileJob::Run(void) const {
   clang::ASTConsumer &ast_consumer = ci.getASTConsumer();
   clang::Sema &sema = ci.getSema();
   clang::Preprocessor &pp2 = ci.getPreprocessor();
-  ast->token_per_line_pp = ci.getPreprocessorPtr();
+  ast->parsed_tokens_data_pp = ci.getPreprocessorPtr();
 
   std::unique_ptr<clang::PPCallbacks> split_tracker(
       new SplitTokenTracker(pp2, sm, ast.get()));
@@ -505,7 +501,6 @@ Result<AST, std::string> CompileJob::Run(void) const {
   }
 
   ast->MarkMacroTokens();
-  ast->PreprocessLexicalParentage();
   ast->LinkMacroTokenContexts();
   return AST(std::move(ast));
 }

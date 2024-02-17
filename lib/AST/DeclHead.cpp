@@ -259,13 +259,7 @@ bool Decl::IsImplicit(void) const {
 
 // Range of the tokens for the specific.
 ::pasta::TokenRange CXXBaseSpecifier::Tokens(void) const noexcept {
-  auto range = spec->getSourceRange();
-  auto begin = ast->RawTokenAt(range.getBegin());
-  auto end = ast->RawTokenAt(range.getEnd());
-  if (begin && end && begin <= end) {
-    return pasta::TokenRange(ast, begin, &(end[1]));
-  }
-  return pasta::TokenRange(ast);
+  return ast->TokenRangeFrom(spec->getSourceRange());
 }
 
 // Token of the the base type name. Doesn't include the qualifiers.
@@ -300,8 +294,8 @@ bool CXXBaseSpecifier::ConstructorsAreInherited(void) const noexcept {
 
 // For a pack expansion, determine the location of the ellipsis.
 std::optional<Token> CXXBaseSpecifier::EllipsisToken(void) const noexcept {
-  if (auto tok = ast->RawTokenAt(spec->getEllipsisLoc())) {
-    return Token(ast, tok);
+  if (auto tok = ast->TokenAt(spec->getEllipsisLoc())) {
+    return tok;
   }
   return std::nullopt;
 }
@@ -563,13 +557,13 @@ std::optional<uint64_t> FieldDecl::OffsetInBits(void) const noexcept {
   if (self.getEllipsisLoc().isValid()) {
     auto [begin_tok, end_tok] = ast->DeclBounds(&self);
     if (auto it = ast->func_proto.find(&self); it != ast->func_proto.end()) {
-      if (it->second.ellipsis == nullptr) {
+      if (!it->second.ellipsis) {
         return ::pasta::Token(ast);
       }
       assert(begin_tok < it->second.ellipsis);
       assert(it->second.ellipsis < end_tok);
       (void) begin_tok;
-      return ::pasta::Token(ast, it->second.ellipsis);
+      return ast->TokenAt(it->second.ellipsis);
     }
   }
   return ::pasta::Token(ast);
@@ -580,7 +574,9 @@ std::optional<uint64_t> FieldDecl::OffsetInBits(void) const noexcept {
   (void) ast->DeclBounds(&self);
   if (auto it = ast->func_proto.find(&self); it != ast->func_proto.end()) {
     ASTImpl::FunctionProto &proto = it->second;
-    return ::pasta::TokenRange(ast, proto.l_paren, proto.r_paren);
+    if (proto.l_paren < proto.r_paren) {
+      return ::pasta::TokenRange(ast, proto.l_paren, proto.r_paren);
+    }
   }
   return ::pasta::TokenRange(ast);
 }

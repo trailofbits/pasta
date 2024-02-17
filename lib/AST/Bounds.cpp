@@ -30,6 +30,7 @@
 #include "Util.h"
 
 namespace pasta {
+#if 0
 namespace {
 
 // NOTE(pag): This logic needs to be kept in sync with `ASTImpl::AlignTokens`
@@ -1721,21 +1722,15 @@ class DeclBoundsFinder : public clang::DeclVisitor<DeclBoundsFinder>,
 };
 
 }  // namespace
-
-std::pair<TokenImpl *, TokenImpl *> ASTImpl::PartitionDeclContext(
-    clang::DeclContext *dc) {
-  // TODO(pag): We used to have old/weird logic from early PASTA. The remapping
-  //            in particular is relevant to trying to find the "original code"
-  //            for some template instantiation. We are pursuing patches to
-  //            obviate the need for this, so when those materialize, we can
-  //            eliminate this code.
-  return {&(tokens.front()), &((&(tokens.back()))[-1])};
-}
+#endif
 
 // Try to return the inclusive bounds of a given declaration in terms of
 // parsed tokens. This doesn't not try to expand the range to the ending
 // of macro expansions.
-std::pair<TokenImpl *, TokenImpl *> ASTImpl::DeclBounds(clang::Decl *decl) {
+ASTImpl::BoundingTokens ASTImpl::DeclBounds(clang::Decl *decl) {
+  return {};
+
+#if 0
   auto &ret = bounds[decl];
   if (ret.first || decl->isImplicit()) {
     return ret;
@@ -1758,10 +1753,12 @@ std::pair<TokenImpl *, TokenImpl *> ASTImpl::DeclBounds(clang::Decl *decl) {
 
   ret = DeclBoundsFinder(*this).GetBounds(decl);
   return ret;
+#endif
 }
 
 TokenRange ASTImpl::DeclTokenRange(const clang::Decl *decl_,
                                    std::unique_lock<std::mutex> locker) {
+#if 0
   auto decl = const_cast<clang::Decl *>(decl_);
   if (auto [first, last] = DeclBounds(decl); first && first <= last) {
     return TokenRange(this->shared_from_this(), first, &(last[1]));
@@ -1776,21 +1773,15 @@ TokenRange ASTImpl::DeclTokenRange(const clang::Decl *decl_,
   }
 
   return TokenRange(this->shared_from_this());
+#endif
+  return TokenRange(
+      std::shared_ptr<ParsedTokenStorage>(shared_from_this(), &parsed_tokens),
+      0u, 0u);
 }
 
 // Return a token range for the bounds of a declaration.
 TokenRange ASTImpl::DeclTokenRange(const clang::Decl *decl_) {
   return DeclTokenRange(decl_, std::unique_lock<std::mutex>(bounds_mutex));
-}
-
-// Figure out lexical parentage. This is an important pre-processing step
-// prior to bounds calculation.
-void ASTImpl::PreprocessLexicalParentage(void) {
-  // TODO(pag): Lexical parentage also seems to be computed within `DeclBounds`.
-  //            I moved this code over here from `AlignTokens`, as it used to
-  //            be relevant to doing the whole-program alignment. Now, we do
-  //            alignment at smaller granularities, and it's not clear if this
-  //            matters.
 }
 
 }  // namespace pasta

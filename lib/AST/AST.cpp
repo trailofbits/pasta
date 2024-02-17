@@ -26,58 +26,19 @@
 namespace pasta {
 
 ASTImpl::ASTImpl(File main_source_file_)
-    : main_source_file(std::move(main_source_file_)) {
-  tokens.reserve(1024ull * 32u);
-  backup_token_data.reserve(1024ull * 4);
+    : main_source_file(std::move(main_source_file_)),
+      invalid_tokens(this),
+      parsed_tokens(this),
+      macro_tokens(this) {
 
-  // A negative value of `TokenImpl::data_offset` represents an index into
-  // `backup_token_data`; thus we must initialize this string with at least one
-  // character, lest we try to store `-0`, which in two's complement is `0`,
-  // and which would then look just like an index into `token_data`.
-  backup_token_data.push_back('\0');
+  invalid_tokens.InitInvalid();
 }
 
 ASTImpl::~ASTImpl(void) {}
 
-// Append a marker token to the parsed token list.
-void ASTImpl::AppendMarker(clang::SourceLocation loc, TokenRole role) {
-
-  ++num_lines;
-  size_t offset = preprocessed_code.size();
-  preprocessed_code.push_back('\n');
-  tokens.emplace_back(loc.getRawEncoding(), offset, 0u, clang::tok::unknown,
-                      role);
-}
-
-// Append a token to the end of the AST. `offset` is positive if the data
-// of the token can be found at a specific offset in `preprocessed_code`,
-// and negative if `-offset` can be found in `backup_code`. `len` is the
-// length in bytes of the token itself.
-void ASTImpl::AppendToken(const clang::Token &tok, size_t offset_,
-                          size_t len_, TokenRole role_) {
-  const auto len = static_cast<uint32_t>(len_ & TokenImpl::kTokenSizeMask);
-  // Make sure it fits in 31 bits.
-  assert(0 <= static_cast<TokenDataOffset>(offset_));
-  assert(len == len_);
-  clang::SourceLocation loc = tok.getLocation();
-  tokens.emplace_back(
-      loc.getRawEncoding(),
-      static_cast<TokenDataOffset>(offset_), len,
-      tok.getKind(), role_);
-}
-
-// Append a token to the end of the AST. `offset` is the offset in
-// `backup_token_data`, and `len` is the length in bytes of the token itself.
-void ASTImpl::AppendBackupToken(const clang::Token &tok, size_t offset_,
-                                size_t len_, TokenRole role_) {
-  const auto len = static_cast<uint32_t>(len_ & TokenImpl::kTokenSizeMask);
-  assert(0 < static_cast<TokenDataOffset>(offset_));
-  assert(len == len_);
-  clang::SourceLocation loc = tok.getLocation();
-  tokens.emplace_back(
-      loc.getRawEncoding(),
-      -static_cast<TokenDataOffset>(offset_), len,
-      tok.getKind(), role_);
+// Return the AST containing a token.
+AST AST::From(const Token &token) {
+  return AST(std::shared_ptr<ASTImpl>(token.storage, token.storage->ast));
 }
 
 AST AST::From(const Decl &decl) {
@@ -117,13 +78,14 @@ AST &AST::operator=(AST &&that) noexcept {
 AST::AST(std::shared_ptr<ASTImpl> impl_) : impl(std::move(impl_)) {}
 
 std::string_view AST::PreprocessedCode(void) const {
-  return impl->preprocessed_code;
+  return impl->parsed_tokens.Data();
 }
 
 // Return all lexed tokens.
 TokenRange AST::Tokens(void) const {
-  const auto first = impl->tokens.data();
-  return TokenRange(impl, first, &(first[impl->tokens.size()]));
+  return TokenRange(
+      std::shared_ptr<ParsedTokenStorage>(impl, &(impl->parsed_tokens)),
+      0u, impl->parsed_tokens.size());
 }
 
 // Return all top-level macro nodes (expansions, directives, substitutions,
@@ -136,22 +98,25 @@ MacroRange AST::Macros(void) const {
 
 // Try to return the file token at the specified location.
 std::optional<FileToken> ASTImpl::FileTokenAt(clang::SourceLocation loc) {
-  if (loc.isValid() && loc.isFileID()) {
-    const clang::SourceManager &sm = ci->getSourceManager();
-    const auto [file_id, file_offset] = sm.getDecomposedLoc(loc);
-    auto file_it = id_to_file.find(file_id.getHashValue());
-    if (file_it == id_to_file.end()) {
-      return std::nullopt;
-    }
-    return file_it->second.TokenAtOffset(file_offset);
+  if (!loc.isValid() || !loc.isFileID()) {
+    return std::nullopt;
   }
-  return std::nullopt;
+
+  const clang::SourceManager &sm = ci->getSourceManager();
+  const auto [file_id, file_offset] = sm.getDecomposedLoc(loc);
+  auto file_it = id_to_file.find(file_id.getHashValue());
+  if (file_it == id_to_file.end()) {
+    assert(false);
+    return std::nullopt;
+  }
+
+  return file_it->second.TokenAtOffset(file_offset);
 }
 
-// Try to return the token at the specified location.
-TokenImpl *ASTImpl::RawTokenAt(clang::SourceLocation loc) {
+std::optional<DerivedTokenIndex> ASTImpl::ParsedTokenOffset(
+    clang::SourceLocation loc) const {
   if (loc.isInvalid()) {
-    return nullptr;
+    return std::nullopt;
   }
 
   // We shouldn't be getting requests with source locations in macro expansions
@@ -159,68 +124,61 @@ TokenImpl *ASTImpl::RawTokenAt(clang::SourceLocation loc) {
   // the parse of the pre-processed source.
   if (loc.isMacroID()) {
     assert(false);
-    return nullptr;
+    return std::nullopt;
   }
 
   bool invalid = false;
   auto &sm = ci->getSourceManager();
-
-#ifndef NDEBUG
   const auto [file_id, file_offset] = sm.getDecomposedLoc(loc);
-  assert(file_id == sm.getMainFileID());
-  assert(file_offset < preprocessed_code.size());
-#endif
 
-  const auto line = sm.getSpellingLineNumber(loc, &invalid);
-  if (!line || invalid || static_cast<size_t>(line) > tokens.size()) {
-    return nullptr;
+  if (file_id != sm.getMainFileID()) {
+    assert(false);
+    return std::nullopt;
   }
 
-  return &(tokens[line - 1u]);
+  return parsed_tokens.DataOffsetToTokenIndex(file_offset);
 }
 
 // Try to return the token at the specified location.
 Token ASTImpl::TokenAt(clang::SourceLocation loc) {
-  auto self = shared_from_this();
-  if (auto tok = RawTokenAt(loc)) {
-    return Token(std::move(self), tok);
-  }
-  return Token(std::move(self));
+  return TokenAt(ParsedTokenOffset(loc));
 }
 
-// Try to return the token at the specified location.
-Token ASTImpl::TokenAt(const TokenImpl *tok) {
-  auto self = shared_from_this();
-  auto begin = tokens.data();
-  auto end = &(begin[tokens.size()]);
-  if (begin <= tok && tok < end) {
-    return Token(std::move(self), tok);
+// Try to return the token at the specified offset.
+Token ASTImpl::TokenAt(DerivedTokenIndex offset) {
+  assert(offset < parsed_tokens.size());
+  return Token(
+      std::shared_ptr<ParsedTokenStorage>(shared_from_this(), &parsed_tokens),
+      offset);
+}
+
+// Try to return the token at the specified offset.
+Token ASTImpl::TokenAt(std::optional<DerivedTokenIndex> offset) {
+  if (offset) {
+    return TokenAt(offset.value());
+  } else {
+    return Token(shared_from_this());
   }
-  return Token(std::move(self));
 }
 
 // Try to return the token range from the specified source range.
 TokenRange ASTImpl::TokenRangeFrom(clang::SourceRange range) {
-  auto self = shared_from_this();
   auto begin = TokenAt(range.getBegin());
   auto end = TokenAt(range.getEnd());
-
+  
   if (begin && end) {
-    if (begin.impl <= end.impl) {
-      return TokenRange(std::move(self), begin.impl, &(end.impl[1]));
+    if (auto range = TokenRange::From(std::move(begin), std::move(end))) {
+      return range.value();
     }
-    return TokenRange(std::move(self), end.impl, &(begin.impl[1]));
+    assert(false);
+  } else if (begin) {
+    return TokenRange::From(std::move(begin));
+
+  } else if (end) {
+    return TokenRange::From(std::move(end));
   }
 
-  if (begin) {
-    return TokenRange(std::move(self), begin.impl, &(begin.impl[1]));
-  }
-
-  if (end) {
-    return TokenRange(std::move(self), end.impl, &(end.impl[1]));
-  }
-
-  return TokenRange(std::move(self));
+  return TokenRange(shared_from_this());
 }
 
 // Return a reference to the underlying Clang AST context. This is needed for

@@ -72,6 +72,8 @@ void GenerateTypeCpp(std::ostream &py_cmake, std::ostream &py_ast) {
       << "      qualifiers = new_that.qualifiers; \\\n"
       << "      return *this; \\\n"
       << "    }\n\n"
+      << "#pragma clang diagnostic push\n"
+      << "#pragma clang diagnostic ignored \"-Wreturn-type\"\n"
       << "namespace pasta {\n\n";
 
   os  << "TypeVisitor::~TypeVisitor(void) {}\n\n"
@@ -192,5 +194,6 @@ void Register)" << name << "(nb::module_ &m) {\n"
 
   os
       << "}  // namespace pasta\n"
+      << "#pragma clang diagnostic pop\n"
       << "#endif  // PASTA_IN_BOOTSTRAP\n";
 }

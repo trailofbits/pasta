@@ -129,8 +129,8 @@ class ParsedFileTracker : public clang::PPCallbacks {
     File file = maybe_file.TakeValue();
 
     // Keep a mapping of Clang file IDs to parsed files.
-    auto [file_it, just_added] = ast->id_to_file.emplace(
-        file_id.getHashValue(), file);
+    auto raw_file_id = file_id.getHashValue();
+    auto [file_it, just_added] = ast->id_to_file.emplace(raw_file_id, file);
     assert(file_it->second.impl.get() == file.impl.get());
     (void) file_it;
     (void) just_added;
@@ -145,7 +145,9 @@ class ParsedFileTracker : public clang::PPCallbacks {
       return;
     }
 
+    auto file_index = static_cast<unsigned>(ast->parsed_files.size());
     ast->parsed_files.emplace_back(std::move(file));
+    ast->id_to_file_offset.emplace(raw_file_id, file_index);
 
     std::unique_lock<std::mutex> locker(file.impl->tokens_lock);
     if (file.impl->has_tokens) {

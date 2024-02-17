@@ -11,6 +11,8 @@
 #include <cstdint>
 #include <deque>
 #include <string>
+#include <tuple>
+#include <variant>
 #include <vector>
 
 #pragma GCC diagnostic push
@@ -36,9 +38,11 @@ namespace pasta {
 class ASTImpl;
 class Token;
 class PrintedTokenImpl;
+class PrintedTokenRange;
 class PrintedTokenRangeImpl;
 
 using OpaqueSourceLoc = clang::SourceLocation::UIntTy;
+using SignedOpaqueSourceLoc = clang::SourceLocation::IntTy;
 using TokenContextIndex = uint32_t;
 using DerivedTokenIndex = uint32_t;
 using TokenDataOffset = int32_t;
@@ -47,6 +51,11 @@ static constexpr DerivedTokenIndex kInvalidDerivedTokenIndex = ~0u;
 static constexpr TokenContextIndex kInvalidTokenContextIndex = ~0u;
 static constexpr TokenContextIndex kASTTokenContextIndex = 0u;
 static constexpr TokenContextIndex kTranslationUnitTokenContextIndex = 1u;
+
+class MacroNodeImpl;
+class MacroTokenImpl;
+using Node = std::variant<std::monostate, MacroNodeImpl *, MacroTokenImpl *>;
+using NodeList = std::vector<Node>;
 
 inline static const clang::Decl *Canonicalize(const clang::Decl *decl) {
   return decl->getCanonicalDecl();
@@ -175,11 +184,11 @@ class TokenImpl {
       case TokenRole::kInvalid:
       case TokenRole::kBeginOfFileMarker:
       case TokenRole::kEndOfFileMarker:
-      case TokenRole::kBeginOfMacroExpansionMarker:
-      case TokenRole::kEndOfMacroExpansionMarker:
+      // case TokenRole::kBeginOfMacroExpansionMarker:
+      // case TokenRole::kEndOfMacroExpansionMarker:
       case TokenRole::kInitialMacroUseToken:
       case TokenRole::kIntermediateMacroExpansionToken:
-      case TokenRole::kEndOfInternalMacroEventMarker:
+      case TokenRole::kEmptyOrSpecialMacroToken:
         return false;
 
       case TokenRole::kFinalMacroExpansionToken:
@@ -205,12 +214,12 @@ class TokenImpl {
 
   inline bool HasMacroRole(void) const noexcept {
     switch (Role()) {
-      case TokenRole::kBeginOfMacroExpansionMarker:
+      // case TokenRole::kBeginOfMacroExpansionMarker:
       case TokenRole::kInitialMacroUseToken:
       case TokenRole::kIntermediateMacroExpansionToken:
       case TokenRole::kFinalMacroExpansionToken:
-      case TokenRole::kEndOfMacroExpansionMarker:
-      case TokenRole::kEndOfInternalMacroEventMarker:
+      // case TokenRole::kEndOfMacroExpansionMarker:
+      case TokenRole::kEmptyOrSpecialMacroToken:
         return true;
       default:
         return false;
@@ -287,10 +296,10 @@ class TokenImpl {
 };
 
 void SkipTrailingWhitespace(std::string &tok_data);
-void SkipLeadingWhitspace(std::string &tok_data);
+void SkipLeadingWhitespace(std::string &tok_data);
 
 // Strip off leading whitespace from a token that has been read.
-void SkipLeadingWhitspace(clang::Token &tok, clang::SourceLocation &tok_loc,
+void SkipLeadingWhitespace(clang::Token &tok, clang::SourceLocation &tok_loc,
                           std::string &tok_data);
 
 // Read the data of the token into the passed in string pointer
@@ -315,24 +324,49 @@ TokenContextIndex MigrateContexts(
     std::unordered_multimap<const void *, TokenContextIndex> &data_to_context,
     std::vector<TokenContextIndex> &context_map);
 
+class MacroTokenStorage;
+
+using BitPackedLocation = uint64_t;
+static constexpr BitPackedLocation kInvalidBitPackedLocation = 0u;
 
 class ParsedTokenStorage {
- private:
+ protected:
+  friend class AST;
+  friend class ASTImpl;
+  friend class PrintedTokenRange;
+  friend class PrintedTokenRangeImpl;
+  friend class Token;
+  friend class TokenRange;
+
+  ASTImpl * const ast;
+
   // This is the data that will get parsed by Clang. It includes all tokens that
   // make it through the lexing process.
   std::string data;
 
+  // Bit-packed representation. This takes on a few forms:
+  //
+  //    - `0` is an invalid location.
+  //
+  //    - `(file_index + 1u, token_index + 1)` where the token can be found at
+  //      `ast->parsed_files[file_index][token_index]`.
+  //
+  //    - `(macro_token_index + 1u, 0u)`, where the token can be found at
+  //      offset `macro_token_index - 1u` in `ast->macro_tokens`.
+  //      
+  //    - `(~0u, raw_source_location)`, where this is a transitory
+  //      representation of a macro token's location prior to finishing a
+  //      complete macro expansion.
+  std::vector<BitPackedLocation> location;
+
   // Ending position of a token.
-  std::vector<unsigned> token_offset;
+  std::vector<unsigned> data_offset;
 
-  std::vector<TokenRole> role;
-
+  // Kind of the `Nth` token.
   std::vector<TokenKind> kind;
 
-  // Is this token associated with a macro definition? If so, then we have a
-  // lookup mechanism in `ASTImpl` to go from the token index to the macro
-  // definition.
-  std::vector<bool> is_macro_name;
+  // Role of the `Nth` token.
+  std::vector<TokenRole> role;
 
   // Is this token part of a `#pragma` macro directive region?
   //
@@ -346,60 +380,192 @@ class ParsedTokenStorage {
   // this `#pragma`.
   std::vector<bool> is_in_pragma_directive;
 
+  BitPackedLocation CreateFileLocation(clang::SourceLocation loc);
+  BitPackedLocation CreateInitialMacroLocation(clang::SourceLocation loc);
+  BitPackedLocation CreateMacroLocation(DerivedTokenIndex offset);
+
+ private:
+  // Initialize this storage as an "invalid" storage.
+  void InitInvalid(void);
+
  public:
-  inline ParsedTokenStorage(void) {
+  virtual ~ParsedTokenStorage(void);
+
+  inline ParsedTokenStorage(ASTImpl *ast_)
+      : ast(ast_) {
     data.reserve(4096u * 16u);
     data.push_back('\0');
     data.pop_back();
-    token_offset.reserve(4096u);
+    location.reserve(4096u);
+    data_offset.reserve(4096u);
     role.reserve(4096u);
     kind.reserve(4096u);
-    is_macro_name.reserve(4096u);
     is_in_pragma_directive.reserve(4096u);
-    token_offset.push_back(0u);
+    data_offset.push_back(0u);
   }
 
-  inline std::string_view Data(unsigned offset) const {
-    auto begin_offset = token_offset[offset];
-    auto end_offset = token_offset[offset + 1u];
-    auto raw_data = data.data();
-    return std::string_view(&(raw_data[begin_offset]),
-                            &(raw_data[end_offset]));
+  std::string_view Data(void) const {
+    std::string_view d(data);
+    while (!d.empty() && d.back() == '\0') {
+      d.remove_suffix(1u);
+    }
+    return d;
   }
 
-  inline TokenKind Kind(unsigned offset) const {
+  std::string_view Data(DerivedTokenIndex offset) const;
+
+  inline TokenKind Kind(DerivedTokenIndex offset) const {
     return kind[offset];
   }
 
-  inline TokenKind Role(unsigned offset) const {
+  inline TokenRole Role(DerivedTokenIndex offset) const {
     return role[offset];
   }
 
-  inline bool IsInPragmaDirective(unsigned offset) const {
+  inline void MarkTokenAsInPragmaDirective(DerivedTokenIndex offset) {
+    is_in_pragma_directive[offset] = true;
+  } 
+
+  inline bool IsInPragmaDirective(DerivedTokenIndex offset) const {
     return is_in_pragma_directive[offset];
   }
 
+  // bool IsBeginOfMacroExpansion(
+  //     const MacroTokenStorage &macro_tokens, unsigned offset) const;
+
+  // bool IsEndOfMacroExpansion(
+  //     const MacroTokenStorage &macro_tokens, unsigned offset) const;
+
   // Finish off a token.
   inline void FinishToken(void) {
-    token_offset.emplace_back(static_cast<unsigned>(data.size()));
+    data_offset.emplace_back(static_cast<DerivedTokenIndex>(data.size()));
   }
+
+  inline DerivedTokenIndex size(void) const {
+    return static_cast<DerivedTokenIndex>(role.size());
+  }
+
+  inline void SetKind(DerivedTokenIndex offset, TokenKind kind_) {
+    kind[offset] = kind_;
+  }
+
+  std::optional<DerivedTokenIndex> DataOffsetToTokenIndex(unsigned offset);
+
+  void AppendFileToken(std::string_view data, const clang::Token &tok);
+  void AppendMacroToken(MacroTokenStorage &tokens, const clang::Token &tok);
+  void AppendInternalToken(std::string_view data, clang::SourceLocation loc);
+
+  // Append a marker token to the parsed token list.
+  void AppendMarkerToken(clang::SourceLocation loc, TokenRole role);
+
+  void Finalize(void);
 };
 
 class MacroTokenStorage : public ParsedTokenStorage {
  private:
-  // Is this token associated with a macro definition? If so, then we have a
-  // lookup mechanism in `ASTImpl` to go from the token index to the macro
-  // definition.
-  std::vector<bool> is_macro_name;
+  friend class ASTImpl;
+  friend class MacroToken;
+  friend class ParsedTokenStorage;
+  friend class Token;
+
+  // Does this token represent the start or end of a macro expansion?
+  std::vector<bool> is_start_of_macro_expansion;
+  std::vector<bool> is_end_of_macro_expansion;
+  
+  // Offset in `ASTImpl::root_macro_node.tokens` where this token is located.
+  std::vector<DerivedTokenIndex> macro_token_offset;
+
+  // State used during the lexing phase to keep track of whether or not we're
+  // inside of an expansion.
+  bool next_is_begin_expansion{false};
+  std::optional<DerivedTokenIndex> last_expansion_begin_offset;
+
+  // If a token is associated with a macro, then we can find that associated
+  // macro node here.
+  std::unordered_map<DerivedTokenIndex, Node> macro_definition;
+
+  // Find the parsed representation of a token.
+  std::unordered_map<DerivedTokenIndex, DerivedTokenIndex> parsed_token_offset;
+
+  // State used when fixing up token provenance.
+  using TokenProvenanceMap = std::unordered_map<OpaqueSourceLoc,
+                                                BitPackedLocation>;
+
+  TokenProvenanceMap file_token_refs;
+  TokenProvenanceMap macro_token_refs;
+
+  // Hidden methods.
+  using ParsedTokenStorage::AppendFileToken;
+  using ParsedTokenStorage::AppendMacroToken;
+  using ParsedTokenStorage::Finalize;
+
+  void FixupTokenProvenance(
+      DerivedTokenIndex tok_index, DerivedTokenIndex min_derived_index,
+      bool can_be_derived, int depth, clang::SourceLocation loc);
 
  public:
-  inline MacroTokenStorage(void) {
-    is_macro_name.reserve(4096u);
+  inline MacroTokenStorage(ASTImpl *ast_)
+      : ParsedTokenStorage(ast_) {
+    is_start_of_macro_expansion.reserve(4096u);
+    is_end_of_macro_expansion.reserve(4096u);
+    macro_token_offset.reserve(4096u);
   }
 
-  inline bool IsMacroName(unsigned offset) const {
-    return is_macro_name[offset];
-  }
+  virtual ~MacroTokenStorage(void);
+
+  DerivedTokenIndex AppendMacroToken(
+      std::string_view data, const clang::Token &tok,
+      TokenRole role_, DerivedTokenIndex macro_tok_offset_);
+
+  DerivedTokenIndex CloneMacroToken(
+      DerivedTokenIndex offset, DerivedTokenIndex macro_tok_offset_);
+
+  void MarkPreviousTokenAsEndOfExpansion(void);
+  void MarkNextTokenAsBeginOfExpansion(void);
+  
+  const Node *MacroName(DerivedTokenIndex offset) const;
+  void MarkAsMacroName(DerivedTokenIndex offset, Node macro);
+
+  clang::SourceLocation OriginalLocation(DerivedTokenIndex offset) const;
+
+  std::optional<DerivedTokenIndex> ParsedTokenOffset(
+      DerivedTokenIndex offset) const;
+
+  // // Take the last thing token off of the tracker. 
+  // std::tuple<std::string, clang::Token, TokenRole,
+  //            DerivedTokenIndex> PopToken(void);
+
+  void Finalize(void);
 };
+
+inline static std::optional<std::pair<unsigned, DerivedTokenIndex>>
+UnpackFileAndTokenOffset(BitPackedLocation loc) {
+  static_assert(sizeof(DerivedTokenIndex) == sizeof(uint32_t));
+
+  auto tok_offset = loc & ~0u;
+  auto file_offset = loc >> 32u;
+  if (file_offset && tok_offset) {
+    assert(file_offset < ~0u);
+    return std::pair<unsigned, DerivedTokenIndex>(
+        static_cast<unsigned>(file_offset - 1u),
+        static_cast<DerivedTokenIndex>(tok_offset - 1u));
+  }
+
+  return std::nullopt;
+}
+
+inline static constexpr bool IsInvalidOrFileBitPackedLocation(
+    BitPackedLocation loc) {
+  return !loc || static_cast<uint32_t>(loc);
+}
+
+inline static constexpr bool IsMacroTokenOffset(BitPackedLocation loc) {
+  return loc && (loc & ~0u) == loc;
+}
+
+inline static constexpr DerivedTokenIndex MacroTokenOffset(
+    BitPackedLocation loc) {
+  return static_cast<DerivedTokenIndex>((loc >> 32u) - 1u);
+} 
 
 } // namespace pasta

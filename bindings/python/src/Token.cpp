@@ -23,12 +23,12 @@ void RegisterToken(nb::module_ &m) {
     .def("__bool__", &Token::operator bool)
     .def("__hash__", [](const Token &tok) { return reinterpret_cast<intptr_t>(tok.RawToken()); })
     .def("__eq__", [](const Token &a, const Token &b) { return a.RawToken() == b.RawToken(); })
+    .def("__ne__", [](const Token &a, const Token &b) { return a.RawToken() != b.RawToken(); })
     .def("__str__", &Token::Data)
     .def_prop_ro("kind", &Token::Kind)
     .def_prop_ro("role", &Token::Role)
     .def_prop_ro("index", &Token::Index)
     .def_prop_ro("data", &Token::Data)
-    .def_prop_ro("associated_macro", &Token::AssociatedMacro)
     .def_prop_ro("derived_location", &Token::DerivedLocation)
     .def_prop_ro("file_location", &Token::FileLocation)
     .def_prop_ro("macro_location", &Token::MacroLocation);

@@ -43,10 +43,12 @@ class TokenRange;
     m(BeginOfFileMarker) \
     m(FileToken) \
     m(EndOfFileMarker) \
+    m(BeginOfMacroExpansionMarker) \
     m(InitialMacroUseToken) \
     m(IntermediateMacroExpansionToken) \
     m(FinalMacroExpansionToken) \
-    m(EmptyOrSpecialMacroToken)
+    m(EmptyOrSpecialMacroToken) \
+    m(EndOfMacroExpansionMarker)
 
 enum class TokenKind : unsigned short;
 

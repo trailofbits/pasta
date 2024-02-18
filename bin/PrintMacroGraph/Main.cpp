@@ -24,9 +24,9 @@
 #include <fcntl.h>
 #include <unistd.h>
 
-#define PRINT_DEFINITIONS 0
+#define PRINT_DEFINITIONS 1
 #define PRINT_DERIVED 1
-#define PRINT_DIRECTIVES 0
+#define PRINT_DIRECTIVES 1
 #define PRINT_ROLE_COLORS 1
 
 template <typename TokT>
@@ -54,10 +54,13 @@ static inline std::string TokRoleColor(const pasta::TokenRole role) {
     case pasta::TokenRole::kInvalid: ss << "red"; break;
     case pasta::TokenRole::kBeginOfFileMarker: ss << "cyan"; break;
     case pasta::TokenRole::kFileToken: ss << "blue"; break;
+    case pasta::TokenRole::kBeginOfMacroExpansionMarker: ss << "lightblue"; break;
     case pasta::TokenRole::kEndOfFileMarker: ss << "darkblue"; break;
     case pasta::TokenRole::kInitialMacroUseToken: ss << "purple"; break;
     case pasta::TokenRole::kIntermediateMacroExpansionToken: ss << "yellow"; break;
     case pasta::TokenRole::kFinalMacroExpansionToken: ss << "lime"; break;
+    case pasta::TokenRole::kEmptyOrSpecialMacroToken: ss << "pink"; break;
+    case pasta::TokenRole::kEndOfMacroExpansionMarker: ss << "magenta"; break;
 
     default:
       assert(false && "unknown token role");
@@ -107,6 +110,7 @@ static void PrintMacroGraph(std::ostream &os,
   auto dt = tok.DerivedLocation();
   if (std::holds_alternative<pasta::MacroToken>(dt)) {
     auto &mt = std::get<pasta::MacroToken>(dt);
+    assert(a != reinterpret_cast<uintptr_t>(mt.RawMacro()));
     os << "n" << a << " -> n" << reinterpret_cast<uintptr_t>(mt.RawMacro())
        << " [style=dotted];\n";
   }
@@ -491,6 +495,9 @@ static void PrintMacroGraph(std::ostream &os, pasta::AST ast) {
       case pasta::TokenRole::kFileToken:
         std::cerr << "FT  ";
         break;
+      case pasta::TokenRole::kBeginOfMacroExpansionMarker:
+        std::cerr << "BME ";
+        break;
       case pasta::TokenRole::kInitialMacroUseToken:
         std::cerr << "IMU ";
         break;
@@ -502,6 +509,9 @@ static void PrintMacroGraph(std::ostream &os, pasta::AST ast) {
         break;
       case pasta::TokenRole::kEmptyOrSpecialMacroToken:
         std::cerr << "EOS ";
+        break;
+      case pasta::TokenRole::kEndOfMacroExpansionMarker:
+        std::cerr << "EME ";
         break;
     }
     std::cerr << tok.KindName() << ' ' << tok.Data();

@@ -301,12 +301,22 @@ class ParsedTokenStorage {
     kind[offset] = kind_;
   }
 
+  inline void SetRole(DerivedTokenIndex offset, TokenRole role_) {
+    role[offset] = role_;
+  }
+
+  inline void SetLocation(DerivedTokenIndex offset, BitPackedLocation loc_) {
+    location[offset] = loc_;
+  }
+
   std::optional<DerivedTokenIndex> DataOffsetToTokenIndex(
       unsigned offset) const;
 
   void AppendFileToken(std::string_view data, const clang::Token &tok);
-  void AppendMacroToken(MacroTokenStorage &tokens, const clang::Token &tok);
-  void AppendInternalToken(std::string_view data, clang::SourceLocation loc);
+  void AppendMacroToken(const clang::Token &tok);
+  void AppendInternalToken(std::string_view tok_data,
+                           clang::SourceLocation loc,
+                           TokenRole role_);
 
   // Append a marker token to the parsed token list.
   void AppendMarkerToken(clang::SourceLocation loc, TokenRole role);
@@ -320,10 +330,6 @@ class MacroTokenStorage : public ParsedTokenStorage {
   friend class MacroToken;
   friend class ParsedTokenStorage;
   friend class Token;
-
-  // Does this token represent the start or end of a macro expansion?
-  std::vector<bool> is_start_of_macro_expansion;
-  std::vector<bool> is_end_of_macro_expansion;
   
   // Offset in `ASTImpl::root_macro_node.tokens` where this token is located.
   std::vector<DerivedTokenIndex> macro_token_offset;
@@ -339,6 +345,9 @@ class MacroTokenStorage : public ParsedTokenStorage {
 
   // Find the parsed representation of a token.
   std::unordered_map<DerivedTokenIndex, DerivedTokenIndex> parsed_token_offset;
+
+  // Opaque source location of the last macro use token.
+  std::optional<clang::SourceLocation> last_use_loc;
 
   // State used when fixing up token provenance.
   using TokenProvenanceMap = std::unordered_map<OpaqueSourceLoc,
@@ -359,8 +368,6 @@ class MacroTokenStorage : public ParsedTokenStorage {
  public:
   inline MacroTokenStorage(ASTImpl *ast_)
       : ParsedTokenStorage(ast_) {
-    is_start_of_macro_expansion.reserve(4096u);
-    is_end_of_macro_expansion.reserve(4096u);
     macro_token_offset.reserve(4096u);
   }
 

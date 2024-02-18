@@ -633,9 +633,6 @@ void PatchedMacroTracker::DoToken(const clang::Token &tok_, uintptr_t data) {
     return;  // It's a repeat?
   }
 
-  assert(0u < depth);
-  // CloseUnclosedExpansion(tok);
-
   if (skip) {
     D( std::cerr << indent << "(not adding skipped/top-level/eod/eof token "
                  << clang::tok::getTokenName(tok.getKind()) << " at "
@@ -649,21 +646,13 @@ void PatchedMacroTracker::DoToken(const clang::Token &tok_, uintptr_t data) {
 
   MacroNodeImpl *parent_node = nodes.back();
 
-  // // Add the token to the AST.
-  // size_t tok_index = ast->tokens.size();
+  // Add the token to the AST.
   assert(!tok.isOneOf(clang::tok::eod, clang::tok::eof));
-  auto role = TokenRole::kIntermediateMacroExpansionToken;
-  if (tok_loc.isValid() && tok_loc.isFileID()) {
-    auto [file_id, file_offset] = sm.getDecomposedLoc(tok_loc);
-    if (ast->id_to_file.count(file_id.getHashValue())) {
-      role = TokenRole::kInitialMacroUseToken;
-    }
-  }
 
   auto mti = static_cast<DerivedTokenIndex>(ast->root_macro_node.tokens.size());
   MacroTokenImpl *tok_node = &(ast->root_macro_node.tokens.emplace_back());
-  tok_node->token_offset =
-      ast->macro_tokens.AppendMacroToken(tok_data, tok, role, mti);
+  tok_node->token_offset = ast->macro_tokens.AppendMacroToken(
+      tok_data, tok, TokenRole::kIntermediateMacroExpansionToken, mti);
 
   tok_node->parent = parent_node;
   tok_node->kind = static_cast<TokenKind>(tok.getKind());
@@ -1204,7 +1193,8 @@ void PatchedMacroTracker::DoEndDirective(
 
     assert(unexpanded_macros.empty());
 
-    ast->parsed_tokens.AppendInternalToken(pragma_data, last_loc);
+    ast->parsed_tokens.AppendInternalToken(
+        pragma_data, last_loc, TokenRole::kEmptyOrSpecialMacroToken);
 
   // If this was a `#warning` or `#error` then try to collect the string
   // literals. Those were missing.

@@ -20,7 +20,7 @@
 
 #include "../AST/AST.h"
 
-#define PASTA_DEBUG_RUN 0
+#define PASTA_DEBUG_RUN 1
 
 #if PASTA_DEBUG_RUN
 # include <fcntl.h>
@@ -63,7 +63,7 @@ void PreprocessCode(ASTImpl &impl, clang::CompilerInstance &ci,
     // as the most recently added token, so we need to transfer its data to
     // the code to be parsed, rather than the backup data area.
     if (tok_loc.isMacroID()) {
-      impl.parsed_tokens.AppendMacroToken(impl.macro_tokens, tok);
+      impl.parsed_tokens.AppendMacroToken(tok);
     
     // It's a file token.    
     } else if (tok_loc.isFileID()) {
@@ -85,7 +85,7 @@ void PreprocessCode(ASTImpl &impl, clang::CompilerInstance &ci,
   //            enabling the below code can help diagnose it.
   auto fd = open("/tmp/source.cpp", O_TRUNC | O_CREAT | O_WRONLY, 0666);
   auto parsed_data = impl.parsed_tokens.Data();
-  write(fd, parsed_data, parsed_data.size());
+  write(fd, parsed_data.data(), parsed_data.size());
   close(fd);
 #endif  // PASTA_DEBUG_RUN
 }

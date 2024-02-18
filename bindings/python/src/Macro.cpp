@@ -54,6 +54,7 @@ void RegisterMacro(nb::module_ &m) {
   nb::class_<Macro>(m, "Macro")
     .def("__hash__", [](const Macro &macro) { return reinterpret_cast<intptr_t>(macro.RawMacro()); })
     .def("__eq__", [](const Macro &a, const Macro &b) { return a.RawMacro() == b.RawMacro(); })
+    .def("__ne__", [](const Macro &a, const Macro &b) { return a.RawMacro() != b.RawMacro(); })
     .def("__str__", &Token::Data)
     .def_prop_ro("kind", &Macro::Kind)
     .def_prop_ro("parent", &Macro::Parent)
@@ -66,7 +67,8 @@ void RegisterMacro(nb::module_ &m) {
     .def_prop_ro("token_kind", &MacroToken::TokenKind)
     .def_prop_ro("data", &MacroToken::Data)
     .def_prop_ro("parsed_location", &MacroToken::ParsedLocation)
-    .def_prop_ro("file_location", &MacroToken::FileLocation);
+    .def_prop_ro("file_location", &MacroToken::FileLocation)
+    .def_prop_ro("associated_macro", &MacroToken::AssociatedMacro);
 
   nb::class_<MacroDirective, Macro>(m, "MacroDirective")
     .def_prop_ro("hash_token", &MacroDirective::Hash)

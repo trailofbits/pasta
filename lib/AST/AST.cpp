@@ -106,7 +106,9 @@ std::optional<FileToken> ASTImpl::FileTokenAt(clang::SourceLocation loc) {
   const auto [file_id, file_offset] = sm.getDecomposedLoc(loc);
   auto file_it = id_to_file.find(file_id.getHashValue());
   if (file_it == id_to_file.end()) {
-    assert(false);
+    assert(sm.isWrittenInBuiltinFile(loc) ||
+           sm.isWrittenInCommandLineFile(loc) ||
+           sm.isWrittenInScratchSpace(loc));
     return std::nullopt;
   }
 

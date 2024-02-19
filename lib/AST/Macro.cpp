@@ -644,25 +644,6 @@ DerivedToken MacroToken::DerivedLocation(void) const {
       MacroTokenOffset(impl)).DerivedLocation();
 }
 
-// Location of the token as parsed.
-std::optional<Token> MacroToken::ParsedLocation(void) const noexcept {
-  auto offset = MacroTokenOffset(impl);
-  auto role = ast->macro_tokens.Role(offset);
-  if (role != TokenRole::kFinalMacroExpansionToken) {
-    return std::nullopt;
-  }
-
-  auto parsed_offset = ast->macro_tokens.ParsedTokenOffset(offset);
-  if (!parsed_offset.has_value()) {
-    assert(false);
-    return std::nullopt;
-  }
-
-  return Token(
-      std::shared_ptr<ParsedTokenStorage>(ast, &(ast->parsed_tokens)),
-      parsed_offset.value());
-}
-
 std::optional<DefineMacroDirective> MacroToken::AssociatedMacro(void) const {
   auto offset = MacroTokenOffset(impl);
   auto &macro_storage = ast->macro_tokens;
@@ -934,13 +915,12 @@ MacroRange MacroSubstitution::ReplacementChildren(void) const noexcept {
 }
 
 // Higher-order function for getting the left/right corner of a substitution
-// tree.
-// The walk parameter tells us how to traverse the current substitution's
+// tree. The walk parameter tells us how to traverse the current substitution's
 // replacement children of tree to go left/right.
 // Returns an optional Token because the top-level substitution may not expand
 // to any tokens.
 template <typename RangeElemT, typename RangeT>
-static std::optional<Token> Corner(
+static std::optional<MacroToken> Corner(
   const RangeT &range,
   std::function<std::optional<RangeElemT>(RangeT)> walk) {
   std::optional<RangeElemT> cur = std::nullopt;
@@ -961,23 +941,21 @@ static std::optional<Token> Corner(
   const std::optional<MacroToken> macro_tok = (cur
                                                ? MacroToken::From(*cur)
                                                : std::nullopt);
-  return (macro_tok
-          ? std::optional(macro_tok->ParsedLocation())
-          : std::nullopt);
+  return (macro_tok ? std::optional(macro_tok) : std::nullopt);
 }
 
 // Returns the first fully substituted token in this substitution, if any.
-std::optional<Token> MacroSubstitution::FirstFullySubstitutedToken(void) const noexcept {
+std::optional<MacroToken>
+MacroSubstitution::FirstFullySubstitutedToken(void) const noexcept {
   const auto Left = [](MacroRange range) { return *range.begin(); };
-  const auto first_tok = Corner<Macro, MacroRange>(ReplacementChildren(), Left);
-  return first_tok;
+  return Corner<Macro, MacroRange>(ReplacementChildren(), Left);
 }
 
 // Returns the last fully substituted token in this substitution, if any.
-std::optional<Token> MacroSubstitution::LastFullySubstitutedToken(void) const noexcept {
+std::optional<MacroToken>
+MacroSubstitution::LastFullySubstitutedToken(void) const noexcept {
   const auto Right = [](MacroRange range) { return *(range.end() - 1); };
-  const auto last_tok = Corner<Macro, MacroRange>(ReplacementChildren(), Right);
-  return last_tok;
+  return Corner<Macro, MacroRange>(ReplacementChildren(), Right);
 }
 
 std::optional<MacroToken> MacroSubstitution::NameOrOperator(void) const noexcept {

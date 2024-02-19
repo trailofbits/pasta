@@ -1829,8 +1829,8 @@ void TypePrinter::printTag(clang::TagDecl *D, raw_string_ostream &OS) {
   if (!Policy.SuppressTagKeyword && !D->getTypedefNameForAnonDecl()) {
     HasKindDecoration = true;
     OS << D->getKindName();
-    ctx.MarkLocationIfOneOf(D->getInnerLocStart(), clang::tok::kw_struct,
-                            clang::tok::kw_union, clang::tok::kw_class);
+    ctx.MarkLocationIfOneOf(D->getInnerLocStart(), TokenKind::kKeywordStruct,
+                            TokenKind::kKeywordUnion, TokenKind::kKeywordClass);
     OS << ' ';
   }
 

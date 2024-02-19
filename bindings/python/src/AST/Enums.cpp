@@ -4650,8 +4650,8 @@ void RegisterEnums(nb::module_ &m) {
     .value("R_SQUARE", pasta::TokenKind::kRSquare)
     .value("L_PARENTHESIS", pasta::TokenKind::kLParenthesis)
     .value("R_PARENTHESIS", pasta::TokenKind::kRParenthesis)
-    .value("L_BRACE_TOKEN", pasta::TokenKind::kLBraceToken)
-    .value("R_BRACE_TOKEN", pasta::TokenKind::kRBraceToken)
+    .value("L_BRACE", pasta::TokenKind::kLBrace)
+    .value("R_BRACE", pasta::TokenKind::kRBrace)
     .value("PERIOD", pasta::TokenKind::kPeriod)
     .value("ELLIPSIS", pasta::TokenKind::kEllipsis)
     .value("AMP", pasta::TokenKind::kAmp)
@@ -4695,7 +4695,7 @@ void RegisterEnums(nb::module_ &m) {
     .value("COMMA", pasta::TokenKind::kComma)
     .value("HASH", pasta::TokenKind::kHash)
     .value("HASH_HASH", pasta::TokenKind::kHashHash)
-    .value("HASHAT", pasta::TokenKind::kHashat)
+    .value("HASH_AT", pasta::TokenKind::kHashAt)
     .value("PERIOD_STAR", pasta::TokenKind::kPeriodStar)
     .value("ARROW_STAR", pasta::TokenKind::kArrowStar)
     .value("COLON_COLON", pasta::TokenKind::kColonColon)
@@ -5058,7 +5058,9 @@ void RegisterEnums(nb::module_ &m) {
     .value("ANNOT_MODULE_BEGIN", pasta::TokenKind::kAnnotModuleBegin)
     .value("ANNOT_MODULE_END", pasta::TokenKind::kAnnotModuleEnd)
     .value("ANNOT_HEADER_UNIT", pasta::TokenKind::kAnnotHeaderUnit)
-    .value("ANNOT_REPL_INPUT_END", pasta::TokenKind::kAnnotReplInputEnd);
+    .value("ANNOT_REPL_INPUT_END", pasta::TokenKind::kAnnotReplInputEnd)
+    .value("L_ANGLE", pasta::TokenKind::kLAngle)
+    .value("R_ANGLE", pasta::TokenKind::kRAngle);
 
   nb::enum_<pasta::TrailingAllocKind>(m, "TrailingAllocKind")
     .value("TAK_INHERITS_CONSTRUCTOR", pasta::TrailingAllocKind::kTAKInheritsConstructor)

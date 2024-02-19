@@ -72,7 +72,7 @@ class PrintedTokenImpl final {
   DerivedTokenIndex derived_index{kInvalidDerivedTokenIndex};
 
   // Kind of this token.
-  clang::tok::TokenKind kind{clang::tok::unknown};
+  TokenKind kind{TokenKind::kUnknown};
 
   // Number of leading spaces and new lines; this is for printing.
   uint16_t num_leading_spaces{0};
@@ -91,7 +91,7 @@ class PrintedTokenImpl final {
                           TokenContextIndex context_index_,
                           unsigned num_leading_new_lines_,
                           unsigned num_leading_spaces_,
-                          clang::tok::TokenKind kind_)
+                          TokenKind kind_)
       : data_offset(data_offset_),
         data_len(data_len_),
         context_index(context_index_),
@@ -174,6 +174,8 @@ class PrintedTokenRangeImpl {
 
   const TokenContextIndex CreateAlias(
       TokenPrinterContext *tokenizer, TokenContextIndex aliasee);
+
+  void TryChangeLastKind(TokenKind old, TokenKind new_);
 
   void MarkLocation(PrintedTokenImpl &, DerivedTokenIndex tok_index);
   void MarkLocation(size_t tok_index, DerivedTokenIndex tok);
@@ -287,7 +289,6 @@ class TokenPrinterContext {
   TokenPrinterContext(const TokenPrinterContext &that_);
 
   void Tokenize(void);
-
 
   // Mark the last printed token as having location `loc`. This helps to
   // correlate things in the actual parsed tokens with printed tokens.

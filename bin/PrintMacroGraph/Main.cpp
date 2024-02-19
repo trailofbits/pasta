@@ -102,11 +102,6 @@ static void PrintMacroGraph(std::ostream &os,
 #endif
 
 #if PRINT_DERIVED
-  if (auto pt = tok.ParsedLocation()) {
-    os << "n" << reinterpret_cast<uintptr_t>(pt->RawToken()) << " -> n" << a
-       << " [style=dotted];\n";
-  }
-
   auto dt = tok.DerivedLocation();
   if (std::holds_alternative<pasta::MacroToken>(dt)) {
     auto &mt = std::get<pasta::MacroToken>(dt);
@@ -478,7 +473,7 @@ static void PrintMacroGraph(std::ostream &os, pasta::AST ast) {
 
   os << "}\n";
 
-  return;
+  // return;
 
   for (const pasta::Token &tok : ast.Tokens()) {
     std::cerr << std::setw(5) << std::setfill(' ') << tok.Index() << ' ';

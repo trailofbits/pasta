@@ -13,7 +13,7 @@
 #include <clang/Frontend/CompilerInstance.h>
 #pragma GCC diagnostic pop
 
-#define D(...) __VA_ARGS__
+// #define D(...) __VA_ARGS__
 #ifndef D
 # define D(...)
 #endif
@@ -1194,7 +1194,8 @@ void PatchedMacroTracker::DoEndDirective(
     assert(unexpanded_macros.empty());
 
     ast->parsed_tokens.AppendInternalToken(
-        pragma_data, last_loc, TokenRole::kEmptyOrSpecialMacroToken);
+        pragma_data, last_loc, TokenRole::kEmptyOrSpecialMacroToken,
+        true  /* is_in_pragma */);
 
   // If this was a `#warning` or `#error` then try to collect the string
   // literals. Those were missing.

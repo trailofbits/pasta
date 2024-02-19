@@ -52,19 +52,13 @@ class ASTImpl;
 // Tracks macros using patched-in events to Clang.
 class SplitTokenTracker : public clang::PPCallbacks {
  private:
-  clang::Preprocessor &pp;
   clang::SourceManager &sm;
-  clang::CompilerInstance &ci;
-  clang::LangOptions &lo;
-  clang::Token skipped_hash;
-
   ASTImpl * const ast;
 
  public:
   virtual ~SplitTokenTracker(void) = default;
 
-  explicit SplitTokenTracker(clang::Preprocessor &pp_,
-                             clang::SourceManager &sm_,
+  explicit SplitTokenTracker(clang::SourceManager &sm_,
                              ASTImpl *ast_);
 
  public:

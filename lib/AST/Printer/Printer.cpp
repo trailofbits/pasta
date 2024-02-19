@@ -33,7 +33,7 @@ static void TryLocateAttribute(const clang::Attr *A,
                                PrintedTokenRangeImpl &tokens,
                                size_t old_num_toks) {
   
-  clang::tok::TokenKind opener_kind = clang::tok::unknown;
+  TokenKind opener_kind = TokenKind::kUnknown;
 
   unsigned expected_num_openers = 0u;
   unsigned num_found_openers = 0u;
@@ -46,18 +46,18 @@ static void TryLocateAttribute(const clang::Attr *A,
 
     case clang::AttributeCommonInfo::AS_CXX11:
     case clang::AttributeCommonInfo::AS_C23:
-      opener_kind = clang::tok::l_square;
+      opener_kind = TokenKind::kLSquare;
       expected_num_openers = 2u;
       break;
 
     case clang::AttributeCommonInfo::AS_GNU:
-      opener_kind = clang::tok::l_paren;
+      opener_kind = TokenKind::kLParenthesis;
       expected_num_openers = 2u;
       break;
 
     case clang::AttributeCommonInfo::AS_Declspec:
     case clang::AttributeCommonInfo::AS_Microsoft:
-      opener_kind = clang::tok::l_paren;
+      opener_kind = TokenKind::kLParenthesis;
       expected_num_openers = 1u;
       break;
 
@@ -91,25 +91,25 @@ static void TryLocateAttribute(const clang::Attr *A,
   PrintedTokenImpl *opener_toks[2u] = {};
   for (size_t i = old_num_toks; i < max_i; ++i) {
     PrintedTokenImpl &tok = tokens.tokens[i];
-    clang::tok::TokenKind kind = tok.kind;
+    TokenKind kind = tok.kind;
 
     // Look for the keyword.
     switch (kind) {
-      case clang::tok::kw___attribute:
-      case clang::tok::kw___declspec:
-      case clang::tok::kw_asm:
-      case clang::tok::kw___ptr32:
-      case clang::tok::kw___ptr64:
-      case clang::tok::kw___fastcall:
-      case clang::tok::kw___stdcall:
-      case clang::tok::kw___thiscall:
-      case clang::tok::kw___vectorcall:
-      case clang::tok::kw___cdecl:
-      case clang::tok::kw___forceinline:  // Maybe.
-      case clang::tok::kw__Nonnull:
-      case clang::tok::kw__Nullable:
-      case clang::tok::kw__Null_unspecified:
-      case clang::tok::kw__Nullable_result:
+      case TokenKind::kKeyword__Attribute:
+      case TokenKind::kKeyword__Declspec:
+      case TokenKind::kKeywordAssembly:
+      case TokenKind::kKeyword__Ptr32:
+      case TokenKind::kKeyword__Ptr64:
+      case TokenKind::kKeyword__Fastcall:
+      case TokenKind::kKeyword__Stdcall:
+      case TokenKind::kKeyword__Thiscall:
+      case TokenKind::kKeyword__Vectorcall:
+      case TokenKind::kKeyword__Cdecl:
+      case TokenKind::kKeyword__Forceinline:  // Maybe.
+      case TokenKind::kKeyword_Nonnull:
+      case TokenKind::kKeyword_Nullable:
+      case TokenKind::kKeyword_NullUnspecified:
+      case TokenKind::kKeyword_NullableResult:
         attr_tok = &tok;
         break;
       default:
@@ -120,8 +120,8 @@ static void TryLocateAttribute(const clang::Attr *A,
     // we can match the actual attribute (e.g. `nonnull` above).
     if (num_found_openers >= expected_num_openers) {
       if (tok.derived_index == kInvalidDerivedTokenIndex &&
-          (kind == clang::tok::identifier ||
-           kind == clang::tok::raw_identifier)) {
+          (kind == TokenKind::kIdentifier ||
+           kind == TokenKind::kRawIdentifier)) {
         llvm::StringRef data(tok.Data(tokens));
 
         // TODO(pag): uuid, guid?
@@ -421,14 +421,14 @@ void PrintedTokenRangeImpl::FixupInvalidTokenContexts(TokenContextIndex index) {
 }
 
 void PrintedTokenRangeImpl::AddTrailingEOF(void) {
-  if (tokens.empty() || tokens.back().kind != clang::tok::eof) {
+  if (tokens.empty() || tokens.back().kind != TokenKind::kEndOfFile) {
     tokens.emplace_back(
         0u  /* data_offset */,
         0u  /* data_len */,
         kInvalidTokenContextIndex,
         0u  /* num_leading_new_lines */,
         0u  /* num_leading_spaces */,
-        clang::tok::eof);
+        TokenKind::kEndOfFile);
   }
 }
 
@@ -617,11 +617,17 @@ void TokenPrinterContext::Tokenize(void) {
     }
     tokens.data.push_back('\0');  // Make sure all tokens end up NUL-terminated.
 
+    // Migrate all kinds to `identifier` now that we've got the data.
+    if (tok.is(clang::tok::raw_identifier)) {
+      tok.setKind(clang::tok::identifier);
+    }
+
     // Add the token in.
     tokens.tokens.emplace_back(
         static_cast<TokenDataOffset>(data_offset),
         static_cast<uint32_t>(data_len),
-        context_index, num_nl, num_sp, tok.getKind());
+        context_index, num_nl, num_sp,
+        static_cast<TokenKind>(tok.getKind()));
 
     // Reset so that if there is no whitespace afte the last token, then we
     // don't randomly add in trailing whitespace.
@@ -648,19 +654,31 @@ void TokenPrinterContext::Tokenize(void) {
   }
 }
 
+void PrintedTokenRangeImpl::TryChangeLastKind(TokenKind old, TokenKind new_) {
+  curr_printer_context->Tokenize();
+  if (!tokens.empty() && tokens.back().kind == old) {
+    tokens.back().kind = new_;
+    return;
+  }
+  assert(false);
+}
+
 void PrintedTokenRangeImpl::MarkLocation(PrintedTokenImpl &printed,
                                          DerivedTokenIndex parsed) {
+  curr_printer_context->Tokenize();
   printed.derived_index = parsed;
 }
 
 void PrintedTokenRangeImpl::MarkLocation(
     size_t printed_tok_index, DerivedTokenIndex parsed) {
+  curr_printer_context->Tokenize();
   assert(printed_tok_index < tokens.size());
   tokens[printed_tok_index].derived_index = parsed;
 }
 
 void PrintedTokenRangeImpl::MarkLocation(
     size_t printed_tok_index, const clang::SourceLocation &loc) {
+  curr_printer_context->Tokenize();
   assert(printed_tok_index < tokens.size());
 
   if (!loc.isValid()) {
@@ -795,7 +813,7 @@ std::optional<PrintedTokenRange> PrintedTokenRange::Concatenate(
   context_map.assign(a.impl->contexts.size(), kInvalidTokenContextIndex);
 
   for (auto a_tok = a.first; a_tok < a.after_last; ++a_tok) {
-    if (a_tok->kind != clang::tok::eof) {
+    if (a_tok->kind != TokenKind::kEndOfFile) {
       PrintedTokenImpl &new_tok = new_impl->tokens.emplace_back(*a_tok);
       new_tok.matched_in_align = false;
       new_tok.context_index = MigrateContexts(
@@ -808,7 +826,7 @@ std::optional<PrintedTokenRange> PrintedTokenRange::Concatenate(
 
   auto a_data_size = static_cast<TokenDataOffset>(a.impl->data.size());
   for (auto b_tok = b.first; b_tok < b.after_last; ++b_tok) {
-    if (b_tok->kind != clang::tok::eof) {
+    if (b_tok->kind != TokenKind::kEndOfFile) {
       PrintedTokenImpl &new_tok = new_impl->tokens.emplace_back(*b_tok);
       new_tok.matched_in_align = false;
       new_tok.data_offset += a_data_size;
@@ -858,7 +876,7 @@ PrintedTokenRange PrintedTokenRange::Adopt(const TokenRange &a) {
         kASTTokenContextIndex,
         0u  /* Leading new lines */,
         num_leading_spaces,
-        static_cast<clang::tok::TokenKind>(tok.Kind()));
+        tok.Kind());
 
     num_leading_spaces = 1u;
 

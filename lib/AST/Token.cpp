@@ -481,32 +481,15 @@ TokenRole Token::Role(void) const noexcept {
 
 // Kind of this token.
 const char *Token::KindName(void) const noexcept {
-  return clang::tok::getTokenName(static_cast<clang::tok::TokenKind>(Kind()));
+  switch (auto kind = Kind()) {
+    case TokenKind::kLAngle:
+      return "l_angle";
+    case TokenKind::kRAngle:
+      return "r_angle";
+    default:
+      return clang::tok::getTokenName(static_cast<clang::tok::TokenKind>(kind));
+  }
 }
-
-// // Return the context of this token, or `nullptr`.
-// //
-// // TODO(pag): Eventually migrate this to `PrintedTokenImpl`.
-// const TokenContextImpl *TokenImpl::Context(
-//     const ASTImpl &ast,
-//     const std::vector<TokenContextImpl> &contexts) const noexcept {
-
-//   if (Role() != TokenRole::kFileToken) {
-//     assert(false);
-//     return nullptr;
-//   }
-
-//   if (context_index == kInvalidTokenContextIndex) {
-//     return nullptr;
-//   }
-
-//   if (context_index >= contexts.size()) {
-//     assert(false);
-//     return nullptr;
-//   }
-
-//   return &(contexts[context_index]);
-// }
 
 // Return the data associated with this token.
 std::string_view Token::Data(void) const {
@@ -522,14 +505,6 @@ Token::operator bool(void) const noexcept {
   assert(!!storage);
   return storage.get() != &(storage->ast->invalid_tokens);
 }
-
-// // Index of this token in the AST's token list.
-// uint64_t Token::Index(void) const {
-//   if (ast && impl) {
-//     return static_cast<uint64_t>(impl - ast->tokens.data());
-//   }
-//   return kInvalidDerivedTokenIndex;
-// }
 
 // Prefix increment operator.
 TokenIterator &TokenIterator::operator++(void) noexcept {
@@ -895,6 +870,72 @@ BitPackedLocation ParsedTokenStorage::CreateMacroLocation(
   return static_cast<BitPackedLocation>(offset + 1u) << 32u;
 }
 
+// Clang's `Parser::ParseGreaterThanInTemplateList` is responsible for doing
+// deffered splitting of these tokens into other tokens when parsing template
+// parameter lists.
+static unsigned NumSplits(TokenKind kind) {
+  switch (kind) {
+    case TokenKind::kGreaterEqual:
+    case TokenKind::kGreaterGreater:
+    case TokenKind::kLessLess:
+      return 1u;
+    case TokenKind::kGreaterGreaterEqual:
+    case TokenKind::kGreaterGreaterGreater:
+    case TokenKind::kLessLessLess:
+      return 2u;
+    default:
+      return 0u;
+  }
+}
+
+static TokenKind SplitTokenPrefixKind(TokenKind kind) {
+  switch (kind) {
+    case TokenKind::kGreaterEqual:
+    case TokenKind::kGreaterGreater:
+    case TokenKind::kGreaterGreaterEqual:
+    case TokenKind::kGreaterGreaterGreater:
+      return TokenKind::kGreater;
+    case TokenKind::kLessLess:
+    case TokenKind::kLessLessLess:
+      return TokenKind::kLess;
+    default:
+      assert(false);
+      return TokenKind::kUnknown;
+  }
+}
+
+static TokenKind SplitTokenSuffixKind(TokenKind kind) {
+  switch (kind) {
+    case TokenKind::kGreaterEqual:
+      return TokenKind::kEqual;
+    case TokenKind::kGreaterGreater:
+      return TokenKind::kGreater;
+    case TokenKind::kGreaterGreaterEqual:
+      return TokenKind::kGreaterEqual;
+    case TokenKind::kGreaterGreaterGreater:
+      return TokenKind::kGreaterGreater;
+    case TokenKind::kLessLess:
+      return TokenKind::kLess;
+    case TokenKind::kLessLessLess:
+      return TokenKind::kLessLess;
+    default:
+      assert(false);
+      return TokenKind::kUnknown;
+  }
+}
+
+void ParsedTokenStorage::AppendSplitTokens(
+    BitPackedLocation loc, TokenKind kind_, bool is_in_pragma) {
+  auto num_splits = NumSplits(kind_);
+  for (auto i = 0u; i < num_splits; ++i) {
+    kind.emplace_back(TokenKind::kUnknown);
+    role.emplace_back(TokenRole::kInvalid);
+    is_in_pragma_directive.emplace_back(false);
+    location.emplace_back(kInvalidBitPackedLocation);
+    FinishToken();
+  }
+}
+
 void ParsedTokenStorage::AppendFileToken(
     std::string_view tok_data, const clang::Token &tok) {
 
@@ -907,11 +948,19 @@ void ParsedTokenStorage::AppendFileToken(
     data_offset.back() += 1u;
   }
 
+  auto kind_ = static_cast<TokenKind>(tok.getKind());
+  if (kind_ == TokenKind::kRawIdentifier) {
+    kind_ = TokenKind::kIdentifier;
+  }
+
+  auto floc = CreateFileLocation(tok.getLocation());
+  AppendSplitTokens(floc, kind_, false);
+
   data.insert(data.end(), tok_data.begin(), tok_data.end());
-  kind.emplace_back(static_cast<TokenKind>(tok.getKind()));
+  kind.emplace_back(kind_);
   role.emplace_back(TokenRole::kFileToken);
   is_in_pragma_directive.emplace_back(false);
-  location.emplace_back(CreateFileLocation(tok.getLocation()));
+  location.emplace_back(floc);
   FinishToken();
 }
 
@@ -928,25 +977,23 @@ void ParsedTokenStorage::AppendMacroToken(const clang::Token &tok) {
 
   (void) tok;
 
-  auto token_offset = static_cast<DerivedTokenIndex>(role.size());
   auto macro_token_offset = static_cast<DerivedTokenIndex>(
       macro_tokens.role.size() - 1u);
+  auto mloc = CreateMacroLocation(macro_token_offset);
+  auto kind_ = macro_tokens.Kind(macro_token_offset);
+  auto is_in_pragma = macro_tokens.is_in_pragma_directive.back();
+
+  AppendSplitTokens(mloc, kind_, is_in_pragma);
 
   // Update the role in the macro tokens to make it as having made it into
   // the parsed tokens.
-  macro_tokens.role.back() = TokenRole::kFinalMacroExpansionToken;
-  
-  // Keep a mapping between the "shadow" copies of a token in `macro_tokens`
-  // and the corresponding version in `parsed_tokens` so that we can implement
-  // `MacroToken::ParsedToken`.
-  macro_tokens.parsed_token_offset.emplace(macro_token_offset, token_offset);
+  macro_tokens.SetRole(macro_token_offset,
+                       TokenRole::kFinalMacroExpansionToken);
 
-  kind.emplace_back(macro_tokens.kind.back());
-  role.emplace_back(macro_tokens.role.back());
-  is_in_pragma_directive.emplace_back(
-      macro_tokens.is_in_pragma_directive.back());
-
-  location.emplace_back(CreateMacroLocation(macro_token_offset));
+  kind.emplace_back(kind_);
+  role.emplace_back(TokenRole::kFinalMacroExpansionToken);
+  is_in_pragma_directive.emplace_back(is_in_pragma);
+  location.emplace_back(mloc);
 
   auto tok_data = macro_tokens.Data(macro_token_offset);
   data.insert(data.end(), tok_data.begin(), tok_data.end());
@@ -960,7 +1007,8 @@ void ParsedTokenStorage::AppendMacroToken(const clang::Token &tok) {
 // Another reason for this is to embed the presence of an "empty" expansion.
 void ParsedTokenStorage::AppendInternalToken(std::string_view tok_data,
                                              clang::SourceLocation loc,
-                                             TokenRole role_) {
+                                             TokenRole role_,
+                                             bool is_in_pragma) {
   if (!data.empty() && data.back() != '\n') {
     data.push_back('\n');
     data_offset.back() += 1u;
@@ -971,8 +1019,15 @@ void ParsedTokenStorage::AppendInternalToken(std::string_view tok_data,
 
   kind.emplace_back(TokenKind::kUnknown);
   role.emplace_back(role_);
-  is_in_pragma_directive.emplace_back(true);
-  location.emplace_back(CreateFileLocation(loc));
+  is_in_pragma_directive.emplace_back(is_in_pragma);
+  if (loc.isFileID()) {
+    location.emplace_back(CreateFileLocation(loc));
+  } else if (loc.isMacroID()) {
+    location.emplace_back(CreateInitialMacroLocation(loc));
+  } else {
+    assert(false);
+    location.emplace_back(kInvalidBitPackedLocation);
+  }
   FinishToken();
 }
 
@@ -1011,8 +1066,9 @@ std::optional<DerivedTokenIndex> ParsedTokenStorage::DataOffsetToTokenIndex(
   auto end = data_offset.end();
   auto it = std::upper_bound(begin, end, offset);
   auto index = static_cast<DerivedTokenIndex>(it - begin);
-  assert(offset >= data_offset[index]);
-  return index;
+  assert(0u < index);
+  assert(offset >= data_offset[index - 1u]);
+  return index - 1u;
 }
 
 void ParsedTokenStorage::InitInvalid(void) {
@@ -1026,6 +1082,37 @@ void ParsedTokenStorage::InitInvalid(void) {
 
 ParsedTokenStorage::~ParsedTokenStorage(void) {}
 MacroTokenStorage::~MacroTokenStorage(void) {}
+
+// Try to split the token at `loc`.
+void ParsedTokenStorage::SplitToken(clang::SourceLocation loc) {
+  auto maybe_offset = ast->ParsedTokenOffset(loc);
+  if (!maybe_offset) {
+    assert(false);
+    return;
+  }
+
+  auto offset = maybe_offset.value();
+  auto num_splits = NumSplits(kind[offset]);
+  if (!num_splits) {
+    return;
+  }
+
+  assert(num_splits <= offset);
+  assert(role[offset - num_splits] == TokenRole::kInvalid);
+  assert(kind[offset - num_splits] == TokenKind::kUnknown);
+  assert(data_offset[offset - num_splits] <= data_offset[offset]);
+
+  auto prev_kind = kind[offset];
+
+  role[offset - num_splits] = role[offset];
+  location[offset - num_splits] = location[offset];
+  kind[offset - num_splits] = SplitTokenPrefixKind(prev_kind);
+  kind[offset] = SplitTokenSuffixKind(prev_kind);
+
+  for (auto i = (offset - num_splits + 1u); i <= offset; ++i) {
+    data_offset[i] += 1u;
+  }
+}
 
 void ParsedTokenStorage::Finalize(void) {
   assert(role.size() == kind.size());
@@ -1055,8 +1142,13 @@ DerivedTokenIndex MacroTokenStorage::AppendMacroToken(
     data_offset.back() += 1u;
   }
 
+  auto kind_ = tok.getKind();
+  if (kind_ == clang::tok::raw_identifier) {
+    kind_ = clang::tok::identifier;
+  }
+
   data.insert(data.end(), tok_data.begin(), tok_data.end());
-  kind.emplace_back(static_cast<TokenKind>(tok.getKind()));
+  kind.emplace_back(static_cast<TokenKind>(kind_));
   role.emplace_back(role_);
   is_in_pragma_directive.emplace_back(false);
   macro_token_offset.emplace_back(macro_token_offset_);
@@ -1143,10 +1235,22 @@ void MacroTokenStorage::FixupTokenProvenance(
   //            `has_derived` is true.
 
   if (has_tok_for_loc) {
-    assert(min_derived_index <= MacroTokenOffset(it->second));
-    assert(Data(tok_index) == Data(MacroTokenOffset(it->second)));
+    auto derived_index = MacroTokenOffset(it->second);
+    assert(Data(tok_index) == Data(derived_index));
     assert(Role(tok_index) == TokenRole::kIntermediateMacroExpansionToken);
     SetLocation(tok_index, it->second);
+
+    // E.g. referencing a token from the body of a `#define`.
+    if (min_derived_index > derived_index) {
+      SetRole(tok_index, TokenRole::kInitialMacroUseToken);
+      can_be_derived = false;
+
+      // Propagate macro use tokens back into definition bodies.
+      if (auto def_it = macro_definition.find(tok_index);
+          def_it != macro_definition.end()) {
+        macro_definition.emplace(derived_index, def_it->second);
+      }
+    }
 
   } else {
     
@@ -1205,7 +1309,6 @@ void MacroTokenStorage::MarkPreviousTokenAsEndOfExpansion(void) {
     return;
   }
 
-  file_token_refs.clear();
   macro_token_refs.clear();
 
   auto begin_offset = last_expansion_begin_offset.value();
@@ -1237,20 +1340,6 @@ void MacroTokenStorage::MarkNextTokenAsBeginOfExpansion(void) {
 
   next_is_begin_expansion = true;
   last_expansion_begin_offset = static_cast<unsigned>(kind.size());
-}
-
-// Map a macro token offset into a parsed token offset. This is only valid for
-// tokens that actually get parsed.
-std::optional<DerivedTokenIndex> MacroTokenStorage::ParsedTokenOffset(
-      DerivedTokenIndex offset) const {
-  auto it = parsed_token_offset.find(offset);
-  if (it == parsed_token_offset.end()) {
-    assert(role[offset] != TokenRole::kFinalMacroExpansionToken);
-    return std::nullopt;
-  }
-
-  assert(role[offset] == TokenRole::kFinalMacroExpansionToken);
-  return it->second;
 }
 
 void MacroTokenStorage::Finalize(void) {

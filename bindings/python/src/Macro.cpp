@@ -66,7 +66,6 @@ void RegisterMacro(nb::module_ &m) {
     .def("__str__", &MacroToken::Data)
     .def_prop_ro("token_kind", &MacroToken::TokenKind)
     .def_prop_ro("data", &MacroToken::Data)
-    .def_prop_ro("parsed_location", &MacroToken::ParsedLocation)
     .def_prop_ro("file_location", &MacroToken::FileLocation)
     .def_prop_ro("associated_macro", &MacroToken::AssociatedMacro);
 

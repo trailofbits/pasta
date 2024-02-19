@@ -1959,8 +1959,7 @@ void StmtPrinter::VisitInitListExpr(clang::InitListExpr *Node) {
     }
 
     for (auto j = 0u; j <= 1u; ++j) {
-      if (tokens.ast->TokenKind(raw_tok.value() + j) ==
-          clang::tok::TokenKind::comma) {
+      if (tokens.ast->TokenKind(raw_tok.value() + j) == TokenKind::kComma) {
         comma_loc = raw_tok.value() + j;
         break;
       }
@@ -2220,11 +2219,14 @@ void StmtPrinter::VisitCXXNamedCastExpr(clang::CXXNamedCastExpr *Node) {
   TokenPrinterContext ctx(OS, Node, tokens);
   OS << Node->getCastName();
   ctx.MarkLocation(Node->getBeginLoc());
-  OS << '<';
+  OS << " <";
   ctx.MarkLocation(Node->getAngleBrackets().getBegin());
+  tokens.TryChangeLastKind(TokenKind::kLess, TokenKind::kLAngle);
+
   printQualType(Node->getTypeAsWritten(), OS, Policy);
-  OS << ">";
+  OS << " >";
   ctx.MarkLocation(Node->getAngleBrackets().getEnd());
+  tokens.TryChangeLastKind(TokenKind::kGreater, TokenKind::kRAngle);
   OS << "(";
   PrintExpr(Node->getSubExpr());
   OS << ")";

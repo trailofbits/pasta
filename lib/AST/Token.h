@@ -312,14 +312,20 @@ class ParsedTokenStorage {
   std::optional<DerivedTokenIndex> DataOffsetToTokenIndex(
       unsigned offset) const;
 
+  void AppendSplitTokens(BitPackedLocation loc, TokenKind kind_,
+                         bool is_in_pragma);
   void AppendFileToken(std::string_view data, const clang::Token &tok);
   void AppendMacroToken(const clang::Token &tok);
   void AppendInternalToken(std::string_view tok_data,
                            clang::SourceLocation loc,
-                           TokenRole role_);
+                           TokenRole role_,
+                           bool is_in_pragma=false);
 
   // Append a marker token to the parsed token list.
   void AppendMarkerToken(clang::SourceLocation loc, TokenRole role);
+
+  // Try to split the token at `loc`.
+  void SplitToken(clang::SourceLocation loc);
 
   void Finalize(void);
 };
@@ -343,9 +349,6 @@ class MacroTokenStorage : public ParsedTokenStorage {
   // macro node here.
   std::unordered_map<DerivedTokenIndex, Node> macro_definition;
 
-  // Find the parsed representation of a token.
-  std::unordered_map<DerivedTokenIndex, DerivedTokenIndex> parsed_token_offset;
-
   // Opaque source location of the last macro use token.
   std::optional<clang::SourceLocation> last_use_loc;
 
@@ -359,6 +362,7 @@ class MacroTokenStorage : public ParsedTokenStorage {
   // Hidden methods.
   using ParsedTokenStorage::AppendFileToken;
   using ParsedTokenStorage::AppendMacroToken;
+  using ParsedTokenStorage::AppendSplitTokens;
   using ParsedTokenStorage::Finalize;
 
   void FixupTokenProvenance(
@@ -387,13 +391,6 @@ class MacroTokenStorage : public ParsedTokenStorage {
   void MarkAsMacroName(DerivedTokenIndex offset, Node macro);
 
   clang::SourceLocation OriginalLocation(DerivedTokenIndex offset) const;
-
-  std::optional<DerivedTokenIndex> ParsedTokenOffset(
-      DerivedTokenIndex offset) const;
-
-  // // Take the last thing token off of the tracker. 
-  // std::tuple<std::string, clang::Token, TokenRole,
-  //            DerivedTokenIndex> PopToken(void);
 
   void Finalize(void);
 };

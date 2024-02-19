@@ -103,9 +103,6 @@ class PatchedMacroTracker : public clang::PPCallbacks {
   MacroDirectiveImpl *last_directive{nullptr};
 
   std::unordered_map<const clang::MacroInfo *, MacroDirectiveImpl *> defines;
-  // std::unordered_map<OpaqueSourceLoc, DerivedTokenIndex> file_token_refs;
-  // std::unordered_map<OpaqueSourceLoc, DerivedTokenIndex> macro_token_refs;
-  // std::unordered_map<OpaqueSourceLoc, DerivedTokenIndex> concat_token_refs;
 
   // In evil scenarios where pre-expansion is cancelled (e.g. due to a nested
   // _Pragma()), Clang may presend us with an EOD/EOF that is really
@@ -114,17 +111,6 @@ class PatchedMacroTracker : public clang::PPCallbacks {
   // to recover the intended token from its location.
   std::unordered_map<clang::SourceLocation::UIntTy, clang::Token>
       end_of_arg_toks;
-
-  // // The index of the last token whose role marks the beginning of a macro
-  // // expansion.
-  // //
-  // // NOTE(pag): Points into `ASTImpl::tokens`.
-  // DerivedTokenIndex parsed_start_of_macro_index{0u};
-
-  // // Similar to above, but points into `ASTImpl::root_macro_node::tokens`.
-  // DerivedTokenIndex macro_start_of_macro_index{0u};
-
-  // DerivedTokenIndex last_fixed_index{0u};
 
   // Values to substitute for `__COUNTER__`. We need to try to maintain a
   // semblance of uniqueness, but also we want to try to have better
@@ -143,18 +129,7 @@ class PatchedMacroTracker : public clang::PPCallbacks {
 
   virtual ~PatchedMacroTracker(void);
 
-  // void FixupDerivedLocations(void);
-
  private:
-  // void FixupTokenProvenance(DerivedTokenIndex tok_index,
-  //                           bool can_be_derived, int depth,
-  //                           clang::SourceLocation loc);
-
-  // void FixupTokenProvenance(const MacroTokenImpl *tok);
-
-  // void FixupTokenProvenance(const MacroNodeImpl *node);
-
-  // void CloseUnclosedExpansion(const clang::Token &tok);
 
   void Push(const clang::Token &tok);
   void Pop(const clang::Token &tok);

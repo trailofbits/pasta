@@ -744,7 +744,7 @@ void DeclPrinter::VisitEnumDecl(clang::EnumDecl *D) {
     Out << "__module_private__ ";
   Out << "enum";
 
-  ctx.MarkLocationIfOneOf(D->getInnerLocStart(), clang::tok::kw_enum);
+  ctx.MarkLocationIfOneOf(D->getInnerLocStart(), TokenKind::kKeywordEnum);
 
   if (D->isScoped()) {
     if (D->isScopedUsingClassTag())
@@ -766,7 +766,7 @@ void DeclPrinter::VisitEnumDecl(clang::EnumDecl *D) {
     if (tokens.ast) {
       const auto tok = tokens.ast->ParsedTokenOffset(ITR.getBegin());
       for (auto i = 0u; tok && i < 4u && (tok.value() - i); ++i) {
-        if (ctx.MarkLocationIfOneOf(tok.value() - i, clang::tok::colon)) {
+        if (ctx.MarkLocationIfOneOf(tok.value() - i, TokenKind::kColon)) {
           break;
         }
       }
@@ -802,8 +802,8 @@ void DeclPrinter::VisitRecordDecl(clang::RecordDecl *D) {
     Out << "__module_private__ ";
   Out << D->getKindName();
 
-  ctx.MarkLocationIfOneOf(D->getInnerLocStart(), clang::tok::kw_struct,
-                          clang::tok::kw_union, clang::tok::kw_class);
+  ctx.MarkLocationIfOneOf(D->getInnerLocStart(), TokenKind::kKeywordStruct,
+                          TokenKind::kKeywordUnion, TokenKind::kKeywordClass);
 
   prettyPrintAttributes(D);
 
@@ -1596,8 +1596,10 @@ void DeclPrinter::printTemplateParameters(
     Out << "template ";
     ctx.MarkLocation(Params->getTemplateLoc());
   }
-  Out << '<';
+
+  Out << " <";
   ctx.MarkLocation(Params->getLAngleLoc());
+  tokens.TryChangeLastKind(TokenKind::kLess, TokenKind::kLAngle);
 
   bool NeedComma = false;
   for (const clang::Decl *Param : *Params) {
@@ -1619,8 +1621,10 @@ void DeclPrinter::printTemplateParameters(
     }
   }
   ctx.Tokenize();
-  Out << '>';
+  Out << " >";
   ctx.MarkLocation(Params->getRAngleLoc());
+  tokens.TryChangeLastKind(TokenKind::kGreater, TokenKind::kRAngle);
+
   if (!OmitTemplateKW)
     Out << ' ';
 }
@@ -1630,7 +1634,8 @@ void DeclPrinter::printTemplateArguments(llvm::ArrayRef<clang::TemplateArgument>
                                          bool TemplOverloaded) {
   TagDefinitionPolicyRAII tag_raii(Policy);
 
-  Out << "<";
+  Out << " <";
+  tokens.TryChangeLastKind(TokenKind::kLess, TokenKind::kLAngle);
   for (size_t I = 0, E = Args.size(); I < E; ++I) {
     if (I)
       Out << ", ";
@@ -1643,7 +1648,8 @@ void DeclPrinter::printTemplateArguments(llvm::ArrayRef<clang::TemplateArgument>
                     clang::TemplateParameterList::shouldIncludeTypeForArgument(
                                   Policy, Params, static_cast<unsigned int>(I)));
   }
-  Out << ">";
+  Out << " >";
+  tokens.TryChangeLastKind(TokenKind::kGreater, TokenKind::kRAngle);
 }
 
 void DeclPrinter::printTemplateArguments(llvm::ArrayRef<clang::TemplateArgumentLoc> Args,
@@ -1651,7 +1657,9 @@ void DeclPrinter::printTemplateArguments(llvm::ArrayRef<clang::TemplateArgumentL
                                          bool TemplOverloaded) {
   TagDefinitionPolicyRAII tag_raii(Policy);
 
-  Out << "<";
+  Out << " <";
+  tokens.TryChangeLastKind(TokenKind::kLess, TokenKind::kLAngle);
+
   for (size_t I = 0, E = Args.size(); I < E; ++I) {
     if (I)
       Out << ", ";
@@ -1664,7 +1672,8 @@ void DeclPrinter::printTemplateArguments(llvm::ArrayRef<clang::TemplateArgumentL
                     clang::TemplateParameterList::shouldIncludeTypeForArgument(
                                   Policy, Params, static_cast<unsigned int>(I)));
   }
-  Out << ">";
+  Out << " >";
+  tokens.TryChangeLastKind(TokenKind::kGreater, TokenKind::kRAngle);
 }
 
 void DeclPrinter::VisitTemplateDecl(const clang::TemplateDecl *D) {
@@ -1812,7 +1821,9 @@ void DeclPrinter::PrintObjCMethodType(clang::ASTContext &Ctx,
 
 void DeclPrinter::PrintObjCTypeParams(clang::ObjCTypeParamList *Params) {
   //DeclPrinterContext ctx(Out, Params);
-  Out << "<";
+  Out << " <";
+  tokens.TryChangeLastKind(TokenKind::kLess, TokenKind::kLAngle);
+
   TagDefinitionPolicyRAII tag_raii(Policy);
   unsigned First = true;
   for (auto *Param : *Params) {
@@ -1842,7 +1853,8 @@ void DeclPrinter::PrintObjCTypeParams(clang::ObjCTypeParamList *Params) {
       printQualType(Param->getUnderlyingType(), Out, Policy);
     }
   }
-  Out << ">";
+  Out << " >";
+  tokens.TryChangeLastKind(TokenKind::kGreater, TokenKind::kRAngle);
 }
 
 void DeclPrinter::VisitObjCMethodDecl(clang::ObjCMethodDecl *OMD) {
@@ -1955,9 +1967,17 @@ void DeclPrinter::VisitObjCInterfaceDecl(clang::ObjCInterfaceDecl *OID) {
   const clang::ObjCList<clang::ObjCProtocolDecl> &Protocols = OID->getReferencedProtocols();
   if (!Protocols.empty()) {
     for (clang::ObjCList<clang::ObjCProtocolDecl>::iterator I = Protocols.begin(),
-         E = Protocols.end(); I != E; ++I)
-      Out << (I == Protocols.begin() ? '<' : ',') << **I;
-    Out << "> ";
+         E = Protocols.end(); I != E; ++I) {
+      if (I == Protocols.begin()) {
+        Out << " <";
+        tokens.TryChangeLastKind(TokenKind::kLess, TokenKind::kLAngle);
+      } else {
+        Out << ',';
+      }
+      Out << **I;
+    }
+    Out << " > ";
+    tokens.TryChangeLastKind(TokenKind::kGreater, TokenKind::kRAngle);
   }
 
   if (OID->ivar_size() > 0) {
@@ -1997,9 +2017,17 @@ void DeclPrinter::VisitObjCProtocolDecl(clang::ObjCProtocolDecl *PID) {
   if (!Protocols.empty()) {
     Out << "@protocol " << *PID;
     for (clang::ObjCList<clang::ObjCProtocolDecl>::iterator I = Protocols.begin(),
-         E = Protocols.end(); I != E; ++I)
-      Out << (I == Protocols.begin() ? '<' : ',') << **I;
-    Out << ">\n";
+         E = Protocols.end(); I != E; ++I) {
+      if (I == Protocols.begin()) {
+        Out << " <";
+        tokens.TryChangeLastKind(TokenKind::kLess, TokenKind::kLAngle);
+      } else {
+        Out << ',';
+      }
+      Out << **I;
+    }
+    Out << " >\n";
+    tokens.TryChangeLastKind(TokenKind::kGreater, TokenKind::kRAngle);
   } else
     Out << "@protocol " << *PID << '\n';
   VisitDeclContext(PID, false);
@@ -2448,12 +2476,12 @@ static const char *OptionalTrailingSemiColon(
     }
 
     if (!tokens->tokens.empty() &&
-        tokens->tokens.back().kind == clang::tok::semi) {
+        tokens->tokens.back().kind == TokenKind::kSemi) {
       return "";
     }
 
   } else if (tokens->tokens.empty() ||
-             tokens->tokens.back().kind != clang::tok::semi) {
+             tokens->tokens.back().kind != TokenKind::kSemi) {
     return ";";
   }
 
@@ -2513,8 +2541,8 @@ PrintedTokenRange PrintedTokenRange::Create(const std::shared_ptr<ASTImpl> &ast,
 
     // Mark the location of the trailing semicolon, if any.
     auto [begin_tok, end_tok] = ast->DeclBounds(decl);
-    if (begin_tok < end_tok && ast->TokenKind(end_tok) == clang::tok::semi &&
-        tokens->tokens.back().kind == clang::tok::semi) {
+    if (begin_tok < end_tok && ast->TokenKind(end_tok) == TokenKind::kSemi &&
+        tokens->tokens.back().kind == TokenKind::kSemi) {
       ctx.MarkLocation(end_tok);
     }
   }

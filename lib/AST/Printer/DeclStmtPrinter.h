@@ -131,8 +131,8 @@ class Printer {
       return;
     }
 
-    ctx.MarkLocationIfOneOf(D->getLocation(), clang::tok::identifier,
-                            clang::tok::raw_identifier);
+    ctx.MarkLocationIfOneOf(D->getLocation(), TokenKind::kIdentifier,
+                            TokenKind::kRawIdentifier);
   }
 
   PrintedTokenRangeImpl &tokens;

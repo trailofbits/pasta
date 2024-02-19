@@ -21,6 +21,7 @@
 #pragma GCC diagnostic ignored "-Wsign-conversion"
 #pragma GCC diagnostic ignored "-Wshorten-64-to-32"
 #include <clang/AST/ASTConsumer.h>
+#include <clang/AST/RecursiveASTVisitor.h>
 #include <clang/Basic/Builtins.h>
 #include <clang/Basic/Diagnostic.h>
 #include <clang/Basic/DiagnosticIDs.h>
@@ -60,6 +61,22 @@
 
 namespace pasta {
 namespace detail {
+
+PASTA_BYPASS_MEMBER_OBJECT_ACCESS(clang, Decl, Loc, clang::SourceLocation);
+PASTA_BYPASS_MEMBER_OBJECT_ACCESS(clang, TemplateParameterList, LAngleLoc, clang::SourceLocation);
+PASTA_BYPASS_MEMBER_OBJECT_ACCESS(clang, TemplateParameterList, RAngleLoc, clang::SourceLocation);
+PASTA_BYPASS_MEMBER_OBJECT_ACCESS(clang, ASTTemplateArgumentListInfo, LAngleLoc, clang::SourceLocation);
+PASTA_BYPASS_MEMBER_OBJECT_ACCESS(clang, ASTTemplateArgumentListInfo, RAngleLoc, clang::SourceLocation);
+PASTA_BYPASS_MEMBER_OBJECT_ACCESS(clang, TemplateParameterList, TemplateLoc, clang::SourceLocation);
+PASTA_BYPASS_MEMBER_OBJECT_ACCESS(clang, DeclaratorDecl, InnerLocStart, clang::SourceLocation);
+PASTA_BYPASS_MEMBER_OBJECT_ACCESS(clang, FunctionDecl, EndRangeLoc, clang::SourceLocation);
+PASTA_BYPASS_MEMBER_OBJECT_ACCESS(clang, TypeDecl, LocStart, clang::SourceLocation);
+PASTA_BYPASS_MEMBER_OBJECT_ACCESS(clang, FileScopeAsmDecl, RParenLoc, clang::SourceLocation);
+PASTA_BYPASS_MEMBER_OBJECT_ACCESS(clang, ExportDecl, RBraceLoc, clang::SourceLocation);
+PASTA_BYPASS_MEMBER_OBJECT_ACCESS(clang, LabelDecl, LocStart, clang::SourceLocation);
+PASTA_BYPASS_MEMBER_OBJECT_ACCESS(clang, NamespaceDecl, LocStart, clang::SourceLocation);
+PASTA_BYPASS_MEMBER_OBJECT_ACCESS(clang, NamespaceDecl, RBraceLoc, clang::SourceLocation);
+
 PASTA_BYPASS_MEMBER_OBJECT_ACCESS(clang, TargetInfo, TLSSupported, bool);
 PASTA_BYPASS_MEMBER_OBJECT_ACCESS(clang, TargetInfo, VLASupported, bool);
 PASTA_BYPASS_MEMBER_OBJECT_ACCESS(clang, TargetInfo, HasLegalHalfType, bool);
@@ -73,6 +90,136 @@ PASTA_BYPASS_MEMBER_OBJECT_ACCESS(clang, TargetInfo, HasFPReturn, bool);
 PASTA_BYPASS_MEMBER_OBJECT_ACCESS(clang, FileEntry, File,
                                   std::unique_ptr<llvm::vfs::File>);
 }  // namespace detail
+namespace {
+
+// Goes through and fixes location information when possible. This largely
+// focuses on fixing locations related to split tokens.
+class LocationFixer : public clang::RecursiveASTVisitor<LocationFixer> {
+ public:
+  ParsedTokenStorage &tokens;
+
+  explicit LocationFixer(ASTImpl &ast)
+      : tokens(ast.parsed_tokens) {}
+
+  bool shouldVisitTemplateInstantiations(void) const {
+    return true;
+  }
+
+  void FixTemplateParams(const clang::TemplateParameterList *params) {
+    if (!params) {
+      return;
+    }
+    TryFixLocInfo(params->*PASTA_ACCESS_MEMBER(clang, TemplateParameterList, LAngleLoc));
+    TryFixLocInfo(params->*PASTA_ACCESS_MEMBER(clang, TemplateParameterList, RAngleLoc));
+  }
+
+  void FixTemplateArgs(const clang::ASTTemplateArgumentListInfo *args) {
+    if (!args) {
+      return;
+    }
+    TryFixLocInfo(args->*PASTA_ACCESS_MEMBER(clang, ASTTemplateArgumentListInfo, LAngleLoc));
+    TryFixLocInfo(args->*PASTA_ACCESS_MEMBER(clang, ASTTemplateArgumentListInfo, RAngleLoc));
+  }
+
+  bool VisitTemplateDecl(clang::TemplateDecl *decl) {
+    FixTemplateParams(decl->getTemplateParameters());
+    return true;
+  }
+
+  bool VisitDeclaratorDecl(clang::DeclaratorDecl *decl) {
+    auto max_i = decl->getNumTemplateParameterLists();
+    for (auto i = 0u; i < max_i; ++i) {
+      FixTemplateParams(decl->getTemplateParameterList(i));
+    }
+    return true;
+  }
+
+  bool VisitClassTemplatePartialSpecializationDecl(
+      clang::ClassTemplatePartialSpecializationDecl *decl) {
+    FixTemplateParams(decl->getTemplateParameters());
+    return true;
+  }
+
+  bool VisitVarTemplatePartialSpecializationDecl(
+      clang::VarTemplatePartialSpecializationDecl *decl) {
+    FixTemplateParams(decl->getTemplateParameters());
+    return true;
+  }
+
+  bool VisitCXXDependentScopeMemberExpr(clang::CXXDependentScopeMemberExpr *expr) {
+    // getLAngleLoc
+    // getRAngleLoc
+    return true;
+  }
+
+  bool VisitCXXNamedCastExpr(clang::CXXNamedCastExpr *expr) {
+    // getAngleBrackets
+    return true;
+  }
+
+  bool VisitDeclRefExpr(clang::DeclRefExpr *expr) {
+    // getLAngleLoc
+    // getRAngleLoc
+    return true;
+  }
+
+  bool VisitDependentScopeDeclRefExpr(clang::DependentScopeDeclRefExpr *expr) {
+    // getLAngleLoc
+    // getRAngleLoc
+    return true;
+  }
+
+  bool VisitMemberExpr(clang::MemberExpr *expr) {
+    // getLAngleLoc
+    // getRAngleLoc
+    return true;
+  }
+
+  bool VisitOverloadExpr(clang::OverloadExpr *expr) {
+    // getLAngleLoc
+    // getRAngleLoc
+    return true;
+  }
+
+  // bool VisitVarDecl(clang::VarDecl *decl) {
+  //   FixTemplateArgs(decl->getTemplateSpecializationArgsAsWritten());
+  // }
+
+  bool VisitFunctionDecl(clang::FunctionDecl *decl) {
+    FixTemplateArgs(decl->getTemplateSpecializationArgsAsWritten());
+    return true;
+  }
+
+  bool VisitCXXRecordDecl(clang::CXXRecordDecl *expr) {
+    // getLAngleLoc
+    // getRAngleLoc
+    return true;
+  }
+
+ private:
+
+  bool TryFixLocInfo(OpaqueSourceLoc &raw_loc) {
+    auto loc = clang::SourceLocation::getFromRawEncoding(raw_loc);
+    if (TryFixLocInfo(loc)) {
+      raw_loc = loc.getRawEncoding();
+      return true;
+    }
+    return false;
+  }
+
+  bool TryFixLocInfo(clang::SourceLocation &loc) {
+    (void) loc;
+    return false;
+  }
+
+  bool TryFixLocInfo(const clang::SourceLocation &loc) {
+    return TryFixLocInfo(const_cast<clang::SourceLocation &>(loc));
+  }
+
+  LocationFixer(void) = delete;
+};
+
+}  // namespace
 
 extern void PreprocessCode(ASTImpl &impl, clang::CompilerInstance &ci,
                            clang::Preprocessor &pp);
@@ -426,7 +573,7 @@ Result<AST, std::string> CompileJob::Run(void) const {
   ast->parsed_tokens_data_pp = ci.getPreprocessorPtr();
 
   std::unique_ptr<clang::PPCallbacks> split_tracker(
-      new SplitTokenTracker(pp2, sm, ast.get()));
+      new SplitTokenTracker(sm, ast.get()));
   pp2.addPPCallbacks(std::move(split_tracker));
 
   assert(pp2.getLangOpts().EmitAllDecls);
@@ -502,6 +649,10 @@ Result<AST, std::string> CompileJob::Run(void) const {
 
   ast->MarkMacroTokens();
   ast->LinkMacroTokenContexts();
+
+  LocationFixer location_fixer(*ast);
+  location_fixer.TraverseTranslationUnitDecl(ast->tu);
+
   return AST(std::move(ast));
 }
 

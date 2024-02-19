@@ -59,12 +59,12 @@ class ASTImpl : public std::enable_shared_from_this<ASTImpl> {
 
   std::optional<DerivedTokenIndex> ParsedTokenOffset(clang::SourceLocation loc) const;
 
-  inline enum clang::tok::TokenKind TokenKind(DerivedTokenIndex index) const {
-    return static_cast<clang::tok::TokenKind>(parsed_tokens.Kind(index));
+  inline enum TokenKind TokenKind(DerivedTokenIndex index) const {
+    return parsed_tokens.Kind(index);
   }
 
-  inline enum clang::tok::TokenKind TokenKind(std::optional<DerivedTokenIndex> index) const {
-    return index ? TokenKind(index.value()) : clang::tok::unknown;
+  inline enum TokenKind TokenKind(std::optional<DerivedTokenIndex> index) const {
+    return index ? parsed_tokens.Kind(index.value()) : TokenKind::kUnknown;
   }
 
   // Try to return the token at the specified offset.

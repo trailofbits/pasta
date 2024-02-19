@@ -194,9 +194,6 @@ class MacroToken final : public Macro {
   // follows the chain backward.
   std::optional<FileToken> FileLocation(void) const noexcept;
 
-  // Location of the token as parsed.
-  std::optional<Token> ParsedLocation(void) const noexcept;
-
   // Find the token from which this token was derived.
   DerivedToken DerivedLocation(void) const;
 
@@ -418,10 +415,10 @@ class MacroSubstitution : public Macro {
   MacroRange ReplacementChildren(void) const noexcept;
 
   // Returns the first fully substituted token in this substitution, if any.
-  std::optional<Token> FirstFullySubstitutedToken(void) const noexcept;
+  std::optional<MacroToken> FirstFullySubstitutedToken(void) const noexcept;
 
   // Returns the last fully substituted token in this substitution, if any.
-  std::optional<Token> LastFullySubstitutedToken(void) const noexcept;
+  std::optional<MacroToken> LastFullySubstitutedToken(void) const noexcept;
 
   // Returns the name of the substituted macro if any. If this substitution
   // comes from a stringification or token-pasting macro, then return the

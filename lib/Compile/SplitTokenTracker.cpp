@@ -22,13 +22,9 @@
 
 namespace pasta {
 
-SplitTokenTracker::SplitTokenTracker(clang::Preprocessor &pp_,
-                                     clang::SourceManager &sm_,
+SplitTokenTracker::SplitTokenTracker(clang::SourceManager &sm_,
                                      ASTImpl *ast_)
-    : pp(pp_),
-      sm(sm_),
-      ci(*(ast_->ci)),
-      lo(ci.getLangOpts()),
+    : sm(sm_),
       ast(ast_) {}
 
 void SplitTokenTracker::Event(
@@ -37,8 +33,22 @@ void SplitTokenTracker::Event(
     return;
   }
 
-  (void) tok;
-  std::cerr << "!!! " << clang::tok::getTokenName(tok.getKind()) << '\n';
+  auto sloc = tok.getLocation();
+  if (sloc.isMacroID()) {
+    sloc = sm.getFileLoc(sloc);
+    if (!sloc.isFileID()) {
+      assert(false);
+      return;
+    }
+  }
+
+  auto [file_id, offset] = sm.getDecomposedLoc(sloc);
+  if (file_id != sm.getMainFileID()) {
+    assert(false);
+    return;
+  }
+
+  ast->parsed_tokens.SplitToken(sloc);
 }
 
 }  // namespace pasta

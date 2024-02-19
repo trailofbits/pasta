@@ -47,6 +47,7 @@ void SaveFirstErrorDiagConsumer::HandleDiagnostic(
       clang::diag::err_drv_unsupported_opt_with_suggestion,
       clang::diag::err_drv_unsupported_option_argument,
       clang::diag::err_drv_output_argument_with_multiple_files,
+      clang::diag::err_drv_no_cuda_libdevice,
   };
 
   clang::diag::kind id = info.getID();

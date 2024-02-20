@@ -1083,15 +1083,8 @@ void ParsedTokenStorage::InitInvalid(void) {
 ParsedTokenStorage::~ParsedTokenStorage(void) {}
 MacroTokenStorage::~MacroTokenStorage(void) {}
 
-// Try to split the token at `loc`.
-void ParsedTokenStorage::SplitToken(clang::SourceLocation loc) {
-  auto maybe_offset = ast->ParsedTokenOffset(loc);
-  if (!maybe_offset) {
-    assert(false);
-    return;
-  }
-
-  auto offset = maybe_offset.value();
+// Try to split the token at offset `offset`.
+void ParsedTokenStorage::SplitToken(DerivedTokenIndex offset) {
   auto num_splits = NumSplits(kind[offset]);
   if (!num_splits) {
     return;

@@ -121,15 +121,20 @@ std::optional<DerivedTokenIndex> ASTImpl::ParsedTokenOffset(
     return std::nullopt;
   }
 
-  // We shouldn't be getting requests with source locations in macro expansions
-  // as that implies they are from the original parse of source, and not from
-  // the parse of the pre-processed source.
+  auto &sm = ci->getSourceManager();
+
+  // Macro location requests can come from split tokens. We ideally don't want
+  // to see them, as it suggests that we haven't renamed the `l_angle` or
+  // `r_angle` tokens. There are cases where the requests are valid, though,
+  // e.g. `A<B>>>`. 
   if (loc.isMacroID()) {
-    assert(false);
-    return std::nullopt;
+    loc = sm.getFileLoc(loc);
+    if (!loc.isFileID()) {
+      assert(false);
+      return std::nullopt;
+    }
   }
 
-  auto &sm = ci->getSourceManager();
   const auto [file_id, file_offset] = sm.getDecomposedLoc(loc);
 
   if (file_id != sm.getMainFileID()) {

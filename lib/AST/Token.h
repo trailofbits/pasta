@@ -324,8 +324,8 @@ class ParsedTokenStorage {
   // Append a marker token to the parsed token list.
   void AppendMarkerToken(clang::SourceLocation loc, TokenRole role);
 
-  // Try to split the token at `loc`.
-  void SplitToken(clang::SourceLocation loc);
+  // Try to split the token at offset `offset`.
+  void SplitToken(DerivedTokenIndex offset);
 
   void Finalize(void);
 };

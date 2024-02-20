@@ -28,12 +28,18 @@ SplitTokenTracker::SplitTokenTracker(clang::SourceManager &sm_,
       ast(ast_) {}
 
 void SplitTokenTracker::Event(
-    const clang::Token &tok, EventKind kind, uintptr_t) {
-  if (kind != EventKind::SplitToken) {
+    const clang::Token &tok, EventKind kind, uintptr_t data) {
+  if (kind != EventKind::SplitToken && kind != EventKind::LAngleToken &&
+      kind != EventKind::RAngleToken) {
     return;
   }
 
   auto sloc = tok.getLocation();
+  if (sloc.isInvalid()) {
+    assert(kind == EventKind::LAngleToken || kind == EventKind::RAngleToken);
+    return;
+  }
+
   if (sloc.isMacroID()) {
     sloc = sm.getFileLoc(sloc);
     if (!sloc.isFileID()) {
@@ -42,13 +48,37 @@ void SplitTokenTracker::Event(
     }
   }
 
-  auto [file_id, offset] = sm.getDecomposedLoc(sloc);
+  auto [file_id, file_offset] = sm.getDecomposedLoc(sloc);
   if (file_id != sm.getMainFileID()) {
     assert(false);
     return;
   }
 
-  ast->parsed_tokens.SplitToken(sloc);
+  auto maybe_offset = ast->parsed_tokens.DataOffsetToTokenIndex(file_offset);
+  if (!maybe_offset) {
+    assert(false);
+    return;
+  }
+
+  DerivedTokenIndex offset = maybe_offset.value();
+
+  if (auto out_loc = reinterpret_cast<clang::SourceLocation *>(data)) {
+    *out_loc = sloc;
+  }
+
+  if (kind == EventKind::SplitToken) {
+    ast->parsed_tokens.SplitToken(offset);
+
+  } else if (kind == EventKind::LAngleToken) {
+    assert(ast->parsed_tokens.Kind(offset) == TokenKind::kLess ||
+           ast->parsed_tokens.Kind(offset) == TokenKind::kLAngle);
+    ast->parsed_tokens.SetKind(offset, TokenKind::kLAngle);
+
+  } else if (kind == EventKind::RAngleToken) {
+    assert(ast->parsed_tokens.Kind(offset) == TokenKind::kGreater ||
+           ast->parsed_tokens.Kind(offset) == TokenKind::kRAngle);
+    ast->parsed_tokens.SetKind(offset, TokenKind::kRAngle);
+  }
 }
 
 }  // namespace pasta

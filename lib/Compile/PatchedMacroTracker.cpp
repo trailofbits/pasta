@@ -2420,7 +2420,11 @@ void PatchedMacroTracker::Event(const clang::Token &tok, EventKind kind,
     case SwitchToSubstitution: DoSwitchToSubstitution(tok, data); break;
     case EndSubstitution: DoEndSubstitution(tok, data); break;
 
+    // We don't expect these because they should only be raised during parsing,
+    // and the patched macro tracker is attached to a different preprocessor.
     case SplitToken: assert(false); break;
+    case LAngleToken: assert(false); break;
+    case RAngleToken: assert(false); break;
 
     case BeginConcatenation: DoBeginConcatenation(tok, data); break;
     case ConcatenationOperatorToken: DoConcatenationOperatorToken(tok, data); break;

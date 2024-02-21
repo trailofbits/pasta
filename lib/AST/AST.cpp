@@ -145,6 +145,22 @@ std::optional<DerivedTokenIndex> ASTImpl::ParsedTokenOffset(
   return parsed_tokens.DataOffsetToTokenIndex(file_offset);
 }
 
+ParsedTokenIterator ASTImpl::InvalidRawToken(void) const {
+  return ParsedTokenIterator(&invalid_tokens, 0u, 0u);
+}
+
+ParsedTokenIterator ASTImpl::RawTokenAt(clang::SourceLocation loc) const {
+  if (auto offset = ParsedTokenOffset(loc)) {
+    return ParsedTokenIterator(&parsed_tokens, offset.value());
+  } else {
+    return InvalidRawToken();
+  }
+}
+
+ParsedTokenIterator ASTImpl::RawTokenAt(DerivedTokenIndex offset_) const {
+  return ParsedTokenIterator(&parsed_tokens, offset_);
+}
+
 // Try to return the token at the specified location.
 Token ASTImpl::TokenAt(clang::SourceLocation loc) {
   return TokenAt(ParsedTokenOffset(loc));

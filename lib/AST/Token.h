@@ -181,10 +181,13 @@ class MacroTokenStorage;
 using BitPackedLocation = uint64_t;
 static constexpr BitPackedLocation kInvalidBitPackedLocation = 0u;
 
+class ParsedTokenIterator;
+
 class ParsedTokenStorage {
  protected:
   friend class AST;
   friend class ASTImpl;
+  friend class ParsedTokenIterator;
   friend class PrintedTokenRange;
   friend class PrintedTokenRangeImpl;
   friend class Token;
@@ -424,5 +427,128 @@ inline static constexpr DerivedTokenIndex MacroTokenOffset(
     BitPackedLocation loc) {
   return static_cast<DerivedTokenIndex>((loc >> 32u) - 1u);
 } 
+
+class ParsedTokenIterator {
+ private:
+  const ParsedTokenStorage *storage;
+  DerivedTokenIndex upper_bound{0u};  // Inclusive.
+  DerivedTokenIndex offset{0u};
+
+  ParsedTokenIterator(void) = delete;
+
+ public:
+  ParsedTokenIterator(ParsedTokenIterator &&) noexcept = default;
+  ParsedTokenIterator(const ParsedTokenIterator &) = default;
+
+  ParsedTokenIterator &operator=(ParsedTokenIterator &&) noexcept = default;
+  ParsedTokenIterator &operator=(const ParsedTokenIterator &) = default;
+
+  inline ParsedTokenIterator(const ParsedTokenStorage *storage_,
+                             DerivedTokenIndex upper_bound_,
+                             DerivedTokenIndex offset_)
+      : storage(storage_),
+        upper_bound(upper_bound_),
+        offset(offset_) {}
+
+  inline ParsedTokenIterator(const ParsedTokenStorage *storage_,
+                             DerivedTokenIndex offset_)
+      : ParsedTokenIterator(storage_, storage_->size() - 1u, offset_) {}
+
+  bool Next(DerivedTokenIndex inclusive_upper_bound);
+  bool Previous(DerivedTokenIndex inclusive_lower_bound);
+
+  inline bool Next(void) {
+    return Next(upper_bound);
+  }
+
+  inline bool Previous(void) {
+    return Previous(0u);
+  }
+
+  inline bool Next(const ParsedTokenIterator &upper) {
+    assert(storage == upper.storage);
+    return Next(upper.offset);
+  }
+
+  inline bool Previous(const ParsedTokenIterator &lower) {
+    assert(storage == lower.storage);
+    return Previous(lower.offset);
+  }
+
+  ParsedTokenIterator WithOffset(DerivedTokenIndex new_offset) const noexcept;
+
+  inline DerivedTokenIndex Offset(void) const noexcept {
+    return offset;
+  }
+
+  inline bool IsValid(void) const noexcept {
+    return !!upper_bound;
+  }
+
+  inline operator bool(void) const noexcept {
+    return !!upper_bound;
+  }
+
+  inline bool operator<(const ParsedTokenIterator &that) const noexcept {
+    return storage == that.storage && offset < that.offset;
+  }
+
+  inline bool operator<=(const ParsedTokenIterator &that) const noexcept {
+    return storage == that.storage && offset <= that.offset;
+  }
+
+  inline bool operator>(const ParsedTokenIterator &that) const noexcept {
+    return storage == that.storage && offset > that.offset;
+  }
+
+  inline bool operator>=(const ParsedTokenIterator &that) const noexcept {
+    return storage == that.storage && offset >= that.offset;
+  }
+
+  inline bool IsInPragmaDirective(void) const noexcept {
+    return storage->IsInPragmaDirective(offset);
+  }
+
+  inline bool InInclusiveBounds(
+      const ParsedTokenIterator &lower_inclusive,
+      const ParsedTokenIterator &upper_inclusive) const {
+    return lower_inclusive.storage == storage &&
+           upper_inclusive.storage == storage &&
+           lower_inclusive.offset <= offset &&
+           upper_inclusive.offset >= offset &&
+           upper_bound;
+  }
+
+  inline bool InInclusiveBoundsFast(
+      const ParsedTokenIterator &lower_inclusive,
+      const ParsedTokenIterator &upper_inclusive) const {
+    return lower_inclusive.offset <= offset &&
+           upper_inclusive.offset >= offset;
+  }
+
+  inline bool IsParsed(void) const noexcept {
+    switch (Role()) {
+      case TokenRole::kInvalid:
+      case TokenRole::kBeginOfMacroExpansionMarker:
+      case TokenRole::kEndOfMacroExpansionMarker:
+      case TokenRole::kEmptyOrSpecialMacroToken:
+        return false;
+      default:
+        return true;
+    }
+  }
+
+  inline TokenKind Kind(void) const noexcept {
+    return storage->Kind(offset);
+  }
+
+  inline TokenRole Role(void) const noexcept {
+    return storage->Role(offset);
+  }
+
+  inline bool operator==(const ParsedTokenIterator &that) const noexcept {
+    return storage == that.storage && offset == that.offset;
+  }
+};
 
 } // namespace pasta

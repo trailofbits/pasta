@@ -67,6 +67,10 @@ class ASTImpl : public std::enable_shared_from_this<ASTImpl> {
     return index ? parsed_tokens.Kind(index.value()) : TokenKind::kUnknown;
   }
 
+  ParsedTokenIterator InvalidRawToken(void) const; 
+  ParsedTokenIterator RawTokenAt(clang::SourceLocation loc) const;
+  ParsedTokenIterator RawTokenAt(DerivedTokenIndex offset_) const;
+
   // Try to return the token at the specified offset.
   Token TokenAt(DerivedTokenIndex offset);
 
@@ -121,9 +125,6 @@ class ASTImpl : public std::enable_shared_from_this<ASTImpl> {
 
   // The location of a `...` for a given `FunctionDecl`.
   std::unordered_map<clang::FunctionDecl *, FunctionProto> func_proto;
-
-  // Remapped declarations (for the sake of bounds checks).
-  std::unordered_map<clang::Decl *, clang::Decl *> remapped_decls;
 
   // Maps parens/brackets/braces to each-other.
   std::unordered_map<DerivedTokenIndex, DerivedTokenIndex> matching;

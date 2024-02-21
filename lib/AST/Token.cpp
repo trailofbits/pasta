@@ -1356,4 +1356,42 @@ void MacroTokenStorage::MarkAsMacroName(DerivedTokenIndex offset, Node macro) {
   macro_definition.emplace(offset, std::move(macro));
 }
 
+ParsedTokenIterator ParsedTokenIterator::WithOffset(
+    DerivedTokenIndex new_offset) const noexcept {
+  
+  if (new_offset <= upper_bound) {
+    return ParsedTokenIterator(storage, upper_bound, new_offset);
+  }
+
+  return ParsedTokenIterator(&(storage->ast->invalid_tokens), 0u, 0u);
+}
+
+bool ParsedTokenIterator::Next(DerivedTokenIndex inclusive_upper_bound) {
+  while ((offset + 1u) <= inclusive_upper_bound) {
+    offset = (offset + 1u);
+    if (IsParsed()) {
+      return true;
+    }
+  }
+  storage = &(storage->ast->invalid_tokens);
+  offset = 0u;
+  upper_bound = 0u;
+  return false;
+}
+
+bool ParsedTokenIterator::Previous(DerivedTokenIndex inclusive_lower_bound) {
+  while (inclusive_lower_bound < offset) {
+    offset = offset - 1u;
+    if (IsParsed()) {
+      return true;
+    }
+  }
+
+  *this = storage->ast->InvalidRawToken();
+  storage = &(storage->ast->invalid_tokens);
+  offset = 0u;
+  upper_bound = 0u;
+  return false;
+}
+
 } // namespace pasta

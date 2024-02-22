@@ -601,6 +601,107 @@ std::vector<::pasta::EnumConstantDecl> EnumDecl::Enumerators(void) const {
   return ret;
 }
 
+std::vector<::pasta::CXXCtorInitializer> CXXConstructorDecl::Initializers(void) const {
+  auto &self = *const_cast<clang::CXXConstructorDecl *>(u.CXXConstructorDecl);
+  std::vector<::pasta::CXXCtorInitializer> ret;
+  decltype(auto) val = self.inits();
+  for (auto init : val) {
+    ret.emplace_back(::pasta::CXXCtorInitializer(ast, init));
+  }
+  return ret;
+}
+
+  bool CXXCtorInitializer::IsBaseInitializer(void) const noexcept {
+    return initializer->isBaseInitializer();
+  }
+
+  bool CXXCtorInitializer::IsMemberInitializer(void) const noexcept {
+    return initializer->isMemberInitializer();
+  }
+
+  bool CXXCtorInitializer::IsAnyMemberInitializer(void) const noexcept {
+    return initializer->isAnyMemberInitializer();
+  }
+
+  bool CXXCtorInitializer::IsIndirectMemberInitializer(void) const noexcept {
+    return initializer->isIndirectMemberInitializer();
+  }
+
+  bool CXXCtorInitializer::IsInClassMemberInitializer(void) const noexcept {
+    return initializer->isInClassMemberInitializer();
+  }
+
+  bool CXXCtorInitializer::IsDelegatingInitializer(void) const noexcept {
+    return initializer->isDelegatingInitializer();
+  }
+
+  bool CXXCtorInitializer::IsPackExpansion(void) const noexcept {
+    return initializer->isPackExpansion();
+  }
+
+  bool CXXCtorInitializer::IsBaseVirtual(void) const noexcept {
+    return initializer->isBaseVirtual();
+  }
+
+  std::optional<::pasta::FieldDecl> CXXCtorInitializer::Member(void) const noexcept {
+    if (auto mem_decl = initializer->getMember()) {
+      return DeclBuilder::Create<::pasta::FieldDecl>(ast, mem_decl);
+    }
+    return std::nullopt;
+  }
+
+  std::optional<::pasta::FieldDecl>
+  CXXCtorInitializer::AnyMember(void) const noexcept {
+    if (auto mem_decl = initializer->getAnyMember()) {
+      return DeclBuilder::Create<::pasta::FieldDecl>(ast, mem_decl);
+    }
+    return std::nullopt;
+  }
+
+  std::optional<::pasta::IndirectFieldDecl>
+  CXXCtorInitializer::IndirectMember(void) const noexcept {
+    if (auto mem_decl = initializer->getIndirectMember()) {
+      return DeclBuilder::Create<::pasta::IndirectFieldDecl>(ast, mem_decl);
+    }
+    return std::nullopt;
+  }
+
+  std::optional<::pasta::Stmt> CXXCtorInitializer::Initializer() const noexcept {
+    if (auto expr = initializer->getInit()) {
+      return StmtBuilder::Create<::pasta::Expr>(ast, expr);
+    }
+    return std::nullopt;
+  }
+
+  ::pasta::Token CXXCtorInitializer::EllipsisToken(void) const noexcept {
+    return ast->TokenAt(initializer->getEllipsisLoc());
+  }
+
+  ::pasta::Token CXXCtorInitializer::MemberToken(void) const noexcept {
+    return ast->TokenAt(initializer->getMemberLocation());
+  }
+
+  ::pasta::Token CXXCtorInitializer::LeftAngleToken(void) const noexcept {
+    return ast->TokenAt(initializer->getLParenLoc());
+  }
+
+  ::pasta::Token CXXCtorInitializer::RightAngleToken(void) const noexcept {
+    return ast->TokenAt(initializer->getRParenLoc());
+  }
+  ::pasta::TokenRange CXXCtorInitializer::Tokens(void) const noexcept {
+    return ast->TokenRangeFrom(initializer->getSourceRange());
+  }
+
+  std::vector<::pasta::CXXCtorInitializer> ObjCImplementationDecl::Initializers(void) const {
+    auto &self = *const_cast<clang::ObjCImplementationDecl *>(u.ObjCImplementationDecl);
+    std::vector<::pasta::CXXCtorInitializer> ret;
+    decltype(auto) val = self.inits();
+    for (auto init : val) {
+      ret.emplace_back(::pasta::CXXCtorInitializer(ast, init));
+    }
+    return ret;
+  }
+
 #endif  // PASTA_IN_BOOTSTRAP
 
 }  // namespace pasta

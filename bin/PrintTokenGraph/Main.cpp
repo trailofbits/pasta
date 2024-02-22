@@ -183,6 +183,10 @@ static void PrintTokenGraph(pasta::Decl tld) {
         bgcolor = " bgcolor=\"deepskyblue3\"";
         kind_name = "Alias";
         break;
+      case pasta::TokenContextKind::kCXXCtorInitializer:
+        bgcolor = " bgcolor=\"deepskyblue3\"";
+        kind_name = "CXXCtorInitializer";
+        break;
     }
 
     os

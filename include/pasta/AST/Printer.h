@@ -18,6 +18,7 @@
     pp(Attr) \
     pp(CXXBaseSpecifier) \
     pp(Designator) \
+    pp(CXXCtorInitializer) \
     pp(TemplateParameterList) \
     pp(TemplateArgument) \
     pp(TypeConstraint)
@@ -130,6 +131,7 @@ class TokenContext {
   friend class Attr;
   friend class Decl;
   friend class CXXBaseSpecifier;
+  friend class CXXCtorInitializer;
   friend class Designator;
   friend class PrintedToken;
   friend class Stmt;

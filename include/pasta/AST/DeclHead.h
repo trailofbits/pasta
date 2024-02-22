@@ -11,6 +11,7 @@
 
 namespace clang {
 class CXXBaseSpecifier;
+class CXXCtorInitializer;
 class TemplateArgument;
 class TemplateParameterList;
 }  // namespace clang
@@ -275,6 +276,53 @@ class TemplateParameterList {
   ::pasta::TokenRange Tokens(void) const noexcept;
 
   std::vector<::pasta::NamedDecl> Parameters(void) const noexcept;
+
+#endif  // PASTA_IN_BOOTSTRAP
+};
+
+class CXXCtorInitializer {
+ private:
+  std::shared_ptr<ASTImpl> ast;
+  const clang::CXXCtorInitializer *initializer;
+
+ public:
+  inline CXXCtorInitializer(std::shared_ptr<ASTImpl> ast_,
+                            const clang::CXXCtorInitializer &initializer_)
+      : ast(std::move(ast_)),
+        initializer(&initializer_) {}
+
+  inline CXXCtorInitializer(std::shared_ptr<ASTImpl> ast_,
+                            const clang::CXXCtorInitializer *initializer_)
+      : ast(std::move(ast_)),
+        initializer(initializer_) {}
+
+#ifndef PASTA_IN_BOOTSTRAP
+  static std::optional<CXXCtorInitializer> From(
+      const TokenContext &) noexcept;
+
+  inline const void *RawCXXCtorInitializer(void) const noexcept {
+    return initializer;
+  }
+
+  bool IsBaseInitializer(void) const noexcept;
+  bool IsMemberInitializer(void) const noexcept;
+  bool IsAnyMemberInitializer(void) const noexcept;
+  bool IsIndirectMemberInitializer(void) const noexcept;
+  bool IsInClassMemberInitializer(void) const noexcept;
+  bool IsDelegatingInitializer(void) const noexcept;
+  bool IsPackExpansion(void) const noexcept;
+  bool IsBaseVirtual(void) const noexcept;
+
+  std::optional<::pasta::FieldDecl> Member(void) const noexcept;
+  std::optional<::pasta::FieldDecl> AnyMember(void) const noexcept;
+  std::optional<::pasta::IndirectFieldDecl> IndirectMember(void) const noexcept;
+  std::optional<::pasta::Stmt> Initializer() const noexcept;
+
+  ::pasta::Token EllipsisToken(void) const noexcept;
+  ::pasta::Token MemberToken(void) const noexcept;
+  ::pasta::Token LeftAngleToken(void) const noexcept;
+  ::pasta::Token RightAngleToken(void) const noexcept;
+  ::pasta::TokenRange Tokens(void) const noexcept;
 
 #endif  // PASTA_IN_BOOTSTRAP
 };

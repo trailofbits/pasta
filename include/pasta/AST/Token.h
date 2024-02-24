@@ -324,6 +324,9 @@ class TokenRange {
   inline operator bool(void) const noexcept {
     return first < after_last;
   }
+
+  // Return the underlying token data.
+  std::string_view Data(void) const noexcept;
 };
 
 }  // namespace pasta

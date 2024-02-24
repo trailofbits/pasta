@@ -628,6 +628,25 @@ TokenRange::AlignedSubstitutions(bool heuristic) noexcept {
   return result;
 }
 
+// Return the underlying token data.
+std::string_view TokenRange::Data(void) const noexcept {
+  if (first >= after_last) {
+    return "";
+  }
+
+  auto first_data = storage->Data(first);
+  auto last_data = storage->Data(after_last - 1u);
+
+  if (first_data.data() >= last_data.data()) {
+    assert(false);
+    return "";
+  }
+
+  auto begin_of_first_data = first_data.data();
+  auto end_of_last_data = last_data.data() + last_data.size();
+  return std::string_view(begin_of_first_data, end_of_last_data);
+}
+
 // Strip off trailing whitespace from a token that has been read.
 void SkipTrailingWhitespace(std::string &tok_data) {
   while (!tok_data.empty()) {
@@ -936,17 +955,31 @@ void ParsedTokenStorage::AppendSplitTokens(
   }
 }
 
+void ParsedTokenStorage::AppendLeadingWhitespace(const clang::Token &tok) {
+  auto tk = tok.getKind();
+  if (!data.empty() && !std::isspace(data.back())) {
+    auto space = '\0';
+    if (tok.hasLeadingSpace() || tok.hasLeadingEmptyMacro()) {
+      space = ' ';
+    } else if (tok.isAtStartOfLine()) {
+      space = '\n';
+    } else if (clang::tok::isAnyIdentifier(tk) ||
+               clang::tok::getKeywordSpelling(tk)) {
+      space = ' ';
+    }
+    if (space) {
+      data.push_back(space);
+      data_offset.back() += 1u;
+    }
+  }
+}
+
 void ParsedTokenStorage::AppendFileToken(
     std::string_view tok_data, const clang::Token &tok) {
 
   ast->macro_tokens.MarkPreviousTokenAsEndOfExpansion();
 
-  if ((tok.hasLeadingSpace() || tok.hasLeadingEmptyMacro() ||
-       tok.isAtStartOfLine()) &&
-      !data.empty() && !std::isspace(data.back())) {
-    data.push_back('\n');
-    data_offset.back() += 1u;
-  }
+  AppendLeadingWhitespace(tok);
 
   auto kind_ = static_cast<TokenKind>(tok.getKind());
   if (kind_ == TokenKind::kRawIdentifier) {
@@ -975,7 +1008,7 @@ void ParsedTokenStorage::AppendMacroToken(const clang::Token &tok) {
   assert(static_cast<TokenKind>(tok.getKind()) == macro_tokens.kind.back());
 #endif
 
-  (void) tok;
+  AppendLeadingWhitespace(tok);
 
   auto macro_token_offset = static_cast<DerivedTokenIndex>(
       macro_tokens.role.size() - 1u);
@@ -1129,12 +1162,6 @@ DerivedTokenIndex MacroTokenStorage::AppendMacroToken(
         {}, loc, TokenRole::kBeginOfMacroExpansionMarker);
   }
 
-  if (tok.hasLeadingSpace() || tok.hasLeadingEmptyMacro() ||
-      tok.isAtStartOfLine()) {
-    data.push_back('\n');
-    data_offset.back() += 1u;
-  }
-
   auto kind_ = tok.getKind();
   if (kind_ == clang::tok::raw_identifier) {
     kind_ = clang::tok::identifier;
@@ -1154,11 +1181,6 @@ DerivedTokenIndex MacroTokenStorage::AppendMacroToken(
 DerivedTokenIndex MacroTokenStorage::CloneMacroToken(
     DerivedTokenIndex offset, DerivedTokenIndex macro_token_offset_) {
   assert(!next_is_begin_expansion);
-
-  if (data[data_offset[offset]] == '\n') {
-    data.push_back('\n');
-    data_offset.back() += 1u;
-  }
 
   auto data_len = data_offset[offset + 1u] - data_offset[offset];
   data.reserve(data.size() + data_len);
@@ -1198,7 +1220,8 @@ void MacroTokenStorage::FixupTokenProvenance(
   if (has_tok_for_loc) {
     assert(min_derived_index <= MacroTokenOffset(it->second));
     assert(MacroTokenOffset(it->second) < tok_index);
-    assert(Data(tok_index) == Data(MacroTokenOffset(it->second)));
+    assert(Kind(tok_index) == TokenKind::kHeaderName ||
+           Data(tok_index) == Data(MacroTokenOffset(it->second)));
     SetLocation(tok_index, it->second);
     has_derived = true;
   
@@ -1229,20 +1252,29 @@ void MacroTokenStorage::FixupTokenProvenance(
 
   if (has_tok_for_loc) {
     auto derived_index = MacroTokenOffset(it->second);
-    assert(Data(tok_index) == Data(derived_index));
-    assert(Role(tok_index) == TokenRole::kIntermediateMacroExpansionToken);
+    assert(Kind(tok_index) == TokenKind::kHeaderName ||
+           Data(tok_index) == Data(derived_index));
     SetLocation(tok_index, it->second);
 
-    // E.g. referencing a token from the body of a `#define`.
-    if (min_derived_index > derived_index) {
-      SetRole(tok_index, TokenRole::kInitialMacroUseToken);
-      can_be_derived = false;
+    auto role = Role(tok_index);
+    if (role == TokenRole::kIntermediateMacroExpansionToken) {
+      assert(Role(tok_index) == TokenRole::kIntermediateMacroExpansionToken);
+      
 
-      // Propagate macro use tokens back into definition bodies.
-      if (auto def_it = macro_definition.find(tok_index);
-          def_it != macro_definition.end()) {
-        macro_definition.emplace(derived_index, def_it->second);
+      // E.g. referencing a token from the body of a `#define`.
+      if (min_derived_index > derived_index) {
+        SetRole(tok_index, TokenRole::kInitialMacroUseToken);
+        can_be_derived = false;
+
+        // Propagate macro use tokens back into definition bodies.
+        if (auto def_it = macro_definition.find(tok_index);
+            def_it != macro_definition.end()) {
+          macro_definition.emplace(derived_index, def_it->second);
+        }
       }
+    } else {
+      assert(role == TokenRole::kFinalMacroExpansionToken);
+      assert(!can_be_derived);
     }
 
   } else {
@@ -1359,11 +1391,13 @@ void MacroTokenStorage::MarkAsMacroName(DerivedTokenIndex offset, Node macro) {
 ParsedTokenIterator ParsedTokenIterator::WithOffset(
     DerivedTokenIndex new_offset) const noexcept {
   
-  if (new_offset <= upper_bound) {
-    return ParsedTokenIterator(storage, upper_bound, new_offset);
+  if (new_offset > upper_bound) {
+    return ParsedTokenIterator(&(storage->ast->invalid_tokens), 0u, 0u);
   }
 
-  return ParsedTokenIterator(&(storage->ast->invalid_tokens), 0u, 0u);
+  ParsedTokenIterator it(storage, upper_bound, new_offset);
+  assert(it.IsParsed());
+  return it;
 }
 
 bool ParsedTokenIterator::Next(DerivedTokenIndex inclusive_upper_bound) {

@@ -70,15 +70,8 @@ void RegisterPrinter(nb::module_ &m) {
     .def_prop_ro("kind", &PrintedToken::Kind)
     .def_prop_ro("index", &PrintedToken::Index)
     .def_prop_ro("data", &PrintedToken::Data)
-    .def_prop_ro("leading_spaces",
-        [] (const PrintedToken &tok) {
-          return std::string(tok.NumLeadingSpaces(), ' ');
-        })
-    .def_prop_ro("leading_new_lines",
-        [] (const PrintedToken &tok) {
-          return std::string(tok.NumLeadingSpaces(), '\n');
-        })
-    .def_prop_ro("context", &PrintedToken::Context);
+    .def_prop_ro("context", &PrintedToken::Context)
+    .def_prop_ro("derived_location", &PrintedToken::DerivedLocation);
 
 
   nb::class_<PrintedTokenRange>(m, "PrintedTokenRange")

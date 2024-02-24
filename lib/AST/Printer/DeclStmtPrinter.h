@@ -100,23 +100,6 @@ void PrintQualifiedName(Printer &printer, const clang::NamedDecl *D,
 
 class PrintedTokenRangeImpl;
 
-class TagDefinitionPolicyRAII {
-  clang::PrintingPolicy &Policy;
-  bool Old;
-
- public:
-  explicit TagDefinitionPolicyRAII(clang::PrintingPolicy &Policy,
-                                   bool new_val=false)
-      : Policy(Policy),
-        Old(Policy.IncludeTagDefinition) {
-    Policy.IncludeTagDefinition = new_val;
-  }
-
-  ~TagDefinitionPolicyRAII() {
-    Policy.IncludeTagDefinition = Old;
-  }
-};
-
 class Printer {
  public:
   inline Printer(PrintedTokenRangeImpl &tokens_,

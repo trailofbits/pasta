@@ -167,12 +167,6 @@ class PrintedToken {
   // Find the parsed token from which this printed token was derived.
   std::optional<Token> DerivedLocation(void) const;
 
-  // Number of leading new lines (before any indentation spaces).
-  unsigned NumLeadingNewLines(void) const;
-
-  // Number of leading spaces (after any leading new lines).
-  unsigned NumLeadingSpaces(void) const;
-
   // Return the index of this token in its token range.
   unsigned Index(void) const;
 
@@ -480,6 +474,8 @@ class PrintedTokenRange {
     return impl == that.impl && first == that.first &&
            after_last == that.after_last;
   }
+
+  std::string_view Data(void) const noexcept;
 
  private:
   friend class AST;

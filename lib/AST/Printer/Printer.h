@@ -48,7 +48,6 @@ class ASTImpl;
 class raw_string_ostream;
 class PrintingPolicyAdaptor;
 
-// TODO(pag): Make `PrintedTokenImpl` independent of `TokenImpl`.
 class PrintedTokenImpl final {
  public:
   // Offset and length of this token's data. If `data_offset` is positive, then
@@ -74,10 +73,6 @@ class PrintedTokenImpl final {
   // Kind of this token.
   TokenKind kind{TokenKind::kUnknown};
 
-  // Number of leading spaces and new lines; this is for printing.
-  uint16_t num_leading_spaces{0};
-  uint8_t num_leading_new_lines{0};
-
   // NOTE(pag): Printed tokens are not just superficially used. They are
   //            critical to how PASTA maps tokens back into the AST's nodes.
   //            This mapping is enacted by `AST::AlignTokens`, and the
@@ -89,19 +84,12 @@ class PrintedTokenImpl final {
 
   inline PrintedTokenImpl(TokenDataOffset data_offset_, uint32_t data_len_,
                           TokenContextIndex context_index_,
-                          unsigned num_leading_new_lines_,
-                          unsigned num_leading_spaces_,
                           TokenKind kind_)
       : data_offset(data_offset_),
         data_len(data_len_),
         context_index(context_index_),
         kind(kind_),
-        num_leading_spaces(static_cast<uint16_t>(num_leading_spaces_)),
-        num_leading_new_lines(static_cast<uint8_t>(num_leading_new_lines_)),
-        matched_in_align(false) {
-    assert(num_leading_new_lines == num_leading_new_lines_);
-    assert(num_leading_spaces == num_leading_spaces_);
-  }
+        matched_in_align(false) {}
 
   inline std::string_view Data(const PrintedTokenRangeImpl &range) const;
 };
@@ -112,6 +100,10 @@ class PrintedTokenRangeImpl {
 
   // The AST context. This is nifty to have because generally `clang::Stmt`s
   // don't know about the context.
+  //
+  // NOTE(pag): If `ast` is non-null, then this is safe to use for the lifetime
+  //            of this range. Otherwise, it's only safe to use during the
+  //            process of printing.
   clang::ASTContext &ast_context;
 
   //
@@ -410,5 +402,22 @@ const TokenContextIndex PrintedTokenRangeImpl::CreateContext(
 
   return index;
 }
+
+class TagDefinitionPolicyRAII {
+  clang::PrintingPolicy &Policy;
+  bool Old;
+
+ public:
+  explicit TagDefinitionPolicyRAII(clang::PrintingPolicy &Policy,
+                                   bool new_val=false)
+      : Policy(Policy),
+        Old(Policy.IncludeTagDefinition) {
+    Policy.IncludeTagDefinition = new_val;
+  }
+
+  ~TagDefinitionPolicyRAII() {
+    Policy.IncludeTagDefinition = Old;
+  }
+};
 
 }  // namespace pasta

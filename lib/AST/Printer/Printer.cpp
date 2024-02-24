@@ -299,16 +299,6 @@ TokenKind PrintedToken::Kind(void) const {
   return TokenKind::kUnknown;
 }
 
-// Number of leading new lines (before any indentation spaces).
-unsigned PrintedToken::NumLeadingNewLines(void) const {
-  return impl->num_leading_new_lines;
-}
-
-// Number of leading spaces (after any leading new lines).
-unsigned PrintedToken::NumLeadingSpaces(void) const {
-  return impl->num_leading_spaces;
-}
-
 // Return the index of this token in its token range.
 unsigned PrintedToken::Index(void) const {
   if (!range || !impl) {
@@ -422,13 +412,18 @@ void PrintedTokenRangeImpl::FixupInvalidTokenContexts(TokenContextIndex index) {
 
 void PrintedTokenRangeImpl::AddTrailingEOF(void) {
   if (tokens.empty() || tokens.back().kind != TokenKind::kEndOfFile) {
+
     tokens.emplace_back(
         0u  /* data_offset */,
         0u  /* data_len */,
         kInvalidTokenContextIndex,
-        0u  /* num_leading_new_lines */,
-        0u  /* num_leading_spaces */,
         TokenKind::kEndOfFile);
+
+    if (data.back() == ' ') {
+      data.back() = '\0';
+    } else {
+      data.push_back('\0');
+    }
   }
 }
 
@@ -486,38 +481,6 @@ const TokenContextIndex PrintedTokenRangeImpl::CreateAlias(
   return index;
 }
 
-namespace {
-
-static std::tuple<unsigned, unsigned, unsigned> SkipWhitespace(
-    const std::string &data, unsigned i) {
-  unsigned num_leading_spaces = 0;
-  unsigned num_leading_lines = 0;
-
-  for (const auto size = data.size(); i < size; ++i) {
-    switch (data[i]) {
-      case '\t':
-        num_leading_spaces += 4;
-        continue;
-      case ' ':
-        num_leading_spaces += 1;
-        continue;
-      case '\r':
-        continue;
-      case '\n':
-        num_leading_spaces = 0;
-        num_leading_lines += 1;
-        break;
-      case '\\':
-        return {num_leading_lines, num_leading_spaces, i};
-      default:
-        return {num_leading_lines, num_leading_spaces, i};
-    }
-  }
-  return {num_leading_lines, num_leading_spaces, i};
-}
-
-}  // namespace
-
 TokenPrinterContext::TokenPrinterContext(
     const TokenPrinterContext &that_, no_alias_tag)
     : out(that_.out),
@@ -560,37 +523,27 @@ void TokenPrinterContext::Tokenize(void) {
   clang::Lexer lexer(
       clang::SourceLocation(),
       lo,
-      &(token_data[0]),
-      &(token_data[0]),
-      &(token_data[0]) + token_data.size());
+      token_data.data(),
+      token_data.data(),
+      token_data.data() + token_data.size());
 
   lexer.SetKeepWhitespaceMode(false);
   lexer.SetCommentRetentionState(false);
 
   clang::Token tok;
 
-  unsigned num_nl = 0u;
-  unsigned num_sp = 0u;
   unsigned i = 0u;
 
   for (auto size = token_data.size(); i < size; ) {
-    unsigned last_i = i;
-    std::tie(num_nl, num_sp, i) = SkipWhitespace(token_data, i);
     if (i >= size) {
       break;
     }
 
-    lexer.seek(last_i, false);
-    last_i = i;
+    lexer.seek(i, false);
 
     const auto at_end = lexer.LexFromRawLexer(tok);
     if (tok.is(clang::tok::eof)) {
       break;
-    }
-
-    if (tok.isOneOf(clang::tok::semi, clang::tok::comma)) {
-      num_nl = 0;
-      num_sp = 0;
     }
 
     // Try to identify keywords where possible.
@@ -607,15 +560,33 @@ void TokenPrinterContext::Tokenize(void) {
 
     const auto data_offset = static_cast<TokenDataIndex>(tokens.data.size());
     assert(0ll <= static_cast<TokenDataOffset>(data_offset));
-    uint32_t data_len = 0u;
     tokens.data.reserve(data_offset + tok.getLength());
-    for (last_i = i, i += tok.getLength(); last_i < i && token_data[last_i];
-        ++last_i) {
-      tokens.data.push_back(token_data[last_i]);
-      ++data_len;
-      assert(static_cast<uint32_t>(data_len & kTokenSizeMask) != 0u);
+    bool seen_data = false;
+
+    for (; i < size; ++i) {
+      
+      // Skip leading whitespace.
+      if (!seen_data) {
+        switch (token_data[i]) {
+          case ' ':
+          case '\n':
+          case '\r':
+          case '\t':
+          case '\0':
+            continue;
+          default:
+            seen_data = true;
+            break;
+        }
+      }
+
+      tokens.data.push_back(token_data[i]);
     }
-    tokens.data.push_back('\0');  // Make sure all tokens end up NUL-terminated.
+
+    SkipTrailingWhitespace(tokens.data);
+
+    const auto data_len = tokens.data.size() - data_offset;
+    tokens.data.push_back(' ');
 
     // Migrate all kinds to `identifier` now that we've got the data.
     if (tok.is(clang::tok::raw_identifier)) {
@@ -625,14 +596,8 @@ void TokenPrinterContext::Tokenize(void) {
     // Add the token in.
     tokens.tokens.emplace_back(
         static_cast<TokenDataOffset>(data_offset),
-        static_cast<uint32_t>(data_len),
-        context_index, num_nl, num_sp,
+        static_cast<uint32_t>(data_len), context_index,
         static_cast<TokenKind>(tok.getKind()));
-
-    // Reset so that if there is no whitespace afte the last token, then we
-    // don't randomly add in trailing whitespace.
-    num_nl = 0;
-    num_sp = 0;
 
     if (at_end) {
       break;
@@ -641,17 +606,6 @@ void TokenPrinterContext::Tokenize(void) {
 
   // Clear out so future streaming just re-fills.
   token_data.clear();
-
-  // We only track spaces before a token, but there might be trailing whitespace
-  // after a token that needs to get picked up by the next call to `Tokenize`,
-  // so re-introduce the whitespace here.
-  for (i = 0u; i < num_nl; ++i) {
-    token_data.push_back('\n');
-  }
-
-  for (i = 0u; i < num_sp; ++i) {
-    token_data.push_back(' ');
-  }
 }
 
 void PrintedTokenRangeImpl::TryChangeLastKind(TokenKind old, TokenKind new_) {
@@ -750,6 +704,17 @@ PrintedTokenRange PrintedTokenRange::Create(
 // Number of tokens in this range.
 size_t PrintedTokenRange::Size(void) const noexcept {
   return first < after_last ? static_cast<size_t>(after_last - first) : 0;
+}
+
+std::string_view PrintedTokenRange::Data(void) const noexcept {
+  if (first >= after_last) {
+    return "";
+  }
+
+  auto begin_offset = first->data_offset;
+  auto end_offset = after_last[-1].data_offset + after_last[-1].data_len;
+  std::string_view all_data(impl->data);
+  return all_data.substr(begin_offset, end_offset - begin_offset);
 }
 
 // Return the `index`th token in this range. If `index` is too big, then
@@ -863,7 +828,6 @@ PrintedTokenRange PrintedTokenRange::Adopt(const TokenRange &a) {
   new_impl->tokens.reserve(a.Size() + 1u);
   new_impl->contexts.emplace_back(*(new_impl->ast));  // AST context.
 
-  auto num_leading_spaces = 0u;
   for (Token tok : a) {
     if (!IsParsedToken(tok)) {
       continue;
@@ -874,15 +838,11 @@ PrintedTokenRange PrintedTokenRange::Adopt(const TokenRange &a) {
         static_cast<TokenDataOffset>(new_impl->data.size()),
         static_cast<uint32_t>(data.size()),
         kASTTokenContextIndex,
-        0u  /* Leading new lines */,
-        num_leading_spaces,
         tok.Kind());
-
-    num_leading_spaces = 1u;
 
     new_tok.derived_index = static_cast<DerivedTokenIndex>(tok.Index());
     new_impl->data.insert(new_impl->data.end(), data.begin(), data.end());
-    new_impl->data.push_back('\0');
+    new_impl->data.push_back(' ');
   }
 
   new_impl->AddTrailingEOF();

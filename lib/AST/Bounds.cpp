@@ -27,6 +27,7 @@
 #include <span>
 #include <tuple>
 #include <unordered_set>
+#include <iostream>
 
 #include "Util.h"
 
@@ -34,6 +35,12 @@ namespace pasta {
 namespace {
 
 static const TokenKind kLeadingKeywords[] = {
+  TokenKind::kKeywordConcept,
+  TokenKind::kKeywordUnion,
+  TokenKind::kKeywordStruct,
+  TokenKind::kKeywordEnum,
+  TokenKind::kKeywordClass,
+  TokenKind::kKeywordTemplate,
   TokenKind::kKeywordTypeof,
   TokenKind::kKeywordTypeofUnqualified,
   TokenKind::kKeyword_Accum,
@@ -93,7 +100,7 @@ class DeclBoundsFinder : public clang::DeclVisitor<DeclBoundsFinder>,
 
   ParsedTokenIterator ScanForwardForMatching(ParsedTokenIterator tok,
                                              TokenKind close_tok) {
-    if (!tok.IsValid()) {
+    if (!tok) {
       return invalid;
     }
  
@@ -132,7 +139,7 @@ class DeclBoundsFinder : public clang::DeclVisitor<DeclBoundsFinder>,
 
   ParsedTokenIterator ScanBackwardForMatching(ParsedTokenIterator tok,
                                               TokenKind open_tok) {
-    if (!tok.IsValid()) {
+    if (!tok) {
       return invalid;
     }
 
@@ -258,60 +265,73 @@ class DeclBoundsFinder : public clang::DeclVisitor<DeclBoundsFinder>,
   ParsedTokenIterator FindEndOfTag(
       clang::TagDecl *decl, ParsedTokenIterator tok) {
 
-    if (!tok.IsValid()) {
+    if (!tok) {
+      std::cerr << "Invalid tag start tok\n";
       return invalid;
     }
 
     auto can_have_l_brace = decl->isCompleteDefinition();
     auto can_have_semi = !decl->isEmbeddedInDeclarator();
-    auto r_brace = invalid;
     if (!can_have_l_brace && !can_have_semi) {
-      return invalid;
+      std::cerr << "Won't find an end loc\n";
+      return upper_bound;
     }
 
-    int64_t nesting = 0;
+    std::cerr << "Scanning: can_have_l_brace=" << can_have_l_brace
+              << " can_have_semi=" << can_have_semi << " offset="
+              << tok.Offset() << " decl=((clang::TagDecl*) "
+              << reinterpret_cast<void *>(decl) << ")\n";
 
+    auto r_brace = invalid;
+    auto first = true;
     do {
       assert(tok.IsParsed());
+      std::cerr << tok.Offset() << ' ' << tok.Data() << '\n';
       switch (tok.Kind()) {
         case TokenKind::kLBrace:
-          if (!can_have_l_brace) {
+          if (can_have_l_brace) {
+            r_brace = GetMatching(tok).second;
+            tok = r_brace;
+
+          } else {
             return invalid;
           }
-          [[fallthrough]];
+          if (!can_have_semi) {
+            return r_brace;
+          }
+          break;
+
         case TokenKind::kLParenthesis:
         case TokenKind::kLSquare:
         case TokenKind::kLAngle:
-          ++nesting;
+          tok = GetMatching(tok).second;
           break;
 
         case TokenKind::kRBrace:
-          if (!can_have_l_brace) {
-            return invalid;
+          if (first && can_have_l_brace) {
+            return tok;
           }
           [[fallthrough]];
         case TokenKind::kRParenthesis:
         case TokenKind::kRSquare:
         case TokenKind::kRAngle:
-          --nesting;
+          return r_brace;
 
-          if (0 > nesting) {
+        case TokenKind::kSemi:
+          if (can_have_semi) {
+            return tok;
+          } else {
             return r_brace;
-
-          } else if (!nesting) {
-            if (can_have_semi) {
-              r_brace = tok;
-
-            } else {
-              return tok;
-            }
           }
-          break;
+
         default:
           break;
       }
+
+      first = false;
     } while (tok.Next());
 
+    std::cerr << "out of loop: " << r_brace.Offset() << ' ' << r_brace.Data() << '\n'; 
     return r_brace;
   }
 
@@ -321,7 +341,7 @@ class DeclBoundsFinder : public clang::DeclVisitor<DeclBoundsFinder>,
   ParsedTokenIterator FindEndOfFunction(clang::FunctionDecl *decl,
                                         ParsedTokenIterator tok) {
 
-    if (!tok.IsValid()) {
+    if (!tok) {
       return invalid;
     }
 
@@ -391,9 +411,10 @@ class DeclBoundsFinder : public clang::DeclVisitor<DeclBoundsFinder>,
         continue;
       }
 
-      // Attributes.
+      // Attributes, template argument/parameter lists.
       if (tok_kind == TokenKind::kRParenthesis ||
-          tok_kind == TokenKind::kRSquare) {
+          tok_kind == TokenKind::kRSquare ||
+          tok_kind == TokenKind::kRAngle) {
         ParsedTokenIterator matched_end = invalid;
         std::tie(tok, matched_end) = GetMatching(tok);
         continue;
@@ -419,11 +440,16 @@ class DeclBoundsFinder : public clang::DeclVisitor<DeclBoundsFinder>,
 
   static constexpr int64_t kDefaultFindNextLimit = -1;
 
+  static ParsedTokenIterator PreviousToken(ParsedTokenIterator tok) {
+    tok.Previous();
+    return tok;
+  }
+
   // Scans backward, starting at `loc` and tries to identify the
   // next token with kind `kind`.
   ParsedTokenIterator FindPrev(ParsedTokenIterator tok, TokenKind kind,
                                int64_t limit=kDefaultFindNextLimit) {
-    if (!tok.IsValid()) {
+    if (!tok || !limit) {
       return invalid;
     }
 
@@ -441,8 +467,9 @@ class DeclBoundsFinder : public clang::DeclVisitor<DeclBoundsFinder>,
       }
 
       switch (tok_kind) {
-        case TokenKind::kLParenthesis:
         case TokenKind::kLBrace:
+          return invalid;
+        case TokenKind::kLParenthesis:
         case TokenKind::kLSquare:
         case TokenKind::kLAngle:
           break;
@@ -464,8 +491,8 @@ class DeclBoundsFinder : public clang::DeclVisitor<DeclBoundsFinder>,
         //                if it reaches to a `namespace` that isn't preceded by
         //                `using`.
         case TokenKind::kKeywordNamespace:
-          if (tok.WithOffset(tok.Offset() - 1u).Kind() !=
-              TokenKind::kKeywordUsing) {
+          if (PreviousToken(tok).Kind() != TokenKind::kKeywordUsing) {
+            assert(false);
             return invalid;
           }
           break;
@@ -473,13 +500,7 @@ class DeclBoundsFinder : public clang::DeclVisitor<DeclBoundsFinder>,
         default:
           break;
       }
-
-      if (!real_limit) {
-        break;
-      }
-      --real_limit;
-
-    } while (tok.Previous());
+    } while (real_limit-- && tok.Previous());
 
     return invalid;
   }
@@ -494,14 +515,9 @@ class DeclBoundsFinder : public clang::DeclVisitor<DeclBoundsFinder>,
   // Scans forward, starting at `loc` and tries to identify the
   // next token with kind `kind`.
   ParsedTokenIterator FindNext(ParsedTokenIterator tok, TokenKind kind,
-                               int64_t limit=kDefaultFindNextLimit) {
-    if (!tok.IsValid()) {
+                               bool err_on_namespace=true) {
+    if (!tok) {
       return invalid;
-    }
-
-    uint64_t real_limit = ~0u;
-    if (0 < limit) {
-      real_limit = static_cast<unsigned>(limit);
     }
 
     ParsedTokenIterator dummy = invalid;
@@ -525,8 +541,11 @@ class DeclBoundsFinder : public clang::DeclVisitor<DeclBoundsFinder>,
             return tok;
           }
           break;
-        case TokenKind::kRParenthesis:
+
         case TokenKind::kRBrace:
+          return invalid;
+
+        case TokenKind::kRParenthesis:
         case TokenKind::kRSquare:
         case TokenKind::kRAngle:
           break;
@@ -539,8 +558,8 @@ class DeclBoundsFinder : public clang::DeclVisitor<DeclBoundsFinder>,
         //                if it reaches to a `namespace` that isn't preceded by
         //                `using`.
         case TokenKind::kKeywordNamespace:
-          if (tok.WithOffset(tok.Offset() - 1u).Kind() !=
-              TokenKind::kKeywordUsing) {
+          if (PreviousToken(tok).Kind() != TokenKind::kKeywordUsing) {
+            assert(!err_on_namespace);
             return invalid;
           }
           break;
@@ -548,11 +567,6 @@ class DeclBoundsFinder : public clang::DeclVisitor<DeclBoundsFinder>,
         default:
           break;
       }
-
-      if (!real_limit) {
-        break;
-      }
-      --real_limit;
 
     } while (tok.Next());
 
@@ -562,11 +576,12 @@ class DeclBoundsFinder : public clang::DeclVisitor<DeclBoundsFinder>,
   // Scans forward, starting at `loc` and tries to identify the
   // next token with kind `kind`.
   ParsedTokenIterator FindNext(clang::SourceLocation loc, TokenKind kind,
-                               int64_t limit=kDefaultFindNextLimit) {
-    return FindNext(ast.RawTokenAt(loc), kind, limit);
+                               bool err_on_namespace=true) {
+    return FindNext(ast.RawTokenAt(loc), kind, err_on_namespace);
   }
 
   void Expand(ParsedTokenIterator tok) {
+
     // Clang supports the following:
     //
     //    #pragma attribute push(__attribute__((....)), apply_to = (...))
@@ -608,7 +623,7 @@ class DeclBoundsFinder : public clang::DeclVisitor<DeclBoundsFinder>,
     }
 
     ParsedTokenIterator tok = ast.RawTokenAt(decl->getLocation());
-    if (tok.IsValid()) {
+    if (!tok) {
       return;
     }
 
@@ -658,172 +673,233 @@ class DeclBoundsFinder : public clang::DeclVisitor<DeclBoundsFinder>,
   void VisitFunctionTemplateDecl(clang::FunctionTemplateDecl *decl) {
     Expand(decl->getSourceRange());
     if (auto tdl = decl->getTemplatedDecl()) {
-      VisitCommonFunctionDecl(tdl);
+      VisitFunctionDecl(tdl);
     }
-  }
-
-  // TODO(pag): Deal with out-of-line methods and template shenanigans.
-  void VisitCXXMethodDecl(clang::CXXMethodDecl *decl) {
-    VisitCommonFunctionDecl(decl);
   }
 
   void VisitFunctionDecl(clang::FunctionDecl *decl) {
-    VisitCommonFunctionDecl(decl);
+    if (clang::FunctionTypeLoc ftl = decl->getFunctionTypeLoc()) {
+      this->TypeLocVisitor::Visit(ftl);
+
+    } else if (clang::TypeSourceInfo *tsi = decl->getTypeSourceInfo()) {
+      if (auto tl = tsi->getTypeLoc()) {
+        this->TypeLocVisitor::Visit(tl);
+      }
+    }
+
+    VisitDeclaratorDecl(decl);
+
+    ParsedTokenIterator tok = ast.RawTokenAt(decl->getLocation());
+
+    const clang::FunctionDecl *def = nullptr;
+    auto body = decl->getBody(def);
+    if (def == decl) {
+      Expand(body->getSourceRange());
+
+    } else if (decl->isExplicitlyDefaulted() || decl->isDeletedAsWritten() ||
+               decl->isPure() || decl->hasDefiningAttr()) {
+
+      ExpandToTrailingToken(tok, TokenKind::kSemi);
+
+    } else if (decl->hasSkippedBody() || decl->willHaveBody()) {
+      if (auto end_tok = FindEndOfFunction(decl, tok);
+          end_tok > upper_bound) {
+        Expand(end_tok);
+      }
+
+    // In case of the template instantion, the parsed token will map
+    // to the template pattern. Check here is the pattern has body and
+    // expand the token range accodingly.
+    } else if (decl->isTemplateInstantiation()) {
+
+      auto pattern_decl = decl->getTemplateInstantiationPattern();
+      if (decl->doesThisDeclarationHaveABody()) {
+        if (auto pattern_def = pattern_decl->getDefinition()) {
+          Expand(pattern_def->getSourceRange());
+        } else {
+          assert(false);
+        }
+
+      // Clang might not instantiate the body of unreferenced templates.
+      } else if (pattern_decl->doesThisDeclarationHaveABody()) {
+        assert(!decl->isReferenced());
+        Expand(pattern_decl->getSourceRange());
+
+      } else {
+        ExpandToTrailingToken(tok, TokenKind::kSemi);
+      }
+    } else if (!decl->doesThisDeclarationHaveABody()) {
+      ExpandToTrailingToken(tok, TokenKind::kSemi);
+    }
+
+    // TODO(pag): remove eventually.
+    assert(1000u > (upper_bound.Offset() - lower_bound.Offset()));
+
+    const ASTImpl::FunctionProto *proto = FunctionProtoFor(decl);
+    if (!proto) {
+      return;
+    }
+
+    if (proto->l_paren) {
+      assert(lower_bound.Offset() < proto->l_paren);
+      assert(proto->r_paren <= upper_bound.Offset());
+    }
   }
 
   void VisitAttribute(const clang::Attr *attr) {
+    return;
 
-    // NOTE(pag): Inherited attributes are copied from decls to redecls, so we
-    //            don't want to look for a decl attribute's location from one of
-    //            its redecls, as that could be very far away.
-    if (!attr || attr->isImplicit() || attr->isInherited()) {
-      return;
-    }
+//     // NOTE(pag): Inherited attributes are copied from decls to redecls, so we
+//     //            don't want to look for a decl attribute's location from one of
+//     //            its redecls, as that could be very far away.
+//     if (!attr || attr->isImplicit() || attr->isInherited()) {
+//       return;
+//     }
 
-    // E.g. `class [[gsl::Pointer]] StringRef`; these attributes need to
-    // be after the keyword and get copied around to all / most redecls,
-    // and lead to bad expansions.
-    if (attr_decl && clang::isa<clang::TagDecl>(attr_decl)) {
-      return;
-    }
+//     // E.g. `class [[gsl::Pointer]] StringRef`; these attributes need to
+//     // be after the keyword and get copied around to all / most redecls,
+//     // and lead to bad expansions.
+//     if (attr_decl && clang::isa<clang::TagDecl>(attr_decl)) {
+//       return;
+//     }
 
-//    llvm::errs() << "syntax: " << int(attr->getSyntax()) << "\n\t";
-//    attr->printPretty(llvm::errs(), *ast.printing_policy);
-//    llvm::errs() << '\n';
+// //    llvm::errs() << "syntax: " << int(attr->getSyntax()) << "\n\t";
+// //    attr->printPretty(llvm::errs(), *ast.printing_policy);
+// //    llvm::errs() << '\n';
 
-    ParsedTokenIterator tok = ast.RawTokenAt(attr->getLocation());
-    ParsedTokenIterator scope_tok = ast.RawTokenAt(attr->getScopeLoc());
+//     ParsedTokenIterator tok = ast.RawTokenAt(attr->getLocation());
+//     ParsedTokenIterator scope_tok = ast.RawTokenAt(attr->getScopeLoc());
 
-    // Clang supports the following:
-    //
-    //    #pragma attribute push(__attribute__((....)), apply_to = (...))
-    //    ...
-    //
-    // In this case, we don't want to let the locations of any of these
-    // attributes influence the locations of the declarations enclosed by
-    // this pragma.
-    if (tok.IsInPragmaDirective() || scope_tok.IsInPragmaDirective()) {
-      return;
-    }
+//     // Clang supports the following:
+//     //
+//     //    #pragma attribute push(__attribute__((....)), apply_to = (...))
+//     //    ...
+//     //
+//     // In this case, we don't want to let the locations of any of these
+//     // attributes influence the locations of the declarations enclosed by
+//     // this pragma.
+//     if (tok.IsInPragmaDirective() || scope_tok.IsInPragmaDirective()) {
+//       return;
+//     }
 
-    switch (attr->getSyntax()) {
-      // __attribute__((...)).
-      case clang::AttributeCommonInfo::AS_GNU: {
-        auto kw_kind = TokenKind::kKeyword__Attribute;
-        switch (attr->getKind()) {
-          case clang::attr::AsmLabel:
-            kw_kind = TokenKind::kKeywordAssembly;
-            break;
-          default:
-            break;
-        }
-        Expand(FindPrev(tok, kw_kind));
-        break;
-      }
-      // [[...]]
-      case clang::AttributeCommonInfo::AS_CXX11:
-      case clang::AttributeCommonInfo::AS_C23: {
-        if (auto punc = FindPrev(tok, TokenKind::kLSquare)) {
-          Expand(punc);
-          if (punc.Previous() && punc.Kind() == TokenKind::kLSquare) {
-            Expand(punc);
-          }
-        }
-        break;
-      }
-      // __declspec(...).
-      case clang::AttributeCommonInfo::AS_Declspec: {
-        Expand(FindPrev(tok, TokenKind::kKeyword__Declspec));
-        break;
-      }
-      // [uuid("...")] class Foo
-      case clang::AttributeCommonInfo::AS_Microsoft: {
-        Expand(FindPrev(tok, TokenKind::kLSquare));
-        break;
-      }
-      // `__ptr32`, ...
-      case clang::AttributeCommonInfo::AS_Keyword: {
-        auto kw_kind = TokenKind::kUnknown;
-        switch (attr->getKind()) {
-          case clang::attr::AsmLabel:
-            kw_kind = TokenKind::kKeywordAssembly;
-            break;
-          case clang::attr::Ptr32:
-            kw_kind = TokenKind::kKeyword__Ptr32;
-            break;
-          case clang::attr::Ptr64:
-            kw_kind = TokenKind::kKeyword__Ptr64;
-            break;
-          case clang::attr::FastCall:
-            kw_kind = TokenKind::kKeyword__Fastcall;
-            break;
-          case clang::attr::StdCall:
-            kw_kind = TokenKind::kKeyword__Stdcall;
-            break;
-          case clang::attr::ThisCall:
-            kw_kind = TokenKind::kKeyword__Thiscall;
-            break;
-          case clang::attr::VectorCall:
-            kw_kind = TokenKind::kKeyword__Vectorcall;
-            break;
-          case clang::attr::CDecl:
-            kw_kind = TokenKind::kKeyword__Cdecl;
-            break;
-          case clang::attr::TypeNonNull:
-            kw_kind = TokenKind::kKeyword_Nonnull;
-            break;
-          case clang::attr::TypeNullable:
-            kw_kind = TokenKind::kKeyword_Nullable;
-            break;
-          case clang::attr::TypeNullUnspecified:
-            kw_kind = TokenKind::kKeyword_NullUnspecified;
-            break;
-          case clang::attr::TypeNullableResult:
-            kw_kind = TokenKind::kKeyword_NullableResult;
-            break;
-          default:
-            assert(false);  // TODO(pag): Others?
-            break;
-        }
+//     switch (attr->getSyntax()) {
+//       // __attribute__((...)).
+//       case clang::AttributeCommonInfo::AS_GNU: {
+//         auto kw_kind = TokenKind::kKeyword__Attribute;
+//         switch (attr->getKind()) {
+//           case clang::attr::AsmLabel:
+//             kw_kind = TokenKind::kKeywordAssembly;
+//             break;
+//           default:
+//             break;
+//         }
+//         Expand(FindPrev(tok, kw_kind));
+//         break;
+//       }
+//       // [[...]]
+//       case clang::AttributeCommonInfo::AS_CXX11:
+//       case clang::AttributeCommonInfo::AS_C23: {
+//         if (auto punc = FindPrev(tok, TokenKind::kLSquare)) {
+//           Expand(punc);
+//           if (punc.Previous() && punc.Kind() == TokenKind::kLSquare) {
+//             Expand(punc);
+//           }
+//         }
+//         break;
+//       }
+//       // __declspec(...).
+//       case clang::AttributeCommonInfo::AS_Declspec: {
+//         Expand(FindPrev(tok, TokenKind::kKeyword__Declspec));
+//         break;
+//       }
+//       // [uuid("...")] class Foo
+//       case clang::AttributeCommonInfo::AS_Microsoft: {
+//         Expand(FindPrev(tok, TokenKind::kLSquare));
+//         break;
+//       }
+//       // `__ptr32`, ...
+//       case clang::AttributeCommonInfo::AS_Keyword: {
+//         auto kw_kind = TokenKind::kUnknown;
+//         switch (attr->getKind()) {
+//           case clang::attr::AsmLabel:
+//             kw_kind = TokenKind::kKeywordAssembly;
+//             break;
+//           case clang::attr::Ptr32:
+//             kw_kind = TokenKind::kKeyword__Ptr32;
+//             break;
+//           case clang::attr::Ptr64:
+//             kw_kind = TokenKind::kKeyword__Ptr64;
+//             break;
+//           case clang::attr::FastCall:
+//             kw_kind = TokenKind::kKeyword__Fastcall;
+//             break;
+//           case clang::attr::StdCall:
+//             kw_kind = TokenKind::kKeyword__Stdcall;
+//             break;
+//           case clang::attr::ThisCall:
+//             kw_kind = TokenKind::kKeyword__Thiscall;
+//             break;
+//           case clang::attr::VectorCall:
+//             kw_kind = TokenKind::kKeyword__Vectorcall;
+//             break;
+//           case clang::attr::CDecl:
+//             kw_kind = TokenKind::kKeyword__Cdecl;
+//             break;
+//           case clang::attr::TypeNonNull:
+//             kw_kind = TokenKind::kKeyword_Nonnull;
+//             break;
+//           case clang::attr::TypeNullable:
+//             kw_kind = TokenKind::kKeyword_Nullable;
+//             break;
+//           case clang::attr::TypeNullUnspecified:
+//             kw_kind = TokenKind::kKeyword_NullUnspecified;
+//             break;
+//           case clang::attr::TypeNullableResult:
+//             kw_kind = TokenKind::kKeyword_NullableResult;
+//             break;
+//           default:
+//             assert(false);  // TODO(pag): Others?
+//             break;
+//         }
 
-        // Clang supports the following:
-        //
-        //    _Pragma("clang assume_nonnull begin")
-        //
-        // It can be enabled or disabled with a feature. Keeping it enabled is
-        // desirable from a static analysis perspective, because then we can
-        // observe what pointers shouldn't be null. But it's a big pain from the
-        // perspective of figuring out if we've found the attribute.
-        int64_t find_limit = -1;
-        if (kw_kind == TokenKind::kKeyword_Nonnull && !scope_tok) {
+//         // Clang supports the following:
+//         //
+//         //    _Pragma("clang assume_nonnull begin")
+//         //
+//         // It can be enabled or disabled with a feature. Keeping it enabled is
+//         // desirable from a static analysis perspective, because then we can
+//         // observe what pointers shouldn't be null. But it's a big pain from the
+//         // perspective of figuring out if we've found the attribute.
+//         int64_t find_limit = -1;
+//         if (kw_kind == TokenKind::kKeyword_Nonnull && !scope_tok) {
 
-          // We've observed that the token location at this point for parameters
-          // tends to be the `*` of the pointer, so detect that.
-          if (tok.Kind() == TokenKind::kStar) {
-            break;
-          }
+//           // We've observed that the token location at this point for parameters
+//           // tends to be the `*` of the pointer, so detect that.
+//           if (tok.Kind() == TokenKind::kStar) {
+//             break;
+//           }
 
-          // For return values, e.g. typedef `pthread_t`, we don't have much to
-          // go on so we invent this fudge factor of `16` as a limit for
-          // finding `_Nonnull`.
-          find_limit = 16;
+//           // For return values, e.g. typedef `pthread_t`, we don't have much to
+//           // go on so we invent this fudge factor of `16` as a limit for
+//           // finding `_Nonnull`.
+//           find_limit = 16;
         
-        } else if (kw_kind == TokenKind::kUnknown) {
-          break;
-        }
+//         } else if (kw_kind == TokenKind::kUnknown) {
+//           break;
+//         }
 
-        Expand(FindPrev(tok, kw_kind, find_limit));
-        break;
-      }
-      default:
-        break;
-    }
+//         Expand(FindPrev(tok, kw_kind, find_limit));
+//         break;
+//       }
+//       default:
+//         break;
+//     }
 
-    Expand(scope_tok);
+//     Expand(scope_tok);
   }
 
-  void VisitCommonDeclaratorDecl(clang::DeclaratorDecl *) {
-    if (!lower_bound.IsValid()) {
+  void VisitDeclaratorDecl(clang::DeclaratorDecl *) {
+    if (!lower_bound) {
       return;
     }
 
@@ -853,66 +929,6 @@ class DeclBoundsFinder : public clang::DeclVisitor<DeclBoundsFinder>,
     }
   }
 
-  void VisitCommonFunctionDecl(clang::FunctionDecl *decl) {
-
-    if (clang::FunctionTypeLoc ftl = decl->getFunctionTypeLoc()) {
-      this->TypeLocVisitor::Visit(ftl);
-
-    } else if (clang::TypeSourceInfo *tsi = decl->getTypeSourceInfo()) {
-      if (auto tl = tsi->getTypeLoc()) {
-        this->TypeLocVisitor::Visit(tl);
-      }
-    }
-
-    VisitCommonDeclaratorDecl(decl);
-
-    ParsedTokenIterator tok = ast.RawTokenAt(decl->getLocation());
-
-    const clang::FunctionDecl *def = nullptr;
-    auto body = decl->getBody(def);
-    if (def == decl) {
-      Expand(body->getSourceRange());
-
-    } else if (decl->isExplicitlyDefaulted() || decl->isDeletedAsWritten() ||
-               decl->isPure() || decl->hasDefiningAttr()) {
-
-      ExpandToTrailingToken(tok, TokenKind::kSemi);
-
-    } else if (decl->hasSkippedBody() || decl->willHaveBody()) {
-      if (auto end_tok = FindEndOfFunction(decl, tok);
-          end_tok > upper_bound) {
-        Expand(end_tok);
-      }
-
-    } else if (decl->isTemplateInstantiation()) {
-      // In case of the template instantion, the parsed token will map
-      // to the template pattern. Check here is the pattern has body and
-      // expand the token range accodingly.
-      if (auto pattern_decl = decl->getTemplateInstantiationPattern()) {
-        auto pattern_def = pattern_decl->getDefinition();
-        if (pattern_def == pattern_decl) {
-          Expand(pattern_def->getSourceRange());
-
-        } else if (!pattern_decl->doesThisDeclarationHaveABody()) {
-          // Fallback to template pattern having declaration only.
-          ExpandToTrailingToken(tok, TokenKind::kSemi);
-        }
-      }
-    } else if (!decl->doesThisDeclarationHaveABody()) {
-      ExpandToTrailingToken(tok, TokenKind::kSemi);
-    }
-
-    const ASTImpl::FunctionProto *proto = FunctionProtoFor(decl);
-    if (!proto) {
-      return;
-    }
-
-    if (proto->l_paren) {
-      assert(lower_bound < proto->l_paren);
-      assert(proto->r_paren <= upper_bound);
-    }
-  }
-
   void VisitVarDecl(clang::VarDecl *decl) {
     Expand(decl->getSourceRange());
 
@@ -936,7 +952,7 @@ class DeclBoundsFinder : public clang::DeclVisitor<DeclBoundsFinder>,
       }
     }
 
-    VisitCommonDeclaratorDecl(decl);
+    VisitDeclaratorDecl(decl);
   }
 
   std::pair<ParsedTokenIterator, ParsedTokenIterator> SourceRangeTokens(
@@ -1023,7 +1039,7 @@ class DeclBoundsFinder : public clang::DeclVisitor<DeclBoundsFinder>,
 
     if (auto func_name_tok = ast.RawTokenAt(func->getLocation())) {
       if (!params_begin || params_begin < func_name_tok) {
-        auto next_semicolon = FindNext(func_name_tok, TokenKind::kSemi);
+        auto next_semicolon = FindNext(func_name_tok, TokenKind::kSemi, false);
         params_begin = FindNext(func_name_tok, TokenKind::kLParenthesis);
 
         // Watch out for `foo_t foo; int bar() {}`, that we don't find
@@ -1054,7 +1070,8 @@ class DeclBoundsFinder : public clang::DeclVisitor<DeclBoundsFinder>,
     // the variable, e.g. `a, ...` vs. `a...`.
 
     if (auto ellipsis_tok = params_end; ellipsis_tok.Previous()) {
-      ellipsis_tok = FindPrev(ellipsis_tok, TokenKind::kEllipsis);
+      auto limit = ellipsis_tok.Offset() - params_begin.Offset();
+      ellipsis_tok = FindPrev(ellipsis_tok, TokenKind::kEllipsis, limit);
       if (ellipsis_tok > params_begin) {
         proto.ellipsis = ellipsis_tok.Offset();
         has_ellipsis = true;
@@ -1324,9 +1341,15 @@ class DeclBoundsFinder : public clang::DeclVisitor<DeclBoundsFinder>,
 
     Expand(decl->getSourceRange());
 
-    if (auto tag_end = FindEndOfTag(decl, lower_bound)) {
-      assert(!upper_bound || upper_bound <= tag_end);
+    auto tag_end = FindEndOfTag(decl, lower_bound);
+    assert(!lower_bound || tag_end);
+    if (!upper_bound || upper_bound <= tag_end) {
       upper_bound = tag_end;
+    }
+
+    // TODO(pag): remove eventually.
+    if (lower_bound < upper_bound) {
+      assert(15000 > (upper_bound.Offset() - lower_bound.Offset()));
     }
   }
 
@@ -1390,7 +1413,6 @@ class DeclBoundsFinder : public clang::DeclVisitor<DeclBoundsFinder>,
   }
 
   void VisitFieldDecl(clang::FieldDecl *decl) {
-    VisitDeclaratorDecl(decl);
     Expand(decl->getSourceRange());
     if (auto init = decl->getInClassInitializer()) {
       Expand(init->getSourceRange());
@@ -1404,7 +1426,7 @@ class DeclBoundsFinder : public clang::DeclVisitor<DeclBoundsFinder>,
       }
     }
     ExpandToTrailingToken(decl->getLocation(), TokenKind::kSemi);
-    VisitCommonDeclaratorDecl(decl);
+    VisitDeclaratorDecl(decl);
   }
 
   void VisitTypeLoc(clang::TypeLoc loc) {
@@ -1691,31 +1713,36 @@ class DeclBoundsFinder : public clang::DeclVisitor<DeclBoundsFinder>,
 // parsed tokens. This doesn't not try to expand the range to the ending
 // of macro expansions.
 ASTImpl::BoundingTokens ASTImpl::DeclBounds(clang::Decl *decl) {
-  auto &ret = bounds[decl];
-  if (ret.second || decl->isImplicit()) {
-    return ret;
+  auto [it, added] = bounds.try_emplace(decl, 0u, 0u);
+  if (!added) {
+    return it->second;
+  }
+
+  if (decl->isImplicit()) {
+    return it->second;
   }
 
   // Handle this off-the-bat; it doesn't really conform to any other thing.
   if (clang::isa<clang::TranslationUnitDecl>(decl)) {
-    ret.first = 0u;
-    ret.second = parsed_tokens.size() - 1u;
-    return ret;
+    it->second.first = 0u;
+    it->second.second = parsed_tokens.size() - 1u;
+    return it->second;
   }
 
-  ret = DeclBoundsFinder(*this).GetBounds(decl);
-  return ret;
+  it->second = DeclBoundsFinder(*this).GetBounds(decl);
+  return it->second;
 }
 
 TokenRange ASTImpl::DeclTokenRange(const clang::Decl *decl_,
                                    std::unique_lock<std::mutex> locker) {
   auto decl = const_cast<clang::Decl *>(decl_);
-  if (auto [first, last] = DeclBounds(decl); first && first <= last) {
+  auto [first, last] = DeclBounds(decl);
+  if (last && first <= last) {
     return TokenRange(this->shared_from_this(), first, last + 1u);
   }
 
   return TokenRange(
-      std::shared_ptr<ParsedTokenStorage>(shared_from_this(), &parsed_tokens),
+      std::shared_ptr<ParsedTokenStorage>(shared_from_this(), &invalid_tokens),
       0u, 0u);
 }
 

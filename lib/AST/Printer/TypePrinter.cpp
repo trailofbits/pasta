@@ -252,13 +252,15 @@ void printArgument(Printer &printer, const clang::TemplateArgument &A,
 
   TokenPrinterContext ctx(Out, &A, tokens);
 
+  clang::PrintingPolicy SubPolicy(Policy);
+  TagDefinitionPolicyRAII disable_tags(SubPolicy);
+
   switch (A.getKind()) {
   case clang::TemplateArgument::Null:
     Out << "(no value)";
     break;
 
   case clang::TemplateArgument::Type: {
-    clang::PrintingPolicy SubPolicy(Policy);
     SubPolicy.SuppressStrongLifetime = true;
 
     TypePrinter printer(Out, SubPolicy, tokens, 0);
@@ -270,8 +272,8 @@ void printArgument(Printer &printer, const clang::TemplateArgument &A,
     clang::NamedDecl *ND = clang::dyn_cast<clang::NamedDecl>(A.getAsDecl());
     if (A.getParamTypeForDecl()->isRecordType()) {
       if (auto *TPO = clang::dyn_cast<clang::TemplateParamObjectDecl>(ND)) {
-        TPO->getType().getUnqualifiedType().print(Out, Policy);
-        TPO->printAsInit(Out, Policy);
+        TPO->getType().getUnqualifiedType().print(Out, SubPolicy);
+        TPO->printAsInit(Out, SubPolicy);
         break;
       }
     }
@@ -280,7 +282,7 @@ void printArgument(Printer &printer, const clang::TemplateArgument &A,
         Out << "&";
     }
 
-    PrintQualifiedName(printer, ND, Policy);
+    PrintQualifiedName(printer, ND, SubPolicy);
     break;
   }
 
@@ -290,27 +292,28 @@ void printArgument(Printer &printer, const clang::TemplateArgument &A,
     break;
 
   case clang::TemplateArgument::Template:
-    A.getAsTemplate().print(Out, Policy, clang::TemplateName::Qualified::Fully);
+    A.getAsTemplate().print(Out, SubPolicy, clang::TemplateName::Qualified::Fully);
     break;
 
   case clang::TemplateArgument::TemplateExpansion:
-    A.getAsTemplateOrTemplatePattern().print(Out, Policy);
+    A.getAsTemplateOrTemplatePattern().print(Out, SubPolicy);
     Out << "...";
     break;
 
   case clang::TemplateArgument::Integral:
-    printIntegral(printer, A, Out, tokens, Policy, IncludeType);
+    printIntegral(printer, A, Out, tokens, SubPolicy, IncludeType);
     break;
 
   case clang::TemplateArgument::Expression: {
-    StmtPrinter stmtPrinter(Out, nullptr, tokens, Policy, 0, "\n",
+    StmtPrinter stmtPrinter(Out, nullptr, tokens, SubPolicy, 0, "\n",
                             &tokens.ast_context);
     stmtPrinter.Visit(A.getAsExpr());
     break;
   }
 
   case clang::TemplateArgument::Pack:
-    Out << "<";
+    Out << " <";
+    tokens.TryChangeLastKind(TokenKind::kLess, TokenKind::kLAngle);
     bool First = true;
     for (const clang::TemplateArgument &P : A.pack_elements()) {
       if (First)
@@ -318,9 +321,11 @@ void printArgument(Printer &printer, const clang::TemplateArgument &A,
       else
         Out << ", ";
 
-      printArgument(printer, P, Policy, IncludeType);
+      assert(!SubPolicy.IncludeTagDefinition);
+      printArgument(printer, P, SubPolicy, IncludeType);
     }
-    Out << ">";
+    Out << " >";
+    tokens.TryChangeLastKind(TokenKind::kGreater, TokenKind::kRAngle);
     break;
   }
 }
@@ -394,10 +399,11 @@ printTo(Printer &printer, llvm::ArrayRef<TA> Args,
   }
 
   const char *Comma = Policy.MSVCFormatting ? "," : ", ";
-  if (!IsPack)
-    OS << '<';
+  if (!IsPack) {
+    OS << " <";
+    tokens.TryChangeLastKind(TokenKind::kLess, TokenKind::kLAngle);
+  }
 
-  bool NeedSpace = false;
   bool FirstArg = true;
   for (const auto &Arg : Args) {
     if (FirstArg) {
@@ -413,18 +419,14 @@ printTo(Printer &printer, llvm::ArrayRef<TA> Args,
     } else {
       if (!FirstArg)
         OS << Comma;
+
       // Tries to print the argument with location info if exists.
       printArgument(printer, Arg, Policy,
                     clang::TemplateParameterList::shouldIncludeTypeForArgument(
                         Policy, TPL, ParmIndex));
     }
 
-    // If the last character of our string is '>', add another space to
-    // keep the two '>''s separate tokens.
-    if (!OS.str().empty()) {
-      NeedSpace = Policy.SplitTemplateClosers && OS.str().back() == '>';
-      FirstArg = false;
-    }
+    FirstArg = false;
 
     // Use same template parameter for all elements of Pack
     if (!IsPack)
@@ -432,9 +434,8 @@ printTo(Printer &printer, llvm::ArrayRef<TA> Args,
   }
 
   if (!IsPack) {
-    if (NeedSpace)
-      OS << ' ';
-    OS << '>';
+    OS << " >";
+    tokens.TryChangeLastKind(TokenKind::kGreater, TokenKind::kRAngle);
   }
 }
 
@@ -1658,6 +1659,7 @@ void TypePrinter::printAuto(const clang::AutoType *T, raw_string_ostream &OS,
     T->getTypeConstraintConcept()->getDeclName().print(OS, Policy);
     auto Args = T->getTypeConstraintArguments();
     if (!Args.empty()) {
+      TagDefinitionPolicyRAII disable_tags(Policy);
       printTemplateArgumentList(
           *this, Args, Policy,
           T->getTypeConstraintConcept()->getTemplateParameters());
@@ -1895,7 +1897,9 @@ void TypePrinter::printTag(clang::TagDecl *D, raw_string_ostream &OS) {
       const clang::TemplateArgumentList &TemplateArgs = Spec->getTemplateArgs();
       Args = TemplateArgs.asArray();
     }
+
     IncludeStrongLifetimeRAII Strong(Policy);
+    TagDefinitionPolicyRAII disable_tags(Policy);
     printTemplateArgumentList(
         *this, Args, Policy,
         Spec->getSpecializedTemplate()->getTemplateParameters());
@@ -2051,6 +2055,8 @@ void TypePrinter::printTemplateId(const clang::TemplateSpecializationType *T,
 
 
   DefaultTemplateArgsPolicyRAII TemplateArgs(Policy);
+  TagDefinitionPolicyRAII disable_tags(Policy);
+
   const clang::TemplateParameterList *TPL = TD ? TD->getTemplateParameters() : nullptr;
   printTemplateArgumentList(*this, T->template_arguments(), Policy, TPL);
   spaceBeforePlaceHolder(OS);
@@ -2453,8 +2459,12 @@ void TypePrinter::printObjCTypeParam(const clang::ObjCTypeParamType *T,
   TokenPrinterContext ctx(OS, T, tokens);
   OS << T->getDecl()->getName();
   if (!T->qual_empty()) {
+    TagDefinitionPolicyRAII disable_tags(Policy);
+
     bool isFirst = true;
-    OS << '<';
+    OS << " <";
+    tokens.TryChangeLastKind(TokenKind::kLess, TokenKind::kLAngle);
+
     for (const auto *I : T->quals()) {
       if (isFirst)
         isFirst = false;
@@ -2462,7 +2472,8 @@ void TypePrinter::printObjCTypeParam(const clang::ObjCTypeParamType *T,
         OS << ',';
       OS << I->getName();
     }
-    OS << '>';
+    OS << " >";
+    tokens.TryChangeLastKind(TokenKind::kGreater, TokenKind::kRAngle);
   }
 
   spaceBeforePlaceHolder(OS);
@@ -2484,29 +2495,36 @@ void TypePrinter::printObjCObject(const clang::ObjCObjectType *T,
 
   if (T->isSpecializedAsWritten()) {
     bool isFirst = true;
-    OS << '<';
+    OS << " <";
+    tokens.TryChangeLastKind(TokenKind::kLess, TokenKind::kLAngle);
     for (auto typeArg : T->getTypeArgsAsWritten()) {
       if (isFirst)
         isFirst = false;
       else
         OS << ",";
 
+      TagDefinitionPolicyRAII disable_tags(Policy);
       print(typeArg, clang::StringRef());
     }
-    OS << '>';
+    OS << " >";
+    tokens.TryChangeLastKind(TokenKind::kGreater, TokenKind::kRAngle);
   }
 
   if (!T->qual_empty()) {
     bool isFirst = true;
-    OS << '<';
+    OS << " <";
+    tokens.TryChangeLastKind(TokenKind::kLess, TokenKind::kLAngle);
     for (const auto *I : T->quals()) {
       if (isFirst)
         isFirst = false;
       else
         OS << ',';
+
+      TagDefinitionPolicyRAII disable_tags(Policy);
       OS << I->getName();
     }
-    OS << '>';
+    OS << " >";
+    tokens.TryChangeLastKind(TokenKind::kGreater, TokenKind::kRAngle);
   }
 
   spaceBeforePlaceHolder(OS);

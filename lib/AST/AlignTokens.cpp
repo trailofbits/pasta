@@ -31,7 +31,7 @@
 #include "Token.h"
 #include "Util.h"
 
-#define PASTA_DEBUG_ALIGN 1
+#define PASTA_DEBUG_ALIGN 0
 #define TK(...)
 
 namespace pasta {
@@ -1589,6 +1589,7 @@ std::optional<std::string> PrintedTokenRangeImpl::AlignTokens(
   SequenceRegion *parsed_tree = matcher.BuildRegions(
       parsed_regions, err, parsed_bounds.begin, parsed_bounds.end, "parsed");
   if (!parsed_tree) {
+    assert(false);
     return err.str();
   }
 
@@ -1596,6 +1597,7 @@ std::optional<std::string> PrintedTokenRangeImpl::AlignTokens(
       printed_regions, err, printed_bounds.begin, printed_bounds.end,
       "printed");
   if (!printed_tree) {
+    assert(false);
     return err.str();
   }
 

@@ -239,6 +239,8 @@ class ParsedTokenStorage {
   BitPackedLocation CreateInitialMacroLocation(clang::SourceLocation loc);
   BitPackedLocation CreateMacroLocation(DerivedTokenIndex offset);
 
+  void AppendLeadingWhitespace(const clang::Token &tok);
+
  private:
   // Initialize this storage as an "invalid" storage.
   void InitInvalid(void);
@@ -479,6 +481,10 @@ class ParsedTokenIterator {
 
   inline DerivedTokenIndex Offset(void) const noexcept {
     return offset;
+  }
+
+  inline std::string_view Data(void) const noexcept {
+    return storage->Data(offset);
   }
 
   inline bool IsValid(void) const noexcept {

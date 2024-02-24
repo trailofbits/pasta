@@ -605,6 +605,9 @@ Result<AST, std::string> CompileJob::Run(void) const {
     }
   }
 
+  sema.PerformDeferredTypeCompletions();
+  sema.DefineUsedVTables();
+
   // Finalize any leftover instantiations.
   sema.PerformPendingInstantiations(false);
 

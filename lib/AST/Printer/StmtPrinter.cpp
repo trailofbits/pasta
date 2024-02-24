@@ -1244,6 +1244,8 @@ void StmtPrinter::VisitDeclRefExpr(clang::DeclRefExpr *Node) {
     if (!Node->hadMultipleCandidates())
       if (auto *TD = clang::dyn_cast<clang::TemplateDecl>(Node->getDecl()))
         TPL = TD->getTemplateParameters();
+
+    TagDefinitionPolicyRAII disable_tags(Policy);
     printTemplateArgumentList(*this, Node->template_arguments(), Policy, TPL);
   }
 }
@@ -1258,8 +1260,10 @@ void StmtPrinter::VisitDependentScopeDeclRefExpr(
     ctx.MarkLocation(Node->getTemplateKeywordLoc());
   }
   OS << Node->getNameInfo();
-  if (Node->hasExplicitTemplateArgs())
+  if (Node->hasExplicitTemplateArgs()) {
+    TagDefinitionPolicyRAII disable_tags(Policy);
     printTemplateArgumentList(*this, Node->template_arguments(), Policy);
+  }
 }
 
 void StmtPrinter::VisitUnresolvedLookupExpr(clang::UnresolvedLookupExpr *Node) {
@@ -1271,8 +1275,10 @@ void StmtPrinter::VisitUnresolvedLookupExpr(clang::UnresolvedLookupExpr *Node) {
     ctx.MarkLocation(Node->getTemplateKeywordLoc());
   }
   OS << Node->getNameInfo();
-  if (Node->hasExplicitTemplateArgs())
+  if (Node->hasExplicitTemplateArgs()) {
+    TagDefinitionPolicyRAII disable_tags(Policy);
     printTemplateArgumentList(*this, Node->template_arguments(), Policy);
+  }
 }
 
 static bool isImplicitSelf(const clang::Expr *E) {
@@ -1774,8 +1780,10 @@ void StmtPrinter::VisitMemberExpr(clang::MemberExpr *Node) {
   } else if (auto *VTSD =
                  clang::dyn_cast<clang::VarTemplateSpecializationDecl>(Node->getMemberDecl()))
     TPL = VTSD->getSpecializedTemplate()->getTemplateParameters();
-  if (Node->hasExplicitTemplateArgs())
+  if (Node->hasExplicitTemplateArgs()) {
+    TagDefinitionPolicyRAII disable_tags(Policy);
     printTemplateArgumentList(*this, Node->template_arguments(), Policy, TPL);
+  }
 }
 
 void StmtPrinter::VisitObjCIsaExpr(clang::ObjCIsaExpr *Node) {
@@ -2222,8 +2230,10 @@ void StmtPrinter::VisitCXXNamedCastExpr(clang::CXXNamedCastExpr *Node) {
   OS << " <";
   ctx.MarkLocation(Node->getAngleBrackets().getBegin());
   tokens.TryChangeLastKind(TokenKind::kLess, TokenKind::kLAngle);
-
-  printQualType(Node->getTypeAsWritten(), OS, Policy);
+  {
+    TagDefinitionPolicyRAII disable_tags(Policy);
+    printQualType(Node->getTypeAsWritten(), OS, Policy);
+  }
   OS << " >";
   ctx.MarkLocation(Node->getAngleBrackets().getEnd());
   tokens.TryChangeLastKind(TokenKind::kGreater, TokenKind::kRAngle);
@@ -2763,8 +2773,10 @@ void StmtPrinter::VisitCXXDependentScopeMemberExpr(
     ctx.MarkLocation(Node->getTemplateKeywordLoc());
   }
   OS << Node->getMemberNameInfo();
-  if (Node->hasExplicitTemplateArgs())
+  if (Node->hasExplicitTemplateArgs()) {
+    TagDefinitionPolicyRAII disable_tags(Policy);
     printTemplateArgumentList(*this, Node->template_arguments(), Policy);
+  }
 }
 
 void StmtPrinter::VisitUnresolvedMemberExpr(clang::UnresolvedMemberExpr *Node) {
@@ -2781,8 +2793,10 @@ void StmtPrinter::VisitUnresolvedMemberExpr(clang::UnresolvedMemberExpr *Node) {
     ctx.MarkLocation(Node->getTemplateKeywordLoc());
   }
   OS << Node->getMemberNameInfo();
-  if (Node->hasExplicitTemplateArgs())
+  if (Node->hasExplicitTemplateArgs()) {
+    TagDefinitionPolicyRAII disable_tags(Policy);
     printTemplateArgumentList(*this, Node->template_arguments(), Policy);
+  }
 }
 
 void StmtPrinter::VisitTypeTraitExpr(clang::TypeTraitExpr *E) {
@@ -2906,6 +2920,8 @@ void StmtPrinter::VisitConceptSpecializationExpr(clang::ConceptSpecializationExp
     ctx.MarkLocation(E->getTemplateKWLoc());
   }
   OS << E->getFoundDecl()->getName();
+
+  TagDefinitionPolicyRAII disable_tags(Policy);
   printTemplateArgumentList(*this,
                             E->getTemplateArgsAsWritten()->arguments(), Policy,
                             E->getNamedConcept()->getTemplateParameters());

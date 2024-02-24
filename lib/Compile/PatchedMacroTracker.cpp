@@ -1179,23 +1179,14 @@ void PatchedMacroTracker::DoEndDirective(
     // try to rewrite it into a compatible pragma.
     auto is_deprecated = pragma_data.find(" deprecated ") != std::string::npos;
     auto is_poisoned = pragma_data.find(" poison ") != std::string::npos;
-    if ((is_deprecated || is_poisoned) && !unexpanded_macros.empty()) {
+    auto is_system_header = pragma_data.find(" system_header") != std::string::npos;
+    if (!is_deprecated && !is_poisoned && !is_system_header) {
+      assert(unexpanded_macros.empty());
 
-      std::stringstream().swap(ss);
-      ss << "# pragma clang " << (is_deprecated ? "deprecated " : "poison ");
-      for (DerivedTokenIndex macro_tok_offset : unexpanded_macros) {
-        ss <<  ast->macro_tokens.Data(macro_tok_offset);
-      }
-
-      pragma_data = ss.str();
-      unexpanded_macros.clear();
+      ast->parsed_tokens.AppendInternalToken(
+          pragma_data, last_loc, TokenRole::kEmptyOrSpecialMacroToken,
+          true  /* is_in_pragma */);
     }
-
-    assert(unexpanded_macros.empty());
-
-    ast->parsed_tokens.AppendInternalToken(
-        pragma_data, last_loc, TokenRole::kEmptyOrSpecialMacroToken,
-        true  /* is_in_pragma */);
 
   // If this was a `#warning` or `#error` then try to collect the string
   // literals. Those were missing.

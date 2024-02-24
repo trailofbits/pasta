@@ -25,9 +25,10 @@ void PrintNestedNameSpecifier(Printer &printer,
                               bool ResolveTemplateArguments) {
   auto &OS = printer.OS;
   auto &tokens = printer.tokens;
+  auto SubPolicy = Policy;
 
   if (auto PQ = Q->getPrefix())
-    PrintNestedNameSpecifier(printer, PQ, Policy);
+    PrintNestedNameSpecifier(printer, PQ, SubPolicy);
 
   switch (Q->getKind()) {
     case clang::NestedNameSpecifier::Identifier:
@@ -69,15 +70,17 @@ void PrintNestedNameSpecifier(Printer &printer,
       if (ResolveTemplateArguments && Record) {
         TokenPrinterContext ctx(OS, Record, tokens);
         // Print the type trait with resolved template parameters.
-        Record->printName(OS, Policy);
+        Record->printName(OS, SubPolicy);
+
+        TagDefinitionPolicyRAII disable_tags(SubPolicy);
         printTemplateArgumentList(
-            printer, Record->getTemplateArgs().asArray(), Policy,
+            printer, Record->getTemplateArgs().asArray(), SubPolicy,
             Record->getSpecializedTemplate()->getTemplateParameters());
         break;
       }
       const clang::Type *T = Q->getAsType();
 
-      clang::PrintingPolicy InnerPolicy(Policy);
+      clang::PrintingPolicy InnerPolicy(SubPolicy);
       InnerPolicy.SuppressScope = true;
 
       // Nested-name-specifiers are intended to contain minimally-qualified
@@ -99,6 +102,7 @@ void PrintNestedNameSpecifier(Printer &printer,
                                           clang::TemplateName::Qualified::None);
 
         // Print the template argument list.
+        TagDefinitionPolicyRAII disable_tags(InnerPolicy);
         printTemplateArgumentList(printer, SpecType->template_arguments(),
                                   InnerPolicy);
       } else if (const auto *DepSpecType =
@@ -108,11 +112,12 @@ void PrintNestedNameSpecifier(Printer &printer,
         // nested-name-specifier.
         OS << DepSpecType->getIdentifier()->getName();
         // Print the template argument list.
+        TagDefinitionPolicyRAII disable_tags(InnerPolicy);
         printTemplateArgumentList(printer, DepSpecType->template_arguments(),
                                   InnerPolicy);
       } else {
         // Print the type normally
-        TypePrinter(OS, Policy, tokens, 0).print(clang::QualType(T, 0), "");
+        TypePrinter(OS, InnerPolicy, tokens, 0).print(clang::QualType(T, 0), "");
       }
       break;
     }
@@ -858,7 +863,10 @@ void DeclPrinter::VisitFunctionDecl(clang::FunctionDecl *D) {
     prettyPrintPragmas(D);
 
   if (D->isFunctionTemplateSpecialization()) {
-    Out << "template <> ";
+    Out << "template <";
+    tokens.TryChangeLastKind(TokenKind::kLess, TokenKind::kLAngle);
+    Out << ">";
+    tokens.TryChangeLastKind(TokenKind::kGreater, TokenKind::kRAngle);
   }
 
   else if (!D->getDescribedFunctionTemplate()) {
@@ -1611,6 +1619,7 @@ void DeclPrinter::printTemplateParameters(
     else
       NeedComma = true;
 
+    TagDefinitionPolicyRAII disable_tags(Policy);
     if (const auto *TTP = clang::dyn_cast<clang::TemplateTypeParmDecl>(Param)) {
       VisitTemplateTypeParmDecl(TTP);
     } else if (auto NTTP = clang::dyn_cast<clang::NonTypeTemplateParmDecl>(Param)) {
@@ -1632,14 +1641,13 @@ void DeclPrinter::printTemplateParameters(
 void DeclPrinter::printTemplateArguments(llvm::ArrayRef<clang::TemplateArgument> Args,
                                          const clang::TemplateParameterList *Params,
                                          bool TemplOverloaded) {
-  TagDefinitionPolicyRAII tag_raii(Policy);
-
   Out << " <";
   tokens.TryChangeLastKind(TokenKind::kLess, TokenKind::kLAngle);
   for (size_t I = 0, E = Args.size(); I < E; ++I) {
     if (I)
       Out << ", ";
     
+    TagDefinitionPolicyRAII disable_tags(Policy);
     TokenPrinterContext ctx(Out, &(Args[I]), tokens);
     if (TemplOverloaded || !Params)
       printArgument(*this, Args[I], Policy, /*IncludeType*/ true);
@@ -1655,8 +1663,6 @@ void DeclPrinter::printTemplateArguments(llvm::ArrayRef<clang::TemplateArgument>
 void DeclPrinter::printTemplateArguments(llvm::ArrayRef<clang::TemplateArgumentLoc> Args,
                                          const clang::TemplateParameterList *Params,
                                          bool TemplOverloaded) {
-  TagDefinitionPolicyRAII tag_raii(Policy);
-
   Out << " <";
   tokens.TryChangeLastKind(TokenKind::kLess, TokenKind::kLAngle);
 
@@ -1664,6 +1670,7 @@ void DeclPrinter::printTemplateArguments(llvm::ArrayRef<clang::TemplateArgumentL
     if (I)
       Out << ", ";
 
+    TagDefinitionPolicyRAII disable_tags(Policy);
     TokenPrinterContext ctx(Out, &(Args[I].getArgument()), tokens);
     if (TemplOverloaded)
       printArgument(*this, Args[I].getArgument(), Policy, /*IncludeType*/ true);
@@ -1775,10 +1782,17 @@ void DeclPrinter::VisitClassTemplateDecl(clang::ClassTemplateDecl *D) {
 }
 
 void DeclPrinter::VisitClassTemplateSpecializationDecl(clang::ClassTemplateSpecializationDecl *D) {
+  assert(tokens.tokens.empty() ||
+         (tokens.tokens.back().kind != TokenKind::kLAngle &&
+          tokens.tokens.back().kind != TokenKind::kLess));
+
   TokenPrinterContext ctx(Out, D, tokens);
   Out << "template";
   ctx.MarkLocation(D->getTemplateKeywordLoc());
-  Out << " <> ";
+  Out << " <";
+  tokens.TryChangeLastKind(TokenKind::kLess, TokenKind::kLAngle);
+  Out << "> ";
+  tokens.TryChangeLastKind(TokenKind::kGreater, TokenKind::kRAngle);
   VisitCXXRecordDecl(D);
 }
 
@@ -1824,7 +1838,6 @@ void DeclPrinter::PrintObjCTypeParams(clang::ObjCTypeParamList *Params) {
   Out << " <";
   tokens.TryChangeLastKind(TokenKind::kLess, TokenKind::kLAngle);
 
-  TagDefinitionPolicyRAII tag_raii(Policy);
   unsigned First = true;
   for (auto *Param : *Params) {
     if (First) {
@@ -1846,6 +1859,7 @@ void DeclPrinter::PrintObjCTypeParams(clang::ObjCTypeParamList *Params) {
       break;
     }
 
+    TagDefinitionPolicyRAII tag_raii(Policy);
     Out << Param->getDeclName();
 
     if (Param->hasExplicitBound()) {
@@ -1974,6 +1988,8 @@ void DeclPrinter::VisitObjCInterfaceDecl(clang::ObjCInterfaceDecl *OID) {
       } else {
         Out << ',';
       }
+
+      TagDefinitionPolicyRAII tag_raii(Policy);
       Out << **I;
     }
     Out << " > ";
@@ -2024,6 +2040,8 @@ void DeclPrinter::VisitObjCProtocolDecl(clang::ObjCProtocolDecl *PID) {
       } else {
         Out << ',';
       }
+
+      TagDefinitionPolicyRAII tag_raii(Policy);
       Out << **I;
     }
     Out << " >\n";

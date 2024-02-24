@@ -44,7 +44,8 @@ void RegisterToken(nb::module_ &m) {
               nb::type<TokenRange>(), "TokenIterator", v.begin(), v.end());
         })
     .def_prop_ro("front", &TokenRange::Front)
-    .def_prop_ro("back", &TokenRange::Back);
+    .def_prop_ro("back", &TokenRange::Back)
+    .def_prop_ro("data", &TokenRange::Data);
 }
 
 }  // namespace pasta

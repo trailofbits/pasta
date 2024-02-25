@@ -559,11 +559,11 @@ void TokenPrinterContext::Tokenize(void) {
     }
 
     const auto data_offset = static_cast<TokenDataIndex>(tokens.data.size());
-    assert(0ll <= static_cast<TokenDataOffset>(data_offset));
-    tokens.data.reserve(data_offset + tok.getLength());
+    const auto tok_len = tok.getLength();
+    tokens.data.reserve(data_offset + tok_len);
     bool seen_data = false;
 
-    for (; i < size; ++i) {
+    for (auto j = 0u; i < size && j < tok_len; ++i) {
       
       // Skip leading whitespace.
       if (!seen_data) {
@@ -580,12 +580,15 @@ void TokenPrinterContext::Tokenize(void) {
         }
       }
 
+      ++j;
       tokens.data.push_back(token_data[i]);
     }
 
     SkipTrailingWhitespace(tokens.data);
 
     const auto data_len = tokens.data.size() - data_offset;
+    assert(0u < data_len);
+    assert(data_len <= tok.getLength());
     tokens.data.push_back(' ');
 
     // Migrate all kinds to `identifier` now that we've got the data.

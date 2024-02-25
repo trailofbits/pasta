@@ -589,8 +589,8 @@ class Matcher {
   // regions, and comma/semicolon-separated regions.
   SequenceRegion *BuildRegions(
       std::vector<std::unique_ptr<Region>> &regions,
-      std::stringstream &err, PrintedTokenImpl *first,
-      PrintedTokenImpl *after_last, const char *list_kind);
+      std::stringstream &err, PrintedTokenImpl * const first,
+      PrintedTokenImpl * const after_last, const char *list_kind);
 
   bool MatchToken(PrintedTokenImpl *parsed, PrintedTokenImpl *printed);
   bool MatchTokenByKindOrData(PrintedTokenImpl *parsed,
@@ -636,7 +636,7 @@ class Matcher {
 // regions, and comma/semicolon-separated regions.
 SequenceRegion *Matcher::BuildRegions(
     std::vector<std::unique_ptr<Region>> &regions, std::stringstream &err,
-    PrintedTokenImpl *first, PrintedTokenImpl *after_last,
+    PrintedTokenImpl * const first, PrintedTokenImpl * const after_last,
     const char *list_kind) {
 
   std::vector<SequenceRegion *> region_stack;
@@ -683,6 +683,8 @@ SequenceRegion *Matcher::BuildRegions(
     --it;
 
     assert(it < prev_it);
+    assert(it < after_last);
+    assert(it >= first);
     (void) prev_it;
 
     PrintedTokenImpl &tok = *it;
@@ -691,8 +693,7 @@ SequenceRegion *Matcher::BuildRegions(
     // If we just saw a balanced region, and now we're seeing an identifier,
     // then we want to use that identifier as part of our matching criteria.
     if (last_balanced &&
-        (IsAnyIdentifier(tok_kind) ||
-         KeywordSpelling(tok_kind))) {
+        (IsAnyIdentifier(tok_kind) || KeywordSpelling(tok_kind))) {
       last_balanced->leading_ident = &tok;
 
       // Make it possible for us to later skip over a balanced region given
@@ -704,6 +705,14 @@ SequenceRegion *Matcher::BuildRegions(
     }
 
     last_balanced = nullptr;
+
+    // std::cerr
+    //     << list_kind
+    //     << " stack=" << match_stack.size()
+    //     << " index=" << (&tok - first)
+    //     << " tok=" << TokenName(tok.kind)
+    //     << " last_balanced=" << (!!last_balanced)
+    //     << '\n';
 
     switch (tok_kind) {
 

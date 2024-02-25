@@ -687,9 +687,35 @@ class DeclBoundsFinder : public clang::DeclVisitor<DeclBoundsFinder>,
       }
     }
 
-    VisitDeclaratorDecl(decl);
-
     ParsedTokenIterator tok = ast.RawTokenAt(decl->getLocation());
+
+    // If this function is a template instantiation, then try to get the source
+    // range from the pattern.
+    //
+    // In case of the template instantion, the parsed token will map
+    // to the template pattern. Check here is the pattern has body and
+    // expand the token range accodingly.
+    if (decl->isTemplateInstantiation()) {
+      auto pattern_decl = decl->getTemplateInstantiationPattern();
+      if (decl->doesThisDeclarationHaveABody()) {
+        if (auto pattern_def = pattern_decl->getDefinition()) {
+          Expand(pattern_def->getDescribedFunctionTemplate()->getSourceRange());
+        } else {
+          assert(false);
+        }
+
+      // Clang might not instantiate the body of unreferenced templates.
+      } else if (pattern_decl->doesThisDeclarationHaveABody()) {
+        assert(!decl->isReferenced());
+        Expand(pattern_decl->getDescribedFunctionTemplate()->getSourceRange());
+
+      } else {
+        Expand(pattern_decl->getSourceRange());
+        ExpandToTrailingToken(tok, TokenKind::kSemi);
+      }
+    }
+
+    VisitDeclaratorDecl(decl);
 
     const clang::FunctionDecl *def = nullptr;
     auto body = decl->getBody(def);
@@ -707,27 +733,6 @@ class DeclBoundsFinder : public clang::DeclVisitor<DeclBoundsFinder>,
         Expand(end_tok);
       }
 
-    // In case of the template instantion, the parsed token will map
-    // to the template pattern. Check here is the pattern has body and
-    // expand the token range accodingly.
-    } else if (decl->isTemplateInstantiation()) {
-
-      auto pattern_decl = decl->getTemplateInstantiationPattern();
-      if (decl->doesThisDeclarationHaveABody()) {
-        if (auto pattern_def = pattern_decl->getDefinition()) {
-          Expand(pattern_def->getSourceRange());
-        } else {
-          assert(false);
-        }
-
-      // Clang might not instantiate the body of unreferenced templates.
-      } else if (pattern_decl->doesThisDeclarationHaveABody()) {
-        assert(!decl->isReferenced());
-        Expand(pattern_decl->getSourceRange());
-
-      } else {
-        ExpandToTrailingToken(tok, TokenKind::kSemi);
-      }
     } else if (!decl->doesThisDeclarationHaveABody()) {
       ExpandToTrailingToken(tok, TokenKind::kSemi);
     }

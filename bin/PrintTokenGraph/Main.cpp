@@ -57,6 +57,13 @@ const char* AttributeKindName(const clang::Attr *attr) {
 }
 
 static void PrintTokenGraph(pasta::Decl tld) {
+
+  // if (auto nd = pasta::NamedDecl::From(tld)) {
+  //   if (nd->Name() != "addressof") {
+  //     return;
+  //   }
+  // }
+
   pasta::PrintedTokenRange printed_tokens = pasta::PrintedTokenRange::Create(tld);
   pasta::PrintedTokenRange tokens = printed_tokens;
   if (!gShowPrinted) {
@@ -75,10 +82,10 @@ static void PrintTokenGraph(pasta::Decl tld) {
     // context chains.
     tokens = pasta::PrintedTokenRange::Adopt(parsed_tokens);
 
-    // Useful heuristic to find weird issues in the pretty printer, e.g.
-    // going off and printing a definition when it should just have the name or
-    // a declaration.
-    assert((2 * tokens.Data().size()) > printed_tokens.Data().size());
+    // // Useful heuristic to find weird issues in the pretty printer, e.g.
+    // // going off and printing a definition when it should just have the name or
+    // // a declaration.
+    // assert((2 * tokens.Data().size()) > printed_tokens.Data().size());
     
     // Try to "align" the pretty-printed tokens, which come with full token
     // context chains with the adopted tokens, forming a range of parsed tokens

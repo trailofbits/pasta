@@ -699,7 +699,11 @@ class DeclBoundsFinder : public clang::DeclVisitor<DeclBoundsFinder>,
       auto pattern_decl = decl->getTemplateInstantiationPattern();
       if (decl->doesThisDeclarationHaveABody()) {
         if (auto pattern_def = pattern_decl->getDefinition()) {
-          Expand(pattern_def->getDescribedFunctionTemplate()->getSourceRange());
+          if (auto pattern_tpl = pattern_def->getDescribedFunctionTemplate()) {
+            Expand(pattern_tpl->getSourceRange());
+          } else {
+            Expand(pattern_def->getSourceRange());
+          }
         } else {
           assert(false);
         }
@@ -707,8 +711,11 @@ class DeclBoundsFinder : public clang::DeclVisitor<DeclBoundsFinder>,
       // Clang might not instantiate the body of unreferenced templates.
       } else if (pattern_decl->doesThisDeclarationHaveABody()) {
         assert(!decl->isReferenced());
-        Expand(pattern_decl->getDescribedFunctionTemplate()->getSourceRange());
-
+        if (auto pattern_tpl = pattern_decl->getDescribedFunctionTemplate()) {
+          Expand(pattern_tpl->getSourceRange());
+        } else {
+          Expand(pattern_decl->getSourceRange());
+        }
       } else {
         Expand(pattern_decl->getSourceRange());
         ExpandToTrailingToken(tok, TokenKind::kSemi);

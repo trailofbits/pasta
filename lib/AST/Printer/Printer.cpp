@@ -596,6 +596,11 @@ void TokenPrinterContext::Tokenize(void) {
       tok.setKind(clang::tok::identifier);
     }
 
+    if (tok.getKind() == clang::tok::kw_template) {
+      assert(tokens.tokens.empty() ||
+             (tokens.tokens.back().kind != TokenKind::kLess));
+    }
+
     // Add the token in.
     tokens.tokens.emplace_back(
         static_cast<TokenDataOffset>(data_offset),

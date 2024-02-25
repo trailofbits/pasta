@@ -1232,8 +1232,13 @@ void StmtPrinter::VisitDeclRefExpr(clang::DeclRefExpr *Node) {
     TPOD->printAsExpr(OS, Policy);
     return;
   }
-  if (clang::NestedNameSpecifier *Qualifier = Node->getQualifier())
+  if (Node->getLocation().getRawEncoding() == 7633582) {
+    (void) Node->getLocation();   // f 21, __wrap_iter char *
+  }
+  if (clang::NestedNameSpecifier *Qualifier = Node->getQualifier()) {
+    TagDefinitionPolicyRAII disable_tags(Policy);
     Qualifier->print(OS, Policy);
+  }
   if (Node->hasTemplateKeyword()) {
     OS << "template ";
     ctx.MarkLocation(Node->getTemplateKeywordLoc());

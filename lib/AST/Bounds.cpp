@@ -695,30 +695,45 @@ class DeclBoundsFinder : public clang::DeclVisitor<DeclBoundsFinder>,
     // In case of the template instantion, the parsed token will map
     // to the template pattern. Check here is the pattern has body and
     // expand the token range accodingly.
+    if (decl->getFriendObjectKind() != clang::Decl::FOK_None) {
+      Expand(FindPrev(tok, TokenKind::kKeywordFriend));
+    }
+
     if (decl->isTemplateInstantiation()) {
       auto pattern_decl = decl->getTemplateInstantiationPattern();
-      if (decl->doesThisDeclarationHaveABody()) {
-        if (auto pattern_def = pattern_decl->getDefinition()) {
-          if (auto pattern_tpl = pattern_def->getDescribedFunctionTemplate()) {
+      if (pattern_decl->getLocation() == decl->getLocation()) {
+        if (decl->doesThisDeclarationHaveABody()) {
+          if (auto pattern_def = pattern_decl->getDefinition()) {
+            if (auto pattern_tpl = pattern_def->getDescribedFunctionTemplate()) {
+              Expand(pattern_tpl->getSourceRange());
+            } else {
+              Expand(pattern_def->getSourceRange());
+            }
+          } else {
+            assert(false);
+          }
+
+        // Clang might not instantiate the body of unreferenced templates.
+        } else if (pattern_decl->doesThisDeclarationHaveABody()) {
+          assert(!decl->isReferenced());
+          if (auto pattern_tpl = pattern_decl->getDescribedFunctionTemplate()) {
             Expand(pattern_tpl->getSourceRange());
           } else {
-            Expand(pattern_def->getSourceRange());
+            Expand(pattern_decl->getSourceRange());
           }
         } else {
-          assert(false);
+          Expand(pattern_decl->getSourceRange());
+          ExpandToTrailingToken(tok, TokenKind::kSemi);
         }
 
-      // Clang might not instantiate the body of unreferenced templates.
-      } else if (pattern_decl->doesThisDeclarationHaveABody()) {
-        assert(!decl->isReferenced());
-        if (auto pattern_tpl = pattern_decl->getDescribedFunctionTemplate()) {
-          Expand(pattern_tpl->getSourceRange());
-        } else {
-          Expand(pattern_decl->getSourceRange());
-        }
+      // Something like `friend operator+(basic_string &, ...);`, where
+      // `operator+` is also a function template. So here, the pattern of the
+      // template is unrelated to the specialization.
       } else {
-        Expand(pattern_decl->getSourceRange());
-        ExpandToTrailingToken(tok, TokenKind::kSemi);
+        auto tsk = decl->getTemplateSpecializationKind();
+        assert(clang::TSK_ImplicitInstantiation == tsk ||
+               clang::TSK_ExplicitInstantiationDeclaration == tsk);
+        (void) tsk;
       }
     }
 

@@ -72,7 +72,9 @@ class ParsedFileTracker : public clang::PPCallbacks {
     assert(file.impl->data.back() == '\0');
     const auto tok_loc = tok.getLocation();
     file.impl->tokens.emplace_back(
-        file.impl->data.size() - 1u, 0u, sm.getSpellingLineNumber(tok_loc),
+        file.impl->data.size() - 1u,
+        0u,
+        sm.getSpellingLineNumber(tok_loc),
         sm.getSpellingColumnNumber(tok_loc), clang::tok::eof);
   }
 
@@ -150,13 +152,10 @@ class ParsedFileTracker : public clang::PPCallbacks {
 
     auto data = maybe_data.TakeValue();
     file.impl->has_tokens = true;
-    if (data.empty()) {
-      return;
-    }
-
     const size_t buff_size = data.size();
     if (!buff_size) {
-      file.impl->data.push_back('\0');
+      // NOTE(pag): The file already has a trailing `\0`, but doesn't include it
+      //            in `data`.
       AddEOF(file, file_id, sm);
       return;
     }

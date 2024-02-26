@@ -404,8 +404,8 @@ inline static std::optional<std::pair<unsigned, DerivedTokenIndex>>
 UnpackFileAndTokenOffset(BitPackedLocation loc) {
   static_assert(sizeof(DerivedTokenIndex) == sizeof(uint32_t));
 
-  auto tok_offset = loc & ~0u;
-  auto file_offset = loc >> 32u;
+  auto tok_offset = static_cast<uint32_t>(loc);
+  auto file_offset = static_cast<uint32_t>(loc >> 32u);
   if (file_offset && tok_offset) {
     assert(file_offset < ~0u);
     return std::pair<unsigned, DerivedTokenIndex>(

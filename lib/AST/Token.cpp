@@ -414,9 +414,9 @@ DerivedToken Token::DerivedLocation(void) const {
   }
 
   if (auto file_pair = UnpackFileAndTokenOffset(bit_loc)) {
-    auto [file_offset, tok_offset] = *file_pair;
-    auto &file = storage->ast->parsed_files[file_offset];
-    auto file_loc = file.TokenAtIndex(tok_offset);
+    auto [file_index, token_index] = *file_pair;
+    auto &file = storage->ast->parsed_files[file_index];
+    auto file_loc = file.TokenAtIndex(token_index);
     if (file_loc) {
       return std::move(file_loc.value());
     }
@@ -444,8 +444,8 @@ std::optional<FileToken> Token::FileLocation(void) const {
       target_storage = &macro_tokens;
       continue;
     } else if (auto file_pair = UnpackFileAndTokenOffset(raw_loc)) {
-      auto [file_offset, tok_offset] = *file_pair;
-      return ast->parsed_files[file_offset].TokenAtIndex(tok_offset);
+      auto [file_index, token_index] = *file_pair;
+      return ast->parsed_files[file_index].TokenAtIndex(token_index);
     } else {
       return std::nullopt;
     }
@@ -855,7 +855,7 @@ BitPackedLocation ParsedTokenStorage::CreateFileLocation(
   }
 
   auto &sm = ast->ci->getSourceManager();
-  auto [file_id, offset] = sm.getDecomposedLoc(loc);
+  auto [file_id, file_offset] = sm.getDecomposedLoc(loc);
   auto raw_file_id = file_id.getHashValue();
   auto file_it = ast->id_to_file.find(raw_file_id);
   if (file_it == ast->id_to_file.end()) {
@@ -865,14 +865,24 @@ BitPackedLocation ParsedTokenStorage::CreateFileLocation(
     return kInvalidBitPackedLocation;
   }
 
-  auto file_tok = file_it->second.TokenAtOffset(offset);
+  auto file_tok = file_it->second.TokenAtOffset(file_offset);
   if (!file_tok) {
     assert(false);
     return kInvalidBitPackedLocation;
   }
 
-  auto file_index = ast->id_to_file_offset[raw_file_id];
+  auto index_it = ast->id_to_file_offset.find(raw_file_id);
+  if (index_it == ast->id_to_file_offset.end()) {
+    assert(false);
+    return kInvalidBitPackedLocation;
+  }
+
+  auto file_index = index_it->second;
+  assert(ast->parsed_files[file_index] == file_it->second);
+
   auto tok_index = file_tok->Index();
+  assert(tok_index <= file_offset);
+
   return (static_cast<BitPackedLocation>(file_index + 1u) << 32u) |
          static_cast<BitPackedLocation>(tok_index + 1u);
 }
@@ -1056,7 +1066,9 @@ void ParsedTokenStorage::AppendInternalToken(std::string_view tok_data,
   if (loc.isFileID()) {
     location.emplace_back(CreateFileLocation(loc));
   } else if (loc.isMacroID()) {
-    location.emplace_back(CreateInitialMacroLocation(loc));
+    assert(ast->macro_tokens.last_expansion_begin_offset.has_value());
+    location.emplace_back(CreateMacroLocation(
+        ast->macro_tokens.last_expansion_begin_offset.value()));
   } else {
     assert(false);
     location.emplace_back(kInvalidBitPackedLocation);
@@ -1348,6 +1360,7 @@ void MacroTokenStorage::MarkPreviousTokenAsEndOfExpansion(void) {
     SetLocation(i, kInvalidBitPackedLocation);
     FixupTokenProvenance(i, begin_offset, can_be_derived, 0u, loc);
     assert(CreateMacroLocation(i) != location[i]);
+    assert(static_cast<uint32_t>(location[i] >> 32) != ~0u);
   }
 
   last_expansion_begin_offset.reset();

@@ -42,9 +42,6 @@ class ParsedFileTracker : public clang::PPCallbacks {
   const std::filesystem::path cwd;
 
   ASTImpl * const ast;
-
-  // Tracks whether or not we've tokenized a file.
-  std::unordered_set<pasta::FileImpl *> seen;
  public:
 
   explicit ParsedFileTracker(clang::SourceManager &sm_,
@@ -62,7 +59,6 @@ class ParsedFileTracker : public clang::PPCallbacks {
   virtual ~ParsedFileTracker(void) {}
 
   void Clear(void) {
-    seen.clear();
     fs.reset();
   }
 
@@ -130,24 +126,22 @@ class ParsedFileTracker : public clang::PPCallbacks {
 
     // Keep a mapping of Clang file IDs to parsed files.
     auto raw_file_id = file_id.getHashValue();
-    auto [file_it, just_added] = ast->id_to_file.emplace(raw_file_id, file);
+    auto [file_it, added] = ast->id_to_file.emplace(raw_file_id, file);
     assert(file_it->second.impl.get() == file.impl.get());
-    (void) file_it;
-    (void) just_added;
 
     // If we've seen this file already, then don't tokenize it.
-    if (auto [seen_it, added] = seen.emplace(file.impl.get()); !added) {
+    if (!added) {
       return;
     }
+
+    auto file_index = static_cast<unsigned>(ast->parsed_files.size());
+    ast->parsed_files.emplace_back(file);
+    ast->id_to_file_offset.emplace(raw_file_id, file_index);
 
     auto maybe_data = file.Data();
     if (!maybe_data.Succeeded()) {
       return;
     }
-
-    auto file_index = static_cast<unsigned>(ast->parsed_files.size());
-    ast->parsed_files.emplace_back(std::move(file));
-    ast->id_to_file_offset.emplace(raw_file_id, file_index);
 
     std::unique_lock<std::mutex> locker(file.impl->tokens_lock);
     if (file.impl->has_tokens) {

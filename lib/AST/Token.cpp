@@ -25,7 +25,7 @@
 
 #include "AST.h"
 #include "Printer/Printer.h"
-
+#include <iostream>
 namespace pasta {
 namespace {
 
@@ -111,6 +111,7 @@ static bool ReadRawTokenData(clang::SourceManager &source_manager,
   }
 
   unsigned len = 0;
+
   if (tok.is(clang::tok::unknown)) {
     len = tok.getLength();
     out->reserve(len);
@@ -154,7 +155,13 @@ static bool ReadRawTokenData(clang::SourceManager &source_manager,
     return false;
   }
 
-  out->assign(data, len);
+  // There might be leading/trailing whitespace.
+  if (tok.needsCleaning() && tok.is(clang::tok::identifier)) {
+    auto name = tok.getIdentifierInfo()->getName();
+    out->assign(name.data(), name.size());
+  } else {
+    out->assign(data, len);
+  }
 
   return true;
 }
@@ -478,10 +485,9 @@ TokenKind Token::Kind(void) const noexcept {
 TokenRole Token::Role(void) const noexcept {
   return storage->Role(offset);
 }
-
-// Kind of this token.
-const char *Token::KindName(void) const noexcept {
-  switch (auto kind = Kind()) {
+namespace {
+static const char *KindName(TokenKind kind) {
+  switch (kind) {
     case TokenKind::kLAngle:
       return "l_angle";
     case TokenKind::kRAngle:
@@ -489,6 +495,12 @@ const char *Token::KindName(void) const noexcept {
     default:
       return clang::tok::getTokenName(static_cast<clang::tok::TokenKind>(kind));
   }
+}
+}  // namespace
+
+// Kind of this token.
+const char *Token::KindName(void) const noexcept {
+  return ::pasta::KindName(Kind());
 }
 
 // Return the data associated with this token.
@@ -688,7 +700,7 @@ bool TryReadRawToken(clang::SourceManager &source_manager,
 
   // This could be our sentinel EOF that we add at the end of all tokens, or
   // it could be one of our special macro-expansion EOFs.
-  if (tok.is(clang::tok::eof)) {
+  if (tok.isOneOf(clang::tok::eof, clang::tok::eod)) {
     return true;
   }
 
@@ -1272,7 +1284,6 @@ void MacroTokenStorage::FixupTokenProvenance(
     if (role == TokenRole::kIntermediateMacroExpansionToken) {
       assert(Role(tok_index) == TokenRole::kIntermediateMacroExpansionToken);
       
-
       // E.g. referencing a token from the body of a `#define`.
       if (min_derived_index > derived_index) {
         SetRole(tok_index, TokenRole::kInitialMacroUseToken);

@@ -273,6 +273,9 @@ Result<AST, std::string> CompileJob::Run(void) const {
   // This patch triggers aggressive instatiation of templates.
   lang_opts.AggressiveTemplateInstantiation = true;
 
+  // Disable access control checking, e.g. `private`, `protected`.
+  lang_opts.AccessControl = false;
+
   // This is a patch that introduces transparent support for unknown attributes,
   // converting them into annotation attributes.
   lang_opts.UnknownAttrAnnotate = true;

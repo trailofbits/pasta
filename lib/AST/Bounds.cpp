@@ -267,7 +267,6 @@ class DeclBoundsFinder : public clang::DeclVisitor<DeclBoundsFinder>,
       clang::TagDecl *decl, ParsedTokenIterator tok) {
 
     if (!tok) {
-      std::cerr << "Invalid tag start tok\n";
       return invalid;
     }
 
@@ -291,19 +290,18 @@ class DeclBoundsFinder : public clang::DeclVisitor<DeclBoundsFinder>,
     }
 
     if (!can_have_l_brace && !can_have_semi) {
-      std::cerr << "Won't find an end loc\n";
       return upper_bound;
     }
 
-    std::cerr << "Scanning: can_have_l_brace=" << can_have_l_brace
-              << " can_have_semi=" << can_have_semi << " offset="
-              << tok.Offset() << " decl=((clang::TagDecl*) "
-              << reinterpret_cast<void *>(decl) << ")\n";
+    // std::cerr << "Scanning: can_have_l_brace=" << can_have_l_brace
+    //           << " can_have_semi=" << can_have_semi << " offset="
+    //           << tok.Offset() << " decl=((clang::TagDecl*) "
+    //           << reinterpret_cast<void *>(decl) << ")\n";
 
     auto first = true;
     do {
       assert(tok.IsParsed());
-      std::cerr << tok.Offset() << ' ' << tok.Data() << '\n';
+      // std::cerr << tok.Offset() << ' ' << tok.Data() << '\n';
       switch (tok.Kind()) {
         case TokenKind::kLBrace:
           if (can_have_l_brace) {
@@ -349,7 +347,7 @@ class DeclBoundsFinder : public clang::DeclVisitor<DeclBoundsFinder>,
       first = false;
     } while (tok.Next());
 
-    std::cerr << "out of loop: " << r_brace.Offset() << ' ' << r_brace.Data() << '\n'; 
+    // std::cerr << "out of loop: " << r_brace.Offset() << ' ' << r_brace.Data() << '\n'; 
     return r_brace;
   }
 

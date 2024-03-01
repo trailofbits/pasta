@@ -31,7 +31,7 @@
 #include "Token.h"
 #include "Util.h"
 
-#define PASTA_DEBUG_ALIGN 1
+#define PASTA_DEBUG_ALIGN 0
 #define TK(...)
 
 namespace pasta {
@@ -706,6 +706,7 @@ SequenceRegion *Matcher::BuildRegions(
 
     last_balanced = nullptr;
 
+#if PASTA_DEBUG_ALIGN
     std::cerr
         << list_kind
         << " regions=" << regions.size()
@@ -714,6 +715,7 @@ SequenceRegion *Matcher::BuildRegions(
         << " tok=" << TokenName(tok.kind)
         << " last_balanced=" << (!!last_balanced)
         << '\n';
+#endif
 
     switch (tok_kind) {
 

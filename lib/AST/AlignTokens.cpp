@@ -31,7 +31,7 @@
 #include "Token.h"
 #include "Util.h"
 
-#define PASTA_DEBUG_ALIGN 0
+#define PASTA_DEBUG_ALIGN 1
 #define TK(...)
 
 namespace pasta {
@@ -706,13 +706,14 @@ SequenceRegion *Matcher::BuildRegions(
 
     last_balanced = nullptr;
 
-    // std::cerr
-    //     << list_kind
-    //     << " stack=" << match_stack.size()
-    //     << " index=" << (&tok - first)
-    //     << " tok=" << TokenName(tok.kind)
-    //     << " last_balanced=" << (!!last_balanced)
-    //     << '\n';
+    std::cerr
+        << list_kind
+        << " regions=" << regions.size()
+        << " stack=" << match_stack.size()
+        << " index=" << (&tok - first)
+        << " tok=" << TokenName(tok.kind)
+        << " last_balanced=" << (!!last_balanced)
+        << '\n';
 
     switch (tok_kind) {
 
@@ -824,13 +825,16 @@ SequenceRegion *Matcher::BuildRegions(
   //
   //        _Atomic(struct thread_group *) *
   //        kqr_preadopt_thread_group_addr(workq_threadreq_t req);
-  while (1u < region_stack.size()) {
+  for (auto fixed = true; 1u < region_stack.size() && fixed; ) {
+    fixed = false;
     if (region_stack.back()->regions.empty()) {
+      fixed = true;
       region_stack.pop_back();
     }
   }
 
   if (region_stack.size() != 1u) {
+    assert(false);
     err
         << "Region stack for " << list_kind << " tokens has "
         << region_stack.size() << " regions";

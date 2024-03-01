@@ -596,10 +596,14 @@ void TokenPrinterContext::Tokenize(void) {
       tok.setKind(clang::tok::identifier);
     }
 
-    if (tok.getKind() == clang::tok::kw_template) {
-      assert(tokens.tokens.empty() ||
-             (tokens.tokens.back().kind != TokenKind::kLess));
-    }
+    // NOTE(pag): This can be a good heuristic to detect when qualifier printing
+    //            goes into clang and prints template declarations inside of
+    //            template argument lists. At the same time, this also ends up
+    //            triggering on template template parameters.
+    // if (tok.getKind() == clang::tok::kw_template) {
+    //   assert(tokens.tokens.empty() ||
+    //          (tokens.tokens.back().kind != TokenKind::kLess));
+    // }
 
     // Add the token in.
     tokens.tokens.emplace_back(

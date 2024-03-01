@@ -1180,7 +1180,8 @@ void PatchedMacroTracker::DoEndDirective(
     auto is_deprecated = pragma_data.find(" deprecated ") != std::string::npos;
     auto is_poisoned = pragma_data.find(" poison ") != std::string::npos;
     auto is_system_header = pragma_data.find(" system_header") != std::string::npos;
-    if (!is_deprecated && !is_poisoned && !is_system_header) {
+    auto is_once = pragma_data.find(" once") != std::string::npos;
+    if (!is_deprecated && !is_poisoned && !is_system_header && !is_once) {
       assert(unexpanded_macros.empty());
 
       ast->parsed_tokens.AppendInternalToken(

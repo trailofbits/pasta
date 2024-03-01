@@ -367,7 +367,7 @@ void StmtPrinter::VisitMSDependentExistsStmt(clang::MSDependentExistsStmt *Node)
 
   if (clang::NestedNameSpecifier *Qualifier
         = Node->getQualifierLoc().getNestedNameSpecifier())
-    Qualifier->print(OS, Policy);
+    NestedNameSpecifier_print(Qualifier, *this, Policy);
 
   OS << Node->getNameInfo() << ") ";
 
@@ -1237,7 +1237,7 @@ void StmtPrinter::VisitDeclRefExpr(clang::DeclRefExpr *Node) {
   }
   if (clang::NestedNameSpecifier *Qualifier = Node->getQualifier()) {
     TagDefinitionPolicyRAII disable_tags(Policy);
-    Qualifier->print(OS, Policy);
+    NestedNameSpecifier_print(Qualifier, *this, Policy);
   }
   if (Node->hasTemplateKeyword()) {
     OS << "template ";
@@ -1259,7 +1259,7 @@ void StmtPrinter::VisitDependentScopeDeclRefExpr(
     clang::DependentScopeDeclRefExpr *Node) {
   TokenPrinterContext ctx(OS, Node, tokens);
   if (clang::NestedNameSpecifier *Qualifier = Node->getQualifier())
-    Qualifier->print(OS, Policy);
+    NestedNameSpecifier_print(Qualifier, *this, Policy);
   if (Node->hasTemplateKeyword()) {
     OS << "template ";
     ctx.MarkLocation(Node->getTemplateKeywordLoc());
@@ -1771,7 +1771,7 @@ void StmtPrinter::VisitMemberExpr(clang::MemberExpr *Node) {
       return;
 
   if (clang::NestedNameSpecifier *Qualifier = Node->getQualifier())
-    Qualifier->print(OS, Policy);
+    NestedNameSpecifier_print(Qualifier, *this, Policy);
   if (Node->hasTemplateKeyword()) {
     OS << "template ";
     ctx.MarkLocation(Node->getTemplateKeywordLoc());
@@ -2313,7 +2313,7 @@ void StmtPrinter::VisitMSPropertyRefExpr(clang::MSPropertyRefExpr *Node) {
     OS << ".";
   if (clang::NestedNameSpecifier *Qualifier =
       Node->getQualifierLoc().getNestedNameSpecifier())
-    Qualifier->print(OS, Policy);
+    NestedNameSpecifier_print(Qualifier, *this, Policy);
   OS << Node->getPropertyDecl()->getDeclName();
   ctx.MarkLocation(Node->getMemberLoc());
 }
@@ -2427,7 +2427,12 @@ void StmtPrinter::VisitCXXFunctionalCastExpr(clang::CXXFunctionalCastExpr *Node)
   // Parenthesize deduced casts.
   if (Bare)
     OS << '(';
-  TargetType.print(OS, Policy);
+
+  {
+    TagDefinitionPolicyRAII disable_tags(Policy);
+    TargetType.print(OS, Policy);
+  }
+
   if (Bare)
     OS << ')';
 
@@ -2772,7 +2777,7 @@ void StmtPrinter::VisitCXXDependentScopeMemberExpr(
     ctx.MarkLocation(Node->getOperatorLoc());
   }
   if (clang::NestedNameSpecifier *Qualifier = Node->getQualifier())
-    Qualifier->print(OS, Policy);
+    NestedNameSpecifier_print(Qualifier, *this, Policy);
   if (Node->hasTemplateKeyword()) {
     OS << "template ";
     ctx.MarkLocation(Node->getTemplateKeywordLoc());
@@ -2792,7 +2797,7 @@ void StmtPrinter::VisitUnresolvedMemberExpr(clang::UnresolvedMemberExpr *Node) {
     ctx.MarkLocation(Node->getOperatorLoc());
   }
   if (clang::NestedNameSpecifier *Qualifier = Node->getQualifier())
-    Qualifier->print(OS, Policy);
+    NestedNameSpecifier_print(Qualifier, *this, Policy);
   if (Node->hasTemplateKeyword()) {
     OS << "template ";
     ctx.MarkLocation(Node->getTemplateKeywordLoc());

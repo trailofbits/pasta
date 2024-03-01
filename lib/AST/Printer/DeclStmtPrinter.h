@@ -373,6 +373,12 @@ class StmtPrinter final : public clang::StmtVisitor<StmtPrinter>,
 #include "clang/AST/StmtNodes.inc"
 };
 
+
+void NestedNameSpecifier_print(
+    clang::NestedNameSpecifier *Spec, Printer &printer,
+    const clang::PrintingPolicy &Policy,
+    bool ResolveTemplateArguments = false);
+
 void Decl_printGroup(clang::Decl** Begin, size_t NumDecls,
                      raw_string_ostream &Out, const clang::PrintingPolicy &Policy,
                      unsigned Indentation, PrintedTokenRangeImpl &tokens);

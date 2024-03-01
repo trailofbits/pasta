@@ -279,6 +279,7 @@ add_library(pasta_compiler STATIC
     "lib/AST/Util.h"
     "lib/AST/Printer/DeclPrinter.cpp"
     "lib/AST/Printer/DeclStmtPrinter.h"
+    "lib/AST/Printer/NestedNameSpecifier.cpp"
     "lib/AST/Printer/Printer.cpp"
     "lib/AST/Printer/Printer.h"
     "lib/AST/Printer/raw_ostream.h"

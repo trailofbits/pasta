@@ -1424,6 +1424,70 @@ ParsedTokenIterator ParsedTokenIterator::WithOffset(
   return it;
 }
 
+bool ParsedTokenIterator::IsParsed(void) const noexcept {
+  switch (Role()) {
+    case TokenRole::kInvalid:
+    case TokenRole::kBeginOfMacroExpansionMarker:
+    case TokenRole::kEndOfMacroExpansionMarker:
+    case TokenRole::kEmptyOrSpecialMacroToken:
+      return false;
+    default:
+      switch (Kind()) {
+        case TokenKind::kUnknown:
+          return !Data().empty();
+        case TokenKind::kComment:
+        case TokenKind::kEndOfFile:
+        case TokenKind::kEndOfDirective:
+        case TokenKind::kCodeCompletion:
+          return false;
+        case TokenKind::kAnnotCxxscope:
+        case TokenKind::kAnnotTypename:
+        case TokenKind::kAnnotTemplateId:
+        case TokenKind::kAnnotNonType:
+        case TokenKind::kAnnotNonTypeUndeclared:
+        case TokenKind::kAnnotNonTypeDependent:
+        case TokenKind::kAnnotOverload:
+        case TokenKind::kAnnotPrimaryExpression:
+        case TokenKind::kAnnotDecltype:
+        case TokenKind::kAnnotPragmaUnused:
+        case TokenKind::kAnnotPragmaVis:
+        case TokenKind::kAnnotPragmaPack:
+        case TokenKind::kAnnotPragmaParserCrash:
+        case TokenKind::kAnnotPragmaCaptured:
+        case TokenKind::kAnnotPragmaDump:
+        case TokenKind::kAnnotPragmaMsstruct:
+        case TokenKind::kAnnotPragmaAlign:
+        case TokenKind::kAnnotPragmaWeak:
+        case TokenKind::kAnnotPragmaWeakalias:
+        case TokenKind::kAnnotPragmaRedefineExtname:
+        case TokenKind::kAnnotPragmaFpContract:
+        case TokenKind::kAnnotPragmaFenvAccess:
+        case TokenKind::kAnnotPragmaFenvAccessMs:
+        case TokenKind::kAnnotPragmaFenvRound:
+        case TokenKind::kAnnotPragmaFloatControl:
+        case TokenKind::kAnnotPragmaMsPointersToMembers:
+        case TokenKind::kAnnotPragmaMsVtordisp:
+        case TokenKind::kAnnotPragmaMsPragma:
+        case TokenKind::kAnnotPragmaOpenclExtension:
+        case TokenKind::kAnnotAttributeOpenmp:
+        case TokenKind::kAnnotPragmaOpenmp:
+        case TokenKind::kAnnotPragmaOpenmpEnd:
+        case TokenKind::kAnnotPragmaLoopHint:
+        case TokenKind::kAnnotPragmaFp:
+        case TokenKind::kAnnotPragmaAttribute:
+        case TokenKind::kAnnotPragmaRiscv:
+        case TokenKind::kAnnotModuleInclude:
+        case TokenKind::kAnnotModuleBegin:
+        case TokenKind::kAnnotModuleEnd:
+        case TokenKind::kAnnotHeaderUnit:
+        case TokenKind::kAnnotReplInputEnd:
+          return false;
+        default:
+          return true;
+      }
+  }
+}
+
 bool ParsedTokenIterator::Next(DerivedTokenIndex inclusive_upper_bound) {
   while ((offset + 1u) <= inclusive_upper_bound) {
     offset = (offset + 1u);

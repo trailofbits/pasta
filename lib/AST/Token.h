@@ -532,17 +532,7 @@ class ParsedTokenIterator {
            upper_inclusive.offset >= offset;
   }
 
-  inline bool IsParsed(void) const noexcept {
-    switch (Role()) {
-      case TokenRole::kInvalid:
-      case TokenRole::kBeginOfMacroExpansionMarker:
-      case TokenRole::kEndOfMacroExpansionMarker:
-      case TokenRole::kEmptyOrSpecialMacroToken:
-        return false;
-      default:
-        return true;
-    }
-  }
+  bool IsParsed(void) const noexcept;
 
   inline TokenKind Kind(void) const noexcept {
     return storage->Kind(offset);

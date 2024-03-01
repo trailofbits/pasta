@@ -418,9 +418,6 @@ class DeclBoundsFinder : public clang::DeclVisitor<DeclBoundsFinder>,
       assert(tok.IsParsed());
 
       const auto tok_kind = tok.Kind();
-      if (tok_kind == TokenKind::kComment) {
-        continue;
-      }
 
       // `"C"` in `extern "C"`.
       if (tok_kind == TokenKind::kStringLiteral ||
@@ -433,6 +430,10 @@ class DeclBoundsFinder : public clang::DeclVisitor<DeclBoundsFinder>,
       if (tok_kind == TokenKind::kRParenthesis ||
           tok_kind == TokenKind::kRSquare ||
           tok_kind == TokenKind::kRAngle) {
+        if (junk_budget) {
+          return found;
+        }
+
         ParsedTokenIterator matched_end = invalid;
         std::tie(tok, matched_end) = GetMatching(tok);
         continue;
@@ -458,6 +459,11 @@ class DeclBoundsFinder : public clang::DeclVisitor<DeclBoundsFinder>,
 
   static ParsedTokenIterator PreviousToken(ParsedTokenIterator tok) {
     tok.Previous();
+    return tok;
+  }
+
+  static ParsedTokenIterator NextToken(ParsedTokenIterator tok) {
+    tok.Next();
     return tok;
   }
 
@@ -573,9 +579,9 @@ class DeclBoundsFinder : public clang::DeclVisitor<DeclBoundsFinder>,
         case TokenKind::kRAngle:
           break;
 
-        // NOTE(pag): This is a heuristic for detecting when things go "too far."
-        //            If we were searching for `namespace`, then we would have
-        //            matched in in the `if` statement above.
+        // NOTE(pag): This is a heuristic for detecting when things go "too
+        //            far." If we were searching for `namespace`, then we would
+        //            have matched in in the `if` statement above.
         //
         // NOTE(kumarak): We have gone too far and the token bound should end
         //                if it reaches to a `namespace` that isn't preceded by
@@ -584,6 +590,20 @@ class DeclBoundsFinder : public clang::DeclVisitor<DeclBoundsFinder>,
           if (PreviousToken(tok).Kind() != TokenKind::kKeywordUsing) {
             assert(!err_on_namespace);
             return invalid;
+          }
+          break;
+
+        // NOTE(pag): This is a similar heuristic to above for detecting when
+        //            things go too far. Here we look for `extern template` or
+        //            `extern "C"`.
+        case TokenKind::kKeywordExtern:
+          switch (NextToken(tok).Kind()) {
+            case TokenKind::kKeywordTemplate:
+            case TokenKind::kStringLiteral:
+              assert(!err_on_namespace);
+              return invalid;
+            default:
+              break;
           }
           break;
 
@@ -693,6 +713,9 @@ class DeclBoundsFinder : public clang::DeclVisitor<DeclBoundsFinder>,
 
   void VisitDecl(clang::Decl *decl) {
     Expand(decl->getSourceRange(), decl->getLocation());
+    if (!clang::isa<clang::FunctionDecl>(decl)) {
+      ExpandToTrailingToken(decl->getLocation(), TokenKind::kSemi);
+    }
   }
 
 //  void VisitTranslationUnitDecl(clang::TranslationUnitDecl *) {}

@@ -839,7 +839,8 @@ void DeclPrinter::VisitEnumConstantDecl(clang::EnumConstantDecl *D) {
   prettyPrintAttributes(D);
   if (clang::Expr *Init = D->getInitExpr()) {
     Out << " = ";
-    StmtPrinter stmtPrinter(Out, nullptr, tokens, Policy, Indentation, "\n", &Context);
+    StmtPrinter stmtPrinter(Out, nullptr, tokens, Policy, Indentation, "\n",
+                            &Context);
     stmtPrinter.Visit(const_cast<clang::Expr *>(Init));
   }
 }

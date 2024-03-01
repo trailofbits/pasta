@@ -10,6 +10,7 @@
 #pragma GCC diagnostic ignored "-Wimplicit-int-conversion"
 #pragma GCC diagnostic ignored "-Wsign-conversion"
 #pragma GCC diagnostic ignored "-Wshorten-64-to-32"
+#include <clang/AST/PrettyPrinter.h>
 #include <clang/AST/TypeLoc.h>
 #include <llvm/Support/raw_ostream.h>
 #pragma GCC diagnostic pop
@@ -257,6 +258,25 @@ class PrintingPolicyAdaptorRAII {
   inline ~PrintingPolicyAdaptorRAII(void) {
     ppa_ptr = nullptr;
   }
+};
+
+class PrintHelper final : public clang::PrinterHelper {
+  raw_string_ostream &OS;
+  clang::PrintingPolicy policy;
+  PrintedTokenRangeImpl &tokens;
+
+ public:
+  virtual ~PrintHelper(void);
+
+  inline explicit PrintHelper(raw_string_ostream &OS_,
+                              const clang::PrintingPolicy &policy_,
+                              PrintedTokenRangeImpl &tokens_)
+      : OS(OS_),
+        policy(policy_),
+        tokens(tokens_) {}
+
+  bool handledStmt(clang::Stmt *E, clang::raw_ostream &OS) final;
+  bool handleType(const clang::QualType &, clang::raw_ostream &OS) final;
 };
 
 struct no_alias_tag {};

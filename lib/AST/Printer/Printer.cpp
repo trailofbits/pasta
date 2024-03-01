@@ -27,6 +27,8 @@
 #include "../Builder.h"  // For `DeclBuilder`.
 #include "../Token.h"  // For `TokenImpl`.
 
+#include "DeclStmtPrinter.h"
+
 namespace pasta {
 
 static void TryLocateAttribute(const clang::Attr *A,
@@ -166,24 +168,26 @@ static void TryLocateAttribute(const clang::Attr *A,
   }
 }
 
-// Undo raw newlines and other things in strings.
-static void ReEscapeOutput(raw_string_ostream &Out, std::string a) {
-  for (char c : a) {
-    switch (c) {
-      case '\n':
-        Out << "\\n";
-        break;
-      case '\r':
-        Out << "\\r";
-        break;
-      case '\t':
-        Out << "\\t";
-        break;
-      default:
-        Out << c;
-        break;
-    }
-  }
+PrintHelper::~PrintHelper(void) {}
+
+bool PrintHelper::handledStmt(clang::Stmt *E, clang::raw_ostream &OS_) {
+  assert(&OS_ == &OS);
+  (void) OS_;
+
+  StmtPrinter stmtPrinter(OS, nullptr, tokens, policy, 0, "\n",
+                          &(tokens.ast_context));
+  stmtPrinter.Visit(E);
+  return true;
+}
+
+bool PrintHelper::handleType(
+    const clang::QualType &type, clang::raw_ostream &OS_) {
+  assert(&OS_ == &OS);
+  (void) OS_;
+
+  TagDefinitionPolicyRAII disable_tags(policy);
+  TypePrinter(OS, policy, tokens, 0).print(type, "");
+  return true;
 }
 
 // Clang's code for printing attributes doesn't escape nested double quotes in
@@ -200,71 +204,21 @@ void PrintAttribute(raw_string_ostream &Out, const clang::Attr *A,
     return;
   }
 
-  std::string a;
-  std::string new_a;
-  {
-    llvm::raw_string_ostream os(a);
-    A->printPretty(os, Policy);
-    os.flush();
-  }
-
   tokens.curr_printer_context->Tokenize();
-  const size_t old_num_toks = tokens.tokens.size();
+  auto old_num_toks = tokens.tokens.size();
 
-  // Fast path: no embedded strings.
-  const char *start = a.c_str();
-  const char *first_quote = strchr(start, '"');
-  if (!first_quote || first_quote[0] != '"') {
+  PrintHelper helper(Out, Policy, tokens);
+
+  {
     TokenPrinterContext ctx(Out, A, tokens);
-    ReEscapeOutput(Out, std::move(a));
-    Out.flush();
-
-    tokens.curr_printer_context->Tokenize();
-    TryLocateAttribute(A, tokens, old_num_toks);
-    return;
+    clang::Attr::SetPrinterHelper(&helper);
+    A->printPretty(Out, Policy);
+    clang::Attr::SetPrinterHelper(nullptr);
   }
-
-  auto end = &(start[a.size()]);
-  auto second_quote = strchr(&(first_quote[1]), '"');
-  assert(second_quote && second_quote[0] == '"');
-  auto third_quote = strchr(&(second_quote[1]), '"');
-
-  // If there is no third quote, then assume no nesting. This is a dumb
-  // hack to handle things like `asm("label")`.
-  if (!third_quote || third_quote[0] != '"') {
-    TokenPrinterContext ctx(Out, A, tokens);
-    ReEscapeOutput(Out, std::move(a));
-    Out.flush();
-
-    tokens.curr_printer_context->Tokenize();
-    TryLocateAttribute(A, tokens, old_num_toks);
-    return;
-  }
-
-  // TODO(pag): This won't handle doubly/triply nested quotes. Just single
-  //            nested quotes.
-  new_a.reserve(a.size());
-  while (second_quote && strchr(&(second_quote[1]), '"')) {
-    new_a.insert(new_a.end(), start, second_quote);
-    new_a.push_back('\\');
-    new_a.push_back('"');
-    start = &(second_quote[1]);
-    second_quote = strchr(&(start[1]), '"');
-  }
-
-  if (second_quote) {
-    new_a.insert(new_a.end(), second_quote, end);
-
-  } else if (start) {
-    new_a.insert(new_a.end(), start, end);
-  }
-
-  TokenPrinterContext ctx(Out, A, tokens);
-  ReEscapeOutput(Out, std::move(new_a));
-  Out.flush();
 
   tokens.curr_printer_context->Tokenize();
   TryLocateAttribute(A, tokens, old_num_toks);
+  return;
 }
 
 PrintedToken::~PrintedToken(void) {}

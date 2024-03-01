@@ -213,7 +213,7 @@ std::unordered_map<std::string, std::string> gRetTypeMap{
   {"(llvm::ArrayRef<clang::QualType>)", "std::vector<::pasta::Type>"},
 
   // TODO(pag): Better C++ support.
-  // {"(llvm::iterator_range<clang::CXXCtorInitializer *const *>)", "std::vector<pasta::CXXCtorInitializer>"},
+  {"(llvm::iterator_range<clang::CXXCtorInitializer *const *>)", "std::vector<pasta::CXXCtorInitializer>"},
 
   {"(llvm::iterator_range<clang::DeclContext::decl_iterator>)", "std::vector<::pasta::Decl>"},
   {"(llvm::iterator_range<clang::Decl::redecl_iterator>)", "std::vector<::pasta::Decl>"},
@@ -530,14 +530,14 @@ std::unordered_map<std::string, std::string> gRetTypeToValMap{
    "  return ret;\n"},
 
   {"(std::optional<const clang::Stmt *>)",
-   "  if (val.has_value()) {\n"
+   "  if (val.has_value() && val.value()) {\n"
    "    return StmtBuilder::Create<::pasta::Stmt>(ast, val.value());\n"
    "  } else {\n"
    "    return std::nullopt;\n"
    "  }\n"},
 
   {"(std::optional<const clang::Expr *>)",
-   "  if (val.has_value()) {\n"
+   "  if (val.has_value() && val.value()) {\n"
    "    return StmtBuilder::Create<::pasta::Expr>(ast, val.value());\n"
    "  } else {\n"
    "    return std::nullopt;\n"

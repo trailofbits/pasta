@@ -4197,40 +4197,6 @@ std::vector<::pasta::AddrLabelExpr> GCCAsmStmt::Labels(void) const {
   return ret;
 }
 
-std::vector<std::string_view> GCCAsmStmt::Clobbers(void) const {
-  std::vector<std::string_view> ret;
-  auto convert_elem = [&] (llvm::StringRef val) {
-    if (auto size = val.size()) {
-      return std::string_view(val.data(), size);
-    } else {
-      return std::string_view();
-    }
-    throw std::runtime_error("The unreachable has been reached");
-  };
-  auto count = u.GCCAsmStmt->getNumClobbers();
-  decltype(count) i = 0;
-  for (; i < count; ++i) {
-    ret.emplace_back(convert_elem(u.GCCAsmStmt->getClobber(i)));
-  }
-  return ret;
-}
-
-std::vector<::pasta::StringLiteral> GCCAsmStmt::ClobberStringLiterals(void) const {
-  std::vector<::pasta::StringLiteral> ret;
-  auto convert_elem = [&] (const clang::StringLiteral * val) {
-    if (val) {
-      return StmtBuilder::Create<::pasta::StringLiteral>(ast, val);
-    }
-    throw std::runtime_error("The unreachable has been reached");
-  };
-  auto count = u.GCCAsmStmt->getNumClobbers();
-  decltype(count) i = 0;
-  for (; i < count; ++i) {
-    ret.emplace_back(convert_elem(u.GCCAsmStmt->getClobberStringLiteral(i)));
-  }
-  return ret;
-}
-
 std::vector<std::string_view> GCCAsmStmt::OutputConstraints(void) const {
   std::vector<std::string_view> ret;
   auto convert_elem = [&] (llvm::StringRef val) {
@@ -4245,6 +4211,22 @@ std::vector<std::string_view> GCCAsmStmt::OutputConstraints(void) const {
   decltype(count) i = 0;
   for (; i < count; ++i) {
     ret.emplace_back(convert_elem(u.GCCAsmStmt->getOutputConstraint(i)));
+  }
+  return ret;
+}
+
+std::vector<::pasta::StringLiteral> GCCAsmStmt::OutputConstraintLiterals(void) const {
+  std::vector<::pasta::StringLiteral> ret;
+  auto convert_elem = [&] (const clang::StringLiteral * val) {
+    if (val) {
+      return StmtBuilder::Create<::pasta::StringLiteral>(ast, val);
+    }
+    throw std::runtime_error("The unreachable has been reached");
+  };
+  auto count = u.GCCAsmStmt->getNumOutputs();
+  decltype(count) i = 0;
+  for (; i < count; ++i) {
+    ret.emplace_back(convert_elem(u.GCCAsmStmt->getOutputConstraintLiteral(i)));
   }
   return ret;
 }
@@ -4283,22 +4265,6 @@ std::vector<std::string_view> GCCAsmStmt::OutputNames(void) const {
   return ret;
 }
 
-std::vector<::pasta::StringLiteral> GCCAsmStmt::OutputConstraintLiterals(void) const {
-  std::vector<::pasta::StringLiteral> ret;
-  auto convert_elem = [&] (const clang::StringLiteral * val) {
-    if (val) {
-      return StmtBuilder::Create<::pasta::StringLiteral>(ast, val);
-    }
-    throw std::runtime_error("The unreachable has been reached");
-  };
-  auto count = u.GCCAsmStmt->getNumOutputs();
-  decltype(count) i = 0;
-  for (; i < count; ++i) {
-    ret.emplace_back(convert_elem(u.GCCAsmStmt->getOutputConstraintLiteral(i)));
-  }
-  return ret;
-}
-
 std::vector<std::string_view> GCCAsmStmt::InputConstraints(void) const {
   std::vector<std::string_view> ret;
   auto convert_elem = [&] (llvm::StringRef val) {
@@ -4313,6 +4279,22 @@ std::vector<std::string_view> GCCAsmStmt::InputConstraints(void) const {
   decltype(count) i = 0;
   for (; i < count; ++i) {
     ret.emplace_back(convert_elem(u.GCCAsmStmt->getInputConstraint(i)));
+  }
+  return ret;
+}
+
+std::vector<::pasta::StringLiteral> GCCAsmStmt::InputConstraintLiterals(void) const {
+  std::vector<::pasta::StringLiteral> ret;
+  auto convert_elem = [&] (const clang::StringLiteral * val) {
+    if (val) {
+      return StmtBuilder::Create<::pasta::StringLiteral>(ast, val);
+    }
+    throw std::runtime_error("The unreachable has been reached");
+  };
+  auto count = u.GCCAsmStmt->getNumInputs();
+  decltype(count) i = 0;
+  for (; i < count; ++i) {
+    ret.emplace_back(convert_elem(u.GCCAsmStmt->getInputConstraintLiteral(i)));
   }
   return ret;
 }
@@ -4351,7 +4333,25 @@ std::vector<std::string_view> GCCAsmStmt::InputNames(void) const {
   return ret;
 }
 
-std::vector<::pasta::StringLiteral> GCCAsmStmt::InputConstraintLiterals(void) const {
+std::vector<std::string_view> GCCAsmStmt::Clobbers(void) const {
+  std::vector<std::string_view> ret;
+  auto convert_elem = [&] (llvm::StringRef val) {
+    if (auto size = val.size()) {
+      return std::string_view(val.data(), size);
+    } else {
+      return std::string_view();
+    }
+    throw std::runtime_error("The unreachable has been reached");
+  };
+  auto count = u.GCCAsmStmt->getNumClobbers();
+  decltype(count) i = 0;
+  for (; i < count; ++i) {
+    ret.emplace_back(convert_elem(u.GCCAsmStmt->getClobber(i)));
+  }
+  return ret;
+}
+
+std::vector<::pasta::StringLiteral> GCCAsmStmt::ClobberStringLiterals(void) const {
   std::vector<::pasta::StringLiteral> ret;
   auto convert_elem = [&] (const clang::StringLiteral * val) {
     if (val) {
@@ -4359,10 +4359,10 @@ std::vector<::pasta::StringLiteral> GCCAsmStmt::InputConstraintLiterals(void) co
     }
     throw std::runtime_error("The unreachable has been reached");
   };
-  auto count = u.GCCAsmStmt->getNumInputs();
+  auto count = u.GCCAsmStmt->getNumClobbers();
   decltype(count) i = 0;
   for (; i < count; ++i) {
-    ret.emplace_back(convert_elem(u.GCCAsmStmt->getInputConstraintLiteral(i)));
+    ret.emplace_back(convert_elem(u.GCCAsmStmt->getClobberStringLiteral(i)));
   }
   return ret;
 }
@@ -4729,7 +4729,7 @@ std::optional<::pasta::Stmt> IfStmt::Initializer(void) const {
 std::optional<::pasta::Stmt> IfStmt::NondiscardedCase(void) const {
   auto &self = *(u.IfStmt);
   decltype(auto) val = self.getNondiscardedCase(ast->ci->getASTContext());
-  if (val.has_value()) {
+  if (val.has_value() && val.value()) {
     return StmtBuilder::Create<::pasta::Stmt>(ast, val.value());
   } else {
     return std::nullopt;
@@ -5483,40 +5483,6 @@ bool MSAsmStmt::HasBraces(void) const {
   return val;
 }
 
-std::vector<std::string_view> MSAsmStmt::InputConstraints(void) const {
-  std::vector<std::string_view> ret;
-  auto convert_elem = [&] (llvm::StringRef val) {
-    if (auto size = val.size()) {
-      return std::string_view(val.data(), size);
-    } else {
-      return std::string_view();
-    }
-    throw std::runtime_error("The unreachable has been reached");
-  };
-  auto count = u.MSAsmStmt->getNumInputs();
-  decltype(count) i = 0;
-  for (; i < count; ++i) {
-    ret.emplace_back(convert_elem(u.MSAsmStmt->getInputConstraint(i)));
-  }
-  return ret;
-}
-
-std::vector<::pasta::Expr> MSAsmStmt::InputExpressions(void) const {
-  std::vector<::pasta::Expr> ret;
-  auto convert_elem = [&] (const clang::Expr * val) {
-    if (val) {
-      return StmtBuilder::Create<::pasta::Expr>(ast, val);
-    }
-    throw std::runtime_error("The unreachable has been reached");
-  };
-  auto count = u.MSAsmStmt->getNumInputs();
-  decltype(count) i = 0;
-  for (; i < count; ++i) {
-    ret.emplace_back(convert_elem(u.MSAsmStmt->getInputExpr(i)));
-  }
-  return ret;
-}
-
 std::vector<std::string_view> MSAsmStmt::OutputConstraints(void) const {
   std::vector<std::string_view> ret;
   auto convert_elem = [&] (llvm::StringRef val) {
@@ -5547,6 +5513,40 @@ std::vector<::pasta::Expr> MSAsmStmt::OutputExpressions(void) const {
   decltype(count) i = 0;
   for (; i < count; ++i) {
     ret.emplace_back(convert_elem(u.MSAsmStmt->getOutputExpr(i)));
+  }
+  return ret;
+}
+
+std::vector<std::string_view> MSAsmStmt::InputConstraints(void) const {
+  std::vector<std::string_view> ret;
+  auto convert_elem = [&] (llvm::StringRef val) {
+    if (auto size = val.size()) {
+      return std::string_view(val.data(), size);
+    } else {
+      return std::string_view();
+    }
+    throw std::runtime_error("The unreachable has been reached");
+  };
+  auto count = u.MSAsmStmt->getNumInputs();
+  decltype(count) i = 0;
+  for (; i < count; ++i) {
+    ret.emplace_back(convert_elem(u.MSAsmStmt->getInputConstraint(i)));
+  }
+  return ret;
+}
+
+std::vector<::pasta::Expr> MSAsmStmt::InputExpressions(void) const {
+  std::vector<::pasta::Expr> ret;
+  auto convert_elem = [&] (const clang::Expr * val) {
+    if (val) {
+      return StmtBuilder::Create<::pasta::Expr>(ast, val);
+    }
+    throw std::runtime_error("The unreachable has been reached");
+  };
+  auto count = u.MSAsmStmt->getNumInputs();
+  decltype(count) i = 0;
+  for (; i < count; ++i) {
+    ret.emplace_back(convert_elem(u.MSAsmStmt->getInputExpr(i)));
   }
   return ret;
 }
@@ -13061,7 +13061,7 @@ bool CXXNewExpr::DoesUsualArrayDeleteWantSize(void) const {
 std::optional<::pasta::Expr> CXXNewExpr::ArraySize(void) const {
   auto &self = *const_cast<clang::CXXNewExpr *>(u.CXXNewExpr);
   decltype(auto) val = self.getArraySize();
-  if (val.has_value()) {
+  if (val.has_value() && val.value()) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val.value());
   } else {
     return std::nullopt;

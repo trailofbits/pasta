@@ -457,5 +457,29 @@ std::optional<TemplateParameterList> TemplateParameterList::From(
       reinterpret_cast<const clang::TemplateParameterList *>(context.Data()));
 }
 
+std::optional<CXXCtorInitializer> CXXCtorInitializer::From(
+    const TokenContext &context) noexcept {
+  if (context.Kind() != TokenContextKind::kCXXCtorInitializer) {
+    return std::nullopt;
+  }
+
+  auto &contexts = *(context.contexts);
+  if (contexts.empty()) {
+    return std::nullopt;
+  }
+
+  auto &first_context = contexts.front();
+  if (!first_context.data || first_context.kind != TokenContextKind::kAST ||
+      first_context.depth != 0u ||
+      first_context.parent_index != kInvalidTokenContextIndex) {
+    return std::nullopt;
+  }
+
+  auto ast = reinterpret_cast<ASTImpl *>(const_cast<void *>(first_context.data));
+  return CXXCtorInitializer(
+      ast->shared_from_this(),
+      reinterpret_cast<const clang::CXXCtorInitializer *>(context.Data()));
+}
+
 #endif  // PASTA_IN_BOOTSTRAP
 }  // namespace pasta

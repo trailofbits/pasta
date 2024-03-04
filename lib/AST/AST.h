@@ -104,11 +104,16 @@ class ASTImpl : public std::enable_shared_from_this<ASTImpl> {
   // Used to find bounds on declarations.
   std::unordered_map<clang::Decl *, clang::Decl *> lexically_containing_decl;
 
-  std::mutex bounds_mutex;
 
   using BoundingTokens = std::pair<DerivedTokenIndex, DerivedTokenIndex>;
 
+  std::mutex bounds_mutex;
+
+  // Bounds for AST nodes.
   std::unordered_map<void *, BoundingTokens> bounds;
+
+  // Mapping of parsed token offsets to directives.
+  std::unordered_map<DerivedTokenIndex, Node> macro_directives;
 
   struct FunctionProto {
     bool has_variable_form{false};

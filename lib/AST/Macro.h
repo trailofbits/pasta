@@ -124,6 +124,9 @@ class MacroDirectiveImpl final : public MacroNodeImpl {
   // Is this a warning or error directive? If so, this signals to try to collect
   // missing tokens when we come accross an EOD.
   bool collected_missing_tokens_on_eod{false};
+
+  // Return the offset of the marker token.
+  DerivedTokenIndex marker_token_offset{~0u};
 };
 
 class MacroArgumentImpl final : public MacroNodeImpl {

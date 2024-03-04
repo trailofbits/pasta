@@ -220,6 +220,7 @@ static_assert(sizeof(MacroToken) == sizeof(Macro));
 class MacroDirective : public Macro {
  protected:
   friend class MacroExpansion;
+  friend class Token;
 
   using Macro::Macro;
 
@@ -234,6 +235,9 @@ class MacroDirective : public Macro {
   // of some other expansion, e.g. `_Pragma("...")` expanding into
   // `#pragma ...`.
   std::optional<MacroToken> DirectiveName(void) const noexcept;
+
+  // The location of this directive in the parsed tokens.
+  Token ParsedLocation(void) const noexcept;
 };
 
 static_assert(sizeof(MacroDirective) == sizeof(Macro));

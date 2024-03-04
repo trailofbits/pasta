@@ -476,6 +476,23 @@ std::optional<MacroToken> Token::MacroLocation(void) const {
           macro_tokens.macro_token_offset[MacroTokenOffset(bit_loc)]]));
 }
 
+// This token may represent a marker for the location of a macro directive.
+// If so, return that directive.
+std::optional<MacroDirective> Token::Directive(void) const {
+  if (Role() != TokenRole::kMacroDirectiveMarker) {
+    return std::nullopt;
+  }
+
+  auto node_it = storage->ast->macro_directives.find(offset);
+  if (node_it == storage->ast->macro_directives.end()) {
+    assert(false);
+    return std::nullopt;
+  }
+
+  return MacroDirective(std::shared_ptr<ASTImpl>(storage, storage->ast),
+                        &(node_it->second));
+}
+
 // Kind of this token.
 TokenKind Token::Kind(void) const noexcept {
   return storage->Kind(offset);
@@ -1607,7 +1624,7 @@ bool ParsedTokenIterator::IsParsed(void) const noexcept {
     case TokenRole::kEndOfFileMarker:
     case TokenRole::kBeginOfMacroExpansionMarker:
     case TokenRole::kEndOfMacroExpansionMarker:
-    case TokenRole::kEmptyOrSpecialMacroToken:
+    case TokenRole::kMacroDirectiveMarker:
       return false;
     default:
       switch (Kind()) {

@@ -765,19 +765,7 @@ void ASTImpl::LinkMacroTokenContexts(void) {
   root_macro_node.token_nodes.reserve(root_macro_node.tokens.size());
 
   for (MacroTokenImpl &mt : root_macro_node.tokens) {
-#ifndef NDEBUG
-    switch (macro_tokens.Role(mt.token_offset)) {
-      case TokenRole::kInitialMacroUseToken:
-      case TokenRole::kIntermediateMacroExpansionToken:
-      case TokenRole::kFinalMacroExpansionToken:
-      case TokenRole::kEmptyOrSpecialMacroToken:
-        break;
-      default:
-        assert(false);
-        continue;  // Skip it. `TokenImpl::Context` isn't expecting this.
-    }
-#endif
-
+    assert(mt.token_offset == root_macro_node.token_nodes.size());
     root_macro_node.token_nodes.emplace_back(&mt);
   }
 }
@@ -1160,16 +1148,19 @@ void PatchedMacroTracker::DoEndDirective(
 
   last_directive = directives.back();
 
+  auto dir_for_node = last_directive;
+  bool emitted_marker = false;
+  std::stringstream ss;
+  const char *sep = "";
+  clang::SourceLocation last_loc;
+  std::vector<DerivedTokenIndex> unexpanded_macros;
+
   if (last_directive->kind == MacroKind::kPragmaDirective) {
 
     // We need to emit the pragma tokens as a line in the parsed tokens.
     // Pragmas are important for things like adjusting structure packing. One
     // thing that's tricky about doing this is that we need to expand macros
     // within the pragmas.
-    std::stringstream ss;
-    const char *sep = "";
-    clang::SourceLocation last_loc;
-    std::vector<DerivedTokenIndex> unexpanded_macros;
     Expand(ss, *ast, last_directive, sep, last_loc, unexpanded_macros);
     D( std::cerr << indent << "Got pragma: " << ss.str() << '\n'; )
 
@@ -1184,8 +1175,9 @@ void PatchedMacroTracker::DoEndDirective(
     if (!is_deprecated && !is_poisoned && !is_system_header && !is_once) {
       assert(unexpanded_macros.empty());
 
+      emitted_marker = true;
       ast->parsed_tokens.AppendInternalToken(
-          pragma_data, last_loc, TokenRole::kEmptyOrSpecialMacroToken,
+          pragma_data, last_loc, TokenRole::kMacroDirectiveMarker,
           true  /* is_in_pragma */);
     }
 
@@ -1255,6 +1247,20 @@ done:
   nodes.pop_back();
   directives.pop_back();
   last_token.startToken();
+
+  if (!emitted_marker) {
+    Expand(ss, *ast, last_directive, sep, last_loc, unexpanded_macros);
+    ast->parsed_tokens.AppendInternalToken(
+        "", last_loc, TokenRole::kMacroDirectiveMarker,
+        false  /* is_in_pragma */);
+  }
+
+  auto marker_offset = static_cast<DerivedTokenIndex>(
+      ast->parsed_tokens.size() - 1u);
+  assert(ast->parsed_tokens.Role(marker_offset) ==
+         TokenRole::kMacroDirectiveMarker);
+  ast->macro_directives.emplace(marker_offset, dir_for_node);
+  dir_for_node->marker_token_offset = marker_offset;
 
   Pop(tok);
 }

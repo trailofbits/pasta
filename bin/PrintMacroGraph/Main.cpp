@@ -59,7 +59,7 @@ static inline std::string TokRoleColor(const pasta::TokenRole role) {
     case pasta::TokenRole::kInitialMacroUseToken: ss << "purple"; break;
     case pasta::TokenRole::kIntermediateMacroExpansionToken: ss << "yellow"; break;
     case pasta::TokenRole::kFinalMacroExpansionToken: ss << "lime"; break;
-    case pasta::TokenRole::kEmptyOrSpecialMacroToken: ss << "pink"; break;
+    case pasta::TokenRole::kMacroDirectiveMarker: ss << "pink"; break;
     case pasta::TokenRole::kEndOfMacroExpansionMarker: ss << "magenta"; break;
 
     default:
@@ -502,8 +502,8 @@ static void PrintMacroGraph(std::ostream &os, pasta::AST ast) {
       case pasta::TokenRole::kFinalMacroExpansionToken:
         std::cerr << "FME ";
         break;
-      case pasta::TokenRole::kEmptyOrSpecialMacroToken:
-        std::cerr << "EOS ";
+      case pasta::TokenRole::kMacroDirectiveMarker:
+        std::cerr << "MDM ";
         break;
       case pasta::TokenRole::kEndOfMacroExpansionMarker:
         std::cerr << "EME ";

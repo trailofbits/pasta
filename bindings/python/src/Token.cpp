@@ -17,7 +17,7 @@ void RegisterToken(nb::module_ &m) {
     .value("INITIAL_MACRO_USE_TOKEN", TokenRole::kInitialMacroUseToken)
     .value("INTERMEDIATE_MACRO_EXPANSION_TOKEN", TokenRole::kIntermediateMacroExpansionToken)
     .value("FINAL_MACRO_EXPANSION_TOKEN", TokenRole::kFinalMacroExpansionToken)
-    .value("EMPTY_OR_SPECIAL_MACRO_TOKEN", TokenRole::kEmptyOrSpecialMacroToken);
+    .value("MACRO_DIRECTIVE_MARKER", TokenRole::kMacroDirectiveMarker);
 
   nb::class_<Token>(m, "Token")
     .def("__bool__", &Token::operator bool)

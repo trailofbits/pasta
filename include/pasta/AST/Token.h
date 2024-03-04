@@ -25,6 +25,7 @@ class FileToken;
 class FileTokenRange;
 class FunctionDecl;
 class Macro;
+class MacroDirective;
 class MacroSubstitution;
 class MacroToken;
 class ParsedTokenStorage;
@@ -47,16 +48,16 @@ class TokenRange;
     m(InitialMacroUseToken) \
     m(IntermediateMacroExpansionToken) \
     m(FinalMacroExpansionToken) \
-    m(EmptyOrSpecialMacroToken) \
+    m(MacroDirectiveMarker) \
     m(EndOfMacroExpansionMarker)
 
 enum class TokenKind : unsigned short;
 
 // Different token roles.
 //
-// NOTE(pag): `kEmptyOrSpecialMacroToken` signals something like a macro
-//            expansion that expands to nothing, or the retention of a `#pragma`
-//            directive into the parsed toekns.
+// NOTE(pag): `kMacroDirectiveMarker` signals a macro directive. It's often
+//            important to know where, in related to parsed tokens, macro
+//            directives manifest.
 enum class TokenRole : unsigned char {
 #define PASTA_DEFINE_ROLE_ENUMERATOR(role) k ## role ,
   PASTA_FOR_EACH_TOKEN_ROLE(PASTA_DEFINE_ROLE_ENUMERATOR)
@@ -81,6 +82,7 @@ class Token {
   friend class ASTImpl;
   friend class CXXBaseSpecifier;
   friend class FunctionDecl;
+  friend class MacroDirective;
   friend class MacroToken;
   friend class PrintedToken;
   friend class PrintedTokenRange;
@@ -122,6 +124,10 @@ class Token {
 
   // Location of the token in a macro expansion.
   std::optional<MacroToken> MacroLocation(void) const;
+
+  // This token may represent a marker for the location of a macro directive.
+  // If so, return that directive.
+  std::optional<MacroDirective> Directive(void) const;
 
   // Return the data associated with this token.
   std::string_view Data(void) const;

@@ -703,6 +703,21 @@ std::optional<MacroToken> MacroDirective::DirectiveName(void) const noexcept {
   return MacroToken(ast, &(dir_impl->directive_name));
 }
 
+// The location of this directive in the parsed tokens.
+Token MacroDirective::ParsedLocation(void) const noexcept {
+  Node node = *reinterpret_cast<const Node *>(impl);
+  MacroNodeImpl *node_impl = std::get<MacroNodeImpl *>(node);
+  MacroDirectiveImpl *dir_impl = dynamic_cast<MacroDirectiveImpl *>(node_impl);
+
+  if (dir_impl->marker_token_offset == ~0u) {
+    assert(false);
+    return Token(ast);
+  }
+
+  return Token(std::shared_ptr<ParsedTokenStorage>(ast, &(ast->parsed_tokens)),
+               dir_impl->marker_token_offset);
+}
+
 // E.g. `...` in `args...`, or just `...`.
 std::optional<MacroToken>
 MacroParameter::VariadicDots(void) const noexcept {

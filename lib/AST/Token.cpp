@@ -977,7 +977,7 @@ void ParsedTokenStorage::AppendSplitTokens(
   }
 }
 
-void ParsedTokenStorage::AppendLeadingWhitespace(const clang::Token &tok) {
+void ParsedTokenStorage::InventLeadingWhitespace(const clang::Token &tok) {
   auto tk = tok.getKind();
   if (!data.empty() && !std::isspace(data.back())) {
     auto space = '\0';
@@ -996,19 +996,149 @@ void ParsedTokenStorage::AppendLeadingWhitespace(const clang::Token &tok) {
   }
 }
 
+namespace {
+
+static bool IsWhitespace(std::string_view data) {
+  for (auto ch : data) {
+    switch (ch) {
+      case '\r':
+      case '\n':
+      case '\t':
+      case ' ':
+      case '\\':
+        continue;
+      default:
+        return false;
+    }
+  }
+  return true;
+}
+
+static bool IsWhitespaceOrComment(std::optional<FileToken> ft) {
+  if (!ft) {
+    return false;
+  }
+  switch (ft->Kind()) {
+    case TokenKind::kUnknown:
+      return IsWhitespace(ft->Data());
+    case TokenKind::kComment:
+      return true;
+    default:
+      return false;
+  }
+}
+
+}  // namespace
+
+bool ParsedTokenStorage::AddLeadingWhitespaceAndComments(
+    BitPackedLocation floc) {
+
+  // If this is the first file location, then formulate a location that is the
+  // first location from the relevant file.
+  BitPackedLocation prev_floc = kInvalidBitPackedLocation;
+  auto inclusive = false;
+  if (role.empty()) {
+    return false;
+
+  } else if (role.back() == TokenRole::kFileToken ||
+             role.back() == TokenRole::kEndOfMacroExpansionMarker) {
+    prev_floc = location.back();
+  
+  } else if (role.back() == TokenRole::kBeginOfFileMarker) {
+    prev_floc = location.back();
+    inclusive = true;
+  
+  } else {
+    return false;
+  }
+
+  auto file_pair = UnpackFileAndTokenOffset(floc);
+  if (!file_pair) {
+    return false;
+  }
+
+  auto prev_file_pair = UnpackFileAndTokenOffset(prev_floc);
+  if (!prev_file_pair) {
+    return false;
+  }
+
+  if (prev_file_pair->first != file_pair->first ||
+      prev_file_pair->second >= file_pair->second) {
+    return false;
+  }
+
+  // Count the whitespace and comments.
+  const File &file = ast->parsed_files[prev_file_pair->first];
+  auto i = file_pair->second - 1u;
+  for (;;) {
+    if (i == prev_file_pair->second) {
+      if (!inclusive) {
+        ++i;
+      }
+      break;
+    } else if (!IsWhitespaceOrComment(file.TokenAtIndex(i))) {
+      ++i;
+      break;
+    } else {
+      --i;
+    }
+  }
+
+  // Inject in the whitespace and comments.
+  for (; i < file_pair->second; ++i) {
+    auto missing_floc =
+        (static_cast<BitPackedLocation>(file_pair->first + 1u) << 32u) |
+        static_cast<BitPackedLocation>(i + 1u);
+
+    auto missing_ft = file.TokenAtIndex(i);
+    auto tok_data = missing_ft->Data();
+    data.insert(data.end(), tok_data.begin(), tok_data.end());
+    kind.emplace_back(missing_ft->Kind());
+    role.emplace_back(TokenRole::kFileToken);
+    is_in_pragma_directive.emplace_back(false);
+    location.emplace_back(missing_floc);
+    FinishToken();
+  }
+
+  return true;
+}
+
+// The marker for entering a file will be delivered while we're still in
+// the macro expansion event for a `#include`, so we have a way of deferring
+// it until after.
+void ParsedTokenStorage::TryAddBeginOfFileMarker(void) {
+  if (!pending_begin_of_file_marker) {
+    return;
+  }
+
+  auto include_loc = kInvalidBitPackedLocation;
+  if (!role.empty() && role.back() == TokenRole::kEndOfMacroExpansionMarker) {
+    include_loc = location.back();
+  }
+
+  AppendMarkerToken(pending_begin_of_file_marker->first,
+                    pending_begin_of_file_marker->second);
+  pending_begin_of_file_marker.reset();
+  include_location.push_back(include_loc);
+}
+
 void ParsedTokenStorage::AppendFileToken(
     std::string_view tok_data, const clang::Token &tok) {
 
   ast->macro_tokens.MarkPreviousTokenAsEndOfExpansion();
 
-  AppendLeadingWhitespace(tok);
+  TryAddBeginOfFileMarker();
+
+  auto floc = CreateFileLocation(tok.getLocation());
+  if (!AddLeadingWhitespaceAndComments(floc)) {
+    InventLeadingWhitespace(tok);
+  }
 
   auto kind_ = static_cast<TokenKind>(tok.getKind());
   if (kind_ == TokenKind::kRawIdentifier) {
     kind_ = TokenKind::kIdentifier;
   }
 
-  auto floc = CreateFileLocation(tok.getLocation());
   AppendSplitTokens(floc, kind_, false);
 
   data.insert(data.end(), tok_data.begin(), tok_data.end());
@@ -1030,7 +1160,7 @@ void ParsedTokenStorage::AppendMacroToken(const clang::Token &tok) {
   assert(static_cast<TokenKind>(tok.getKind()) == macro_tokens.kind.back());
 #endif
 
-  AppendLeadingWhitespace(tok);
+  InventLeadingWhitespace(tok);
 
   auto macro_token_offset = static_cast<DerivedTokenIndex>(
       macro_tokens.role.size() - 1u);
@@ -1091,6 +1221,17 @@ void ParsedTokenStorage::AppendInternalToken(std::string_view tok_data,
 // Append a marker token to the parsed token list.
 void ParsedTokenStorage::AppendMarkerToken(
     clang::SourceLocation loc, TokenRole role_) {
+
+  // If we're in the expansion of a `#include`, then defer adding of the
+  // befin of file marker.
+  if (role_ == TokenRole::kBeginOfFileMarker &&
+      ast->macro_tokens.last_expansion_begin_offset.has_value()) {
+    assert(!pending_begin_of_file_marker.has_value());
+    pending_begin_of_file_marker.reset();
+    pending_begin_of_file_marker.emplace(loc, role_);
+    return;
+  }
+
   data.push_back('\n');
 
   is_in_pragma_directive.emplace_back(false);
@@ -1098,6 +1239,40 @@ void ParsedTokenStorage::AppendMarkerToken(
   role.emplace_back(role_);
   location.emplace_back(CreateFileLocation(loc));
   FinishToken();
+
+  if (role_ != TokenRole::kEndOfFileMarker || include_location.empty()) {
+    return;
+  }
+
+  auto file_pair = UnpackFileAndTokenOffset(include_location.back());
+  include_location.pop_back();
+  if (!file_pair) {
+    return;
+  }
+
+  // Try to add whitespace/comments following the resumption of the file.
+  const auto &file = ast->parsed_files[file_pair->first];
+  for (auto i = file_pair->second; ; ++i) {
+    auto ft = file.TokenAtIndex(i);
+    if (!ft) {
+      return;
+    }
+
+    if (!IsWhitespaceOrComment(ft)) {
+      return;
+    }
+
+    auto floc = (static_cast<BitPackedLocation>(file_pair->first + 1u) << 32u) +
+                static_cast<BitPackedLocation>(i + 1u);
+    auto tok_data = ft->Data();
+
+    location.push_back(floc);
+    role.push_back(TokenRole::kFileToken);
+    kind.push_back(ft->Kind());
+    data.insert(data.end(), tok_data.begin(), tok_data.end());
+    is_in_pragma_directive.push_back(false);
+    FinishToken();
+  }
 }
 
 std::string_view ParsedTokenStorage::Data(DerivedTokenIndex offset) const {
@@ -1386,6 +1561,7 @@ void MacroTokenStorage::MarkPreviousTokenAsEndOfExpansion(void) {
 
 void MacroTokenStorage::MarkNextTokenAsBeginOfExpansion(void) {
   MarkPreviousTokenAsEndOfExpansion();
+  ast->parsed_tokens.TryAddBeginOfFileMarker();
 
   next_is_begin_expansion = true;
   last_expansion_begin_offset = static_cast<unsigned>(kind.size());
@@ -1427,6 +1603,8 @@ ParsedTokenIterator ParsedTokenIterator::WithOffset(
 bool ParsedTokenIterator::IsParsed(void) const noexcept {
   switch (Role()) {
     case TokenRole::kInvalid:
+    case TokenRole::kBeginOfFileMarker:
+    case TokenRole::kEndOfFileMarker:
     case TokenRole::kBeginOfMacroExpansionMarker:
     case TokenRole::kEndOfMacroExpansionMarker:
     case TokenRole::kEmptyOrSpecialMacroToken:
@@ -1434,7 +1612,7 @@ bool ParsedTokenIterator::IsParsed(void) const noexcept {
     default:
       switch (Kind()) {
         case TokenKind::kUnknown:
-          return !Data().empty();
+          return !IsWhitespace(Data());
         case TokenKind::kComment:
         case TokenKind::kEndOfFile:
         case TokenKind::kEndOfDirective:

@@ -445,14 +445,28 @@ Result<AST, std::string> CompileJob::Run(void) const {
   clang::ASTConsumer &ast_consumer = ci.getASTConsumer();
   clang::Sema &sema = ci.getSema();
   clang::Preprocessor &pp2 = ci.getPreprocessor();
+  clang::LangOptions &lang_opts2 = ci.getLangOpts();
   ast->parsed_tokens_data_pp = ci.getPreprocessorPtr();
 
   std::unique_ptr<clang::PPCallbacks> split_tracker(
       new SplitTokenTracker(sm, ast.get()));
   pp2.addPPCallbacks(std::move(split_tracker));
 
-  assert(pp2.getLangOpts().EmitAllDecls);
+  assert(lang_opts2.EmitAllDecls);
   assert(lang_opts.EmitAllDecls);
+
+  // No longer need pre-defined macros, and these could technically conflict
+  // with stuff, e.g. built-in ones if there was an `#undef`.
+  lang_opts2.EnablePredefines = false;
+
+  // Include comments in the AST.
+  //
+  // NOTE(pag): The way that Clang deals with comment parsing *isn't* by
+  //            changing the comment retention state in the preprocessor/lexer,
+  //            but instead by retroactively inspecting source locations for
+  //            leading/training comments.
+  lang_opts2.RetainCommentsFromSystemHeaders = true;
+  lang_opts2.CommentOpts.ParseAllComments = true;
 
   std::unique_ptr<clang::Parser> parser(
       new clang::Parser(pp2, sema, false /* SkipFunctionBodies */));

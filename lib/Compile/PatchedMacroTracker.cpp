@@ -2516,6 +2516,8 @@ void PatchedMacroTracker::Event(const clang::Token &tok, EventKind kind,
     case AfterRemoveCommas: std::cerr << "AfterRemoveCommas"; break;
     case BeforeConcatenation: std::cerr << "BeforeConcatenation"; break;
     case AfterConcatenation: std::cerr << "AfterConcatenation"; break;
+    case LAngleToken: std::cerr << "LAngleToken"; break;
+    case RAngleToken: std::cerr << "RAngleToken"; break;
   }
 
   // NOTE(pag): For the `Before*` and `After*` events, the token argument
@@ -2666,6 +2668,10 @@ void PatchedMacroTracker::FileChanged(
                << pp.getCounterValue() << '\n';)
   last_counter_id = 0;
 
+  if (!loc.isValid()) {
+    loc = sm.getComposedLoc(file_id, 0u);
+  }
+
   // Figure out the next value for `__COUNTER__` to use for the current file.
   std::optional<File> file;
   unsigned offset = 0u;
@@ -2700,6 +2706,15 @@ void PatchedMacroTracker::FileChanged(
 
     ast->parsed_tokens.AppendMarkerToken(loc, TokenRole::kBeginOfFileMarker);
 
+  // Transition from predefins to the main file.
+  } else if (clang::PPCallbacks::FileChangeReason::ExitFile == reason &&
+             file_id == pp.getPredefinesFileID()) {
+
+    ast->parsed_tokens.AppendMarkerToken(
+        sm.getComposedLoc(sm.getMainFileID(), 0),
+        TokenRole::kBeginOfFileMarker);
+    D( std::cerr << indent << "BeginOfFileMarker\n"; )
+
   } else if (clang::PPCallbacks::FileChangeReason::ExitFile == reason &&
              file_id.isValid() && !includes.empty()) {
     D( std::cerr << indent << "EndOfFileMarker\n"; )
@@ -2713,7 +2728,7 @@ void PatchedMacroTracker::FileChanged(
     }
     assert(last_directive->included_file.has_value());
     ast->parsed_tokens.AppendMarkerToken(sm.getLocForEndOfFile(file_id),
-                                       TokenRole::kEndOfFileMarker);
+                                         TokenRole::kEndOfFileMarker);
   }
 
   D( std::cerr << indent << "FileChanged reason=" << int(reason)

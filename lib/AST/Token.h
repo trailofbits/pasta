@@ -400,7 +400,7 @@ class MacroTokenStorage : public ParsedTokenStorage {
       DerivedTokenIndex offset, DerivedTokenIndex macro_tok_offset_);
 
   void MarkPreviousTokenAsEndOfExpansion(void);
-  void MarkNextTokenAsBeginOfExpansion(void);
+  DerivedTokenIndex MarkNextTokenAsBeginOfExpansion(void);
   
   const Node *MacroName(DerivedTokenIndex offset) const;
   void MarkAsMacroName(DerivedTokenIndex offset, Node macro);

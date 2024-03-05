@@ -1573,15 +1573,19 @@ void MacroTokenStorage::MarkPreviousTokenAsEndOfExpansion(void) {
   ast->parsed_tokens.AppendInternalToken(
       {}, last_use_loc.value(), TokenRole::kEndOfMacroExpansionMarker);
 
+  ast->matching.emplace(begin_offset, end_offset);
+  ast->matching.emplace(end_offset, begin_offset);
+
   last_use_loc.reset();
 }
 
-void MacroTokenStorage::MarkNextTokenAsBeginOfExpansion(void) {
+DerivedTokenIndex MacroTokenStorage::MarkNextTokenAsBeginOfExpansion(void) {
   MarkPreviousTokenAsEndOfExpansion();
   ast->parsed_tokens.TryAddBeginOfFileMarker();
 
   next_is_begin_expansion = true;
   last_expansion_begin_offset = static_cast<unsigned>(kind.size());
+  return last_expansion_begin_offset.value();
 }
 
 void MacroTokenStorage::Finalize(void) {

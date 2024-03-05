@@ -151,6 +151,10 @@ class Macro {
   // Begin and ending usage tokens.
   std::optional<MacroToken> BeginToken(void) const noexcept;
   std::optional<MacroToken> EndToken(void) const noexcept;
+
+  // Return the parsed token range bounded by marker tokens of the complete
+  // expansion range for `macro`.
+  static TokenRange CompleteExpansionRange(const Macro &macro);
 };
 
 // A token produced inside of a macro expansion.

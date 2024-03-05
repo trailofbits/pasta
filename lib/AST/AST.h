@@ -104,7 +104,6 @@ class ASTImpl : public std::enable_shared_from_this<ASTImpl> {
   // Used to find bounds on declarations.
   std::unordered_map<clang::Decl *, clang::Decl *> lexically_containing_decl;
 
-
   using BoundingTokens = std::pair<DerivedTokenIndex, DerivedTokenIndex>;
 
   std::mutex bounds_mutex;

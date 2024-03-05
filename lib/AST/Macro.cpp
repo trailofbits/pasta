@@ -464,6 +464,29 @@ MacroTokenImpl *MacroSubstitutionImpl::FirstExpansionToken(void) const {
 
 Macro::~Macro(void) {}
 
+// Return the parsed token range bounded by marker tokens of the complete
+// expansion range for `macro`.
+TokenRange Macro::CompleteExpansionRange(const Macro &macro) {
+  Node node = *reinterpret_cast<const Node *>(macro.impl);
+  if (std::holds_alternative<MacroTokenImpl *>(node)) {
+    return TokenRange(macro.ast);
+  }
+
+  auto begin_offset = std::get<MacroNodeImpl *>(node)->parsed_begin_index;
+  assert(begin_offset != ~0u);
+
+  auto end_offset_it = macro.ast->matching.find(begin_offset);
+  if (end_offset_it == macro.ast->matching.end()) {
+    assert(false);
+    return TokenRange(macro.ast);
+  }
+
+  return TokenRange(
+      std::shared_ptr<ParsedTokenStorage>(
+          macro.ast, &(macro.ast->parsed_tokens)),
+      begin_offset, end_offset_it->second + 1u);
+}
+
 MacroKind Macro::Kind(void) const noexcept {
   Node node = *reinterpret_cast<const Node *>(impl);
   if (std::holds_alternative<MacroTokenImpl *>(node)) {

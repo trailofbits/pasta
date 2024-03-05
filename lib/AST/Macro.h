@@ -52,6 +52,10 @@ class MacroNodeImpl {
   MacroKind kind;
 
   const MacroNodeImpl *cloned_from{nullptr};
+
+  // Beginning parsed token index for the *entire* expansion range.
+  DerivedTokenIndex parsed_begin_index{~0u};
+
 #ifndef NDEBUG
   unsigned line_added{0u};
 #endif

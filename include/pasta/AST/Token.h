@@ -231,6 +231,7 @@ class TokenRange {
   friend class CXXBaseSpecifier;
   friend class DeclPrinter;
   friend class FunctionDecl;
+  friend class Macro;
   friend class PrintedTokenRange;
   friend class Token;
 

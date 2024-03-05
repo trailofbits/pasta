@@ -469,7 +469,7 @@ Macro::~Macro(void) {}
 TokenRange Macro::CompleteExpansionRange(const Macro &macro) {
   Node node = *reinterpret_cast<const Node *>(macro.impl);
   if (std::holds_alternative<MacroTokenImpl *>(node)) {
-    return TokenRange(macro.ast);
+    return Macro::CompleteExpansionRange(macro.Parent().value());
   }
 
   auto begin_offset = std::get<MacroNodeImpl *>(node)->parsed_begin_index;

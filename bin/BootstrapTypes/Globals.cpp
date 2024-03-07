@@ -213,7 +213,8 @@ std::unordered_map<std::string, std::string> gRetTypeMap{
   {"(llvm::ArrayRef<clang::QualType>)", "std::vector<::pasta::Type>"},
 
   // TODO(pag): Better C++ support.
-  {"(llvm::iterator_range<clang::CXXCtorInitializer *const *>)", "std::vector<pasta::CXXCtorInitializer>"},
+  {"(llvm::iterator_range<clang::CXXCtorInitializer *const *>)", "std::vector<::pasta::CXXCtorInitializer>"},
+  {"(llvm::iterator_range<clang::UnresolvedSetIterator>)", "std::vector<::pasta::NamedDecl>"},
 
   {"(llvm::iterator_range<clang::DeclContext::decl_iterator>)", "std::vector<::pasta::Decl>"},
   {"(llvm::iterator_range<clang::Decl::redecl_iterator>)", "std::vector<::pasta::Decl>"},
@@ -1236,6 +1237,7 @@ std::set<std::pair<std::string, std::string>> kCanReturnNullptr{
   {"PredefinedExpr", "FunctionName"},
   {"OpaqueValueExpr", "SourceExpression"},
   {"DependentSizedArrayType", "SizeExpression"},
+  {"CXXRecordDecl", "LambdaStaticInvoker"},
 
 //  {"FunctionProtoType", "EllipsisToken"},
 //  {"FunctionDecl", "EllipsisToken"},
@@ -1928,6 +1930,10 @@ std::map<std::pair<std::string, std::string>, std::string> kConditionalNullptr{
    "    if (!td->getTemplatedDecl()) {\n"
    "      return std::nullopt;\n"
    "    }\n"
+   "  }\n"},
+  {{"CXXRecordDecl", "LambdaStaticInvoker"},
+   "  if (!self.getLambdaCallOperator()) {\n"
+   "    return std::nullopt;\n"
    "  }\n"},
 };
 

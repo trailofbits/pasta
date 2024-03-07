@@ -4022,7 +4022,7 @@ class OverloadExpr : public Expr {
   PASTA_DECLARE_BASE_OPERATORS(ValueStmt, OverloadExpr)
   PASTA_DECLARE_DERIVED_OPERATORS(OverloadExpr, UnresolvedLookupExpr)
   PASTA_DECLARE_DERIVED_OPERATORS(OverloadExpr, UnresolvedMemberExpr)
-  // Declarations: (llvm::iterator_range<clang::UnresolvedSetIterator>)
+  std::vector<::pasta::NamedDecl> Declarations(void) const;
   ::pasta::Token LAngleToken(void) const;
   // Name: (clang::DeclarationName)
   // NameInfo: (const clang::DeclarationNameInfo &)

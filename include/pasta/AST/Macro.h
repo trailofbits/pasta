@@ -231,6 +231,9 @@ class MacroDirective : public Macro {
  public:
   static std::optional<MacroDirective> From(const Macro &node) noexcept;
 
+  // Return the macro directive associated with a marker token.
+  static std::optional<MacroDirective> From(const Token &tok) noexcept;
+
   // Return the hash token of the directive.
   MacroToken Hash(void) const noexcept;
 

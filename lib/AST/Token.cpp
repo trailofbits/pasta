@@ -476,6 +476,30 @@ std::optional<MacroToken> Token::MacroLocation(void) const {
           macro_tokens.macro_token_offset[MacroTokenOffset(bit_loc)]]));
 }
 
+// Location of the "balanced" token. If this is a `(`, `[`, `{`, or `<`, then
+// this points to itself. If it's a `)`, `]`, `}`, or `>`, then this points to
+// the opening location. Otherwise, it's `std::nullopt`.
+std::optional<Token> Token::OpeningLocation(void) const {
+  auto matching_it = storage->ast->matching.find(offset);
+  if (matching_it == storage->ast->matching.end()) {
+    return std::nullopt;
+  }
+
+  return Token(storage, matching_it->first);
+}
+
+// Location of the "balanced" token. If this is a `)`, `]`, `}`, or `>`, then
+// this points to itself. If it's a `(`, `[`, `{`, or `<`, then this points to
+// the cloisng location. Otherwise, it's `std::nullopt`.
+std::optional<Token> Token::ClosingLocation(void) const {
+  auto matching_it = storage->ast->matching.find(offset);
+  if (matching_it == storage->ast->matching.end()) {
+    return std::nullopt;
+  }
+
+  return Token(storage, matching_it->second);
+}
+
 // This token may represent a marker for the location of a macro directive.
 // If so, return that directive.
 std::optional<MacroDirective> Token::Directive(void) const {
@@ -526,7 +550,7 @@ std::string_view Token::Data(void) const {
 }
 
 const void *Token::RawToken(void) const noexcept {
-  return &(storage->data[storage->data_offset[offset]]);
+  return &(storage->role[offset]);
 }
 
 // Returns whether or no this token is valid.
@@ -1247,6 +1271,9 @@ void ParsedTokenStorage::AppendMarkerToken(
     pending_begin_of_file_marker.reset();
     pending_begin_of_file_marker.emplace(loc, role_);
     return;
+  
+  } else if (role_ == TokenRole::kMacroDirectiveMarker) {
+    assert(last_expansion_begin_offset.has_value());
   }
 
   data.push_back('\n');
@@ -1298,8 +1325,13 @@ std::string_view ParsedTokenStorage::Data(DerivedTokenIndex offset) const {
   auto raw_data = data.data();
   std::string_view ret(&(raw_data[begin_offset]),
                        &(raw_data[end_offset]));
-  while (!ret.empty() && std::isspace(ret.back())) {
-    ret.remove_suffix(1u);
+
+  // If this isn't a whitespace token, and if it contains trailing whitespace,
+  // then strip the trailing whitespace.
+  if (kind[offset] != pasta::TokenKind::kUnknown) {
+    while (!ret.empty() && std::isspace(ret.back())) {
+      ret.remove_suffix(1u);
+    }
   }
   return ret;
 }
@@ -1374,6 +1406,8 @@ DerivedTokenIndex MacroTokenStorage::AppendMacroToken(
   assert(last_expansion_begin_offset.has_value());
   auto offset = static_cast<DerivedTokenIndex>(kind.size());
   if (offset == last_expansion_begin_offset.value()) {
+    ast->parsed_tokens.last_expansion_begin_offset = static_cast<unsigned>(
+        ast->parsed_tokens.role.size());
     ast->parsed_tokens.AppendInternalToken(
         {}, loc, TokenRole::kBeginOfMacroExpansionMarker);
   }
@@ -1570,11 +1604,16 @@ void MacroTokenStorage::MarkPreviousTokenAsEndOfExpansion(void) {
 
   assert(last_use_loc.has_value());
 
+  auto begin_parsed_offset
+      = ast->parsed_tokens.last_expansion_begin_offset.value();
+  auto end_parsed_offset = static_cast<unsigned>(ast->parsed_tokens.role.size());
+
+  ast->parsed_tokens.last_expansion_begin_offset.reset();
   ast->parsed_tokens.AppendInternalToken(
       {}, last_use_loc.value(), TokenRole::kEndOfMacroExpansionMarker);
 
-  ast->matching.emplace(begin_offset, end_offset);
-  ast->matching.emplace(end_offset, begin_offset);
+  ast->matching.emplace(begin_parsed_offset, end_parsed_offset);
+  ast->matching.emplace(end_parsed_offset, begin_parsed_offset);
 
   last_use_loc.reset();
 }

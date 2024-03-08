@@ -129,6 +129,16 @@ class Token {
   // If so, return that directive.
   std::optional<MacroDirective> Directive(void) const;
 
+  // Location of the "balanced" token. If this is a `(`, `[`, `{`, or `<`, then
+  // this points to itself. If it's a `)`, `]`, `}`, or `>`, then this points to
+  // the opening location. Otherwise, it's `std::nullopt`.
+  std::optional<Token> OpeningLocation(void) const;
+
+  // Location of the "balanced" token. If this is a `)`, `]`, `}`, or `>`, then
+  // this points to itself. If it's a `(`, `[`, `{`, or `<`, then this points to
+  // the cloisng location. Otherwise, it's `std::nullopt`.
+  std::optional<Token> ClosingLocation(void) const;
+
   // Return the data associated with this token.
   std::string_view Data(void) const;
 

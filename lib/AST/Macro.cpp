@@ -726,6 +726,22 @@ std::optional<MacroToken> MacroDirective::DirectiveName(void) const noexcept {
   return MacroToken(ast, &(dir_impl->directive_name));
 }
 
+// Return the macro directive associated with a marker token.
+std::optional<MacroDirective> MacroDirective::From(const Token &tok) noexcept {
+  auto &tok_ast = tok.storage->ast;
+  if (tok.storage.get() != &(tok_ast->parsed_tokens)) {
+    return std::nullopt;
+  }
+
+  auto it = tok_ast->macro_directives.find(tok.offset);
+  if (it == tok_ast->macro_directives.end()) {
+    return std::nullopt;
+  }
+
+  return MacroDirective(std::shared_ptr<ASTImpl>(tok.storage, tok_ast),
+                        &(it->second));
+}
+
 // The location of this directive in the parsed tokens.
 Token MacroDirective::ParsedLocation(void) const noexcept {
   Node node = *reinterpret_cast<const Node *>(impl);

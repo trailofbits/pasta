@@ -220,10 +220,12 @@ class DeclBoundsFinder : public clang::DeclVisitor<DeclBoundsFinder>,
           assert(matching_tok.Kind() == matching_kind);
 
           matching_offset = matching_tok.Offset();
+          assert(tok_offset < matching_offset);
           ast.matching.emplace(matching_offset, tok_offset);
           return {tok, matching_tok};
 
         } else {
+          assert(tok_offset < matching_offset);
           return {tok, tok.WithOffset(matching_offset)};
         }
       }
@@ -239,10 +241,12 @@ class DeclBoundsFinder : public clang::DeclVisitor<DeclBoundsFinder>,
           assert(matching_tok.Kind() == matching_kind);
 
           matching_offset = matching_tok.Offset();
+          assert(matching_offset < tok_offset);
           ast.matching.emplace(matching_offset, tok_offset);
           return {matching_tok, tok};
         
         } else {
+          assert(matching_offset < tok_offset);
           return {tok.WithOffset(matching_offset), tok};
         }
       }

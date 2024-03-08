@@ -74,13 +74,44 @@ static const char *TokenName(TokenKind kind) {
   }
 }
 
+static PrintedTokenImpl *PrevTok(PrintedTokenImpl *tok,
+                                 PrintedTokenImpl *min_tok  /* inclusive */) {
+  if (tok) {
+    for (; --tok >= min_tok; ) {
+      if (tok->data_len && tok->kind != TokenKind::kComment &&
+          tok->kind != TokenKind::kUnknown) {
+        return tok;
+      }
+    }
+  }
+  return nullptr;
+}
+
+static PrintedTokenImpl *NextTok(PrintedTokenImpl *tok,
+                                 PrintedTokenImpl *max_tok  /* exclusive */) {
+  if (tok) {
+    for (; ++tok < max_tok; ) {
+      if (tok->data_len && tok->kind != TokenKind::kComment &&
+          tok->kind != TokenKind::kUnknown) {
+        return tok;
+      }
+    }
+  }
+  return nullptr;
+}
+
 static bool TokenHasLocationAndContext(const PrintedTokenImpl *impl) {
-  return impl->derived_index != kInvalidDerivedTokenIndex &&
+  return impl &&
+         impl->derived_index != kInvalidDerivedTokenIndex &&
          impl->context_index != kInvalidTokenContextIndex;
 }
 
 static bool TokenLocationsMatch(const PrintedTokenImpl *parsed,
                                 const PrintedTokenImpl *printed) {
+  if (!parsed || !printed) {
+    return false;
+  }
+
   if (parsed->derived_index == kInvalidDerivedTokenIndex) {
     return false;
   }
@@ -149,6 +180,9 @@ static const TokenContextImpl *CommonContext(const PrintedTokenRangeImpl &range,
 
 static bool MergeToken(PrintedTokenImpl *parsed, PrintedTokenImpl *printed,
                        bool &changed, bool force=false) {
+  if (!parsed || !printed) {
+    return false;
+  }
 
   if (parsed->context_index == kInvalidTokenContextIndex) {
     parsed->context_index = printed->context_index;
@@ -592,6 +626,22 @@ class Matcher {
       std::stringstream &err, PrintedTokenImpl * const first,
       PrintedTokenImpl * const after_last, const char *list_kind);
 
+  PrintedTokenImpl *PrevParsedTok(PrintedTokenImpl *tok) {
+    return PrevTok(tok, parsed_bounds.begin);
+  }
+
+  PrintedTokenImpl *NextParsedTok(PrintedTokenImpl *tok) {
+    return NextTok(tok, parsed_bounds.end);
+  }
+
+  PrintedTokenImpl *PrevPrintedTok(PrintedTokenImpl *tok) {
+    return PrevTok(tok, printed_bounds.begin);
+  }
+
+  PrintedTokenImpl *NextPrintedTok(PrintedTokenImpl *tok) {
+    return NextTok(tok, printed_bounds.end);
+  }
+
   bool MatchToken(PrintedTokenImpl *parsed, PrintedTokenImpl *printed);
   bool MatchTokenByKindOrData(PrintedTokenImpl *parsed,
                               PrintedTokenImpl *printed);
@@ -835,6 +885,8 @@ SequenceRegion *Matcher::BuildRegions(
     }
   }
 
+  // NOTE(pag): This is usually a sign of a bounds issue, where we bring in some
+  //            tokens that close something without opening it, or vice versa.
   if (region_stack.size() != 1u) {
     assert(false);
     err
@@ -888,8 +940,11 @@ static bool IsAttributeLikeKeword(TokenKind tk) {
 
 bool Matcher::MergeAround(PrintedTokenImpl *parsed, PrintedTokenImpl *printed,
                           bool &changed) {
-  auto before = MergeBackward(&(parsed[-1]), &(printed[-1]), changed);
-  auto after = MergeForward(&(parsed[1]), &(printed[1]), changed);
+  auto before = MergeBackward(PrevParsedTok(parsed), PrevPrintedTok(printed),
+                              changed);
+
+  auto after = MergeForward(NextParsedTok(parsed), NextPrintedTok(printed),
+                            changed);
   return before || after;
 }
 
@@ -902,12 +957,20 @@ bool Matcher::MergeForward(PrintedTokenImpl *parsed, PrintedTokenImpl *printed,
 
   // Compute the next token to analyze. If `tok` appears just before a balanced
   // region, then skip over the balanced region.
-  auto next_tok = [this] (PrintedTokenImpl *tok) {
+  auto next_parsed_tok = [this] (PrintedTokenImpl *tok) {
     if (auto skip_it = skip_balanced.find(tok);
         skip_it != skip_balanced.end()) {
       return skip_it->second;
     }
-    return &(tok[1]);
+    return NextParsedTok(tok);
+  };
+
+  auto next_printed_tok = [this] (PrintedTokenImpl *tok) {
+    if (auto skip_it = skip_balanced.find(tok);
+        skip_it != skip_balanced.end()) {
+      return skip_it->second;
+    }
+    return NextPrintedTok(tok);
   };
 
   while (num_skips < 16u &&
@@ -922,13 +985,13 @@ bool Matcher::MergeForward(PrintedTokenImpl *parsed, PrintedTokenImpl *printed,
       if (IsAttributeLikeKeword(parsed_kind) ||
           IsAnyIdentifier(parsed_kind) ||
           PunctuatorSpelling(parsed_kind)) {
-        parsed = next_tok(parsed);
+        parsed = next_parsed_tok(parsed);
         skip = true;
       }
 
       const auto printed_kind = printed->kind;
       if (IsAttributeLikeKeword(printed_kind)) {
-        printed = next_tok(printed);
+        printed = next_printed_tok(printed);
         skip = true;
       }
 
@@ -961,23 +1024,27 @@ bool Matcher::MergeForward(PrintedTokenImpl *parsed, PrintedTokenImpl *printed,
                                tk == TokenKind::kWideStringLiteral;
 
       if (is_string_literal && parsed->context_index != kInvalidTokenContextIndex) {
-        for (; parsed_bounds.StrictlyContains(parsed + 1); ++parsed) {
-          tk = parsed[1u].kind;
+        
+        for (auto ext_literal = NextParsedTok(parsed); ext_literal;
+             ext_literal = NextParsedTok(parsed)) {
+
+          tk = ext_literal->kind;
           if (tk != TokenKind::kStringLiteral &&
               tk != TokenKind::kWideStringLiteral) {
             break;
           }
 
-          if (parsed[1u].context_index != kInvalidTokenContextIndex) {
+          if (ext_literal->context_index != kInvalidTokenContextIndex) {
             break;
           }
 
-          parsed[1u].context_index = parsed->context_index;
+          ext_literal->context_index = parsed->context_index;
+          parsed = ext_literal;
         }
       }
 
-      parsed = next_tok(parsed);
-      printed = next_tok(printed);
+      parsed = next_parsed_tok(parsed);
+      printed = next_printed_tok(printed);
 
     // We hit a blocker, but we previously made progress.
     } else if (merged) {
@@ -985,8 +1052,8 @@ bool Matcher::MergeForward(PrintedTokenImpl *parsed, PrintedTokenImpl *printed,
 
     // Skip these unmergeable tokens.
     } else {
-      parsed = next_tok(parsed);
-      printed = next_tok(printed);
+      parsed = next_parsed_tok(parsed);
+      printed = next_printed_tok(printed);
       ++num_skips;
     }
   }
@@ -996,6 +1063,10 @@ bool Matcher::MergeForward(PrintedTokenImpl *parsed, PrintedTokenImpl *printed,
 
 bool Matcher::MergeBackward(PrintedTokenImpl *parsed, PrintedTokenImpl *printed,
                             bool &changed) {
+  if (!parsed || !printed) {
+    return false;
+  }
+
   auto num_skips = 0u;
   auto merged = false;
   const auto first_parsed = parsed_bounds.begin;
@@ -1015,8 +1086,8 @@ bool Matcher::MergeBackward(PrintedTokenImpl *parsed, PrintedTokenImpl *printed,
     merged = true;
     if (local_changed) {
       changed = true;
-      --parsed;
-      --printed;
+      parsed = PrevTok(parsed, first_parsed);
+      printed = PrevTok(printed, first_printed);
     } else {
       break;
     }
@@ -1026,6 +1097,10 @@ bool Matcher::MergeBackward(PrintedTokenImpl *parsed, PrintedTokenImpl *printed,
 }
 
 bool Matcher::MatchToken(PrintedTokenImpl *parsed, PrintedTokenImpl *printed) {
+  if (!parsed || !printed) {
+    return false;
+  }
+
   if (TokenLocationsMatch(parsed, printed)) {
     return true;
   }
@@ -1037,12 +1112,16 @@ bool Matcher::MatchToken(PrintedTokenImpl *parsed, PrintedTokenImpl *printed) {
   // If previous matches, and the next matches, then assume this one matches too!
   return parsed_bounds.StrictlyContains(parsed) &&
          printed_bounds.StrictlyContains(printed) &&
-         TokenLocationsMatch(&(parsed[-1]), &(printed[-1])) &&
-         TokenLocationsMatch(&(parsed[1]), &(printed[1]));
+         TokenLocationsMatch(PrevParsedTok(parsed), PrevPrintedTok(printed)) &&
+         TokenLocationsMatch(NextParsedTok(parsed), NextPrintedTok(printed));
 }
 
 bool Matcher::MatchTokenByKindOrData(PrintedTokenImpl *parsed,
                                      PrintedTokenImpl *printed) {
+  if (!parsed || !printed) {
+    return false;
+  }
+
   const auto parsed_kind = parsed->kind;
   if (IsLiteral(parsed_kind) ||
       KeywordSpelling(parsed_kind) ||
@@ -1093,13 +1172,15 @@ bool Matcher::MatchBalanced(BalancedRegion *parsed, BalancedRegion *printed,
     begin_loc_matches =
         parsed_bounds.StrictlyContains(parsed->begin) &&
         printed_bounds.StrictlyContains(printed->begin) &&
-        TokenLocationsMatch(&(parsed->begin[-1]), &(printed_begin[-1]));
+        TokenLocationsMatch(PrevParsedTok(parsed->begin),
+                            PrevPrintedTok(printed_begin));
 
     // Look one beyond.
     end_loc_matches =
         parsed_bounds.StrictlyContains(parsed->end) &&
         printed_bounds.StrictlyContains(printed->end) &&
-        TokenLocationsMatch(&(parsed->end[1]), &(printed_end[1]));
+        TokenLocationsMatch(NextParsedTok(parsed->end),
+                            NextPrintedTok(printed_end));
   }
 
   // Force match the parens/brackets/braces. Here we're targeting the attribute

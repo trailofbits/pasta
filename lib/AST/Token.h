@@ -187,6 +187,8 @@ class ParsedTokenStorage {
  protected:
   friend class AST;
   friend class ASTImpl;
+  friend class MacroDirective;
+  friend class MacroTokenStorage;
   friend class ParsedTokenIterator;
   friend class PrintedTokenRange;
   friend class PrintedTokenRangeImpl;
@@ -254,6 +256,12 @@ class ParsedTokenStorage {
   void InitInvalid(void);
 
  public:
+
+  // Beginning of the last expansion. In the parsed token list, this is the
+  // offset of the marker token. In the macro token storage, it is whatever
+  // the next first token offset will be in that expansion.
+  std::optional<DerivedTokenIndex> last_expansion_begin_offset;
+
   virtual ~ParsedTokenStorage(void);
 
   inline ParsedTokenStorage(ASTImpl *ast_)
@@ -339,7 +347,7 @@ class ParsedTokenStorage {
 
   // Try to split the token at offset `offset`.
   void SplitToken(DerivedTokenIndex offset);
-  
+
   void TryAddBeginOfFileMarker(void);
 
   void Finalize(void);
@@ -358,7 +366,6 @@ class MacroTokenStorage : public ParsedTokenStorage {
   // State used during the lexing phase to keep track of whether or not we're
   // inside of an expansion.
   bool next_is_begin_expansion{false};
-  std::optional<DerivedTokenIndex> last_expansion_begin_offset;
 
   // If a token is associated with a macro, then we can find that associated
   // macro node here.

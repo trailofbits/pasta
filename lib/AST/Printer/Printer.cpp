@@ -373,7 +373,7 @@ void PrintedTokenRangeImpl::AddTrailingEOF(void) {
         kInvalidTokenContextIndex,
         TokenKind::kEndOfFile);
 
-    if (data.back() == ' ') {
+    if (!data.empty() && data.back() == ' ') {
       data.back() = '\0';
     } else {
       data.push_back('\0');
@@ -481,8 +481,7 @@ void TokenPrinterContext::Tokenize(void) {
       token_data.data(),
       token_data.data() + token_data.size());
 
-  lexer.SetKeepWhitespaceMode(false);
-  lexer.SetCommentRetentionState(false);
+  lexer.SetKeepWhitespaceMode(true);
 
   clang::Token tok;
 
@@ -519,31 +518,31 @@ void TokenPrinterContext::Tokenize(void) {
 
     for (auto j = 0u; i < size && j < tok_len; ++i) {
       
-      // Skip leading whitespace.
-      if (!seen_data) {
-        switch (token_data[i]) {
-          case ' ':
-          case '\n':
-          case '\r':
-          case '\t':
-          case '\0':
-            continue;
-          default:
-            seen_data = true;
-            break;
-        }
-      }
+      // // Skip leading whitespace.
+      // if (!seen_data) {
+      //   switch (token_data[i]) {
+      //     case ' ':
+      //     case '\n':
+      //     case '\r':
+      //     case '\t':
+      //     case '\0':
+      //       continue;
+      //     default:
+      //       seen_data = true;
+      //       break;
+      //   }
+      // }
 
       ++j;
       tokens.data.push_back(token_data[i]);
     }
 
-    SkipTrailingWhitespace(tokens.data);
+    // SkipTrailingWhitespace(tokens.data);
 
     const auto data_len = tokens.data.size() - data_offset;
     assert(0u < data_len);
     assert(data_len <= tok.getLength());
-    tokens.data.push_back(' ');
+    // tokens.data.push_back(' ');
 
     // Migrate all kinds to `identifier` now that we've got the data.
     if (tok.is(clang::tok::raw_identifier)) {
@@ -808,7 +807,6 @@ PrintedTokenRange PrintedTokenRange::Adopt(const TokenRange &a) {
 
     new_tok.derived_index = static_cast<DerivedTokenIndex>(tok.Index());
     new_impl->data.insert(new_impl->data.end(), data.begin(), data.end());
-    new_impl->data.push_back(' ');
   }
 
   new_impl->AddTrailingEOF();

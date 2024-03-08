@@ -100,7 +100,7 @@ void PatchedMacroTracker::Push(const clang::Token &tok) {
     D( std::cerr << indent << "BeginOfMacroExpansionMarker\n"; )
     assert(tok.getLocation().isValid() && tok.getLocation().isFileID());
 
-    parsed_begin_index = ast->macro_tokens.MarkNextTokenAsBeginOfExpansion();
+    ast->macro_tokens.MarkNextTokenAsBeginOfExpansion();
   }
   ++depth;
 }
@@ -144,7 +144,8 @@ bool PatchedMacroTracker::TryExtractHeaderName(const clang::Token &tok) {
   D( sub->line_added = __LINE__; )
   MacroNodeImpl *parent_node = nodes.back();
   sub->parent = parent_node;
-  sub->parsed_begin_index = parsed_begin_index;
+  sub->parsed_begin_index 
+      = ast->parsed_tokens.last_expansion_begin_offset.value();
   AddToParentNode(sub);  // Adds to `parent_node`.
   nodes.push_back(sub);
 
@@ -189,7 +190,8 @@ MacroExpansionImpl *PatchedMacroTracker::DoPreExpansionSetup(
       &(ast->root_macro_node.expansions.emplace_back());
   D( new_exp->line_added = __LINE__; )
   new_exp->defined_macro = exp->defined_macro;
-  new_exp->parsed_begin_index = parsed_begin_index;
+  new_exp->parsed_begin_index 
+      = ast->parsed_tokens.last_expansion_begin_offset.value();
 
   if (exp->definition_impl) {
     new_exp->definition = exp->definition_impl;
@@ -1023,11 +1025,13 @@ void PatchedMacroTracker::DoBeginDirective(
       &(ast->root_macro_node.directives.emplace_back());
   D( directive->line_added = __LINE__; )
   AddToParentNode(directive);
-  directive->parsed_begin_index = parsed_begin_index;
   directive->parent = nodes.back();
   nodes.push_back(directive);
   directives.push_back(directive);
   DoToken(tok, data);
+
+  directive->parsed_begin_index 
+      = ast->parsed_tokens.last_expansion_begin_offset.value();
 }
 
 // Mark this as being a directive with a name.
@@ -1281,14 +1285,15 @@ void PatchedMacroTracker::DoBeginMacroExpansion(
   // NOTE(pag): This inspects `expansions.back()` to see if we need to wrap
   //            this expansion in an argument to the parent expansion.
   AddToParentNode(expansion);
-
-  expansion->parsed_begin_index = parsed_begin_index;
   expansion->parent = nodes.back();
   nodes.push_back(expansion);
   expansions.push_back(expansion);
 
   auto tok_index = ast->macro_tokens.size();
   DoToken(tok, data);
+
+  expansion->parsed_begin_index 
+      = ast->parsed_tokens.last_expansion_begin_offset.value();
 
   assert(expansion->ident != nullptr);
 
@@ -1340,7 +1345,8 @@ void PatchedMacroTracker::DoBeginMacroCallArgument(
       &(ast->root_macro_node.arguments.emplace_back());
   D( argument->line_added = __LINE__; )
 
-  argument->parsed_begin_index = parsed_begin_index;
+  argument->parsed_begin_index 
+      = ast->parsed_tokens.last_expansion_begin_offset.value();
   argument->index = static_cast<unsigned>(expansion->arguments.size());
   argument->offset = static_cast<unsigned>(expansion->nodes.size());
   argument->parent = expansion;  // Checked by `AddToParent`.
@@ -1515,7 +1521,8 @@ void PatchedMacroTracker::DoEndPreArgumentExpansion(
         assert(!LastIsNotArgument(expansion));
         assert(HasArgumentSeparator(expansion));
 
-        missing_arg->parsed_begin_index = parsed_begin_index;
+        missing_arg->parsed_begin_index 
+            = ast->parsed_tokens.last_expansion_begin_offset.value();
         missing_arg->parent = expansion;
         missing_arg->is_prearg_expansion = true;
         missing_arg->index = static_cast<unsigned>(expansion->arguments.size());
@@ -1883,7 +1890,8 @@ void PatchedMacroTracker::DoBeginSubstitution(
       &(ast->root_macro_node.substitutions.emplace_back());
   D( expansion->line_added = __LINE__; )
   AddToParentNode(expansion);
-  expansion->parsed_begin_index = parsed_begin_index;
+  expansion->parsed_begin_index 
+      = ast->parsed_tokens.last_expansion_begin_offset.value();
   expansion->parent = nodes.back();
   nodes.push_back(expansion);
   substitutions.push_back(expansion);
@@ -1903,7 +1911,8 @@ void PatchedMacroTracker::DoBeginDelayedSubstitution(
 
   MacroNodeImpl * const parent_node = nodes.back();
 
-  expansion->parsed_begin_index = parsed_begin_index;
+  expansion->parsed_begin_index 
+      = ast->parsed_tokens.last_expansion_begin_offset.value();
   expansion->parent = parent_node;
 
   if (last_token_was_added) {
@@ -1968,7 +1977,8 @@ void PatchedMacroTracker::DoBeginConcatenation(
       &(ast->root_macro_node.substitutions.emplace_back());
   D( concat->line_added = __LINE__; )
 
-  concat->parsed_begin_index = parsed_begin_index;
+  concat->parsed_begin_index 
+      = ast->parsed_tokens.last_expansion_begin_offset.value();
   concat->kind = MacroKind::kConcatenate;
   concat->parent = nodes.back();
   nodes.push_back(concat);
@@ -2100,7 +2110,8 @@ void PatchedMacroTracker::DoBeforeMacroParameterUse(
   expansion->CopyFromBody(*ast, parent, ident_loc.getRawEncoding());
 
   // Then put our new node in.
-  param->parsed_begin_index = parsed_begin_index;
+  param->parsed_begin_index 
+      = ast->parsed_tokens.last_expansion_begin_offset.value();
   param->parent = parent;
 
   if (parent == expansion) {
@@ -2231,7 +2242,8 @@ void PatchedMacroTracker::DoBeforeVAOpt(
       *ast, parent, tok[num_tokens - 2u].getLocation().getRawEncoding());
 
   // Now add our new node in.
-  vaopt->parsed_begin_index = parsed_begin_index;
+  vaopt->parsed_begin_index 
+      = ast->parsed_tokens.last_expansion_begin_offset.value();
   vaopt->parent = parent;
 
   if (parent == expansion) {
@@ -2256,7 +2268,7 @@ void PatchedMacroTracker::DoBeforeVAOpt(
   vaopt_arg =
       &(ast->root_macro_node.vaopt_arguments.emplace_back());
 
-  vaopt_arg->parsed_begin_index = parsed_begin_index;
+  vaopt_arg->parsed_begin_index = vaopt->parsed_begin_index;
   vaopt_arg->parent = vaopt;
   vaopt->nodes.push_back(vaopt_arg);
 
@@ -2307,7 +2319,8 @@ void PatchedMacroTracker::DoBeforeStringify(
   MacroSubstitutionImpl *str =
       &(ast->root_macro_node.substitutions.emplace_back());
 
-  str->parsed_begin_index = parsed_begin_index;
+  str->parsed_begin_index 
+      = ast->parsed_tokens.last_expansion_begin_offset.value();
   str->kind = MacroKind::kStringify;
 
   expansion->has_interesting_body = true;
@@ -3083,7 +3096,8 @@ void PatchedMacroTracker::MacroDefined(const clang::Token &name_tok,
             last_param->nodes.push_back(node);
           } else {
             last_param = &(ast->root_macro_node.parameters.emplace_back());
-            last_param->parsed_begin_index = parsed_begin_index;
+            last_param->parsed_begin_index 
+                = ast->parsed_tokens.last_expansion_begin_offset.value();
             last_param->parent = last_directive;
             last_param->is_variadic = true;
             last_param->index = static_cast<unsigned>(
@@ -3101,7 +3115,8 @@ void PatchedMacroTracker::MacroDefined(const clang::Token &name_tok,
           assert(!last_param);
           new_nodes.pop_back();
           last_param = &(ast->root_macro_node.parameters.emplace_back());
-          last_param->parsed_begin_index = parsed_begin_index;
+          last_param->parsed_begin_index 
+              = ast->parsed_tokens.last_expansion_begin_offset.value();
           last_param->parent = last_directive;
           last_param->has_name = true;
           last_param->index = static_cast<unsigned>(

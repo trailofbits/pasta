@@ -119,9 +119,6 @@ class PatchedMacroTracker : public clang::PPCallbacks {
   std::unordered_map<unsigned, unsigned> next_counter_value;
   unsigned last_counter_id{0};
 
-  // Begin index in the parsed tokens.
-  DerivedTokenIndex parsed_begin_index{~0u};
-
  public:
 
   explicit PatchedMacroTracker(clang::Preprocessor &pp_,

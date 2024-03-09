@@ -238,10 +238,11 @@ class ParsedTokenStorage {
   // this `#pragma`.
   std::vector<bool> is_in_pragma_directive;
 
-  // A pending marker representing the beginning of a file. We need to transport
-  // this marker from inside of an `#include`'s expansion to outside of it.
-  std::optional<std::pair<clang::SourceLocation, TokenRole>>
-      pending_begin_of_file_marker;
+  // A pending marker representing the beginning/ending of a file. We need to
+  // transport this marker from inside of an expansion to outside of it.
+  using Marker = std::pair<clang::SourceLocation, TokenRole>;
+  std::vector<Marker> pending_eof_markers;
+  std::optional<Marker> pending_bof_marker;
 
   std::vector<BitPackedLocation> include_location;
 
@@ -343,7 +344,7 @@ class ParsedTokenStorage {
   // Try to split the token at offset `offset`.
   void SplitToken(DerivedTokenIndex offset);
 
-  void TryAddBeginOfFileMarker(void);
+  void TryAddPendingMarker(void);
 
   void Finalize(void);
 };

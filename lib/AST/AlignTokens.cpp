@@ -756,16 +756,16 @@ SequenceRegion *Matcher::BuildRegions(
 
     last_balanced = nullptr;
 
-#if PASTA_DEBUG_ALIGN
-    std::cerr
-        << list_kind
-        << " regions=" << regions.size()
-        << " stack=" << match_stack.size()
-        << " index=" << (&tok - first)
-        << " tok=" << TokenName(tok.kind)
-        << " last_balanced=" << (!!last_balanced)
-        << '\n';
-#endif
+// #if PASTA_DEBUG_ALIGN
+//     std::cerr
+//         << list_kind
+//         << " regions=" << regions.size()
+//         << " stack=" << match_stack.size()
+//         << " index=" << (&tok - first)
+//         << " tok=" << TokenName(tok.kind)
+//         << " last_balanced=" << (!!last_balanced)
+//         << '\n';
+// #endif
 
     switch (tok_kind) {
 

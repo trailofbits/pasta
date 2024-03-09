@@ -519,7 +519,7 @@ std::optional<Token> Token::OpeningLocation(void) const {
     return std::nullopt;
   }
 
-  return Token(storage, matching_it->first);
+  return Token(storage, matching_it->second);
 }
 
 // Location of the "balanced" token. If this is a `)`, `]`, `}`, or `>`, then
@@ -1184,8 +1184,14 @@ bool ParsedTokenStorage::AddLeadingWhitespaceAndComments(
 // The marker for entering a file will be delivered while we're still in
 // the macro expansion event for a `#include`, so we have a way of deferring
 // it until after.
-void ParsedTokenStorage::TryAddBeginOfFileMarker(void) {
-  if (!pending_begin_of_file_marker) {
+void ParsedTokenStorage::TryAddPendingMarker(void) {
+  for (auto &marker : pending_eof_markers) {
+    AppendMarkerToken(marker.first, marker.second);
+  }
+
+  pending_eof_markers.clear();
+
+  if (!pending_bof_marker) {
     return;
   }
 
@@ -1194,10 +1200,9 @@ void ParsedTokenStorage::TryAddBeginOfFileMarker(void) {
     include_loc = location.back();
   }
 
-  AppendMarkerToken(pending_begin_of_file_marker->first,
-                    pending_begin_of_file_marker->second);
-  pending_begin_of_file_marker.reset();
+  AppendMarkerToken(pending_bof_marker->first, pending_bof_marker->second);
   include_location.push_back(include_loc);
+  pending_bof_marker.reset();
 }
 
 void ParsedTokenStorage::AppendFileToken(
@@ -1205,7 +1210,7 @@ void ParsedTokenStorage::AppendFileToken(
 
   ast->macro_tokens.MarkPreviousTokenAsEndOfExpansion();
 
-  TryAddBeginOfFileMarker();
+  TryAddPendingMarker();
 
   auto floc = CreateFileLocation(tok.getLocation());
   if (!AddLeadingWhitespaceAndComments(floc)) {
@@ -1304,19 +1309,24 @@ void ParsedTokenStorage::AppendMarkerToken(
     clang::SourceLocation loc, TokenRole role_) {
 
   auto floc = CreateFileLocation(loc);
+  auto in_expansion = ast->macro_tokens.last_expansion_begin_offset.has_value();
 
   // If we're in the expansion of a `#include`, then defer adding of the
   // befin of file marker.
-  if (role_ == TokenRole::kBeginOfFileMarker &&
-      ast->macro_tokens.last_expansion_begin_offset.has_value()) {
-    assert(!pending_begin_of_file_marker.has_value());
-    pending_begin_of_file_marker.reset();
-    pending_begin_of_file_marker.emplace(loc, role_);
+  if (in_expansion && role_ == TokenRole::kBeginOfFileMarker) {
+    assert(!pending_bof_marker.has_value());
+    pending_bof_marker.reset();
+    pending_bof_marker.emplace(loc, role_);
+    return;
+
+  } else if (in_expansion && role_ == TokenRole::kEndOfFileMarker) {
+    assert(!pending_bof_marker.has_value());
+    pending_eof_markers.emplace_back(loc, role_);
     return;
   
   } else if (role_ == TokenRole::kMacroDirectiveMarker) {
     assert(last_expansion_begin_offset.has_value());
-  
+
   } else if (role_ == TokenRole::kEndOfFileMarker) {
     (void) AddLeadingWhitespaceAndComments(floc);
   }
@@ -1434,6 +1444,7 @@ void ParsedTokenStorage::SplitToken(DerivedTokenIndex offset) {
 }
 
 void ParsedTokenStorage::Finalize(void) {
+  TryAddPendingMarker();
   assert(role.size() == kind.size());
   assert(role.size() == location.size());
   assert(role.size() == is_in_pragma_directive.size());
@@ -1687,6 +1698,7 @@ void MacroTokenStorage::MarkPreviousTokenAsEndOfExpansion(void) {
     assert(false);
   }
 
+  assert(begin_parsed_offset != end_parsed_offset);
   ast->matching.emplace(begin_parsed_offset, end_parsed_offset);
   ast->matching.emplace(end_parsed_offset, begin_parsed_offset);
 
@@ -1698,7 +1710,7 @@ void MacroTokenStorage::MarkPreviousTokenAsEndOfExpansion(void) {
 
 DerivedTokenIndex MacroTokenStorage::MarkNextTokenAsBeginOfExpansion(void) {
   MarkPreviousTokenAsEndOfExpansion();
-  ast->parsed_tokens.TryAddBeginOfFileMarker();
+  ast->parsed_tokens.TryAddPendingMarker();
 
   next_is_begin_expansion = true;
   last_expansion_begin_offset = static_cast<unsigned>(kind.size());

@@ -31,7 +31,7 @@
 #include "Token.h"
 #include "Util.h"
 
-#define PASTA_DEBUG_ALIGN 0
+#define PASTA_DEBUG_ALIGN 1
 #define TK(...)
 
 namespace pasta {

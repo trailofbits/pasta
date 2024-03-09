@@ -33,6 +33,7 @@ class CompileJob;
 class Compiler;
 class Decl;
 class Macro;
+class PrintedTokenRange;
 class Stmt;
 class Token;
 class TokenContext;
@@ -103,6 +104,7 @@ class AST {
   friend class CompileJob;
   friend class DeclBase;
   friend class DeclPrinter;
+  friend class PrintedTokenRange;
 
   AST(void) = delete;
 

@@ -111,8 +111,9 @@ class ASTImpl : public std::enable_shared_from_this<ASTImpl> {
   // Bounds for AST nodes.
   std::unordered_map<void *, BoundingTokens> bounds;
 
-  // Mapping of parsed token offsets to directives.
-  std::unordered_map<DerivedTokenIndex, Node> macro_directives;
+  // Mapping of parsed token offsets to macros. This applies to begin/end
+  // macro markers, and macro directive markers.
+  std::unordered_map<DerivedTokenIndex, Node> marker_offset_to_macro;
 
   struct FunctionProto {
     bool has_variable_form{false};
@@ -175,9 +176,6 @@ class ASTImpl : public std::enable_shared_from_this<ASTImpl> {
   TokenRange DeclTokenRange(const clang::Decl *decl);
   TokenRange DeclTokenRange(const clang::Decl *decl,
                             std::unique_lock<std::mutex> locker);
-
-  // Mark tokens as being part of macros.
-  void MarkMacroTokens(void);
 
   // Link in macro tokens to the token contexts of tokens with macro roles.
   void LinkMacroTokenContexts(void);

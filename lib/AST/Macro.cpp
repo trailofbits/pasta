@@ -559,6 +559,8 @@ std::optional<Macro> Macro::Parent(void) const noexcept {
 
   MacroNodeImpl *node_impl = std::get<MacroNodeImpl *>(node);
   if (!std::holds_alternative<MacroNodeImpl *>(node_impl->parent)) {
+    assert(std::holds_alternative<std::monostate>(node_impl->parent));
+    assert(dynamic_cast<RootMacroNode *>(node_impl));
     return std::nullopt;
   }
 
@@ -727,19 +729,19 @@ std::optional<MacroToken> MacroDirective::DirectiveName(void) const noexcept {
 }
 
 // Return the macro directive associated with a marker token.
-std::optional<MacroDirective> MacroDirective::From(const Token &tok) noexcept {
+std::optional<Macro> Macro::FromMarkerToken(const Token &tok) noexcept {
   auto &tok_ast = tok.storage->ast;
   if (tok.storage.get() != &(tok_ast->parsed_tokens)) {
     return std::nullopt;
   }
 
-  auto it = tok_ast->macro_directives.find(tok.offset);
-  if (it == tok_ast->macro_directives.end()) {
+  auto it = tok_ast->marker_offset_to_macro.find(tok.offset);
+  if (it == tok_ast->marker_offset_to_macro.end()) {
     return std::nullopt;
   }
 
-  return MacroDirective(std::shared_ptr<ASTImpl>(tok.storage, tok_ast),
-                        &(it->second));
+  return Macro(std::shared_ptr<ASTImpl>(tok.storage, tok_ast),
+               &(it->second));
 }
 
 // The location of this directive in the parsed tokens.

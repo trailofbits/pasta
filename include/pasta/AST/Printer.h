@@ -380,6 +380,9 @@ class PrintedTokenRange {
   PrintedTokenRange &operator=(const PrintedTokenRange &) = default;
   PrintedTokenRange &operator=(PrintedTokenRange &&) noexcept = default;
 
+  // Create an empty range.
+  static PrintedTokenRange CreateEmpty(const AST &ast_);
+
   // Raw interfaces for when we're not using a PASTA AST, but when we want
   // the power of its token printer.
   static PrintedTokenRange Create(clang::ASTContext &context_,

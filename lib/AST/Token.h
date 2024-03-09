@@ -187,6 +187,7 @@ class ParsedTokenStorage {
  protected:
   friend class AST;
   friend class ASTImpl;
+  friend class Macro;
   friend class MacroDirective;
   friend class MacroTokenStorage;
   friend class ParsedTokenIterator;
@@ -303,12 +304,6 @@ class ParsedTokenStorage {
     return is_in_pragma_directive[offset];
   }
 
-  // bool IsBeginOfMacroExpansion(
-  //     const MacroTokenStorage &macro_tokens, unsigned offset) const;
-
-  // bool IsEndOfMacroExpansion(
-  //     const MacroTokenStorage &macro_tokens, unsigned offset) const;
-
   // Finish off a token.
   inline void FinishToken(void) {
     data_offset.emplace_back(static_cast<DerivedTokenIndex>(data.size()));
@@ -337,10 +332,10 @@ class ParsedTokenStorage {
                          bool is_in_pragma);
   void AppendFileToken(std::string_view data, const clang::Token &tok);
   void AppendMacroToken(const clang::Token &tok);
-  void AppendInternalToken(std::string_view tok_data,
-                           clang::SourceLocation loc,
-                           TokenRole role_,
-                           bool is_in_pragma=false);
+  DerivedTokenIndex AppendInternalToken(std::string_view tok_data,
+                                        clang::SourceLocation loc,
+                                        TokenRole role_,
+                                        bool is_in_pragma=false);
 
   // Append a marker token to the parsed token list.
   void AppendMarkerToken(clang::SourceLocation loc, TokenRole role);
@@ -381,6 +376,9 @@ class MacroTokenStorage : public ParsedTokenStorage {
   TokenProvenanceMap file_token_refs;
   TokenProvenanceMap macro_token_refs;
 
+  // Depth of pragma directive.
+  int pragma_depth{0};
+
   // Hidden methods.
   using ParsedTokenStorage::AppendFileToken;
   using ParsedTokenStorage::AppendMacroToken;
@@ -415,6 +413,17 @@ class MacroTokenStorage : public ParsedTokenStorage {
   clang::SourceLocation OriginalLocation(DerivedTokenIndex offset) const;
 
   void Finalize(void);
+
+  inline void IncreasePragmaDepth(void) {
+    ++pragma_depth;
+  }
+
+  inline void DecreasePragmaDepth(void) {
+    assert(0 < pragma_depth);
+    --pragma_depth;
+  }
+
+  void TryAddLastUseLoc(clang::SourceLocation loc);
 };
 
 inline static std::optional<std::pair<unsigned, DerivedTokenIndex>>

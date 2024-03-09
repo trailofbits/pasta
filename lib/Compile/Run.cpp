@@ -500,8 +500,6 @@ Result<AST, std::string> CompileJob::Run(void) const {
   // Finalize any leftover instantiations.
   sema.PerformPendingInstantiations(false);
 
-  pp2.clearPPCallbacks();
-
   if (diagnostics_engine->hasUncompilableErrorOccurred() ||
       diagnostics_engine->hasFatalErrorOccurred()) {
     if (diag->error.empty()) {
@@ -539,7 +537,6 @@ Result<AST, std::string> CompileJob::Run(void) const {
     policy->IncludeTagDefinition = true;
   }
 
-  ast->MarkMacroTokens();
   ast->LinkMacroTokenContexts();
 
   return AST(std::move(ast));

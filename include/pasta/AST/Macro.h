@@ -124,6 +124,9 @@ class Macro {
     return std::nullopt;
   }
 
+  // Return the macro associated with a marker token.
+  static std::optional<Macro> FromMarkerToken(const Token &tok) noexcept;
+
   MacroKind Kind(void) const noexcept;
 
   std::string_view KindName(void) const noexcept;
@@ -230,9 +233,6 @@ class MacroDirective : public Macro {
 
  public:
   static std::optional<MacroDirective> From(const Macro &node) noexcept;
-
-  // Return the macro directive associated with a marker token.
-  static std::optional<MacroDirective> From(const Token &tok) noexcept;
 
   // Return the hash token of the directive.
   MacroToken Hash(void) const noexcept;

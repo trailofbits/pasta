@@ -481,7 +481,8 @@ void TokenPrinterContext::Tokenize(void) {
       token_data.data(),
       token_data.data() + token_data.size());
 
-  lexer.SetKeepWhitespaceMode(true);
+  lexer.SetKeepWhitespaceMode(false);
+  lexer.SetCommentRetentionState(false);
 
   clang::Token tok;
 
@@ -518,31 +519,34 @@ void TokenPrinterContext::Tokenize(void) {
 
     for (auto j = 0u; i < size && j < tok_len; ++i) {
       
-      // // Skip leading whitespace.
-      // if (!seen_data) {
-      //   switch (token_data[i]) {
-      //     case ' ':
-      //     case '\n':
-      //     case '\r':
-      //     case '\t':
-      //     case '\0':
-      //       continue;
-      //     default:
-      //       seen_data = true;
-      //       break;
-      //   }
-      // }
+      // Skip leading whitespace.
+      if (!seen_data) {
+        switch (token_data[i]) {
+          case ' ':
+          case '\n':
+          case '\r':
+          case '\t':
+          case '\0':
+          case '\\':
+            continue;
+          default:
+            seen_data = true;
+            break;
+        }
+      }
 
       ++j;
       tokens.data.push_back(token_data[i]);
     }
 
-    // SkipTrailingWhitespace(tokens.data);
+    if (seen_data) {
+      SkipTrailingWhitespace(tokens.data);
+    }
 
     const auto data_len = tokens.data.size() - data_offset;
     assert(0u < data_len);
     assert(data_len <= tok.getLength());
-    // tokens.data.push_back(' ');
+    tokens.data.push_back(' ');
 
     // Migrate all kinds to `identifier` now that we've got the data.
     if (tok.is(clang::tok::raw_identifier)) {
@@ -637,6 +641,14 @@ TokenPrinterContext::~TokenPrinterContext(void) {
   if (owns_data) {
     tokens.data_to_index.erase(owns_data);
   }
+}
+
+// Create an empty range.
+PrintedTokenRange PrintedTokenRange::CreateEmpty(const AST &ast) {
+  auto &context = ast.impl->tu->getASTContext();
+  auto tokens = std::make_shared<PrintedTokenRangeImpl>(context);
+  tokens->AddTrailingEOF();
+  return PrintedTokenRangeImpl::ToPrintedTokenRange(std::move(tokens));
 }
 
 // More typical APIs when we've got PASTA ASTs.

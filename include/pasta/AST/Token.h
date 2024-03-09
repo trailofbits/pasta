@@ -82,6 +82,7 @@ class Token {
   friend class ASTImpl;
   friend class CXXBaseSpecifier;
   friend class FunctionDecl;
+  friend class Macro;
   friend class MacroDirective;
   friend class MacroToken;
   friend class PrintedToken;

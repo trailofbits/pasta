@@ -100,7 +100,7 @@ void PatchedMacroTracker::Push(const clang::Token &tok) {
     D( std::cerr << indent << "BeginOfMacroExpansionMarker\n"; )
     assert(tok.getLocation().isValid() && tok.getLocation().isFileID());
 
-    ast->macro_tokens.MarkNextTokenAsBeginOfExpansion();
+    (void) ast->macro_tokens.MarkNextTokenAsBeginOfExpansion();
   }
   ++depth;
 }
@@ -108,6 +108,11 @@ void PatchedMacroTracker::Push(const clang::Token &tok) {
 void PatchedMacroTracker::Pop(const clang::Token &tok) {
   assert(0 < depth);
   --depth;
+
+  if (!depth) {
+    assert(ast->marker_offset_to_macro.count(
+        ast->parsed_tokens.last_expansion_begin_offset.value()));
+  }
 }
 
 // Try to extract the header name and create a substitution for it. In the case
@@ -746,26 +751,6 @@ void PatchedMacroTracker::DoToken(const clang::Token &tok_, uintptr_t data) {
   }
 }
 
-// Mark tokens as being part of macros.
-void ASTImpl::MarkMacroTokens(void) {
-  for (const MacroTokenImpl &mt : root_macro_node.tokens) {
-    // TokenImpl &tok = tokens[mt.token_offset];
-    Node parent = mt.parent;
-    while (std::holds_alternative<MacroNodeImpl *>(parent)) {
-      auto parent_node = std::get<MacroNodeImpl *>(parent);
-      switch (parent_node->kind) {
-        case MacroKind::kPragmaDirective:
-          macro_tokens.MarkTokenAsInPragmaDirective(mt.token_offset);
-          parent = std::monostate{};  // Break out of loop.
-          break;
-        default:
-          parent = parent_node->parent;
-          break;
-      }
-    }
-  }
-}
-
 void ASTImpl::LinkMacroTokenContexts(void) {
   root_macro_node.token_nodes.reserve(root_macro_node.tokens.size());
 
@@ -1030,6 +1015,9 @@ void PatchedMacroTracker::DoBeginDirective(
   directives.push_back(directive);
   DoToken(tok, data);
 
+  ast->marker_offset_to_macro.emplace(
+      ast->parsed_tokens.last_expansion_begin_offset.value(), directive);
+
   directive->parsed_begin_index 
       = ast->parsed_tokens.last_expansion_begin_offset.value();
 }
@@ -1063,6 +1051,11 @@ void PatchedMacroTracker::DoSetNamedDirective(const clang::Token &, uintptr_t) {
   std::string_view data = ast->macro_tokens.Data(kw_offset);
 
   directive->kind = KindFromName(data, kw_kind);
+
+  if (directive->kind == MacroKind::kPragmaDirective) {
+    ast->macro_tokens.IncreasePragmaDepth();
+  }
+
   if (directive->kind != MacroKind::kToken) {
     directive->directive_name = directive->nodes.back();
     directive->collected_missing_tokens_on_eod = data == "warning" ||
@@ -1109,7 +1102,6 @@ static void Expand(std::ostream &os, const ASTImpl &ast,
     last_loc = ast.macro_tokens.OriginalLocation(tok_offset);
     auto data = ast.macro_tokens.Data(tok_offset);
     if (!data.empty()) {
-      last_loc = last_loc.getLocWithOffset(static_cast<int>(data.size()));
       os << sep << data;
       sep = " ";
 
@@ -1263,11 +1255,23 @@ done:
         false  /* is_in_pragma */);
   }
 
+  if (last_directive->kind == MacroKind::kPragmaDirective) {
+    ast->macro_tokens.DecreasePragmaDepth();
+  }
+
+  // Inject a dummy token into the macro tokens so that we have a last usage
+  // location. This helps whitespace injection after an EOM marker token after
+  // a macro directive.
+  ast->macro_tokens.TryAddLastUseLoc(last_loc);
+
   auto marker_offset = static_cast<DerivedTokenIndex>(
       ast->parsed_tokens.size() - 1u);
   assert(ast->parsed_tokens.Role(marker_offset) ==
          TokenRole::kMacroDirectiveMarker);
-  ast->macro_directives.emplace(marker_offset, dir_for_node);
+
+  assert(ast->marker_offset_to_macro.count(
+      ast->parsed_tokens.last_expansion_begin_offset.value()));
+  ast->marker_offset_to_macro.emplace(marker_offset, dir_for_node);
   dir_for_node->marker_token_offset = marker_offset;
 
   Pop(tok);
@@ -1291,6 +1295,9 @@ void PatchedMacroTracker::DoBeginMacroExpansion(
 
   auto tok_index = ast->macro_tokens.size();
   DoToken(tok, data);
+
+  ast->marker_offset_to_macro.emplace(
+      ast->parsed_tokens.last_expansion_begin_offset.value(), expansion);
 
   expansion->parsed_begin_index 
       = ast->parsed_tokens.last_expansion_begin_offset.value();
@@ -1896,6 +1903,9 @@ void PatchedMacroTracker::DoBeginSubstitution(
   nodes.push_back(expansion);
   substitutions.push_back(expansion);
   DoToken(tok, data);
+
+  ast->marker_offset_to_macro.emplace(
+      ast->parsed_tokens.last_expansion_begin_offset.value(), expansion);
 }
 
 // A delayed substitution comes after the first substituted token, so we need
@@ -1942,6 +1952,9 @@ void PatchedMacroTracker::DoBeginDelayedSubstitution(
   }
 
   assert(std::holds_alternative<MacroTokenImpl *>(expansion->name));
+
+  ast->marker_offset_to_macro.emplace(
+      ast->parsed_tokens.last_expansion_begin_offset.value(), expansion);
 }
 
 void PatchedMacroTracker::DoSwitchToSubstitution(
@@ -2798,8 +2811,10 @@ void PatchedMacroTracker::PragmaDirective(
 
   assert(!directives.empty());
   MacroDirectiveImpl *directive = directives.back();
-  assert(directive->kind == MacroKind::kOtherDirective ||
-         directive->kind == MacroKind::kPragmaDirective);
+
+  auto old_kind = directive->kind;
+  assert(old_kind == MacroKind::kOtherDirective ||
+         old_kind == MacroKind::kPragmaDirective);
 
   switch (introducer) {
     case clang::PragmaIntroducerKind::PIK_HashPragma:
@@ -2807,6 +2822,10 @@ void PatchedMacroTracker::PragmaDirective(
     case clang::PragmaIntroducerKind::PIK___pragma:  // Microsoft.
       directive->kind = MacroKind::kPragmaDirective;
       break;
+  }
+
+  if (old_kind != directive->kind) {
+    ast->macro_tokens.IncreasePragmaDepth();
   }
 }
 

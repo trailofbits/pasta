@@ -181,6 +181,36 @@ class MacroTokenStorage;
 using BitPackedLocation = uint64_t;
 static constexpr BitPackedLocation kInvalidBitPackedLocation = 0u;
 
+inline static std::optional<std::pair<unsigned, DerivedTokenIndex>>
+UnpackFileAndTokenOffset(BitPackedLocation loc) {
+  static_assert(sizeof(DerivedTokenIndex) == sizeof(uint32_t));
+
+  auto tok_offset = static_cast<uint32_t>(loc);
+  auto file_offset = static_cast<uint32_t>(loc >> 32u);
+  if (file_offset && tok_offset) {
+    assert(file_offset < ~0u);
+    return std::pair<unsigned, DerivedTokenIndex>(
+        static_cast<unsigned>(file_offset - 1u),
+        static_cast<DerivedTokenIndex>(tok_offset - 1u));
+  }
+
+  return std::nullopt;
+}
+
+inline static constexpr bool IsInvalidOrFileBitPackedLocation(
+    BitPackedLocation loc) {
+  return !loc || static_cast<uint32_t>(loc);
+}
+
+inline static constexpr bool IsMacroTokenOffset(BitPackedLocation loc) {
+  return loc && (loc & ~0u) == loc;
+}
+
+inline static constexpr DerivedTokenIndex MacroTokenOffset(
+    BitPackedLocation loc) {
+  return static_cast<DerivedTokenIndex>((loc >> 32u) - 1u);
+} 
+
 class ParsedTokenIterator;
 
 class ParsedTokenStorage {
@@ -359,6 +389,10 @@ class MacroTokenStorage : public ParsedTokenStorage {
   // Offset in `ASTImpl::root_macro_node.tokens` where this token is located.
   std::vector<DerivedTokenIndex> macro_token_offset;
 
+  // Original source locations of these macro tokens. These are not changed,
+  // even by the fixup process.
+  std::vector<OpaqueSourceLoc> original_location;
+
   // State used during the lexing phase to keep track of whether or not we're
   // inside of an expansion.
   bool next_is_begin_expansion{false};
@@ -411,7 +445,9 @@ class MacroTokenStorage : public ParsedTokenStorage {
   const Node *MacroName(DerivedTokenIndex offset) const;
   void MarkAsMacroName(DerivedTokenIndex offset, Node macro);
 
-  clang::SourceLocation OriginalLocation(DerivedTokenIndex offset) const;
+  clang::SourceLocation OriginalLocation(DerivedTokenIndex offset) const {
+    return clang::SourceLocation::getFromRawEncoding(original_location[offset]);
+  }
 
   void Finalize(void);
 
@@ -426,36 +462,6 @@ class MacroTokenStorage : public ParsedTokenStorage {
 
   void TryAddLastUseLoc(clang::SourceLocation loc);
 };
-
-inline static std::optional<std::pair<unsigned, DerivedTokenIndex>>
-UnpackFileAndTokenOffset(BitPackedLocation loc) {
-  static_assert(sizeof(DerivedTokenIndex) == sizeof(uint32_t));
-
-  auto tok_offset = static_cast<uint32_t>(loc);
-  auto file_offset = static_cast<uint32_t>(loc >> 32u);
-  if (file_offset && tok_offset) {
-    assert(file_offset < ~0u);
-    return std::pair<unsigned, DerivedTokenIndex>(
-        static_cast<unsigned>(file_offset - 1u),
-        static_cast<DerivedTokenIndex>(tok_offset - 1u));
-  }
-
-  return std::nullopt;
-}
-
-inline static constexpr bool IsInvalidOrFileBitPackedLocation(
-    BitPackedLocation loc) {
-  return !loc || static_cast<uint32_t>(loc);
-}
-
-inline static constexpr bool IsMacroTokenOffset(BitPackedLocation loc) {
-  return loc && (loc & ~0u) == loc;
-}
-
-inline static constexpr DerivedTokenIndex MacroTokenOffset(
-    BitPackedLocation loc) {
-  return static_cast<DerivedTokenIndex>((loc >> 32u) - 1u);
-} 
 
 class ParsedTokenIterator {
  private:

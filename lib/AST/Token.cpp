@@ -1075,6 +1075,8 @@ void ParsedTokenStorage::InventLeadingWhitespace(const clang::Token &tok) {
 bool ParsedTokenStorage::AddLeadingWhitespaceAndComments(
     BitPackedLocation floc) {
 
+  assert(this == &(ast->parsed_tokens));
+
   // If this is the first file location, then formulate a location that is the
   // first location from the relevant file.
   auto inclusive = false;
@@ -1185,6 +1187,10 @@ bool ParsedTokenStorage::AddLeadingWhitespaceAndComments(
 // the macro expansion event for a `#include`, so we have a way of deferring
 // it until after.
 void ParsedTokenStorage::TryAddPendingMarker(void) {
+  if (this != &(ast->parsed_tokens)) {
+    return;
+  }
+
   for (auto &marker : pending_eof_markers) {
     AppendMarkerToken(marker.first, marker.second);
   }
@@ -1207,6 +1213,8 @@ void ParsedTokenStorage::TryAddPendingMarker(void) {
 
 void ParsedTokenStorage::AppendFileToken(
     std::string_view tok_data, const clang::Token &tok) {
+
+  assert(this == &(ast->parsed_tokens));
 
   ast->macro_tokens.MarkPreviousTokenAsEndOfExpansion();
 
@@ -1277,6 +1285,8 @@ DerivedTokenIndex ParsedTokenStorage::AppendInternalToken(
     std::string_view tok_data, clang::SourceLocation loc,
     TokenRole role_, bool is_in_pragma) {
 
+  assert(this == &(ast->parsed_tokens));
+
   if (!data.empty() && !IsSpace(data.back())) {
     data.push_back('\n');
     data_offset.back() += 1u;
@@ -1307,6 +1317,8 @@ DerivedTokenIndex ParsedTokenStorage::AppendInternalToken(
 // Append a marker token to the parsed token list.
 void ParsedTokenStorage::AppendMarkerToken(
     clang::SourceLocation loc, TokenRole role_) {
+
+  assert(this == &(ast->parsed_tokens));
 
   auto floc = CreateFileLocation(loc);
   auto in_expansion = ast->macro_tokens.last_expansion_begin_offset.has_value();
@@ -1471,9 +1483,6 @@ DerivedTokenIndex MacroTokenStorage::AppendMacroToken(
         parsed_tokens.role.size());
     parsed_tokens.AppendInternalToken(
         {}, loc, TokenRole::kBeginOfMacroExpansionMarker);
-  
-  } else if (loc.isFileID()) {
-    (void) AddLeadingWhitespaceAndComments(CreateFileLocation(loc));
   }
 
   auto kind_ = tok.getKind();
@@ -1488,6 +1497,7 @@ DerivedTokenIndex MacroTokenStorage::AppendMacroToken(
   macro_token_offset.emplace_back(macro_token_offset_);
   next_is_begin_expansion = false;
   location.emplace_back(CreateInitialMacroLocation(loc));
+  original_location.emplace_back(loc.getRawEncoding());
   FinishToken();
   return offset;
 }
@@ -1508,6 +1518,7 @@ DerivedTokenIndex MacroTokenStorage::CloneMacroToken(
   is_in_pragma_directive.emplace_back(is_in_pragma_directive[offset]);
   macro_token_offset.emplace_back(macro_token_offset_);
   location.emplace_back(location[offset]);
+  original_location.emplace_back(original_location[offset]);
   FinishToken();
 
   auto it = macro_definition.find(offset);
@@ -1626,26 +1637,6 @@ void MacroTokenStorage::TryAddLastUseLoc(clang::SourceLocation loc) {
       last_use_loc = loc;
     }
   }
-}
-
-clang::SourceLocation MacroTokenStorage::OriginalLocation(
-    DerivedTokenIndex offset) const {
-
-  auto bit_packed_loc = location[offset];
-  if (!bit_packed_loc || ~static_cast<uint32_t>(bit_packed_loc >> 32u)) {
-    return {};
-  }
-
-  // We can only ask for the original location of a macro token while we are
-  // still processing the the expansion itself. Otherwise the above
-  // `FixupTokenProvenance` might have altered it.
-  assert(last_expansion_begin_offset.has_value());
-  assert(offset >= last_expansion_begin_offset.value());
-
-  static_assert(sizeof(uint32_t) == sizeof(OpaqueSourceLoc));
-
-  return clang::SourceLocation::getFromRawEncoding(
-      static_cast<uint32_t>(location[offset]));
 }
 
 void MacroTokenStorage::MarkPreviousTokenAsEndOfExpansion(void) {

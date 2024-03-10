@@ -511,21 +511,9 @@ std::optional<MacroToken> Token::MacroLocation(void) const {
 }
 
 // Location of the "balanced" token. If this is a `(`, `[`, `{`, or `<`, then
-// this points to itself. If it's a `)`, `]`, `}`, or `>`, then this points to
-// the opening location. Otherwise, it's `std::nullopt`.
-std::optional<Token> Token::OpeningLocation(void) const {
-  auto matching_it = storage->ast->matching.find(offset);
-  if (matching_it == storage->ast->matching.end()) {
-    return std::nullopt;
-  }
-
-  return Token(storage, matching_it->second);
-}
-
-// Location of the "balanced" token. If this is a `)`, `]`, `}`, or `>`, then
-// this points to itself. If it's a `(`, `[`, `{`, or `<`, then this points to
-// the cloisng location. Otherwise, it's `std::nullopt`.
-std::optional<Token> Token::ClosingLocation(void) const {
+// this points to the closing location. If it's a `)`, `]`, `}`, or `>`, then
+// this points to the opening location. Otherwise, it's `std::nullopt`.
+std::optional<Token> Token::BalancedLocation(void) const {
   auto matching_it = storage->ast->matching.find(offset);
   if (matching_it == storage->ast->matching.end()) {
     return std::nullopt;

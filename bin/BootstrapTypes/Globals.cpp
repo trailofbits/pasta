@@ -1664,7 +1664,11 @@ std::map<std::pair<std::string, std::string>, std::string> kConditionalNullptr{
   {{"CXXRecordDecl", "IsEffectivelyFinal"}, SELF_IS_DEFINITION},
   {{"CXXRecordDecl", "IsEmpty"}, SELF_IS_DEFINITION},
   //{{"CXXRecordDecl", "IsGenericLambda"}, SELF_IS_DEFINITION},
-  {{"CXXRecordDecl", "IsInterfaceLike"}, SELF_IS_DEFINITION},
+  {{"CXXRecordDecl", "IsInterfaceLike"},
+   SELF_IS_DEFINITION
+   "  if (clang::isa<clang::ClassTemplatePartialSpecializationDecl>(self)) {\n"
+   "    return std::nullopt;\n"
+   "  }\n"},
   //{{"CXXRecordDecl", "IsLambda"}, SELF_IS_DEFINITION},
   {{"CXXRecordDecl", "IsLiteral"}, SELF_IS_DEFINITION},
   {{"CXXRecordDecl", "IsLocalClass"}, SELF_IS_DEFINITION},

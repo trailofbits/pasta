@@ -1804,8 +1804,11 @@ class DeclBoundsFinder : public clang::DeclVisitor<DeclBoundsFinder>,
     }
 
     switch (lower_bound.Role()) {
+      case TokenRole::kInvalid:
       case TokenRole::kBeginOfFileMarker:
       case TokenRole::kBeginOfMacroExpansionMarker:
+      case TokenRole::kEndOfFileMarker:
+      case TokenRole::kEndOfMacroExpansionMarker:
         lower_bound.Next();
         break;
       default:
@@ -1813,6 +1816,9 @@ class DeclBoundsFinder : public clang::DeclVisitor<DeclBoundsFinder>,
     }
 
     switch (upper_bound.Role()) {
+      case TokenRole::kInvalid:
+      case TokenRole::kBeginOfFileMarker:
+      case TokenRole::kBeginOfMacroExpansionMarker:
       case TokenRole::kEndOfFileMarker:
       case TokenRole::kEndOfMacroExpansionMarker:
         upper_bound.Previous();

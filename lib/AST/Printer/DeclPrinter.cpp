@@ -2543,6 +2543,26 @@ PrintedTokenRange PrintedTokenRange::Create(const std::shared_ptr<ASTImpl> &ast,
   tokens->contexts.emplace_back(*ast);
 
   if (decl) {
+    std::vector<clang::Decl *> parent_decls;
+    auto dc = decl->getLexicalDeclContext();
+    while (dc) {
+      auto parent_decl = clang::Decl::castFromDeclContext(dc);
+      if (!parent_decl ||
+          parent_decl->getKind() == clang::Decl::TranslationUnit) {
+        break;
+      }
+
+      parent_decls.emplace_back(parent_decl);
+      dc = parent_decl->getLexicalDeclContext();
+    }
+
+    // Add the parentage to this decl.
+    std::vector<TokenPrinterContext> parent_contexts;
+    while (!parent_decls.empty()) {
+      parent_contexts.emplace_back(out, parent_decls.back(), *tokens);
+      parent_decls.pop_back();
+    }
+
     PrintingPolicyAdaptor ppa(ast, high_pp, decl);
     PrintingPolicyAdaptorRAII ppa_set_reset(tokens, ppa);
 
@@ -2563,6 +2583,11 @@ PrintedTokenRange PrintedTokenRange::Create(const std::shared_ptr<ASTImpl> &ast,
     if (begin_tok < end_tok && ast->TokenKind(end_tok) == TokenKind::kSemi &&
         tokens->tokens.back().kind == TokenKind::kSemi) {
       ctx.MarkLocation(end_tok);
+    }
+
+    // Close it out in the right order.
+    while (!parent_contexts.empty()) {
+      parent_contexts.pop_back();
     }
   }
 

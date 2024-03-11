@@ -702,6 +702,19 @@ std::vector<::pasta::CXXCtorInitializer> CXXConstructorDecl::Initializers(void) 
     return ret;
   }
 
+  std::vector<::pasta::NamedDecl> CXXRecordDecl::VisibleConversionFunctions(void) const {
+    auto &self = *const_cast<clang::CXXRecordDecl *>(u.CXXRecordDecl);
+    if (!self.hasDefinition()) {
+      return {};
+    }
+    decltype(auto) conversion_functions = self.getVisibleConversionFunctions();
+    std::vector<::pasta::NamedDecl> ret;
+    for (auto cf : conversion_functions) {
+      ret.emplace_back(::pasta::NamedDecl(ast, cf));
+    }
+    return ret;
+  }
+
 #endif  // PASTA_IN_BOOTSTRAP
 
 }  // namespace pasta

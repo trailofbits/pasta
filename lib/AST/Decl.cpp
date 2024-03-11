@@ -8778,6 +8778,21 @@ std::optional<uint32_t> CXXRecordDecl::LambdaManglingNumber(void) const {
 }
 
 // 0: CXXRecordDecl::LambdaNumbering
+std::optional<::pasta::CXXMethodDecl> CXXRecordDecl::LambdaStaticInvoker(void) const {
+  auto &self = *const_cast<clang::CXXRecordDecl *>(u.CXXRecordDecl);
+  if (!self.getLambdaCallOperator()) {
+    return std::nullopt;
+  }
+  decltype(auto) val = self.getLambdaStaticInvoker();
+  if (!val) {
+    return std::nullopt;
+  }
+  if (val) {
+    return DeclBuilder::Create<::pasta::CXXMethodDecl>(ast, val);
+  }
+}
+
+// 1: CXXRecordDecl::LambdaStaticInvokerByCC
 // 0: CXXRecordDecl::
 std::optional<enum MSInheritanceModel> CXXRecordDecl::MSInheritanceModel(void) const {
   auto &self = *const_cast<clang::CXXRecordDecl *>(u.CXXRecordDecl);

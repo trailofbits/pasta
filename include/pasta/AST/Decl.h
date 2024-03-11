@@ -953,7 +953,7 @@ class ObjCImplementationDecl : public ObjCImplDecl {
   ::pasta::Token SuperClassToken(void) const;
   bool HasDestructors(void) const;
   bool HasNonZeroConstructors(void) const;
-  std::vector<pasta::CXXCtorInitializer> Initializers(void) const;
+  std::vector<::pasta::CXXCtorInitializer> Initializers(void) const;
   std::vector<::pasta::ObjCIvarDecl> InstanceVariables(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_DECL_CONSTRUCTOR(ObjCImplementationDecl)
@@ -2900,7 +2900,7 @@ class CXXConstructorDecl : public CXXMethodDecl {
   // InheritedConstructor: (clang::InheritedConstructor)
   uint32_t NumConstructorInitializers(void) const;
   std::optional<::pasta::CXXConstructorDecl> TargetConstructor(void) const;
-  std::vector<pasta::CXXCtorInitializer> Initializers(void) const;
+  std::vector<::pasta::CXXCtorInitializer> Initializers(void) const;
   bool IsConvertingConstructor(bool) const;
   bool IsDefaultConstructor(void) const;
   bool IsDelegatingConstructor(void) const;
@@ -3005,6 +3005,8 @@ class CXXRecordDecl : public RecordDecl {
   uint32_t LambdaIndexInContext(void) const;
   std::optional<uint32_t> LambdaManglingNumber(void) const;
   // LambdaNumbering: (clang::CXXRecordDecl::LambdaNumbering)
+  std::optional<::pasta::CXXMethodDecl> LambdaStaticInvoker(void) const;
+  // LambdaStaticInvokerByCC: (clang::CXXMethodDecl *)
   std::optional<enum MSInheritanceModel> MSInheritanceModel(void) const;
   enum MSVtorDispMode MSVtorDispMode(void) const;
   // MemberSpecializationInfo: (clang::MemberSpecializationInfo *)
@@ -3015,7 +3017,7 @@ class CXXRecordDecl : public RecordDecl {
   std::optional<::pasta::CXXRecordDecl> PreviousDeclaration(void) const;
   std::optional<::pasta::CXXRecordDecl> TemplateInstantiationPattern(void) const;
   enum TemplateSpecializationKind TemplateSpecializationKind(void) const;
-  // VisibleConversionFunctions: (llvm::iterator_range<clang::UnresolvedSetIterator>)
+  std::vector<::pasta::NamedDecl> VisibleConversionFunctions(void) const;
   std::optional<bool> HasAnyDependentBases(void) const;
   std::optional<bool> HasConstexprDefaultConstructor(void) const;
   std::optional<bool> HasConstexprDestructor(void) const;

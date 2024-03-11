@@ -10,6 +10,7 @@
 #pragma clang diagnostic ignored "-Wshorten-64-to-32"
 #pragma clang diagnostic ignored "-Wbitfield-enum-conversion"
 #include <clang/AST/Expr.h>
+#include <clang/AST/ExprCXX.h>
 #pragma clang diagnostic pop
 
 #include "AST.h"
@@ -133,6 +134,16 @@ std::optional<::pasta::FieldDecl> Designator::Field(void) const noexcept {
     return ast->TokenAt(clang::SourceLocation());
   }
   return ast->TokenAt(design->getEllipsisLoc());
+}
+
+std::vector<::pasta::NamedDecl> OverloadExpr::Declarations(void) const {
+  auto &self = *const_cast<clang::OverloadExpr *>(u.OverloadExpr);
+  std::vector<::pasta::NamedDecl> ret;
+  decltype(auto) declarations = self.decls();
+  for (auto decl : declarations) {
+    ret.emplace_back(DeclBuilder::Create<::pasta::NamedDecl>(ast, decl));
+  }
+  return ret;
 }
 
 #endif  // PASTA_IN_BOOTSTRAP

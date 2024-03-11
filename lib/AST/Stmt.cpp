@@ -15179,7 +15179,7 @@ std::optional<::pasta::Designator> DesignatedInitExpr::Designator(unsigned int i
     return std::nullopt;
   }
   if (val) {
-    return DeclBuilder::Create<::pasta::Designator>(ast, val);
+    return DesignatorBuilder::Create<::pasta::Designator>(ast, val);
   }
   throw std::runtime_error("The unreachable has been reached");
 }

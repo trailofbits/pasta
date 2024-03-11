@@ -1804,6 +1804,8 @@ class DeclBoundsFinder : public clang::DeclVisitor<DeclBoundsFinder>,
 // parsed tokens. This doesn't not try to expand the range to the ending
 // of macro expansions.
 ASTImpl::BoundingTokens ASTImpl::DeclBounds(clang::Decl *decl) {
+  decl = decl->RemappedDecl;
+
   auto [it, added] = bounds.try_emplace(decl, 0u, 0u);
   if (!added) {
     return it->second;

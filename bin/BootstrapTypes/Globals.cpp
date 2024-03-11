@@ -821,7 +821,7 @@ std::unordered_map<std::string, std::string> gRetTypeToValMap{
 
   {"(const clang::DesignatedInitExpr::Designator *)",
    "  if (val) {\n"
-   "    return DeclBuilder::Create<::pasta::Designator>(ast, val);\n"
+   "    return DesignatorBuilder::Create<::pasta::Designator>(ast, val);\n"
    "  }\n"},
 
   {"(llvm::ArrayRef<const clang::Attr *>)",

@@ -241,7 +241,7 @@ Attr AST::Adopt(const clang::Attr *attr) const {
 }
 
 Decl AST::Adopt(const clang::Decl *decl) const {
-  return Decl(impl, decl);
+  return Decl(impl, decl->RemappedDecl);
 }
 
 Stmt AST::Adopt(const clang::Stmt *stmt) const {

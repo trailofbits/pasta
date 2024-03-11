@@ -2861,13 +2861,15 @@ std::vector<::pasta::Stmt> CoroutineBodyStmt::ParameterMoves(void) const {
   throw std::runtime_error("CoroutineBodyStmt::PromiseDeclarationStatement can return nullptr!");
 }
 
-::pasta::Stmt CoroutineBodyStmt::ResultDeclaration(void) const {
+std::optional<::pasta::Stmt> CoroutineBodyStmt::ResultDeclaration(void) const {
   auto &self = *const_cast<clang::CoroutineBodyStmt *>(u.CoroutineBodyStmt);
   decltype(auto) val = self.getResultDecl();
+  if (!val) {
+    return std::nullopt;
+  }
   if (val) {
     return StmtBuilder::Create<::pasta::Stmt>(ast, val);
   }
-  throw std::runtime_error("CoroutineBodyStmt::ResultDeclaration can return nullptr!");
 }
 
 ::pasta::Stmt CoroutineBodyStmt::ReturnStatement(void) const {

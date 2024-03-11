@@ -179,6 +179,8 @@ class DeclContext {
     return u.DeclContext;
   }
 
+  static std::optional<DeclContext> From(const pasta::Decl &);
+
   // Encloses: (bool)
   // Equals: (bool)
   // InEnclosingNamespaceSetOf: (bool)

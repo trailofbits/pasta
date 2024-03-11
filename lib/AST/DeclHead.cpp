@@ -238,6 +238,15 @@ static const clang::ASTRecordLayout *GetRecordLayout(const clang::RecordDecl *de
 
 }  // namespace
 
+std::optional<::pasta::DeclContext> DeclContext::From(const Decl &decl) {
+  auto dc = clang::Decl::castToDeclContext(decl.u.Decl);
+  if (!dc) {
+    return std::nullopt;
+  }
+
+  return DeclContext(decl.ast, dc);
+}
+
 std::optional<::pasta::Decl> Decl::From(const DeclContext &dc) {
   auto decl = clang::Decl::castFromDeclContext(dc.u.DeclContext);
   if (!decl) {

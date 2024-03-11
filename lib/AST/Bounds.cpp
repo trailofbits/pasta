@@ -713,11 +713,31 @@ class DeclBoundsFinder : public clang::DeclVisitor<DeclBoundsFinder>,
     Expand(prev_upper_bound);
   }
 
-  void VisitDecl(clang::Decl *decl) {
+  void VisitBaseDecl(clang::Decl *decl) {
     Expand(decl->getSourceRange(), decl->getLocation());
+  }
+
+  void VisitDecl(clang::Decl *decl) {
+    VisitBaseDecl(decl);
     if (!clang::isa<clang::FunctionDecl>(decl)) {
       ExpandToTrailingToken(decl->getLocation(), TokenKind::kSemi);
     }
+  }
+
+  void VisitObjCTypeParamDecl(clang::ObjCTypeParamDecl *decl) {
+    VisitBaseDecl(decl);
+  }
+
+  void VisitTemplateParamObjectDecl(clang::TemplateParamObjectDecl *decl) {
+    VisitBaseDecl(decl);
+  }
+
+  void VisitTemplateTemplateParmDecl(clang::TemplateTemplateParmDecl *decl) {
+    VisitBaseDecl(decl);
+  }
+
+  void VisitTemplateTypeParmDecl(clang::TemplateTypeParmDecl *decl) {
+    VisitBaseDecl(decl);
   }
 
 //  void VisitTranslationUnitDecl(clang::TranslationUnitDecl *) {}
@@ -1783,13 +1803,23 @@ class DeclBoundsFinder : public clang::DeclVisitor<DeclBoundsFinder>,
       }
     }
 
-    // while (!lower_bound->IsParsed() && lower_bound < upper_bound) {
-    //   lower_bound = &(lower_bound[1]);
-    // }
+    switch (lower_bound.Role()) {
+      case TokenRole::kBeginOfFileMarker:
+      case TokenRole::kBeginOfMacroExpansionMarker:
+        lower_bound.Next();
+        break;
+      default:
+        break;
+    }
 
-    // while (!upper_bound->IsParsed() && lower_bound < upper_bound) {
-    //   upper_bound = &(upper_bound[-1]);
-    // }
+    switch (upper_bound.Role()) {
+      case TokenRole::kEndOfFileMarker:
+      case TokenRole::kEndOfMacroExpansionMarker:
+        upper_bound.Previous();
+        break;
+      default:
+        break;
+    }
 
     assert(lower_bound.IsParsed());
     assert(upper_bound.IsParsed());

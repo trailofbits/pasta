@@ -2501,7 +2501,16 @@ static const char *OptionalTrailingSemiColon(
 
   } else if (tokens->tokens.empty() ||
              tokens->tokens.back().kind != TokenKind::kSemi) {
-    return ";";
+    switch (decl->getKind()) {
+      case clang::Decl::ObjCTypeParam:
+      case clang::Decl::TemplateParamObject:
+      case clang::Decl::TemplateTemplateParm:
+      case clang::Decl::TemplateTypeParm:
+      case clang::Decl::ParmVar:
+        return "";
+      default:
+        return ";";
+    }
   }
 
   return "";

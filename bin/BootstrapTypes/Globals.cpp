@@ -1238,6 +1238,7 @@ std::set<std::pair<std::string, std::string>> kCanReturnNullptr{
   {"OpaqueValueExpr", "SourceExpression"},
   {"DependentSizedArrayType", "SizeExpression"},
   {"CXXRecordDecl", "LambdaStaticInvoker"},
+  {"CoroutineBodyStmt", "ResultDeclaration"},
 
 //  {"FunctionProtoType", "EllipsisToken"},
 //  {"FunctionDecl", "EllipsisToken"},

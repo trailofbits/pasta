@@ -1293,7 +1293,7 @@ class CoroutineBodyStmt : public Stmt {
   std::vector<::pasta::Stmt> ParameterMoves(void) const;
   ::pasta::VarDecl PromiseDeclaration(void) const;
   ::pasta::Stmt PromiseDeclarationStatement(void) const;
-  ::pasta::Stmt ResultDeclaration(void) const;
+  std::optional<::pasta::Stmt> ResultDeclaration(void) const;
   ::pasta::Stmt ReturnStatement(void) const;
   ::pasta::Stmt ReturnStatementOnAllocFailure(void) const;
   ::pasta::Expr ReturnValue(void) const;

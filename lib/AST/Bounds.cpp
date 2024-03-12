@@ -1178,7 +1178,7 @@ class DeclBoundsFinder : public clang::DeclVisitor<DeclBoundsFinder>,
       params_end = nearer_params_end;
     }
 
-    if (!params_begin == !params_end) {
+    if (!params_begin != !params_end) {
       assert(proto.has_variable_form);
       params_begin = invalid;
       params_end = invalid;

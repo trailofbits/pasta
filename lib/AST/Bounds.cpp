@@ -226,7 +226,9 @@ class DeclBoundsFinder : public clang::DeclVisitor<DeclBoundsFinder>,
 
         } else {
           assert(tok_offset < matching_offset);
-          return {tok, tok.WithOffset(matching_offset)};
+          auto matching_tok = tok.WithOffset(matching_offset);
+          assert(matching_tok);
+          return {tok, matching_tok};
         }
       }
 
@@ -247,7 +249,9 @@ class DeclBoundsFinder : public clang::DeclVisitor<DeclBoundsFinder>,
         
         } else {
           assert(matching_offset < tok_offset);
-          return {tok.WithOffset(matching_offset), tok};
+          auto matching_tok = tok.WithOffset(matching_offset);
+          assert(matching_tok);
+          return {matching_tok, tok};
         }
       }
       default:
@@ -1147,7 +1151,8 @@ class DeclBoundsFinder : public clang::DeclVisitor<DeclBoundsFinder>,
       params_end = invalid;
     }
 
-    if (auto func_name_tok = ast.RawTokenAt(func->getLocation())) {
+    auto func_name_tok = ast.RawTokenAt(func->getLocation());
+    if (func_name_tok) {
       if (!params_begin || params_begin < func_name_tok) {
         auto next_semicolon = FindNext(
             func_name_tok, TokenKind::kSemi, invalid, false);
@@ -1173,7 +1178,11 @@ class DeclBoundsFinder : public clang::DeclVisitor<DeclBoundsFinder>,
       params_end = nearer_params_end;
     }
 
-    assert(!params_begin == !params_end);
+    if (!params_begin == !params_end) {
+      assert(proto.has_variable_form);
+      params_begin = invalid;
+      params_end = invalid;
+    }
 
     proto.l_paren = params_begin.Offset();
     proto.r_paren = params_end.Offset();

@@ -9484,6 +9484,9 @@ std::optional<bool> CXXRecordDecl::IsInterfaceLike(void) const {
   if (!self.getDefinition()) {
     return std::nullopt;
   }
+  if (clang::isa<clang::ClassTemplatePartialSpecializationDecl>(self)) {
+    return std::nullopt;
+  }
   decltype(auto) val = self.isInterfaceLike();
   return val;
 }

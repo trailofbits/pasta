@@ -1827,6 +1827,14 @@ class DeclBoundsFinder : public clang::DeclVisitor<DeclBoundsFinder>,
         break;
     }
 
+    if (!lower_bound) {
+      lower_bound = upper_bound;
+    }
+
+    if (!upper_bound) {
+      upper_bound = lower_bound;
+    }
+
     assert(lower_bound.IsParsed());
     assert(upper_bound.IsParsed());
     assert(lower_bound <= upper_bound);

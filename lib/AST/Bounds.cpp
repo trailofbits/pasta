@@ -732,12 +732,16 @@ class DeclBoundsFinder : public clang::DeclVisitor<DeclBoundsFinder>,
     VisitBaseDecl(decl);
   }
 
+  // NOTE(pag): `->getLocation()` isn't necessarily contained inside of
+  //            `->getSourceRange()`.
   void VisitTemplateTemplateParmDecl(clang::TemplateTemplateParmDecl *decl) {
-    VisitBaseDecl(decl);
+    Expand(decl->getSourceRange());
+    Expand(decl->getLocation());
   }
 
   void VisitTemplateTypeParmDecl(clang::TemplateTypeParmDecl *decl) {
-    VisitBaseDecl(decl);
+    Expand(decl->getSourceRange());
+    Expand(decl->getLocation());
   }
 
 //  void VisitTranslationUnitDecl(clang::TranslationUnitDecl *) {}

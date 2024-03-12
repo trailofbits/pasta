@@ -2566,9 +2566,10 @@ PrintedTokenRange PrintedTokenRange::Create(const std::shared_ptr<ASTImpl> &ast,
     }
 
     // Add the parentage to this decl.
-    std::vector<TokenPrinterContext> parent_contexts;
+    std::vector<std::unique_ptr<TokenPrinterContext>> parent_contexts;
     while (!parent_decls.empty()) {
-      parent_contexts.emplace_back(out, parent_decls.back(), *tokens);
+      parent_contexts.emplace_back(
+          new TokenPrinterContext(out, parent_decls.back(), *tokens));
       parent_decls.pop_back();
     }
 

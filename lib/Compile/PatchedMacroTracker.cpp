@@ -97,10 +97,9 @@ PatchedMacroTracker::~PatchedMacroTracker(void) {}
 
 void PatchedMacroTracker::Push(const clang::Token &tok) {
   if (!depth) {
-    D( std::cerr << indent << "BeginOfMacroExpansionMarker\n"; )
     assert(tok.getLocation().isValid() && tok.getLocation().isFileID());
-
     (void) ast->macro_tokens.MarkNextTokenAsBeginOfExpansion();
+    D( std::cerr << indent << "BeginOfMacroExpansionMarker\n"; )
   }
   ++depth;
 }
@@ -2655,6 +2654,8 @@ void PatchedMacroTracker::InclusionDirective(
       const clang::Module * /* imported */,
       clang::SrcMgr::CharacteristicKind /* file_type */) {
 
+  ast->macro_tokens.MarkPreviousTokenAsEndOfExpansion();
+
   assert(last_directive != nullptr);
   switch (include_tok.getIdentifierInfo()->getPPKeywordID()) {
     case clang::tok::pp_include:
@@ -2696,6 +2697,7 @@ void PatchedMacroTracker::InclusionDirective(
       if (auto it = ast->id_to_file.find(fid.getHashValue());
           it != ast->id_to_file.end()) {
         last_directive->included_file.emplace(it->second);
+        last_directive->included_file_id = fid;
         D( std::cerr << indent << "Including file "
                      << last_directive->included_file->Path().generic_string()
                      << '\n'; )
@@ -2753,10 +2755,34 @@ void PatchedMacroTracker::FileChanged(
        last_directive->kind == MacroKind::kImportDirective)) {
 
     last_directive->included_file = std::move(file);
+    last_directive->included_file_id = file_id;
     includes.push_back(last_directive);
-    D( std::cerr << indent << "BeginOfFileMarker\n"; )
+    D( std::cerr << indent << "BeginOfFileMarker file_id="
+                 << file_id.getHashValue() << "\n"; )
 
     ast->parsed_tokens.AppendMarkerToken(loc, TokenRole::kBeginOfFileMarker);
+
+  } else if (clang::PPCallbacks::FileChangeReason::ExitFile == reason &&
+             file_id.isValid() && !includes.empty()) {
+    
+    last_directive = includes.back();
+    includes.pop_back();
+
+    D( std::cerr << indent << "EndOfFileMarker leaving:"
+                 << last_directive->included_file_id.getHashValue()
+                 << " entering:file_id="
+                 << file_id.getHashValue() << "\n"; )
+
+    if (!last_directive->included_file) {
+      if (auto it = ast->id_to_file.find(last_directive->included_file_id.getHashValue());
+          it != ast->id_to_file.end()) {
+        last_directive->included_file.emplace(it->second);
+      }
+    }
+    assert(last_directive->included_file.has_value());
+    ast->parsed_tokens.AppendMarkerToken(
+        sm.getLocForEndOfFile(last_directive->included_file_id),
+        TokenRole::kEndOfFileMarker);
 
   // Transition from predefins to the main file.
   } else if (clang::PPCallbacks::FileChangeReason::ExitFile == reason &&
@@ -2765,22 +2791,9 @@ void PatchedMacroTracker::FileChanged(
     ast->parsed_tokens.AppendMarkerToken(
         sm.getComposedLoc(sm.getMainFileID(), 0),
         TokenRole::kBeginOfFileMarker);
-    D( std::cerr << indent << "BeginOfFileMarker\n"; )
-
-  } else if (clang::PPCallbacks::FileChangeReason::ExitFile == reason &&
-             file_id.isValid() && !includes.empty()) {
-    D( std::cerr << indent << "EndOfFileMarker\n"; )
-    last_directive = includes.back();
-    includes.pop_back();
-    if (!last_directive->included_file) {
-      if (auto it = ast->id_to_file.find(file_id.getHashValue());
-          it != ast->id_to_file.end()) {
-        last_directive->included_file.emplace(it->second);
-      }
-    }
-    assert(last_directive->included_file.has_value());
-    ast->parsed_tokens.AppendMarkerToken(sm.getLocForEndOfFile(file_id),
-                                         TokenRole::kEndOfFileMarker);
+    D( std::cerr << indent << "BeginOfFileMarker leaving-predefines:file_id="
+                 << file_id.getHashValue() << " entering-main:file_id="
+                 << sm.getMainFileID().getHashValue() << "\n"; )
   }
 
   D( std::cerr << indent << "FileChanged reason=" << int(reason)

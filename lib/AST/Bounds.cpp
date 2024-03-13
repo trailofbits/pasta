@@ -1521,6 +1521,7 @@ class DeclBoundsFinder : public clang::DeclVisitor<DeclBoundsFinder>,
 
     if (decl->getSpecializationKind() == clang::TSK_ExplicitSpecialization) {
       Expand(decl->getTemplateKeywordLoc());
+      Expand(decl->getExternLoc());
     }
 
     VisitCXXRecordDecl(decl);

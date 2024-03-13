@@ -7,8 +7,6 @@
 
 #include <cassert>
 #include <limits>
-#include <optional>
-#include <variant>
 #include <vector>
 
 #pragma GCC diagnostic push
@@ -680,188 +678,28 @@ bool TokenRange::Contains(const Token &tok) const noexcept {
          tok.offset < after_last;
 }
 
-std::vector<MacroToken> Token::MacroDerivationChain(void) const {
-  std::vector<MacroToken> derivation_chain;
-  auto derived_token = DerivedLocation();
-  if (!std::holds_alternative<MacroToken>(derived_token)) {
-    return derivation_chain;
-  }
-  std::optional<MacroToken> cur = std::get<MacroToken>(derived_token);
-  do {
-    derivation_chain.push_back(*cur);
-    auto deriv_loc = cur->DerivedLocation();
-    cur = std::nullopt;
-    if (std::holds_alternative<MacroToken>(deriv_loc)) {
-      cur = std::get<MacroToken>(deriv_loc);
-    }
-  } while (cur);
-  return derivation_chain;
-}
-
-// Returns the first macro token in the program after this token.
-std::optional<MacroToken> Token::NextMacroToken(void) const noexcept {
-  // NOTE(bpappas): I coied the code for MacroLocation() and added one to
-  // offset, is that enough?
-  auto target_offset = offset + 1; 
-  if (storage->location.size() <= target_offset) {
-    return std::nullopt;
-  }
-  auto bit_loc = storage->location[target_offset];
-  if (IsInvalidOrFileBitPackedLocation(bit_loc)) {
-    return std::nullopt;
-  }
-
-  auto ast = storage->ast;
-  auto &macro_tokens = ast->macro_tokens;
-
-  return MacroToken(
-      std::shared_ptr<ASTImpl>(storage, ast),
-      &(ast->root_macro_node.token_nodes[
-          macro_tokens.macro_token_offset[MacroTokenOffset(bit_loc)]]));
-}
-
 std::vector<MacroSubstitution>
 TokenRange::AlignedSubstitutions(bool heuristic) noexcept {
-  // The big idea is that we want to find the all macros that aligns in the
-  // front and back with the given statement. The catch is that a macro might
-  // contain nested substitutions, e.g. argument expansions or nested
-  // expansions. Also, we should match statements which were expanded from
-  // macros containing a trailing semicolon.
-
-  // Algorithm:
-  // 1. Walk the first token's derived token chain from final expansion token to
-  //    the initial macro use token.
-  // 2. Walk up this token's expansion tree. If we encounter a non-substitution
-  //    macro, stop traversing the expansion tree and ascend the derivation
-  //    tree. If we encounter a macro substitution, check that this token is the
-  //    first in the macro's replacement list. If so, the continue to the next
-  //    step; otherwise keep ascending the token derivation tree. There is also
-  //    an edge-case to check for: If the current token is the first token in
-  //    the macro's intermediate expansion children, then we must immediately
-  //    return early, because otherwise we might erroneously match a macro with
-  //    one of its arguments if they share a derivation tree. For example:
-  //      #define ADD(X, Y)
-  //      int x = ADD(ADD(1, 2), 3)
-  //    This check prevents 1 + 2 + 3 from aligning with both invocations of
-  //    ADD(), and ensures that it will only align with the top-level
-  //    invocation.
-  // 3. Walk up the last token's derived token chain from the initial macro use
-  //    token to the final macro expansion token.
-  // 4. Walk up the last derived token's derivation tree. If the last token is
-  //    ever derived from the same token that the first token is derived from,
-  //    then exit this iteration early to avoid false positives. If we encounter
-  //    a macro substitution, check that this token is the last in the macro's
-  //    replacement list. Follow similar logic as when checking for
-  //    front-alignment. This also where we incorporate the heuristic for
-  //    aligning macros that contain semicolons. If this check succeeds, then we
-  //    have found an aligned invocation.
-  // 5. The algorithm ends once we have walked the first token's entire
-  //    derivation chain.
-  auto b_tok = Front(), e_tok = Back();
-
+  auto maybe_front = Front();
   std::vector<MacroSubstitution> result;
-  if (!b_tok || !*b_tok || !e_tok || !*e_tok) {
+  if (!maybe_front) {
     return result;
   }
 
-  auto b_tok_deriv_chain = b_tok->MacroDerivationChain();
+  Token front = std::move(maybe_front.value());
+  Token back = Back().value();
 
-  auto e_tok_deriv_chain = e_tok->MacroDerivationChain();
-
-  // If the heuristic is enabled, keep track of the token that immediately
-  // follows this range to check if it's a semicolon.
-  auto tok_after_e_tok = heuristic ? e_tok->NextMacroToken() : std::nullopt;
-  bool semi =
-      tok_after_e_tok && tok_after_e_tok->TokenKind() == TokenKind::kSemi;
-
-  for (auto b_deriv : b_tok_deriv_chain) {
-    std::optional<Macro> b_macro = b_deriv;
-    if (!b_macro) {
-      continue;
-    }
-
-    for (auto b_parent = b_macro->Parent(); b_parent;
-         b_macro = *b_parent, b_parent = b_parent->Parent()) {
-      auto b_parent_sub = MacroSubstitution::From(*b_parent);
-      if (!b_parent_sub) {
-        break;
-      }
-
-      // Here is the first edge-case. We only allow a macro token to be the
-      // first child in its parent's intermediate replacement list if the macro
-      // token is a parameter substitution.
-      if (auto b_parent_exp = MacroExpansion::From(*b_parent_sub)) {
-        MacroRange body = b_parent_exp->IntermediateChildren();
-        bool is_psub = b_macro->Kind() == MacroKind::kParameterSubstitution;
-        if (b_macro == body.Front() && !is_psub) {
-          return result;
-        }
-      }
-
-      auto b_parent_replacement = b_parent_sub->ReplacementChildren();
-      bool front_aligned = (b_macro == b_parent_replacement.Front());
-      if (!front_aligned) {
-        break;
-      }
-
-      for (auto e_deriv : e_tok_deriv_chain) {
-        // Here's the rub: If the begin and end tokens ever converge to the same
-        // derived token, then their derivation trees have started mixing. This
-        // can happen if two separate arguments of the macro are invocations of
-        // the same macro definition. To see an example, print the macro graph
-        // of the following invocation code snippet:
-        //
-        // #define ONE 1
-        // #define ADD(x, y) x + y
-        // ADD(ONE, ONE)
-        //
-        // This isn't a problem if the begin and end tokens were the same tokens
-        // to begin with (then of course their derivation trees would be the
-        // same). Otherwise we should exit early, since this mixing might cause
-        // us to return a false positive.
-
-        // NOTE(bpappas): I am fairly certain that returning here will prevent
-        // false positives, but I am not sure if it will create false negatives.
-        if (b_deriv == e_deriv && b_tok != e_tok) {
-          break;
-        }
-
-        std::optional<Macro> e_macro = e_deriv;
-        if (!e_macro) {
-          continue;
-        }
-
-        for (auto e_parent = e_macro->Parent(); e_parent;
-             e_macro = *e_parent, e_parent = e_parent->Parent()) {
-          auto e_parent_sub = MacroSubstitution::From(*e_parent);
-          if (!e_parent_sub) {
-            break;
-          }
-
-          if (auto e_parent_exp = MacroExpansion::From(*e_parent_sub)) {
-            MacroRange body = e_parent_exp->IntermediateChildren();
-            bool is_psub = e_macro->Kind() == MacroKind::kParameterSubstitution;
-            if (e_macro == body.Back() && !is_psub) {
-              break;
-            }
-          }
-
-          auto psub_last_mtok = e_parent_sub->LastFullySubstitutedToken();
-          auto e_parent_replacement = e_parent_sub->ReplacementChildren();
-          bool back_aligned = ((e_macro == e_parent_replacement.Back()) ||
-                               (semi && tok_after_e_tok == psub_last_mtok));
-
-          if (!back_aligned) {
-            break;
-          }
-
-          if (b_parent == e_parent) {
-            result.push_back(*b_parent_sub);
-          }
-        }
-      }
-    }
+  auto maybe_front_macro = front.MacroLocation();
+  auto maybe_back_macro = front.MacroLocation();
+  if (!maybe_front_macro || !maybe_back_macro) {
+    return result;
   }
+
+  MacroToken fm = std::move(maybe_front_macro.value());
+  MacroToken bm = std::move(maybe_back_macro.value());
+
+  (void) fm;
+  (void) bm;
 
   return result;
 }
@@ -1827,6 +1665,8 @@ void MacroTokenStorage::MarkPreviousTokenAsEndOfExpansion(void) {
   auto end_parsed_offset = static_cast<unsigned>(parsed_tokens.role.size());
 
   parsed_tokens.last_expansion_begin_offset.reset();
+
+  // std::cerr << "EndOfMacroExpansionMarker\n";
 
   auto marker_offset = parsed_tokens.AppendInternalToken(
       {}, last_use_loc.value(), TokenRole::kEndOfMacroExpansionMarker);

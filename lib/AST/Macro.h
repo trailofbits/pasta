@@ -118,6 +118,9 @@ class MacroDirectiveImpl final : public MacroNodeImpl {
   // `#include`-like directive.
   std::optional<File> included_file;
 
+  // ID of the included file.
+  clang::FileID included_file_id;
+
   // Offset/index of the first body token if the defined macro, assuming this
   // directive is a `#define`.
   unsigned body_offset{0u};

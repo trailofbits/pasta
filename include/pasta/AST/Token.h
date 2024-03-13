@@ -118,6 +118,12 @@ class Token {
   // operation.
   DerivedToken DerivedLocation(void) const;
 
+  // Returns the list of macro tokens that this token derives from. The result
+  // vector's first element is the most immediate macro token that this token
+  // derives from, and the last element is the root of this token's macro
+  // derivation tree.
+  std::vector<MacroToken> MacroDerivationChain(void) const;
+
   // Location of the token in a file. This will try to track the token back to
   // any file token, so it's really a multi-step process, unlike
   // `DerivedLocation`.
@@ -125,6 +131,9 @@ class Token {
 
   // Location of the token in a macro expansion.
   std::optional<MacroToken> MacroLocation(void) const;
+
+  // Returns the first file token in the AST after this token.
+  std::optional<MacroToken> NextMacroToken(void) const noexcept;
 
   // This token may represent a marker for the location of a macro directive.
   // If so, return that directive.

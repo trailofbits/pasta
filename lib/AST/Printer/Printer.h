@@ -168,6 +168,9 @@ class PrintedTokenRangeImpl {
   const TokenContextIndex CreateAlias(
       TokenPrinterContext *tokenizer, TokenContextIndex aliasee);
 
+  template <typename ...Kinds>
+  bool LastTokenIsOneOf(Kinds... kinds);
+
   void TryChangeLastKind(TokenKind old, TokenKind new_);
 
   void MarkLocation(PrintedTokenImpl &, DerivedTokenIndex tok_index);
@@ -240,6 +243,30 @@ class PrintingPolicyAdaptor final {
   
   bool ShouldPrintSpecialization(clang::FunctionTemplateDecl *,
                                  clang::FunctionDecl *) const;
+};
+
+/// A utility class that uses RAII to save and restore the value of a variable.
+template<typename T>
+struct SaveAndRestore {
+  SaveAndRestore(T &X)
+      : X(X),
+        OldValue(X) {}
+
+  SaveAndRestore(T &X, const T &NewValue)
+      : X(X),
+        OldValue(X) {
+    X = NewValue;
+  }
+  ~SaveAndRestore() {
+    X = OldValue;
+  }
+  T get() {
+    return OldValue;
+  }
+
+ private:
+  T &X;
+  T OldValue;
 };
 
 class PrintingPolicyAdaptorRAII {
@@ -421,6 +448,21 @@ const TokenContextIndex PrintedTokenRangeImpl::CreateContext(
   }
 
   return index;
+}
+
+template <typename ...Kinds>
+bool PrintedTokenRangeImpl::LastTokenIsOneOf(Kinds... kinds) {
+  curr_printer_context->Tokenize();
+  for (auto size = tokens.size(); size; --size) {
+    if (tokens[size - 1u].kind == TokenKind::kUnknown) {
+      continue;  // Skip whitespace.
+    }
+    auto kind = tokens[size - 1u].kind;
+    if ((false || ... || (kind == kinds))) {
+      return true;
+    }
+  }
+  return false;
 }
 
 class TagDefinitionPolicyRAII {

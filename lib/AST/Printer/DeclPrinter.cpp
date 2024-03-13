@@ -968,11 +968,11 @@ void DeclPrinter::VisitFunctionDecl(clang::FunctionDecl *D) {
                                                 ->getTemplateParameters();
 
       TokenPrinterContext ctx(Out, TPL, this->tokens);
-      if (TArgAsWritten && !Policy.PrintCanonicalTypes)
-        TArgPrinter.printTemplateArguments(TArgAsWritten->arguments(), TPL, true);
-      else if (const clang::TemplateArgumentList *TArgs =
-                   D->getTemplateSpecializationArgs())
+      if (const clang::TemplateArgumentList *TArgs =
+              D->getTemplateSpecializationArgs())
         TArgPrinter.printTemplateArguments(TArgs->asArray(), TPL, true);
+      else if (TArgAsWritten)
+        TArgPrinter.printTemplateArguments(TArgAsWritten->arguments(), TPL, true);
     };
   }
 
@@ -1504,14 +1504,9 @@ void DeclPrinter::VisitCXXRecordDecl(clang::CXXRecordDecl *D) {
     MarkNamedDeclName(ctx, D);
 
     if (auto S = clang::dyn_cast<clang::ClassTemplateSpecializationDecl>(D)) {
-      TokenPrinterContext ctx(Out, S, tokens);
       clang::ArrayRef<clang::TemplateArgument> Args = S->getTemplateArgs().asArray();
-      if (!Policy.PrintCanonicalTypes)
-        if (const auto* TSI = S->getTypeAsWritten())
-          if (const auto *TST =
-                  clang::dyn_cast<clang::TemplateSpecializationType>(TSI->getType()))
-            Args = TST->template_arguments();
-      printTemplateArguments(Args, S->getSpecializedTemplate()->getTemplateParameters(), false);
+      printTemplateArguments(Args, S->getSpecializedTemplate()->getTemplateParameters(),
+                             true  /* overloaded */);
     }
   }
 
@@ -1765,9 +1760,19 @@ void DeclPrinter::VisitVarTemplatePartialSpecializationDecl(
 
 void DeclPrinter::VisitVarTemplateSpecializationDecl(
     clang::VarTemplateSpecializationDecl *D) {
-  if (tokens.ppa->ShouldPrintSpecialization(D->getSpecializedTemplate(), D)) {
-    VisitVarDecl(D);
+  if (!tokens.ppa->ShouldPrintSpecialization(D->getSpecializedTemplate(), D)) {
+    return;
   }
+
+  TokenPrinterContext ctx(Out, D, tokens);
+  Out << "template";
+  ctx.MarkLocation(D->getTemplateKeywordLoc());
+  Out << " <";
+  tokens.TryChangeLastKind(TokenKind::kLess, TokenKind::kLAngle);
+  Out << "> ";
+  tokens.TryChangeLastKind(TokenKind::kGreater, TokenKind::kRAngle);
+
+  VisitVarDecl(D);
 }
 
 void DeclPrinter::VisitClassTemplateDecl(clang::ClassTemplateDecl *D) {
@@ -1797,7 +1802,8 @@ void DeclPrinter::VisitClassTemplateSpecializationDecl(clang::ClassTemplateSpeci
   VisitCXXRecordDecl(D);
 }
 
-void DeclPrinter::VisitClassTemplatePartialSpecializationDecl(clang::ClassTemplatePartialSpecializationDecl *D) {
+void DeclPrinter::VisitClassTemplatePartialSpecializationDecl(
+    clang::ClassTemplatePartialSpecializationDecl *D) {
   if (tokens.ppa->ShouldPrintTemplate(D)) {
     TokenPrinterContext ctx(Out, D, tokens);
     printTemplateParameters(D->getTemplateParameters());

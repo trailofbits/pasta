@@ -423,6 +423,13 @@ class PrintedTokenRange {
   // NOTE(pag): Both `with_locs` and `with_contexts` are mutated in-place.
   static std::optional<std::string> Align(PrintedTokenRange &with_locs,
                                           PrintedTokenRange &with_contexts);
+  
+  // Create a new printed token range from `wants_ws` and `has_ws`, where
+  // `wants_ws` and `has_ws` share derived token locations, and we want to
+  // import whitespace from `has_ws` into places where it's missing in
+  // `wants_ws`, but without chaning `wants_ws`.
+  static PrintedTokenRange AdoptWhitespace(const PrintedTokenRange &wants_ws,
+                                           const PrintedTokenRange &has_ws);
 
   // Create a new printed token range, where the token data is taken from `a`.
   // The only token contexts in an adopted range are AST contexts. The only

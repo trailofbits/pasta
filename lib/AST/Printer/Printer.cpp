@@ -579,10 +579,16 @@ void TokenPrinterContext::Tokenize(void) {
 
 void PrintedTokenRangeImpl::TryChangeLastKind(TokenKind old, TokenKind new_) {
   curr_printer_context->Tokenize();
-  if (!tokens.empty() && tokens.back().kind == old) {
-    tokens.back().kind = new_;
-    return;
+  for (auto size = tokens.size(); size; --size) {
+    if (tokens[size - 1u].kind == TokenKind::kUnknown) {
+      continue;  // Skip whitespace.
+    
+    } else if (tokens[size - 1u].kind == old) {
+      tokens[size - 1u].kind = new_;
+      return;
+    }
   }
+  
   assert(false);
 }
 
@@ -792,6 +798,159 @@ static bool IsParsedToken(const pasta::Token &tok) {
     default:
       return false;
   }
+}
+
+namespace {
+
+static std::optional<DerivedTokenIndex> LeadingWhitespaceTokenOffset(
+    const ParsedTokenStorage &tokens, DerivedTokenIndex offset) {
+  std::optional<DerivedTokenIndex> min_found;
+  while (offset) {
+    switch (tokens.Role(--offset)) {
+      case TokenRole::kBeginOfFileMarker:
+      case TokenRole::kEndOfFileMarker:
+      case TokenRole::kEndOfMacroExpansionMarker:
+      case TokenRole::kMacroDirectiveMarker:
+        return min_found;
+      case TokenRole::kInitialMacroUseToken:
+      case TokenRole::kIntermediateMacroExpansionToken:
+        assert(false);
+        continue;
+      case TokenRole::kFinalMacroExpansionToken:
+      case TokenRole::kFileToken:
+        break;
+      case TokenRole::kInvalid:
+      case TokenRole::kBeginOfMacroExpansionMarker:
+        continue;
+    }
+
+    switch (tokens.Kind(offset)) {
+      case TokenKind::kUnknown:
+      case TokenKind::kComment:
+        min_found = offset;
+        continue;
+      default:
+        return min_found;
+    }
+  }
+
+  return min_found;
+}
+
+}  // namespace
+
+// Create a new printed token range from `wants_ws` and `has_ws`, where
+// `wants_ws` and `has_ws` share derived token locations, and we want to
+// import whitespace from `has_ws` into places where it's missing in
+// `wants_ws`, but without chaning `wants_ws`.
+PrintedTokenRange PrintedTokenRange::AdoptWhitespace(
+    const PrintedTokenRange &wants_ws, const PrintedTokenRange &has_ws) {
+  
+  if (!wants_ws.impl->ast || !has_ws.impl->ast ||
+      &(wants_ws.impl->ast_context) != &(has_ws.impl->ast_context)) {
+    return wants_ws;
+  }
+
+  const ParsedTokenStorage &parsed_tokens = has_ws.impl->ast->parsed_tokens;
+
+  // Create a map of token indices to offsets of the earlier whitespace/comment
+  // preceding that token index, where there are no intermediate things that
+  // shouldn't be injected.
+  std::unordered_map<DerivedTokenIndex, DerivedTokenIndex> leading_ws;
+  for (const auto &has_ws_tok : has_ws.impl->tokens) {
+    if (has_ws_tok.derived_index == kInvalidDerivedTokenIndex) {
+      continue;
+    }
+
+    if (has_ws_tok.kind == TokenKind::kComment ||
+        has_ws_tok.kind == TokenKind::kUnknown) {
+      continue;
+    }
+
+    auto offset = LeadingWhitespaceTokenOffset(
+        parsed_tokens, has_ws_tok.derived_index);
+    if (offset) {
+      leading_ws.emplace(has_ws_tok.derived_index, offset.value());
+    }
+  }
+
+  // We won't succeed at injecting any leading whitespace because we don't know
+  // of any.
+  if (leading_ws.empty()) {
+    return wants_ws;
+  }
+
+  auto new_impl = std::make_shared<PrintedTokenRangeImpl>(
+      has_ws.impl->ast->ci->getASTContext());
+  new_impl->ast = has_ws.impl->ast;
+  new_impl->tokens.reserve(std::max(wants_ws.Size(), has_ws.Size()) + 1u);
+  new_impl->data.reserve(
+      std::max(wants_ws.Data().size(), has_ws.Data().size()) + 1u);
+
+  std::unordered_multimap<const void *, TokenContextIndex> data_to_context;
+
+  // Top-level context should be the AST.
+  if (new_impl->ast) {
+    new_impl->contexts.emplace_back(*(new_impl->ast));
+    data_to_context.emplace(new_impl->ast.get(), kASTTokenContextIndex);
+  }
+
+  std::vector<TokenContextIndex> context_map;
+  context_map.assign(
+      wants_ws.impl->contexts.size() + has_ws.impl->contexts.size(),
+      kInvalidTokenContextIndex);
+
+  for (const auto &wants_ws_tok : wants_ws.impl->tokens) {
+    // Strip existing whitespace to make comparison logic easier.
+    if (wants_ws_tok.kind == TokenKind::kComment ||
+        wants_ws_tok.kind == TokenKind::kUnknown ||
+        wants_ws_tok.kind == TokenKind::kEndOfFile) {
+      continue;
+    }
+
+    auto new_context_index = MigrateContexts(
+        wants_ws_tok.context_index, wants_ws.impl->contexts,
+        new_impl->contexts, data_to_context, context_map);
+
+    // Add in the leading whitespace/comments.
+    auto it = leading_ws.find(wants_ws_tok.derived_index);
+    if (it != leading_ws.end()) {
+      
+      for (auto ws_offset = it->second; ws_offset < wants_ws_tok.derived_index;
+           ++ws_offset) {
+        switch (parsed_tokens.Role(ws_offset)) {
+          case TokenRole::kFileToken:
+          case TokenRole::kFinalMacroExpansionToken:
+            break;
+          default:
+            continue;
+        }
+
+        auto ci = new_impl->tokens.empty() ? new_context_index :
+                  new_impl->tokens.back().context_index;
+
+        auto data = parsed_tokens.Data(ws_offset);
+        auto &new_tok = new_impl->tokens.emplace_back(
+            static_cast<uint32_t>(new_impl->data.size()),
+            static_cast<uint32_t>(data.size()),
+            ci, parsed_tokens.Kind(ws_offset));
+        new_tok.derived_index = ws_offset;
+        new_impl->data.insert(new_impl->data.end(), data.begin(), data.end());
+      }
+    }
+
+    // Add in the original token.
+    auto data = wants_ws_tok.Data(*(wants_ws.impl));
+    auto &new_tok = new_impl->tokens.emplace_back(
+        static_cast<uint32_t>(new_impl->data.size()),
+        static_cast<uint32_t>(data.size()), new_context_index,
+        wants_ws_tok.kind);
+    new_tok.derived_index = wants_ws_tok.derived_index;
+    new_impl->data.insert(new_impl->data.end(), data.begin(), data.end());
+  }
+
+  new_impl->AddTrailingEOF();
+  return PrintedTokenRangeImpl::ToPrintedTokenRange(std::move(new_impl));
 }
 
 // Create a new printed token range, where the token data is taken from `a`.

@@ -495,7 +495,7 @@ class MacroExpansion final : public MacroSubstitution {
 
   // Maps each of the macro's parameters to a vector of Stmts that their
   // substitutions align with in the given statement.
-  std::map<MacroParameter, std::vector<pasta::Stmt>>
+  std::vector<std::pair<MacroParameter, std::vector<pasta::Stmt>>>
   AlignedParameterSubstitutions(const pasta::Stmt &stmt) const noexcept;
 
   // Maps each of the macro's parameters to the number of times it is used in

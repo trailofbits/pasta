@@ -1050,27 +1050,33 @@ AlignedStmtInSubtree(Macro &macro, const pasta::Stmt &stmt) noexcept {
   return std::nullopt;
 }
 
-std::map<MacroParameter, std::vector<pasta::Stmt>>
+std::vector<std::pair<MacroParameter, std::vector<pasta::Stmt>>>
 MacroExpansion::AlignedParameterSubstitutions(
-  const pasta::Stmt &stmt) const noexcept {
-  std::map<MacroParameter, std::vector<pasta::Stmt>> param_to_uses;
+    const pasta::Stmt &stmt) const noexcept {
+  std::vector<std::pair<MacroParameter, std::vector<pasta::Stmt>>>
+      param_to_uses;
+  std::map<MacroParameter, unsigned> param_to_index;
   auto def = Definition();
 
   if (!def) {
     return param_to_uses;
   }
 
+  unsigned i = 0;
   for (auto macro : def->Parameters()) {
     auto param = MacroParameter::From(macro);
     assert(param);
-    param_to_uses[*param] = std::vector<pasta::Stmt>();
+    param_to_uses.push_back({*param, std::vector<pasta::Stmt>()});
+    param_to_index[*param] = i;
+    i++;
   }
 
   // Map each argument to the Stmts it substitutions align with
   for (auto &child : IntermediateChildren()) {
     if (auto sub = MacroParameterSubstitution::From(child)) {
       if (auto aligned_stmt = AlignedStmtInSubtree(*sub, stmt)) {
-        param_to_uses[sub->Parameter()].push_back(*aligned_stmt);
+        auto i = param_to_index[sub->Parameter()];
+        param_to_uses[i].second.push_back(*aligned_stmt);
       }
     }
   }

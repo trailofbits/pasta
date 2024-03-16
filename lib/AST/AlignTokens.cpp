@@ -184,6 +184,19 @@ static bool MergeToken(PrintedTokenImpl *parsed, PrintedTokenImpl *printed,
     return false;
   }
 
+  auto parsed_kind = parsed->kind;
+  auto printed_kind = printed->kind;
+
+  if (((parsed_kind == TokenKind::kUnknown) !=
+       (printed_kind == TokenKind::kUnknown)) ||
+      ((parsed_kind == TokenKind::kComment) !=
+       (printed_kind == TokenKind::kComment)) ||
+      KeywordSpelling(parsed_kind) != KeywordSpelling(printed_kind) ||
+      PunctuatorSpelling(parsed_kind) != PunctuatorSpelling(printed_kind) ||
+      IsAnyIdentifier(parsed_kind) != IsAnyIdentifier(printed_kind)) {
+    return false;
+  }
+
   if (parsed->context_index == kInvalidTokenContextIndex) {
     parsed->context_index = printed->context_index;
     changed = true;
@@ -669,7 +682,7 @@ class Matcher {
 
   void InitParsedLocationsMap(void);
   void JoinOnLocations(void);
-  void MergeSameSizedHoles(void);
+  bool MergeSameSizedHoles(void);
 
   void AssignPredecessors(const std::vector<std::unique_ptr<Region>> &regions);
 
@@ -1537,7 +1550,8 @@ void Matcher::FixContexts(
 
 // Look for `<matched> <unmatched hole...> <matched>` where the two matched
 // tokens are separated by a N-token-sized hole.
-void Matcher::MergeSameSizedHoles(void) {
+bool Matcher::MergeSameSizedHoles(void) {
+  auto changed = false;
   for (PrintedTokenImpl &tok_ref : printed_bounds.Range()) {
     auto tok = &tok_ref;
 
@@ -1576,16 +1590,16 @@ void Matcher::MergeSameSizedHoles(void) {
     }
 
     // Force merge on the hole.
-    bool changed = false;
     for (auto hole_tok = tok; hole_tok < end_of_hole; ) {
       ++first_parsed_tok;
       ++hole_tok;
-      MergeToken(first_parsed_tok, hole_tok, changed, true  /* force */);
+      if (!MergeToken(first_parsed_tok, hole_tok, changed, true  /* force */)) {
+        break;
+      }
     }
-
-    assert(changed);
-    (void) changed;
   }
+
+  return changed;
 }
 
 static bool HasNotBeenMatched(Region *r) {

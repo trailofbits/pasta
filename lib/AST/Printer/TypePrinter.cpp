@@ -241,7 +241,7 @@ void printArgument(Printer &printer, const clang::TemplateArgument &A,
       SubPolicy.SuppressStrongLifetime = true;
 
       TypePrinter printer(Out, SubPolicy, tokens, 0);
-      printer.print(A.getAsType(), "", nullptr);
+      printer.print(A.getAsType().getCanonicalType(), "", nullptr);
       break;
     }
 
@@ -1942,19 +1942,8 @@ void TypePrinter::printSubstTemplateTypeParm(
     raw_string_ostream &OS, std::function<void(void)> IdentFn) {
 
   TokenPrinterContext ctx(OS, T, tokens);
-  IncludeStrongLifetimeRAII Strong(Policy);
-
-  if (auto PT = T->getReplacedParameter()) {
-    {
-      DeclPrinter declPrinter(OS, Policy, tokens.ast_context, tokens,
-                              Indentation);
-      declPrinter.Visit(const_cast<clang::TemplateTypeParmDecl *>(PT));
-    }
-    spaceBeforePlaceHolder(OS);
-    IdentFn();
-  } else {
-    printBeforeAfter(T->getReplacementType(), OS, std::move(IdentFn));
-  }
+  printBeforeAfter(T->getReplacementType().getCanonicalType(),
+                   OS, std::move(IdentFn));
 }
 
 void TypePrinter::printSubstTemplateTypeParmPack(
@@ -1963,35 +1952,9 @@ void TypePrinter::printSubstTemplateTypeParmPack(
   TokenPrinterContext ctx(OS, T, tokens);
   IncludeStrongLifetimeRAII Strong(Policy);
 
-  {
-    DeclPrinter declPrinter(OS, Policy, tokens.ast_context, tokens,
-                            Indentation);
-    declPrinter.Visit(
-        const_cast<clang::TemplateTypeParmDecl *>(T->getReplacedParameter()));
-  }
-  spaceBeforePlaceHolder(OS);
+  auto ArgsArg = T->getArgumentPack();
+  printArgument(*this, ArgsArg, Policy, /*IncludeType*/ true);
   IdentFn();
-
-  // TODO(pag): Eventually figure out something better than
-  //            `type-parameter-N-M`, or have a printing policy that decides
-  //            between printing out the before or the after.
-
-//  if (const clang::TemplateTypeParmDecl *D = T->getReplacedParameter()) {
-//    if (D && D->isImplicit()) {
-//      if (auto *TC = D->getTypeConstraint()) {
-//        TC->print(OS, Policy);
-//        OS << ' ';
-//      }
-//      OS << "auto";
-//    } else if (clang::IdentifierInfo *Id = D->getIdentifier())
-//      OS << (Policy.CleanUglifiedParameters ? Id->deuglifiedName()
-//                                            : Id->getName());
-//    else
-//      OS << "type-parameter-" << D->getDepth() << '-' << D->getIndex();
-//
-//    spaceBeforePlaceHolder(OS);
-//    printTemplateTypeParm(D, OS, std::move(IdentFn));
-//  }
 }
 
 void TypePrinter::printTemplateId(const clang::TemplateSpecializationType *T,

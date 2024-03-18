@@ -857,6 +857,7 @@ PrintedTokenRange PrintedTokenRange::AdoptWhitespace(
   // preceding that token index, where there are no intermediate things that
   // shouldn't be injected.
   std::unordered_map<DerivedTokenIndex, DerivedTokenIndex> leading_ws;
+  auto first = true;
   for (const auto &has_ws_tok : has_ws.impl->tokens) {
     if (has_ws_tok.derived_index == kInvalidDerivedTokenIndex) {
       continue;
@@ -864,6 +865,11 @@ PrintedTokenRange PrintedTokenRange::AdoptWhitespace(
 
     if (has_ws_tok.kind == TokenKind::kComment ||
         has_ws_tok.kind == TokenKind::kUnknown) {
+      continue;
+    }
+
+    if (first) {
+      first = false;
       continue;
     }
 
@@ -900,7 +906,33 @@ PrintedTokenRange PrintedTokenRange::AdoptWhitespace(
       wants_ws.impl->contexts.size() + has_ws.impl->contexts.size(),
       kInvalidTokenContextIndex);
 
+  // Get the first leading whitespace.
+  for (const auto &has_ws_tok : has_ws.impl->tokens) {
+    if (has_ws_tok.kind != TokenKind::kComment &&
+        has_ws_tok.kind != TokenKind::kUnknown) {
+      break;
+    }
+
+    if (has_ws_tok.derived_index == kInvalidDerivedTokenIndex) {
+      break;
+    }
+
+    auto new_context_index = MigrateContexts(
+        has_ws_tok.context_index, has_ws.impl->contexts,
+        new_impl->contexts, data_to_context, context_map);
+
+    auto data = has_ws_tok.Data(*(has_ws.impl));
+    auto &new_tok = new_impl->tokens.emplace_back(
+        static_cast<uint32_t>(new_impl->data.size()),
+        static_cast<uint32_t>(data.size()),
+        new_context_index, has_ws_tok.kind);
+    new_tok.derived_index = has_ws_tok.derived_index;
+    new_impl->data.insert(new_impl->data.end(), data.begin(), data.end());
+  }
+
+  // Now bring in the normal tokens.
   for (const auto &wants_ws_tok : wants_ws.impl->tokens) {
+    
     // Strip existing whitespace to make comparison logic easier.
     if (wants_ws_tok.kind == TokenKind::kComment ||
         wants_ws_tok.kind == TokenKind::kUnknown ||
@@ -926,6 +958,9 @@ PrintedTokenRange PrintedTokenRange::AdoptWhitespace(
             continue;
         }
 
+        // TODO(pag): Double check what the last non-whitespace token kind was,
+        //            e.g. a `,` or `;` or a `)` or a `}` means we should look
+        //            at the context parent.
         auto ci = new_impl->tokens.empty() ? new_context_index :
                   new_impl->tokens.back().context_index;
 

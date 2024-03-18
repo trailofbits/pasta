@@ -1932,12 +1932,12 @@ void StmtPrinter::VisitConvertVectorExpr(clang::ConvertVectorExpr *Node) {
 }
 
 void StmtPrinter::VisitInitListExpr(clang::InitListExpr *Node) {
-  TokenPrinterContext ctx(OS, Node, tokens);
   if (Node->getSyntacticForm()) {
     Visit(Node->getSyntacticForm());
     return;
   }
 
+  TokenPrinterContext ctx(OS, Node, tokens);
   OS << "{";
   ctx.MarkLocation(Node->getLBraceLoc());
 

@@ -944,9 +944,26 @@ void DeclPrinter::VisitFunctionDecl(clang::FunctionDecl *D) {
         }
       }
 
+      std::string name;
+      llvm::raw_string_ostream name_os(name);
+
       TagDefinitionPolicyRAII disable_tags(Policy);
-      D->getNameInfo().printName(Out, Policy);
+      D->getNameInfo().printName(name_os, Policy);
+
+      // Handle things like `operator<<` being the name. We don't want to do
+      // a `MarkLocation` for the name location but on the `<<` token.
+      auto i = 0u;
+      for (; i < name.size(); ++i) {
+        if (std::ispunct(name[i]) || std::isspace(name[i])) {
+          break;
+        }
+        Out << name[i];
+      }
+
       ctx.MarkLocation(D->getLocation());
+      for (; i < name.size(); ++i) {
+        Out << name[i];
+      }
     };
   }
 

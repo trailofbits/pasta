@@ -768,14 +768,14 @@ class DeclBoundsFinder : public clang::DeclVisitor<DeclBoundsFinder>,
   }
 
   void VisitFunctionDecl(clang::FunctionDecl *decl) {
-    if (clang::FunctionTypeLoc ftl = decl->getFunctionTypeLoc()) {
-      this->TypeLocVisitor::Visit(ftl);
+    // if (clang::FunctionTypeLoc ftl = decl->getFunctionTypeLoc()) {
+    //   this->TypeLocVisitor::Visit(ftl);
 
-    } else if (clang::TypeSourceInfo *tsi = decl->getTypeSourceInfo()) {
-      if (auto tl = tsi->getTypeLoc()) {
-        this->TypeLocVisitor::Visit(tl);
-      }
-    }
+    // } else if (clang::TypeSourceInfo *tsi = decl->getTypeSourceInfo()) {
+    //   if (auto tl = tsi->getTypeLoc()) {
+    //     this->TypeLocVisitor::Visit(tl);
+    //   }
+    // }
 
     ParsedTokenIterator tok = ast.RawTokenAt(decl->getLocation());
 
@@ -812,6 +812,9 @@ class DeclBoundsFinder : public clang::DeclVisitor<DeclBoundsFinder>,
       // Something like `friend operator+(basic_string &, ...);`, where
       // `operator+` is also a function template. So here, the pattern of the
       // template is unrelated to the specialization.
+      //
+      // This also happens with methods inside of class templates that are
+      // defined out-of-line.
       } else {
         auto tsk = decl->getTemplateSpecializationKind();
         assert(clang::TSK_ImplicitInstantiation == tsk ||
@@ -829,7 +832,11 @@ class DeclBoundsFinder : public clang::DeclVisitor<DeclBoundsFinder>,
 
     } else if (decl->isExplicitlyDefaulted() || decl->isDeletedAsWritten() ||
                decl->isPure() || decl->hasDefiningAttr()) {
+      ExpandToTrailingToken(tok, TokenKind::kSemi);
 
+    // In-class declaration of an out-of-line-defined method.
+    } else if (def && def->isOutOfLine() && !decl->isOutOfLine() &&
+               clang::isa<clang::CXXMethodDecl>(decl)) {
       ExpandToTrailingToken(tok, TokenKind::kSemi);
 
     } else if (decl->hasSkippedBody() || decl->willHaveBody()) {

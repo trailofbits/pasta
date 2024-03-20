@@ -837,6 +837,43 @@ static std::optional<DerivedTokenIndex> LeadingWhitespaceTokenOffset(
   return min_found;
 }
 
+
+static std::optional<DerivedTokenIndex> TrailingWhitespaceTokenOffset(
+    const ParsedTokenStorage &tokens, DerivedTokenIndex offset) {
+  std::optional<DerivedTokenIndex> min_found;
+  auto size = tokens.size();
+  while ((offset + 1u) < size) {
+    switch (tokens.Role(++offset)) {
+      case TokenRole::kBeginOfFileMarker:
+      case TokenRole::kEndOfFileMarker:
+      case TokenRole::kBeginOfMacroExpansionMarker:
+      case TokenRole::kEndOfMacroExpansionMarker:
+      case TokenRole::kMacroDirectiveMarker:
+        return min_found;
+      case TokenRole::kInitialMacroUseToken:
+      case TokenRole::kIntermediateMacroExpansionToken:
+        assert(false);
+        continue;
+      case TokenRole::kFinalMacroExpansionToken:
+      case TokenRole::kFileToken:
+        break;
+      case TokenRole::kInvalid:
+        continue;
+    }
+
+    switch (tokens.Kind(offset)) {
+      case TokenKind::kUnknown:
+      case TokenKind::kComment:
+        min_found = offset;
+        continue;
+      default:
+        return min_found;
+    }
+  }
+
+  return min_found;
+}
+
 }  // namespace
 
 // Create a new printed token range from `wants_ws` and `has_ws`, where
@@ -857,6 +894,8 @@ PrintedTokenRange PrintedTokenRange::AdoptWhitespace(
   // preceding that token index, where there are no intermediate things that
   // shouldn't be injected.
   std::unordered_map<DerivedTokenIndex, DerivedTokenIndex> leading_ws;
+  std::unordered_map<DerivedTokenIndex, DerivedTokenIndex> trailing_ws;
+
   auto first = true;
   for (const auto &has_ws_tok : has_ws.impl->tokens) {
     if (has_ws_tok.derived_index == kInvalidDerivedTokenIndex) {
@@ -868,12 +907,18 @@ PrintedTokenRange PrintedTokenRange::AdoptWhitespace(
       continue;
     }
 
+    auto offset = TrailingWhitespaceTokenOffset(
+        parsed_tokens, has_ws_tok.derived_index);
+    if (offset) {
+      trailing_ws.emplace(has_ws_tok.derived_index, offset.value());
+    }
+
     if (first) {
       first = false;
       continue;
     }
 
-    auto offset = LeadingWhitespaceTokenOffset(
+    offset = LeadingWhitespaceTokenOffset(
         parsed_tokens, has_ws_tok.derived_index);
     if (offset) {
       leading_ws.emplace(has_ws_tok.derived_index, offset.value());
@@ -882,7 +927,7 @@ PrintedTokenRange PrintedTokenRange::AdoptWhitespace(
 
   // We won't succeed at injecting any leading whitespace because we don't know
   // of any.
-  if (leading_ws.empty()) {
+  if (leading_ws.empty() && trailing_ws.empty()) {
     return wants_ws;
   }
 
@@ -930,6 +975,30 @@ PrintedTokenRange PrintedTokenRange::AdoptWhitespace(
     new_impl->data.insert(new_impl->data.end(), data.begin(), data.end());
   }
 
+  auto add_ws_tok = [&] (auto new_context_index, auto ws_offset) {
+    switch (parsed_tokens.Role(ws_offset)) {
+      case TokenRole::kFileToken:
+      case TokenRole::kFinalMacroExpansionToken:
+        break;
+      default:
+        return;
+    }
+
+    // TODO(pag): Double check what the last non-whitespace token kind was,
+    //            e.g. a `,` or `;` or a `)` or a `}` means we should look
+    //            at the context parent.
+    auto ci = new_impl->tokens.empty() ? new_context_index :
+              new_impl->tokens.back().context_index;
+
+    auto data = parsed_tokens.Data(ws_offset);
+    auto &new_tok = new_impl->tokens.emplace_back(
+        static_cast<uint32_t>(new_impl->data.size()),
+        static_cast<uint32_t>(data.size()),
+        ci, parsed_tokens.Kind(ws_offset));
+    new_tok.derived_index = ws_offset;
+    new_impl->data.insert(new_impl->data.end(), data.begin(), data.end());
+  };
+
   // Now bring in the normal tokens.
   for (const auto &wants_ws_tok : wants_ws.impl->tokens) {
     
@@ -950,27 +1019,16 @@ PrintedTokenRange PrintedTokenRange::AdoptWhitespace(
       
       for (auto ws_offset = it->second; ws_offset < wants_ws_tok.derived_index;
            ++ws_offset) {
-        switch (parsed_tokens.Role(ws_offset)) {
-          case TokenRole::kFileToken:
-          case TokenRole::kFinalMacroExpansionToken:
-            break;
-          default:
-            continue;
-        }
+        add_ws_tok(new_context_index, ws_offset);
+      }
+    
+    } else if (new_impl->tokens.empty()) {
 
-        // TODO(pag): Double check what the last non-whitespace token kind was,
-        //            e.g. a `,` or `;` or a `)` or a `}` means we should look
-        //            at the context parent.
-        auto ci = new_impl->tokens.empty() ? new_context_index :
-                  new_impl->tokens.back().context_index;
-
-        auto data = parsed_tokens.Data(ws_offset);
-        auto &new_tok = new_impl->tokens.emplace_back(
-            static_cast<uint32_t>(new_impl->data.size()),
-            static_cast<uint32_t>(data.size()),
-            ci, parsed_tokens.Kind(ws_offset));
-        new_tok.derived_index = ws_offset;
-        new_impl->data.insert(new_impl->data.end(), data.begin(), data.end());
+    } else if (it = trailing_ws.find(new_impl->tokens.back().derived_index);
+               it != trailing_ws.end()) {
+      for (auto ws_offset = new_impl->tokens.back().derived_index + 1u;
+           ws_offset <= it->second; ++ws_offset) {
+        add_ws_tok(new_context_index, ws_offset);
       }
     }
 

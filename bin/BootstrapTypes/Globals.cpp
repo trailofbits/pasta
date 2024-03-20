@@ -1668,6 +1668,15 @@ std::map<std::pair<std::string, std::string>, std::string> kConditionalNullptr{
    SELF_IS_DEFINITION
    "  if (clang::isa<clang::ClassTemplatePartialSpecializationDecl>(self)) {\n"
    "    return std::nullopt;\n"
+   "  }\n"
+   "  if (self.isInterface()){\n"
+   "    return false;\n"
+   "  }\n"
+   "  if (self.getNumBases() > 0) {\n"
+   "    auto base_spec = *self.bases_begin();\n"
+   "    if (auto base = base_spec.getType()->getAsCXXRecordDecl(); !base) {\n"
+   "      return std::nullopt;\n"
+   "    }\n"
    "  }\n"},
   //{{"CXXRecordDecl", "IsLambda"}, SELF_IS_DEFINITION},
   {{"CXXRecordDecl", "IsLiteral"}, SELF_IS_DEFINITION},

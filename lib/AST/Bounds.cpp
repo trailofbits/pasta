@@ -768,8 +768,9 @@ class DeclBoundsFinder : public clang::DeclVisitor<DeclBoundsFinder>,
   }
 
   void VisitFunctionDecl(clang::FunctionDecl *decl) {
-    // if (clang::FunctionTypeLoc ftl = decl->getFunctionTypeLoc()) {
-    //   this->TypeLocVisitor::Visit(ftl);
+    if (clang::FunctionTypeLoc ftl = decl->getFunctionTypeLoc()) {
+      this->TypeLocVisitor::Visit(ftl);
+    }
 
     // } else if (clang::TypeSourceInfo *tsi = decl->getTypeSourceInfo()) {
     //   if (auto tl = tsi->getTypeLoc()) {
@@ -1252,11 +1253,14 @@ class DeclBoundsFinder : public clang::DeclVisitor<DeclBoundsFinder>,
         }
       } else {
         auto comma_tok = FindNext(begin_tok, TokenKind::kComma, params_end);
-
+        if (!comma_tok) {
+          end_tok = params_end;
+        
         // If it finds the comma token and it is within the params_end bound.
-        if (comma_tok < params_end) {
+        } else if (comma_tok < params_end) {
           end_tok = comma_tok;
           next_begin_tok = comma_tok;
+        
         } else {
           // Expect this case only if the function parameters have
           // ellipsis; If it falls here and `has_ellipsis` is false,
@@ -1657,15 +1661,15 @@ class DeclBoundsFinder : public clang::DeclVisitor<DeclBoundsFinder>,
     if (auto rl = loc.getReturnLoc()) {
       this->TypeLocVisitor::Visit(rl);
     }
-    for (auto param : loc.getParams()) {
-      if (param) {
-        if (auto param_info = param->getTypeSourceInfo()) {
-          if (auto pl = param_info->getTypeLoc()) {
-            this->TypeLocVisitor::Visit(pl);
-          }
-        }
-      }
-    }
+    // for (auto param : loc.getParams()) {
+    //   if (param) {
+    //     if (auto param_info = param->getTypeSourceInfo()) {
+    //       if (auto pl = param_info->getTypeLoc()) {
+    //         this->TypeLocVisitor::Visit(pl);
+    //       }
+    //     }
+    //   }
+    // }
   }
 
   void VisitFunctionProtoTypeLoc(clang::FunctionProtoTypeLoc loc) {

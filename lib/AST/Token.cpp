@@ -1132,6 +1132,10 @@ BitPackedLocation ParsedTokenStorage::CreateInitialMacroLocation(
          static_cast<BitPackedLocation>(loc.getRawEncoding());
 }
 
+inline static bool IsMacroLocation(BitPackedLocation loc) {
+  return !static_cast<uint32_t>(loc) && 0u < (loc >> 32u);
+}
+
 BitPackedLocation ParsedTokenStorage::CreateMacroLocation(
     DerivedTokenIndex offset) {
   return static_cast<BitPackedLocation>(offset + 1u) << 32u;
@@ -1207,6 +1211,8 @@ void ParsedTokenStorage::InventLeadingWhitespace(const clang::Token &tok) {
   auto tk = tok.getKind();
   if (!data.empty() && !IsSpace(data.back())) {
     auto space = '\0';
+
+
     if (tok.hasLeadingSpace() || tok.hasLeadingEmptyMacro()) {
       space = ' ';
     } else if (tok.isAtStartOfLine()) {
@@ -1214,7 +1220,23 @@ void ParsedTokenStorage::InventLeadingWhitespace(const clang::Token &tok) {
     } else if (clang::tok::isAnyIdentifier(tk) ||
                clang::tok::getKeywordSpelling(tk)) {
       space = ' ';
+
+    // NOTE(pag): If the prior token is a macro location, then we need to inject
+    //            some whitespace. The following situation from musl libc
+    //            motivates this:
+    //
+    //                    #define D(x) C((x+16))
+    //
+    //                    ... D(0xe) ...
+    //
+    //            This expands to `0xe+16`, which when re-lexed from our final
+    //            preprocessed file, is treated as an individual token. However,
+    //            in the normal stream of tokens, the `0xe` will be lexed as
+    //            a number and put into its own 
+    } else if (IsMacroLocation(location.back())) {
+      space = ' ';
     }
+
     if (space) {
       data.push_back(space);
       data_offset.back() += 1u;

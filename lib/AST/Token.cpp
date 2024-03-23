@@ -524,6 +524,35 @@ std::optional<Token> Token::BalancedLocation(void) const {
   return Token(storage, matching_it->second);
 }
 
+// Return the previous and next tokens.
+std::optional<Token> Token::PreviousLocation(void) const {
+  if (&(storage->ast->parsed_tokens) != storage.get()) {
+    return std::nullopt;
+  }
+
+  ParsedTokenIterator it(storage.get(), storage->size(), offset);
+  it.Previous();
+  if (!it) {
+    return std::nullopt;
+  }
+
+  return Token(storage, it.Offset());
+}
+
+std::optional<Token> Token::NextLocation(void) const {
+  if (&(storage->ast->parsed_tokens) != storage.get()) {
+    return std::nullopt;
+  }
+
+  ParsedTokenIterator it(storage.get(), storage->size(), offset);
+  it.Next();
+  if (!it) {
+    return std::nullopt;
+  }
+
+  return Token(storage, it.Offset());
+}
+
 // This token may represent a marker for the location of a macro directive.
 // If so, return that directive.
 std::optional<MacroDirective> Token::Directive(void) const {
@@ -875,7 +904,7 @@ std::string_view TokenRange::Data(void) const noexcept {
   auto first_data = storage->Data(first);
   auto last_data = storage->Data(after_last - 1u);
 
-  if (first_data.data() >= last_data.data()) {
+  if (first_data.data() > last_data.data()) {
     assert(false);
     return "";
   }

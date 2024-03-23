@@ -144,6 +144,10 @@ class Token {
   // this points to the opening location. Otherwise, it's `std::nullopt`.
   std::optional<Token> BalancedLocation(void) const;
 
+  // Return the previous and next tokens.
+  std::optional<Token> PreviousLocation(void) const;
+  std::optional<Token> NextLocation(void) const;
+
   // Return the data associated with this token.
   std::string_view Data(void) const;
 

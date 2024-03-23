@@ -180,7 +180,8 @@ class PrintedTokenRangeImpl {
   // Try to align parsed tokens with printed tokens. See `AlignTokens.cpp`.
   std::optional<std::string> AlignTokens(
       PrintedTokenRangeImpl &printed_range,
-      TokenContextIndex decl_context_id);
+      TokenContextIndex decl_context_id,
+      bool recovery_mode);
 
   // If any token context index is invalid, then set it to `index`.
   void FixupInvalidTokenContexts(TokenContextIndex index);

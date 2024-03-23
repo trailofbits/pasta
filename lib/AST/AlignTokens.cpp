@@ -637,7 +637,8 @@ class Matcher {
   SequenceRegion *BuildRegions(
       std::vector<std::unique_ptr<Region>> &regions,
       std::stringstream &err, PrintedTokenImpl * const first,
-      PrintedTokenImpl * const after_last, const char *list_kind);
+      PrintedTokenImpl * const after_last, const char *list_kind,
+      bool recovery_mode);
 
   PrintedTokenImpl *PrevParsedTok(PrintedTokenImpl *tok) {
     return PrevTok(tok, parsed_bounds.begin);
@@ -700,7 +701,7 @@ class Matcher {
 SequenceRegion *Matcher::BuildRegions(
     std::vector<std::unique_ptr<Region>> &regions, std::stringstream &err,
     PrintedTokenImpl * const first, PrintedTokenImpl * const after_last,
-    const char *list_kind) {
+    const char *list_kind, bool recovery_mode) {
 
   std::vector<SequenceRegion *> region_stack;
   std::vector<std::pair<TokenKind, PrintedTokenImpl *>> match_stack;
@@ -769,16 +770,18 @@ SequenceRegion *Matcher::BuildRegions(
 
     last_balanced = nullptr;
 
-// #if PASTA_DEBUG_ALIGN
-//     std::cerr
-//         << list_kind
-//         << " regions=" << regions.size()
-//         << " stack=" << match_stack.size()
-//         << " index=" << (&tok - first)
-//         << " tok=" << TokenName(tok.kind)
-//         << " last_balanced=" << (!!last_balanced)
-//         << '\n';
-// #endif
+#if PASTA_DEBUG_ALIGN
+    std::cerr
+        << list_kind
+        << " regions=" << regions.size()
+        << " stack=" << match_stack.size()
+        << " index=" << (&tok - first)
+        << " tok=" << TokenName(tok.kind)
+        << " last_balanced=" << (!!last_balanced)
+        << " recovery_mode=" << recovery_mode
+        << " unused_end=" << (unused_end ? TokenName(unused_end->kind) : "")
+        << '\n';
+#endif
 
     switch (tok_kind) {
 
@@ -820,6 +823,13 @@ SequenceRegion *Matcher::BuildRegions(
       case TokenKind::kLSquare:
       case TokenKind::kLBrace:
       case TokenKind::kLAngle:
+        if (recovery_mode && match_stack.empty()) {
+          if (!unused_end) {
+            unused_end = &tok;
+          }
+          break;  // Skip the token in recovery mode.
+        }
+
         add_uncollected_stmt(next_tok_ptr);
 
         // If this happens, it's likely a bug in `Bounds.cpp`.
@@ -1671,7 +1681,7 @@ void Matcher::AssignPredecessors(
 
 std::optional<std::string> PrintedTokenRangeImpl::AlignTokens(
     PrintedTokenRangeImpl &printed_range,
-    TokenContextIndex root_context_id) {
+    TokenContextIndex root_context_id, bool recovery_mode) {
 
   assert(root_context_id != kInvalidTokenContextIndex);
   assert(root_context_id < contexts.size());
@@ -1697,15 +1707,16 @@ std::optional<std::string> PrintedTokenRangeImpl::AlignTokens(
   matcher.MergeSameSizedHoles();
 
   SequenceRegion *parsed_tree = matcher.BuildRegions(
-      parsed_regions, err, parsed_bounds.begin, parsed_bounds.end, "parsed");
+      parsed_regions, err, parsed_bounds.begin, parsed_bounds.end, "parsed",
+      recovery_mode);
   if (!parsed_tree) {
-    assert(false);
+    assert(!recovery_mode);
     return err.str();
   }
 
   SequenceRegion *printed_tree = matcher.BuildRegions(
       printed_regions, err, printed_bounds.begin, printed_bounds.end,
-      "printed");
+      "printed", false);
   if (!printed_tree) {
     assert(false);
     return err.str();
@@ -1888,7 +1899,8 @@ static const std::string kMissingSourceLoc = "Missing source location in token";
 // Align the token locations from `a` with the token contexts from `b`. Returns
 // a string if an error occured.
 std::optional<std::string> PrintedTokenRange::Align(PrintedTokenRange &a,
-                                                    PrintedTokenRange &b) {
+                                                    PrintedTokenRange &b,
+                                                    bool recovery_mode) {
 
   if (a.impl == b.impl) {
     return std::nullopt;
@@ -1934,7 +1946,8 @@ std::optional<std::string> PrintedTokenRange::Align(PrintedTokenRange &a,
 
   reset_matches(b.impl->tokens);
 
-  auto error = a.impl->AlignTokens(*(b.impl), kASTTokenContextIndex);
+  auto error = a.impl->AlignTokens(*(b.impl), kASTTokenContextIndex,
+                                   recovery_mode);
   if (error) {
     return error.value();
   }

@@ -1481,11 +1481,6 @@ class DeclBoundsFinder : public clang::DeclVisitor<DeclBoundsFinder>,
     }
 
     FixpointFindLeadingKeywords();
-
-    // // TODO(pag): remove eventually.
-    // if (lower_bound < upper_bound) {
-    //   assert(35000 > (upper_bound.Offset() - lower_bound.Offset()));
-    // }
   }
 
   void VisitTemplateDecl(clang::TemplateDecl *decl) {

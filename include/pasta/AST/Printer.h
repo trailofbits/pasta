@@ -421,8 +421,13 @@ class PrintedTokenRange {
   // derived from `Adopt` below.
   //
   // NOTE(pag): Both `with_locs` and `with_contexts` are mutated in-place.
+  //
+  // NOTE(pag): `recovery_mode` exists to instruct the alignment algorithm to
+  //            try to recover from failures. This generally corresponds with
+  //            things like unbalanced `}` and `{` and such in `with_locs`.
   static std::optional<std::string> Align(PrintedTokenRange &with_locs,
-                                          PrintedTokenRange &with_contexts);
+                                          PrintedTokenRange &with_contexts,
+                                          bool recovery_mode=false);
   
   // Create a new printed token range from `wants_ws` and `has_ws`, where
   // `wants_ws` and `has_ws` share derived token locations, and we want to

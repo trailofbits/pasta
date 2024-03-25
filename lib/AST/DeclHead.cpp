@@ -563,7 +563,7 @@ std::optional<uint64_t> FieldDecl::OffsetInBits(void) const noexcept {
 // we can try to find the true ellipsis token.
 ::pasta::Token FunctionDecl::EllipsisToken(void) const {
   auto &self = *const_cast<clang::FunctionDecl *>(u.FunctionDecl);
-  if (self.getEllipsisLoc().isValid()) {
+  if (self.getEllipsisLoc().isValid() && !self.isImplicit()) {
     auto [begin_tok, end_tok] = ast->DeclBounds(&self);
     if (auto it = ast->func_proto.find(&self); it != ast->func_proto.end()) {
       if (!it->second.ellipsis) {

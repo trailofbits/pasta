@@ -1948,12 +1948,12 @@ class DeclBoundsFinder : public clang::DeclVisitor<DeclBoundsFinder>,
       lower_bound = upper_bound;
     }
 
-    if (!upper_bound) {
-      upper_bound = lower_bound;
-    }
-
     if (!lower_bound.IsParsed()) {
       lower_bound.Next();
+    }
+
+    if (!upper_bound) {
+      upper_bound = lower_bound;
     }
 
     if (!upper_bound.IsParsed()) {

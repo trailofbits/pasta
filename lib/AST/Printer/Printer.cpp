@@ -874,6 +874,73 @@ static std::optional<DerivedTokenIndex> TrailingWhitespaceTokenOffset(
   return min_found;
 }
 
+static bool IsIdentifierLike(TokenKind prev) {
+  if (prev == TokenKind::kIdentifier) {
+    return true;
+  } else if (prev == TokenKind::kLAngle || prev == TokenKind::kRAngle) {
+    return false;
+  } else {
+    return !!clang::tok::getKeywordSpelling(
+        static_cast<clang::tok::TokenKind>(prev));
+  }
+}
+
+static bool IsPunctuation(TokenKind prev) {
+  if (prev == TokenKind::kLAngle || prev == TokenKind::kRAngle) {
+    return true;
+  } else {
+    return !!clang::tok::getPunctuatorSpelling(
+        static_cast<clang::tok::TokenKind>(prev));
+  }
+}
+
+static char AddWhitespaceBetween(TokenKind prev, TokenKind next) {
+  if (prev == TokenKind::kUnknown || prev == TokenKind::kComment) {
+    return false;
+  }
+
+  if (next == TokenKind::kUnknown || next == TokenKind::kComment) {
+    return false;
+  }
+
+  if (prev == TokenKind::kColon ||
+      prev == TokenKind::kComma ||
+      prev == TokenKind::kSemi) {
+    return true;
+  }
+
+  auto prev_is_ident = IsIdentifierLike(prev);
+  auto next_is_ident = IsIdentifierLike(next);
+
+  if (prev_is_ident && next_is_ident) {
+    return true;
+  }
+
+  auto prev_is_punc = IsPunctuation(prev);
+  if (prev_is_punc && next_is_ident) {
+    return prev != TokenKind::kColonColon &&
+           prev != TokenKind::kLAngle &&
+           prev != TokenKind::kLParenthesis &&
+           prev != TokenKind::kLSquare;
+  }
+
+  auto next_is_punc = IsPunctuation(next);
+  if (prev_is_ident && next_is_punc) {
+    return next != TokenKind::kColonColon &&
+           next != TokenKind::kLAngle &&
+           next != TokenKind::kRAngle &&
+           next != TokenKind::kLParenthesis &&
+           next != TokenKind::kRParenthesis &&
+           next != TokenKind::kLSquare &&
+           next != TokenKind::kRSquare &&
+           next != TokenKind::kSemi &&
+           next != TokenKind::kColon &&
+           next != TokenKind::kComma;
+  }
+
+  return prev_is_punc && next == TokenKind::kLBrace;
+}
+
 }  // namespace
 
 // Create a new printed token range from `wants_ws` and `has_ws`, where
@@ -999,6 +1066,26 @@ PrintedTokenRange PrintedTokenRange::AdoptWhitespace(
     new_impl->data.insert(new_impl->data.end(), data.begin(), data.end());
   };
 
+  // Keep track of what the next non-whitespace derived token is in `wants_ws`.
+  // We don't want to double add whitespace with `leading_ws` before the next
+  // thing and `trailing_ws` after the previous thing.
+  std::unordered_map<DerivedTokenIndex, DerivedTokenIndex> succ_toks;
+  DerivedTokenIndex prev_index = kInvalidDerivedTokenIndex;
+  for (const auto &wants_ws_tok : wants_ws.impl->tokens) {
+    if (wants_ws_tok.kind == TokenKind::kComment ||
+        wants_ws_tok.kind == TokenKind::kUnknown ||
+        wants_ws_tok.kind == TokenKind::kEndOfFile ||
+        wants_ws_tok.derived_index == kInvalidDerivedTokenIndex) {
+      continue;
+    }
+
+    if (prev_index != kInvalidDerivedTokenIndex) {
+      succ_toks.emplace(prev_index, wants_ws_tok.derived_index);
+    }
+
+    prev_index = wants_ws_tok.derived_index;
+  }
+
   // Now bring in the normal tokens.
   for (const auto &wants_ws_tok : wants_ws.impl->tokens) {
     
@@ -1026,10 +1113,31 @@ PrintedTokenRange PrintedTokenRange::AdoptWhitespace(
 
     } else if (it = trailing_ws.find(new_impl->tokens.back().derived_index);
                it != trailing_ws.end()) {
-      for (auto ws_offset = new_impl->tokens.back().derived_index + 1u;
-           ws_offset <= it->second; ++ws_offset) {
-        add_ws_tok(new_context_index, ws_offset);
+
+      auto derived_index = new_impl->tokens.back().derived_index;
+
+      // Go check to see if the next parsed token will have leading whitespace.
+      // This is a not quite right
+      auto succ_it = succ_toks.find(derived_index);
+      if (succ_it == succ_toks.end() ||
+          leading_ws.find(succ_it->second) == leading_ws.end() ||
+          leading_ws.find(succ_it->second)->second > (derived_index + 1u)) {
+        
+        for (auto ws_offset = new_impl->tokens.back().derived_index + 1u;
+             ws_offset <= it->second; ++ws_offset) {
+          add_ws_tok(new_context_index, ws_offset);
+        }
       }
+    }
+
+    // Try to inject fake whitespace.
+    auto last_kind = new_impl->tokens.empty() ? TokenKind::kUnknown :
+                     new_impl->tokens.back().kind;
+    if (AddWhitespaceBetween(last_kind, wants_ws_tok.kind)) {
+      new_impl->tokens.emplace_back(
+          static_cast<uint32_t>(new_impl->data.size()), 1u, new_context_index,
+          TokenKind::kUnknown);
+      new_impl->data.push_back(' ');
     }
 
     // Add in the original token.

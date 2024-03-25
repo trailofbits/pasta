@@ -259,6 +259,53 @@ class DeclBoundsFinder : public clang::DeclVisitor<DeclBoundsFinder>,
     }
   }
 
+  ParsedTokenIterator FindEndOfTagAlt(
+      clang::TagDecl *decl) {
+    auto tok = ast.RawTokenAt(decl->getLocation());
+    if (tok.Data() != decl->getNameAsString()) {
+      return invalid;
+    }
+
+    bool expect_braces = false;
+    auto ret = invalid;
+    for (tok.Next(); tok; tok.Next()) {
+      switch (tok.Kind()) {
+        case TokenKind::kUnknown:
+        case TokenKind::kComment:
+        case TokenKind::kIdentifier:
+        case TokenKind::kKeyword__Attribute:
+          continue;
+        case TokenKind::kSemi:
+          return tok;
+        case TokenKind::kLParenthesis:
+        case TokenKind::kLSquare:
+        case TokenKind::kLAngle:
+          tok = GetMatching(tok).second;
+          break;
+        case TokenKind::kLBrace:
+          if (ret) {
+            return ret;
+          }
+          expect_braces = false;
+          tok = GetMatching(tok).second;
+          ret = tok;
+          break;
+        case TokenKind::kColon:
+        case TokenKind::kKeywordPublic:
+        case TokenKind::kKeywordPrivate:
+        case TokenKind::kKeywordProtected:
+        case TokenKind::kKeywordVirtual:
+          expect_braces = true;
+          continue;
+        default:
+          return ret;
+      }
+    }
+
+    assert(!expect_braces);
+    return ret;
+  }
+
   // Scans forward starting from `tok`, assumed to be the beginning of
   // a `TagDecl`, and then looks for a closing `}`, a closing `;`, or the
   // last token before an unbalanced paren/bracket/brace.
@@ -1091,6 +1138,11 @@ class DeclBoundsFinder : public clang::DeclVisitor<DeclBoundsFinder>,
 
     ASTImpl::FunctionProto &proto = ast.func_proto[func];
 
+    // Just always fail.
+    if (clang::isa<clang::CXXDeductionGuideDecl>(func)) {
+      return &proto;
+    }
+
     // Try to detect something like `foo_t func;` forward declarations. These
     // are present in the linux kernel. When this happens, we'll usually observe
     // a `TypedefNameType` wrapping around a `FunctionProtoType`, rather than
@@ -1290,7 +1342,8 @@ class DeclBoundsFinder : public clang::DeclVisitor<DeclBoundsFinder>,
     //       then the corresponding token does not exist. No need to look for
     //       token bounds in that case; Return early with the default initialization
     //       of `lower_bounds` and `upper_bounds`
-    if (!func || func->isDefaulted()) {
+    if (!func || func->isDefaulted() ||
+        clang::isa<clang::CXXDeductionGuideDecl>(func)) {
       return;
     }
 
@@ -1474,8 +1527,11 @@ class DeclBoundsFinder : public clang::DeclVisitor<DeclBoundsFinder>,
     Expand(decl->getSourceRange(), decl->getLocation());
 
     auto tag_end = FindEndOfTag(decl, lower_bound);
-    assert(!lower_bound || tag_end);
+    if (!tag_end) {
+      tag_end = FindEndOfTagAlt(decl);
+    }
 
+    assert(!lower_bound || tag_end);
     if (!upper_bound || upper_bound <= tag_end) {
       upper_bound = tag_end;
     }

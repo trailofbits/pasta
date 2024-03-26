@@ -814,6 +814,35 @@ class DeclBoundsFinder : public clang::DeclVisitor<DeclBoundsFinder>,
     }
   }
 
+  static bool IsLambdaMethod(clang::FunctionDecl *decl) {
+    auto meth = clang::dyn_cast<clang::CXXMethodDecl>(decl);
+    if (!meth) {
+      return false;
+    }
+
+    if (meth->isLambdaStaticInvoker()) {
+      return true;
+    }
+
+    if (meth->getOverloadedOperator() != clang::OO_Call) {
+      return false;
+    }
+
+    clang::CXXRecordDecl *record = meth->getParent();
+    return record->isLambda();
+  }
+
+  // NOTE(pag): In the case of lamdas, the `->getLocation()` can be
+  //            the capture clause, but the source range is more closely
+  //            related to the body.
+  static clang::SourceLocation CheckLocation(clang::FunctionDecl *decl) {
+    if (IsLambdaMethod(decl)) {
+      return {};
+    } else {
+      return decl->getLocation();
+    }
+  }
+
   void VisitFunctionDecl(clang::FunctionDecl *decl) {
     if (clang::FunctionTypeLoc ftl = decl->getFunctionTypeLoc()) {
       this->TypeLocVisitor::Visit(ftl);
@@ -832,15 +861,13 @@ class DeclBoundsFinder : public clang::DeclVisitor<DeclBoundsFinder>,
       auto pattern_decl = decl->getTemplateInstantiationPattern();
       if (pattern_decl->getLocation() == decl->getLocation()) {
 
-        // NOTE(pag): In the case of lamdas, the `->getLocation()` can be
-        //            the capture clause, but the source range is more closely
-        //            related to the body.
         if (decl->doesThisDeclarationHaveABody()) {
           if (auto pattern_def = pattern_decl->getDefinition()) {
             if (auto pattern_tpl = pattern_def->getDescribedFunctionTemplate()) {
-              Expand(pattern_tpl->getSourceRange());
+              assert(pattern_tpl->getTemplatedDecl() == pattern_def);
+              Expand(pattern_tpl->getSourceRange(), CheckLocation(pattern_def));
             } else {
-              Expand(pattern_def->getSourceRange());
+              Expand(pattern_def->getSourceRange(), CheckLocation(pattern_def));
             }
           } else {
             assert(false);
@@ -852,12 +879,13 @@ class DeclBoundsFinder : public clang::DeclVisitor<DeclBoundsFinder>,
           missing_body = true;
 
           if (auto pattern_tpl = pattern_decl->getDescribedFunctionTemplate()) {
-            Expand(pattern_tpl->getSourceRange());
+            assert(pattern_tpl->getTemplatedDecl() == pattern_decl);
+            Expand(pattern_tpl->getSourceRange(), CheckLocation(pattern_decl));
           } else {
-            Expand(pattern_decl->getSourceRange());
+            Expand(pattern_decl->getSourceRange(), CheckLocation(pattern_decl));
           }
         } else {
-          Expand(pattern_decl->getSourceRange());
+          Expand(pattern_decl->getSourceRange(), CheckLocation(pattern_decl));
           ExpandToTrailingToken(tok, TokenKind::kSemi);
         }
 
@@ -901,18 +929,17 @@ class DeclBoundsFinder : public clang::DeclVisitor<DeclBoundsFinder>,
       ExpandToTrailingToken(tok, TokenKind::kSemi);
     }
 
-    // // TODO(pag): remove eventually.
-    // assert(8000u > (upper_bound.Offset() - lower_bound.Offset()));
-
     const ASTImpl::FunctionProto *proto = FunctionProtoFor(decl);
     if (!proto) {
       return;
     }
 
-    if (proto->l_paren) {
-      assert(lower_bound.Offset() < proto->l_paren);
-      assert(proto->r_paren <= upper_bound.Offset());
+    if (!proto->l_paren) {
+      return;
     }
+
+    assert(lower_bound.Offset() < proto->l_paren);
+    assert(proto->r_paren <= upper_bound.Offset());
   }
 
   void VisitAttribute(const clang::Attr *attr) {
@@ -1161,6 +1188,13 @@ class DeclBoundsFinder : public clang::DeclVisitor<DeclBoundsFinder>,
     auto [params_begin, params_end] =
         SourceRangeTokens(func->getParametersSourceRange());
 
+    unsigned num_params = func->getNumParams();
+
+    // Lambda methods with zero arguments might not have parameter lists.
+    if (!num_params && !params_begin && !params_end && IsLambdaMethod(func)) {
+      return &proto;
+    }
+
     // If there's an ellipsis loc, then that will have influenced the parameter
     // source range, but we should never trust it, as the ellipsis location is
     // taken from the function type itself, which is subject to deduplication,
@@ -1273,7 +1307,6 @@ class DeclBoundsFinder : public clang::DeclVisitor<DeclBoundsFinder>,
     // e.g:
     //      void __make_fmatrix_impl(index_sequence<_Is...>, index_sequence<_Js...>, _Ls... __ls)
     //
-    unsigned num_params = func->getNumParams();
 
     // getFunctionScopeIndex uses ParameterIndex bit to get the index and
     // it is not reliable. Traverse through the parameters using its indices.

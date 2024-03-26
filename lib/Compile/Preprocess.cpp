@@ -2,7 +2,6 @@
  * Copyright (c) 2023 Trail of Bits, Inc.
  */
 
-#include <fcntl.h>
 #include <string>
 #include <string_view>
 
@@ -20,10 +19,12 @@
 
 #include "../AST/AST.h"
 
-#define PASTA_DEBUG_RUN 0
+#define PASTA_DEBUG_RUN 1
 
 #if PASTA_DEBUG_RUN
 # include <fcntl.h>
+# include <sstream>
+# include <thread>
 # include <unistd.h>
 #endif
 
@@ -81,9 +82,13 @@ void PreprocessCode(ASTImpl &impl, clang::CompilerInstance &ci,
   pp.EndSourceFile();  // Will trigger a call to `EndOfMainFile`.
 
 #if PASTA_DEBUG_RUN
+  std::stringstream path_ss;
+  path_ss << "/tmp/source." << std::this_thread::get_id() << ".cpp";
+  std::string path = path_ss.str();
+
   // NOTE(pag): If there's a compiler error that "shouldn't happen," then
   //            enabling the below code can help diagnose it.
-  auto fd = open("/tmp/source.cpp", O_TRUNC | O_CREAT | O_WRONLY, 0666);
+  auto fd = open(path.c_str(), O_TRUNC | O_CREAT | O_WRONLY, 0666);
   auto parsed_data = impl.parsed_tokens.Data();
   write(fd, parsed_data.data(), parsed_data.size());
   close(fd);

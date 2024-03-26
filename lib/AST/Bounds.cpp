@@ -831,12 +831,16 @@ class DeclBoundsFinder : public clang::DeclVisitor<DeclBoundsFinder>,
     if (decl->isTemplateInstantiation()) {
       auto pattern_decl = decl->getTemplateInstantiationPattern();
       if (pattern_decl->getLocation() == decl->getLocation()) {
+
+        // NOTE(pag): In the case of lamdas, the `->getLocation()` can be
+        //            the capture clause, but the source range is more closely
+        //            related to the body.
         if (decl->doesThisDeclarationHaveABody()) {
           if (auto pattern_def = pattern_decl->getDefinition()) {
             if (auto pattern_tpl = pattern_def->getDescribedFunctionTemplate()) {
-              Expand(pattern_tpl->getSourceRange(), pattern_tpl->getLocation());
+              Expand(pattern_tpl->getSourceRange());
             } else {
-              Expand(pattern_def->getSourceRange(), pattern_def->getLocation());
+              Expand(pattern_def->getSourceRange());
             }
           } else {
             assert(false);
@@ -848,12 +852,12 @@ class DeclBoundsFinder : public clang::DeclVisitor<DeclBoundsFinder>,
           missing_body = true;
 
           if (auto pattern_tpl = pattern_decl->getDescribedFunctionTemplate()) {
-            Expand(pattern_tpl->getSourceRange(), pattern_tpl->getLocation());
+            Expand(pattern_tpl->getSourceRange());
           } else {
-            Expand(pattern_decl->getSourceRange(), pattern_decl->getLocation());
+            Expand(pattern_decl->getSourceRange());
           }
         } else {
-          Expand(pattern_decl->getSourceRange(), pattern_decl->getLocation());
+          Expand(pattern_decl->getSourceRange());
           ExpandToTrailingToken(tok, TokenKind::kSemi);
         }
 

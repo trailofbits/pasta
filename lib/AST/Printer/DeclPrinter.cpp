@@ -321,7 +321,7 @@ void Decl_printGroup(clang::Decl** Begin, size_t NumDecls,
 static clang::QualType GetBaseType(clang::QualType T) {
   // FIXME: This should be on the Type class!
   clang::QualType BaseType = T;
-  while (!BaseType->isSpecifierType()) {
+  while (!BaseType->isNull() && !BaseType->isSpecifierType()) {
     if (const clang::PointerType *PTy = BaseType->getAs<clang::PointerType>())
       BaseType = PTy->getPointeeType();
     else if (const clang::BlockPointerType *BPy = BaseType->getAs<clang::BlockPointerType>())

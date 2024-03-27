@@ -374,9 +374,23 @@ class TokenPrinterContext {
   const void *owns_data{nullptr};
 };
 
+#ifndef NDEBUG
+__attribute__((noinline))
+extern "C" void CheckNotOnStack(const void *higher, const void *lower);
+#endif
+
 template <typename T>
 const TokenContextIndex PrintedTokenRangeImpl::CreateContext(
     TokenPrinterContext *tokenizer, const T *data) {
+
+#ifndef NDEBUG
+  // Make sure we're not referencing a local variable.
+  auto local_var = 1;
+  asm volatile (""::"m"(local_var):"memory");
+  CheckNotOnStack(data, &local_var);
+  asm volatile (""::"m"(local_var):"memory");
+#endif
+
   if (!data) {
     if (tokenizer->prev_printer_context) {
       return tokenizer->prev_printer_context->context_index;
@@ -480,6 +494,76 @@ class TagDefinitionPolicyRAII {
 
   ~TagDefinitionPolicyRAII() {
     Policy.IncludeTagDefinition = Old;
+  }
+};
+
+/// RAII object that enables printing of the ARC __strong lifetime
+/// qualifier.
+class IncludeStrongLifetimeRAII {
+  clang::PrintingPolicy &Policy;
+  bool Old;
+
+ public:
+  explicit IncludeStrongLifetimeRAII(clang::PrintingPolicy &Policy)
+      : Policy(Policy),
+        Old(Policy.SuppressStrongLifetime) {
+    if (!Policy.SuppressLifetimeQualifiers)
+      Policy.SuppressStrongLifetime = false;
+  }
+
+  ~IncludeStrongLifetimeRAII() {
+    Policy.SuppressStrongLifetime = Old;
+  }
+};
+
+class ParamPolicyRAII {
+  clang::PrintingPolicy &Policy;
+  bool Old;
+
+ public:
+  explicit ParamPolicyRAII(clang::PrintingPolicy &Policy)
+      : Policy(Policy),
+        Old(Policy.SuppressSpecifiers) {
+    Policy.SuppressSpecifiers = false;
+  }
+
+  ~ParamPolicyRAII() {
+    Policy.SuppressSpecifiers = Old;
+  }
+};
+
+class DefaultTemplateArgsPolicyRAII {
+  clang::PrintingPolicy &Policy;
+  bool Old;
+
+ public:
+  explicit DefaultTemplateArgsPolicyRAII(clang::PrintingPolicy &Policy)
+      : Policy(Policy), Old(Policy.SuppressDefaultTemplateArgs) {
+    Policy.SuppressDefaultTemplateArgs = false;
+  }
+
+  ~DefaultTemplateArgsPolicyRAII() {
+    Policy.SuppressDefaultTemplateArgs = Old;
+  }
+};
+
+class ElaboratedTypePolicyRAII {
+  clang::PrintingPolicy &Policy;
+  bool SuppressTagKeyword;
+  bool SuppressScope;
+
+ public:
+  explicit ElaboratedTypePolicyRAII(clang::PrintingPolicy &Policy)
+      : Policy(Policy) {
+    SuppressTagKeyword = Policy.SuppressTagKeyword;
+    SuppressScope = Policy.SuppressScope;
+    Policy.SuppressTagKeyword = true;
+    Policy.SuppressScope = true;
+  }
+
+  ~ElaboratedTypePolicyRAII() {
+    Policy.SuppressTagKeyword = SuppressTagKeyword;
+    Policy.SuppressScope = SuppressScope;
   }
 };
 

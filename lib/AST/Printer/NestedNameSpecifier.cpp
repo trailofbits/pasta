@@ -26,8 +26,12 @@ void NestedNameSpecifier_print(
     const clang::PrintingPolicy &Policy,
     bool ResolveTemplateArguments) {
 
+  clang::PrintingPolicy InnerPolicy(Policy);
+  TagDefinitionPolicyRAII tag_raii(InnerPolicy);
+  ElaboratedTypePolicyRAII scope_raii(InnerPolicy);
+
   if (Spec->getPrefix())
-    NestedNameSpecifier_print(Spec->getPrefix(), printer, Policy);
+    NestedNameSpecifier_print(Spec->getPrefix(), printer, InnerPolicy);
 
   auto &OS = printer.OS;
   auto &tokens = printer.tokens;
@@ -66,17 +70,14 @@ void NestedNameSpecifier_print(
               Spec->getAsRecordDecl());
       if (ResolveTemplateArguments && Record) {
           // Print the type trait with resolved template parameters.
-          Record->printName(OS, Policy);
+          Record->printName(OS, InnerPolicy);
           printTemplateArgumentList(
-              printer, Record->getTemplateArgs().asArray(), Policy,
+              printer, Record->getTemplateArgs().asArray(), InnerPolicy,
               Record->getSpecializedTemplate()->getTemplateParameters());
           break;
       }
 
       const clang::Type *T = Spec->getAsType();
-
-      clang::PrintingPolicy InnerPolicy(Policy);
-      InnerPolicy.SuppressScope = true;
 
       // Nested-name-specifiers are intended to contain minimally-qualified
       // types. An actual ElaboratedType will not occur, since we'll store
@@ -108,7 +109,7 @@ void NestedNameSpecifier_print(
                                   InnerPolicy);
       } else {
         // Print the type normally
-        TypePrinter(OS, Policy, tokens).print(
+        TypePrinter(OS, InnerPolicy, tokens).print(
             clang::QualType(T, 0), clang::StringRef());
       }
       break;

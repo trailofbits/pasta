@@ -484,6 +484,7 @@ void DeclPrinter::PrintConstructorInitializers(
     });
   }
 
+  TagDefinitionPolicyRAII tag_raii(Policy);
   for (const auto *BMInitializer : inits) {
     if (!HasInitializerList) {
       ProtoFn();

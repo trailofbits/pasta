@@ -50,6 +50,7 @@ const std::unordered_map<std::string, std::string> kCxxMethodRenames{
   {"TypePtrOrNull", ""},
   {"AsOpaquePtr", ""},
   {"UnqualifiedType", ""},
+  {"PackExpansionPattern", ""},
 
   // These are all getters, normally with `get` prefix.
   {"TypeClass", "Kind"},

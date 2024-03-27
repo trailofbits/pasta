@@ -31,6 +31,18 @@
 
 namespace pasta {
 
+#ifndef NDEBUG
+__attribute__((noinline))
+extern "C" void CheckNotOnStack(const void *higher, const void *lower);
+__attribute__((noinline))
+extern "C" void CheckNotOnStack(const void *higher, const void *lower) {
+  asm volatile (""::"m"(higher), "m"(lower):"memory");
+  auto higher_addr = reinterpret_cast<uintptr_t>(higher);
+  auto lower_addr = reinterpret_cast<uintptr_t>(lower);
+  assert(!((higher_addr - lower_addr) < 4096));
+}
+#endif
+
 static void TryLocateAttribute(const clang::Attr *A,
                                PrintedTokenRangeImpl &tokens,
                                size_t old_num_toks) {

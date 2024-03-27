@@ -14,77 +14,6 @@
 
 namespace pasta {
 
-
-/// RAII object that enables printing of the ARC __strong lifetime
-/// qualifier.
-class IncludeStrongLifetimeRAII {
-  clang::PrintingPolicy &Policy;
-  bool Old;
-
- public:
-  explicit IncludeStrongLifetimeRAII(clang::PrintingPolicy &Policy)
-      : Policy(Policy),
-        Old(Policy.SuppressStrongLifetime) {
-    if (!Policy.SuppressLifetimeQualifiers)
-      Policy.SuppressStrongLifetime = false;
-  }
-
-  ~IncludeStrongLifetimeRAII() {
-    Policy.SuppressStrongLifetime = Old;
-  }
-};
-
-class ParamPolicyRAII {
-  clang::PrintingPolicy &Policy;
-  bool Old;
-
- public:
-  explicit ParamPolicyRAII(clang::PrintingPolicy &Policy)
-      : Policy(Policy),
-        Old(Policy.SuppressSpecifiers) {
-    Policy.SuppressSpecifiers = false;
-  }
-
-  ~ParamPolicyRAII() {
-    Policy.SuppressSpecifiers = Old;
-  }
-};
-
-class DefaultTemplateArgsPolicyRAII {
-  clang::PrintingPolicy &Policy;
-  bool Old;
-
-public:
-  explicit DefaultTemplateArgsPolicyRAII(clang::PrintingPolicy &Policy)
-      : Policy(Policy), Old(Policy.SuppressDefaultTemplateArgs) {
-    Policy.SuppressDefaultTemplateArgs = false;
-  }
-
-  ~DefaultTemplateArgsPolicyRAII() {
-    Policy.SuppressDefaultTemplateArgs = Old;
-  }
-};
-
-class ElaboratedTypePolicyRAII {
-  clang::PrintingPolicy &Policy;
-  bool SuppressTagKeyword;
-  bool SuppressScope;
-
- public:
-  explicit ElaboratedTypePolicyRAII(clang::PrintingPolicy &Policy)
-      : Policy(Policy) {
-    SuppressTagKeyword = Policy.SuppressTagKeyword;
-    SuppressScope = Policy.SuppressScope;
-    Policy.SuppressTagKeyword = true;
-    Policy.SuppressScope = true;
-  }
-
-  ~ElaboratedTypePolicyRAII() {
-    Policy.SuppressTagKeyword = SuppressTagKeyword;
-    Policy.SuppressScope = SuppressScope;
-  }
-};
-
 static void AppendTypeQualList(pasta::raw_string_ostream &OS, unsigned TypeQuals,
                                bool HasRestrictKeyword) {
   bool appendSpace = false;
@@ -1952,7 +1881,7 @@ void TypePrinter::printSubstTemplateTypeParmPack(
   TokenPrinterContext ctx(OS, T, tokens);
   IncludeStrongLifetimeRAII Strong(Policy);
 
-  auto ArgsArg = T->getArgumentPack();
+  const auto &ArgsArg = T->getArgumentPack();
   printArgument(*this, ArgsArg, Policy, /*IncludeType*/ true);
   IdentFn();
 }

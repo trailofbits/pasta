@@ -21,6 +21,19 @@
 
 namespace pasta {
 
+namespace {
+
+// Strip Byte Offset Marker character from the
+// string if exist
+static inline void skipBOM(std::string &value) {
+  if (((value[0] & 0xff) == 0xef)
+      && ((value[1] & 0xff) == 0xbb)
+      && ((value[2] & 0xff) == 0xbf)) {
+    value.erase(0, 3);
+  }
+}
+} // namespace
+
 static_assert(
     static_cast<unsigned>(clang::tok::TokenKind::NUM_TOKENS) <= (1u << 9u));
 

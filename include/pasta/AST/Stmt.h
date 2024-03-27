@@ -6223,7 +6223,7 @@ class UserDefinedLiteral : public CallExpr {
   PASTA_DECLARE_BASE_OPERATORS(Stmt, UserDefinedLiteral)
   PASTA_DECLARE_BASE_OPERATORS(ValueStmt, UserDefinedLiteral)
   ::pasta::Token BeginToken(void) const;
-  ::pasta::Expr CookedLiteral(void) const;
+  std::optional<::pasta::Expr> CookedLiteral(void) const;
   ::pasta::Token EndToken(void) const;
   enum UserDefinedLiteralLiteralOperatorKind LiteralOperatorKind(void) const;
   // UDSuffix: (const clang::IdentifierInfo *)

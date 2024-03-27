@@ -22,6 +22,8 @@
 #include <llvm/Support/JSON.h>
 #pragma clang diagnostic pop
 
+#include "FileManager.h"
+
 namespace pasta {
 namespace {
 
@@ -141,6 +143,7 @@ Result<std::string, std::error_code> NativeFileSystem::ReadFile(
     return ret;
   }
 
+
   ret.assign((std::istreambuf_iterator<char>(f)),
               std::istreambuf_iterator<char>());
 
@@ -158,11 +161,13 @@ Result<std::string, std::error_code> NativeFileSystem::ReadFile(
   f.close();
 
   // A lot of code in PASTA relies on the file being formatted as UTF-8.
-  if (llvm::json::isUTF8(ret)) {
-    return ret;
+  if (!llvm::json::isUTF8(ret)) {
+    ret = llvm::json::fixUTF8(ret);
   }
 
-  return llvm::json::fixUTF8(ret);
+  // strip Byte-Offset Marker from UTF8
+  skipBOM(ret);
+  return ret;
 }
 
 // Return the root directory of `path`, possibly within the context of `cwd`.

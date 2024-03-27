@@ -15738,13 +15738,20 @@ PASTA_DEFINE_BASE_OPERATORS(ValueStmt, UserDefinedLiteral)
   return ast->TokenAt(val);
 }
 
-::pasta::Expr UserDefinedLiteral::CookedLiteral(void) const {
+std::optional<::pasta::Expr> UserDefinedLiteral::CookedLiteral(void) const {
   auto &self = *const_cast<clang::UserDefinedLiteral *>(u.UserDefinedLiteral);
+  auto op_kind = self.getLiteralOperatorKind();
+  if ((op_kind == clang::UserDefinedLiteral::LiteralOperatorKind::LOK_Template)
+      || (op_kind == clang::UserDefinedLiteral::LiteralOperatorKind::LOK_Raw)) {
+    return std::nullopt;
+  }
   decltype(auto) val = self.getCookedLiteral();
+  if (!val) {
+    return std::nullopt;
+  }
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
-  throw std::runtime_error("UserDefinedLiteral::CookedLiteral can return nullptr!");
 }
 
 ::pasta::Token UserDefinedLiteral::EndToken(void) const {

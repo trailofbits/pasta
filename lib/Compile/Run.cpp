@@ -266,6 +266,9 @@ Result<AST, std::string> CompileJob::Run(void) const {
   lang_opts.CommentOpts.ParseAllComments = false;
   lang_opts.ForceEmitVTables = lang_opts.CPlusPlus;
 
+  // Force enable CXXExceptions
+  lang_opts.CXXExceptions = true;
+
   // This is a patch that preserve the lexical context of the
   // template instantiations in AST.
   lang_opts.LexicalTemplateInstantiation = true;

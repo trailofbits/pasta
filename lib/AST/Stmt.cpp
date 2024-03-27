@@ -15747,8 +15747,8 @@ PASTA_DEFINE_BASE_OPERATORS(ValueStmt, UserDefinedLiteral)
 std::optional<::pasta::Expr> UserDefinedLiteral::CookedLiteral(void) const {
   auto &self = *const_cast<clang::UserDefinedLiteral *>(u.UserDefinedLiteral);
   auto op_kind = self.getLiteralOperatorKind();
-  if (op_kind == clang::UserDefinedLiteral::LiteralOperatorKind::LOK_Template ||
-      op_kind == clang::UserDefinedLiteral::LiteralOperatorKind::LOK_Raw) {
+  if ((op_kind == clang::UserDefinedLiteral::LiteralOperatorKind::LOK_Template)
+      || (op_kind == clang::UserDefinedLiteral::LiteralOperatorKind::LOK_Raw)) {
     return std::nullopt;
   }
   decltype(auto) val = self.getCookedLiteral();

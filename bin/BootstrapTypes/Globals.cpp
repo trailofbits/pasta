@@ -1242,6 +1242,9 @@ std::set<std::pair<std::string, std::string>> kCanReturnNullptr{
   {"CXXRecordDecl", "LambdaStaticInvoker"},
   {"CoroutineBodyStmt", "ResultDeclaration"},
   {"BindingDecl", "Binding"},
+  {"BindingDecl", "HoldingVariable"},
+  {"CoreturnStmt", "Operand"},
+  {"CoroutineBodyStmt", "ReturnStatementOnAllocFailure"},
 
 //  {"FunctionProtoType", "EllipsisToken"},
 //  {"FunctionDecl", "EllipsisToken"},

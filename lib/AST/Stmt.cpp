@@ -2706,13 +2706,15 @@ std::vector<::pasta::Stmt> CoreturnStmt::Children(void) const {
   return ast->TokenAt(val);
 }
 
-::pasta::Expr CoreturnStmt::Operand(void) const {
+std::optional<::pasta::Expr> CoreturnStmt::Operand(void) const {
   auto &self = *const_cast<clang::CoreturnStmt *>(u.CoreturnStmt);
   decltype(auto) val = self.getOperand();
+  if (!val) {
+    return std::nullopt;
+  }
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
-  throw std::runtime_error("CoreturnStmt::Operand can return nullptr!");
 }
 
 ::pasta::Expr CoreturnStmt::PromiseCall(void) const {
@@ -2885,13 +2887,15 @@ std::optional<::pasta::Stmt> CoroutineBodyStmt::ResultDeclaration(void) const {
   throw std::runtime_error("CoroutineBodyStmt::ReturnStatement can return nullptr!");
 }
 
-::pasta::Stmt CoroutineBodyStmt::ReturnStatementOnAllocFailure(void) const {
+std::optional<::pasta::Stmt> CoroutineBodyStmt::ReturnStatementOnAllocFailure(void) const {
   auto &self = *const_cast<clang::CoroutineBodyStmt *>(u.CoroutineBodyStmt);
   decltype(auto) val = self.getReturnStmtOnAllocFailure();
+  if (!val) {
+    return std::nullopt;
+  }
   if (val) {
     return StmtBuilder::Create<::pasta::Stmt>(ast, val);
   }
-  throw std::runtime_error("CoroutineBodyStmt::ReturnStatementOnAllocFailure can return nullptr!");
 }
 
 ::pasta::Expr CoroutineBodyStmt::ReturnValue(void) const {

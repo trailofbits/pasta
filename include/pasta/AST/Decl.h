@@ -1540,7 +1540,7 @@ class BindingDecl : public ValueDecl {
   PASTA_DECLARE_BASE_OPERATORS(ValueDecl, BindingDecl)
   std::optional<::pasta::Expr> Binding(void) const;
   ::pasta::ValueDecl DecomposedDeclaration(void) const;
-  ::pasta::VarDecl HoldingVariable(void) const;
+  std::optional<::pasta::VarDecl> HoldingVariable(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_DECL_CONSTRUCTOR(BindingDecl)
 };

@@ -1265,7 +1265,7 @@ class CoreturnStmt : public Stmt {
   ::pasta::Token BeginToken(void) const;
   ::pasta::Token EndToken(void) const;
   ::pasta::Token KeywordToken(void) const;
-  ::pasta::Expr Operand(void) const;
+  std::optional<::pasta::Expr> Operand(void) const;
   ::pasta::Expr PromiseCall(void) const;
   bool IsImplicit(void) const;
  protected:
@@ -1295,7 +1295,7 @@ class CoroutineBodyStmt : public Stmt {
   ::pasta::Stmt PromiseDeclarationStatement(void) const;
   std::optional<::pasta::Stmt> ResultDeclaration(void) const;
   ::pasta::Stmt ReturnStatement(void) const;
-  ::pasta::Stmt ReturnStatementOnAllocFailure(void) const;
+  std::optional<::pasta::Stmt> ReturnStatementOnAllocFailure(void) const;
   ::pasta::Expr ReturnValue(void) const;
   ::pasta::Expr ReturnValueInitializer(void) const;
   bool HasDependentPromiseType(void) const;

@@ -3954,13 +3954,15 @@ std::optional<::pasta::Expr> BindingDecl::Binding(void) const {
   throw std::runtime_error("BindingDecl::DecomposedDeclaration can return nullptr!");
 }
 
-::pasta::VarDecl BindingDecl::HoldingVariable(void) const {
+std::optional<::pasta::VarDecl> BindingDecl::HoldingVariable(void) const {
   auto &self = *const_cast<clang::BindingDecl *>(u.BindingDecl);
   decltype(auto) val = self.getHoldingVar();
+  if (!val) {
+    return std::nullopt;
+  }
   if (val) {
     return DeclBuilder::Create<::pasta::VarDecl>(ast, val);
   }
-  throw std::runtime_error("BindingDecl::HoldingVariable can return nullptr!");
 }
 
 BlockDecl::BlockDecl(

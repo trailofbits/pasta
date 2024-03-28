@@ -23,15 +23,23 @@ namespace pasta {
 
 namespace {
 
-// Strip Byte Offset Marker character from the
-// string if exist
-static inline void RemoveBOM(std::string &value) {
-  if (value.size() >= 3) {
+// Check if string has Byte-offset marker
+static inline bool HasBOM(const char *value, size_t size) {
+  if (size >= 3) {
     if (((value[0] & 0xff) == 0xef)
         && ((value[1] & 0xff) == 0xbb)
         && ((value[2] & 0xff) == 0xbf)) {
-      value.erase(0, 3);
+      return true;
     }
+  }
+  return false;
+}
+
+// Strip Byte Offset Marker character from the
+// string if exist
+static inline void RemoveBOM(std::string &value) {
+  if (HasBOM(value.c_str(), value.size())) {
+    value.erase(0, 3);
   }
 }
 } // namespace

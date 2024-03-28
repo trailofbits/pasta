@@ -32,22 +32,6 @@
 
 namespace pasta {
 
-namespace {
-
-// Check if string has Byte-offset marker
-static inline bool HasBOM(const char *value, size_t size) {
-  if (size >= 3) {
-    if (((value[0] & 0xff) == 0xef)
-        && ((value[1] & 0xff) == 0xbb)
-        && ((value[2] & 0xff) == 0xbf)) {
-      return true;
-    }
-  }
-  return false;
-}
-} // namespace
-
-
 // Tracks open files.
 class ParsedFileTracker : public clang::PPCallbacks {
  private:

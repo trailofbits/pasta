@@ -1950,6 +1950,12 @@ std::map<std::pair<std::string, std::string>, std::string> kConditionalNullptr{
    "  if (!self.getLambdaCallOperator()) {\n"
    "    return std::nullopt;\n"
    "  }\n"},
+  {{"UserDefinedLiteral", "CookedLiteral"},
+   "  auto op_kind = self.getLiteralOperatorKind();\n"
+   "  if (op_kind == clang::UserDefinedLiteral::LiteralOperatorKind::LOK_Template ||\n"
+   "      op_kind == clang::UserDefinedLiteral::LiteralOperatorKind::LOK_Raw) {\n"
+   "    return std::nullopt;\n"
+   "  }\n"},
 };
 
 std::unordered_map<std::string, uint32_t> gClassIDs;

@@ -26,9 +26,8 @@ namespace pasta {
 
 // Returns a list of macros that align with this Stmt, if any.
 std::vector<MacroSubstitution> Stmt::AlignedSubstitutions(
-  bool heuristic /* = true */) const noexcept {
-  auto tokens = Tokens();
-  return tokens.AlignedSubstitutions(heuristic);
+    bool heuristic /* = true */) const noexcept {
+  return Tokens().AlignedSubstitutions(heuristic);
 }
 
 bool Stmt::AlignsWith(Macro &macro) const noexcept {

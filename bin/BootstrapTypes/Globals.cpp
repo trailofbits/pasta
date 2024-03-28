@@ -50,6 +50,7 @@ const std::unordered_map<std::string, std::string> kCxxMethodRenames{
   {"TypePtrOrNull", ""},
   {"AsOpaquePtr", ""},
   {"UnqualifiedType", ""},
+  {"PackExpansionPattern", ""},
 
   // These are all getters, normally with `get` prefix.
   {"TypeClass", "Kind"},
@@ -821,7 +822,7 @@ std::unordered_map<std::string, std::string> gRetTypeToValMap{
 
   {"(const clang::DesignatedInitExpr::Designator *)",
    "  if (val) {\n"
-   "    return DeclBuilder::Create<::pasta::Designator>(ast, val);\n"
+   "    return DesignatorBuilder::Create<::pasta::Designator>(ast, val);\n"
    "  }\n"},
 
   {"(llvm::ArrayRef<const clang::Attr *>)",
@@ -1664,7 +1665,20 @@ std::map<std::pair<std::string, std::string>, std::string> kConditionalNullptr{
   {{"CXXRecordDecl", "IsEffectivelyFinal"}, SELF_IS_DEFINITION},
   {{"CXXRecordDecl", "IsEmpty"}, SELF_IS_DEFINITION},
   //{{"CXXRecordDecl", "IsGenericLambda"}, SELF_IS_DEFINITION},
-  {{"CXXRecordDecl", "IsInterfaceLike"}, SELF_IS_DEFINITION},
+  {{"CXXRecordDecl", "IsInterfaceLike"},
+   SELF_IS_DEFINITION
+   "  if (clang::isa<clang::ClassTemplatePartialSpecializationDecl>(self)) {\n"
+   "    return std::nullopt;\n"
+   "  }\n"
+   "  if (self.isInterface()){\n"
+   "    return false;\n"
+   "  }\n"
+   "  if (self.getNumBases() > 0) {\n"
+   "    auto base_spec = *self.bases_begin();\n"
+   "    if (auto base = base_spec.getType()->getAsCXXRecordDecl(); !base) {\n"
+   "      return std::nullopt;\n"
+   "    }\n"
+   "  }\n"},
   //{{"CXXRecordDecl", "IsLambda"}, SELF_IS_DEFINITION},
   {{"CXXRecordDecl", "IsLiteral"}, SELF_IS_DEFINITION},
   {{"CXXRecordDecl", "IsLocalClass"}, SELF_IS_DEFINITION},
@@ -1934,6 +1948,12 @@ std::map<std::pair<std::string, std::string>, std::string> kConditionalNullptr{
    "  }\n"},
   {{"CXXRecordDecl", "LambdaStaticInvoker"},
    "  if (!self.getLambdaCallOperator()) {\n"
+   "    return std::nullopt;\n"
+   "  }\n"},
+  {{"UserDefinedLiteral", "CookedLiteral"},
+   "  auto op_kind = self.getLiteralOperatorKind();\n"
+   "  if (op_kind == clang::UserDefinedLiteral::LiteralOperatorKind::LOK_Template ||\n"
+   "      op_kind == clang::UserDefinedLiteral::LiteralOperatorKind::LOK_Raw) {\n"
    "    return std::nullopt;\n"
    "  }\n"},
 };

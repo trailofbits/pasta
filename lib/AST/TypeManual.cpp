@@ -84,7 +84,7 @@ std::string_view Type::KindName(void) const {
   }
 
   assert(false && "Type::KindName can return nullptr!");
-  return std::string_view();
+  return std::string_view("");
 }
 
 clang::QualType Type::RawQualType(void) const noexcept {
@@ -95,13 +95,15 @@ clang::QualType Type::RawQualType(void) const noexcept {
 
   auto &ast_ctx = ast->ci->getASTContext();
   clang::QualType fast_qtype(u.Type, qualifiers & clang::Qualifiers::FastMask);
-  return ast_ctx.getQualifiedType(fast_qtype, clang::Qualifiers::fromOpaqueValue(qualifiers));
+  return ast_ctx.getQualifiedType(
+      fast_qtype, clang::Qualifiers::fromOpaqueValue(qualifiers));
 }
 
 ::pasta::Type Type::DesugaredType(void) const noexcept {
   auto &ast_ctx = ast->ci->getASTContext();
   clang::QualType fast_qtype(u.Type, qualifiers & clang::Qualifiers::FastMask);
-  auto self = ast_ctx.getQualifiedType(fast_qtype, clang::Qualifiers::fromOpaqueValue(qualifiers));
+  auto self = ast_ctx.getQualifiedType(
+      fast_qtype, clang::Qualifiers::fromOpaqueValue(qualifiers));
   decltype(auto) val = self.getDesugaredType(ast->ci->getASTContext());
   assert(!val.isNull());
   return TypeBuilder::Build(ast, val);
@@ -110,7 +112,8 @@ clang::QualType Type::RawQualType(void) const noexcept {
 ::pasta::Type Type::CanonicalType(void) const noexcept {
   auto &ast_ctx = ast->ci->getASTContext();
   clang::QualType fast_qtype(u.Type, qualifiers & clang::Qualifiers::FastMask);
-  auto self = ast_ctx.getQualifiedType(fast_qtype, clang::Qualifiers::fromOpaqueValue(qualifiers));
+  auto self = ast_ctx.getQualifiedType(
+      fast_qtype, clang::Qualifiers::fromOpaqueValue(qualifiers));
   decltype(auto) val = self.getCanonicalType();
   assert(!val.isNull());
   return TypeBuilder::Build(ast, val);

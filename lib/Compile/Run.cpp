@@ -51,7 +51,7 @@
 # error "Missing PASTA patches to Clang for tracking macro events"
 #endif
 #include "PatchedMacroTracker.h"
-using MacroTracker = pasta::PatchedMacroTracker;
+#include "SplitTokenTracker.h"
 #pragma GCC diagnostic pop
 
 #include "../AST/AST.h"
@@ -60,6 +60,22 @@ using MacroTracker = pasta::PatchedMacroTracker;
 
 namespace pasta {
 namespace detail {
+
+PASTA_BYPASS_MEMBER_OBJECT_ACCESS(clang, Decl, Loc, clang::SourceLocation);
+PASTA_BYPASS_MEMBER_OBJECT_ACCESS(clang, TemplateParameterList, LAngleLoc, clang::SourceLocation);
+PASTA_BYPASS_MEMBER_OBJECT_ACCESS(clang, TemplateParameterList, RAngleLoc, clang::SourceLocation);
+PASTA_BYPASS_MEMBER_OBJECT_ACCESS(clang, ASTTemplateArgumentListInfo, LAngleLoc, clang::SourceLocation);
+PASTA_BYPASS_MEMBER_OBJECT_ACCESS(clang, ASTTemplateArgumentListInfo, RAngleLoc, clang::SourceLocation);
+PASTA_BYPASS_MEMBER_OBJECT_ACCESS(clang, TemplateParameterList, TemplateLoc, clang::SourceLocation);
+PASTA_BYPASS_MEMBER_OBJECT_ACCESS(clang, DeclaratorDecl, InnerLocStart, clang::SourceLocation);
+PASTA_BYPASS_MEMBER_OBJECT_ACCESS(clang, FunctionDecl, EndRangeLoc, clang::SourceLocation);
+PASTA_BYPASS_MEMBER_OBJECT_ACCESS(clang, TypeDecl, LocStart, clang::SourceLocation);
+PASTA_BYPASS_MEMBER_OBJECT_ACCESS(clang, FileScopeAsmDecl, RParenLoc, clang::SourceLocation);
+PASTA_BYPASS_MEMBER_OBJECT_ACCESS(clang, ExportDecl, RBraceLoc, clang::SourceLocation);
+PASTA_BYPASS_MEMBER_OBJECT_ACCESS(clang, LabelDecl, LocStart, clang::SourceLocation);
+PASTA_BYPASS_MEMBER_OBJECT_ACCESS(clang, NamespaceDecl, LocStart, clang::SourceLocation);
+PASTA_BYPASS_MEMBER_OBJECT_ACCESS(clang, NamespaceDecl, RBraceLoc, clang::SourceLocation);
+
 PASTA_BYPASS_MEMBER_OBJECT_ACCESS(clang, TargetInfo, TLSSupported, bool);
 PASTA_BYPASS_MEMBER_OBJECT_ACCESS(clang, TargetInfo, VLASupported, bool);
 PASTA_BYPASS_MEMBER_OBJECT_ACCESS(clang, TargetInfo, HasLegalHalfType, bool);
@@ -214,7 +230,7 @@ Result<AST, std::string> CompileJob::Run(void) const {
   //            disable their generation. This will then hopefully mean
   //            fewer implicit decls in the indexer.
   clang::PreprocessorOptions &pp_options = invocation.getPreprocessorOpts();
-  pp_options.DetailedRecord = true;
+  pp_options.DetailedRecord = false;  // We do our own detailed record keeping.
   pp_options.SingleFileParseMode = false;
   pp_options.LexEditorPlaceholders = false;
   pp_options.RetainRemappedFileBuffers = true;
@@ -253,6 +269,12 @@ Result<AST, std::string> CompileJob::Run(void) const {
   // This is a patch that preserve the lexical context of the
   // template instantiations in AST.
   lang_opts.LexicalTemplateInstantiation = true;
+
+  // This patch triggers aggressive instatiation of templates.
+  lang_opts.AggressiveTemplateInstantiation = true;
+
+  // Disable access control checking, e.g. `private`, `protected`.
+  lang_opts.AccessControl = false;
 
   // This is a patch that introduces transparent support for unknown attributes,
   // converting them into annotation attributes.
@@ -338,7 +360,8 @@ Result<AST, std::string> CompileJob::Run(void) const {
   // NOTE(pag): Add the macro tracker first so that it can observe changes to
   //            `ASTImpl::id_to_file` enacted by
   //            `ParsedFileTracker::FileChanged`.
-  MacroTracker *macro_tracker_ptr = new MacroTracker(pp, sm, ast.get());
+  PatchedMacroTracker *macro_tracker_ptr =
+      new PatchedMacroTracker(pp, sm, ast.get());
   {
     std::unique_ptr<clang::PPCallbacks> macro_tracker(macro_tracker_ptr);
     pp.addPPCallbacks(std::move(macro_tracker));
@@ -364,19 +387,19 @@ Result<AST, std::string> CompileJob::Run(void) const {
   // If we didn't end up tracking any files then something is seriously wrong.
   assert(!ast->id_to_file.empty());
 
+  // Wipe out the old callbacks and any temporary data they stored.
   file_tracker_ptr->Clear();
   macro_tracker_ptr->Clear();
-
-  // auto fd = open("/tmp/source.cpp", O_TRUNC | O_CREAT | O_WRONLY, 0666);
-  // write(fd, ast->preprocessed_code.data(), ast->preprocessed_code.size());
-  // close(fd);
+  pp.clearPPCallbacks();
+  macro_tracker_ptr = nullptr;
+  file_tracker_ptr = nullptr;
 
   // Replace the main source file with the preprocessed file.
   const std::string main_file_name = input_files[0].getFile().str();
   bool added_file = mem_vfs->addFile(
-      "<pasta-input>", std::numeric_limits<time_t>::max(),
-      llvm::MemoryBuffer::getMemBuffer(ast->preprocessed_code,
-                                       "<pasta-input>", false),
+      "/pasta", std::numeric_limits<time_t>::max(),
+      llvm::MemoryBuffer::getMemBuffer(ast->parsed_tokens.Data(),
+                                       "/pasta", false),
       std::nullopt, std::nullopt, llvm::sys::fs::file_type::regular_file,
       llvm::sys::fs::perms::all_read);
 
@@ -385,7 +408,7 @@ Result<AST, std::string> CompileJob::Run(void) const {
     return err.str();
   }
 
-  const auto file_entry = fm->getFile("<pasta-input>");
+  const auto file_entry = fm->getFile("/pasta");
   if (!file_entry) {
     err << "Could not add overlay file entry for file '"
         << main_file_name << "'";
@@ -422,10 +445,28 @@ Result<AST, std::string> CompileJob::Run(void) const {
   clang::ASTConsumer &ast_consumer = ci.getASTConsumer();
   clang::Sema &sema = ci.getSema();
   clang::Preprocessor &pp2 = ci.getPreprocessor();
-  ast->token_per_line_pp = ci.getPreprocessorPtr();
+  clang::LangOptions &lang_opts2 = ci.getLangOpts();
+  ast->parsed_tokens_data_pp = ci.getPreprocessorPtr();
 
-  assert(pp2.getLangOpts().EmitAllDecls);
+  std::unique_ptr<clang::PPCallbacks> split_tracker(
+      new SplitTokenTracker(sm, ast.get()));
+  pp2.addPPCallbacks(std::move(split_tracker));
+
+  assert(lang_opts2.EmitAllDecls);
   assert(lang_opts.EmitAllDecls);
+
+  // No longer need pre-defined macros, and these could technically conflict
+  // with stuff, e.g. built-in ones if there was an `#undef`.
+  lang_opts2.EnablePredefines = false;
+
+  // Include comments in the AST.
+  //
+  // NOTE(pag): The way that Clang deals with comment parsing *isn't* by
+  //            changing the comment retention state in the preprocessor/lexer,
+  //            but instead by retroactively inspecting source locations for
+  //            leading/training comments.
+  lang_opts2.RetainCommentsFromSystemHeaders = true;
+  lang_opts2.CommentOpts.ParseAllComments = true;
 
   std::unique_ptr<clang::Parser> parser(
       new clang::Parser(pp2, sema, false /* SkipFunctionBodies */));
@@ -452,6 +493,9 @@ Result<AST, std::string> CompileJob::Run(void) const {
       break;
     }
   }
+
+  sema.PerformDeferredTypeCompletions();
+  sema.DefineUsedVTables();
 
   // Finalize any leftover instantiations.
   sema.PerformPendingInstantiations(false);
@@ -493,9 +537,8 @@ Result<AST, std::string> CompileJob::Run(void) const {
     policy->IncludeTagDefinition = true;
   }
 
-  ast->MarkMacroTokens();
-  ast->PreprocessLexicalParentage();
   ast->LinkMacroTokenContexts();
+
   return AST(std::move(ast));
 }
 

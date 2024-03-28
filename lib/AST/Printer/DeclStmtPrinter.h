@@ -100,23 +100,6 @@ void PrintQualifiedName(Printer &printer, const clang::NamedDecl *D,
 
 class PrintedTokenRangeImpl;
 
-class TagDefinitionPolicyRAII {
-  clang::PrintingPolicy &Policy;
-  bool Old;
-
- public:
-  explicit TagDefinitionPolicyRAII(clang::PrintingPolicy &Policy,
-                                   bool new_val=false)
-      : Policy(Policy),
-        Old(Policy.IncludeTagDefinition) {
-    Policy.IncludeTagDefinition = new_val;
-  }
-
-  ~TagDefinitionPolicyRAII() {
-    Policy.IncludeTagDefinition = Old;
-  }
-};
-
 class Printer {
  public:
   inline Printer(PrintedTokenRangeImpl &tokens_,
@@ -130,11 +113,9 @@ class Printer {
     if (!tokens.ast) {
       return;
     }
-    
-    auto name_tok = tokens.ast->RawTokenAt(D->getLocation());
-    if (name_tok && name_tok->Kind() == clang::tok::identifier) {
-      ctx.MarkLocation(*name_tok);
-    }
+
+    ctx.MarkLocationIfOneOf(D->getLocation(), TokenKind::kIdentifier,
+                            TokenKind::kRawIdentifier);
   }
 
   PrintedTokenRangeImpl &tokens;
@@ -391,6 +372,12 @@ class StmtPrinter final : public clang::StmtVisitor<StmtPrinter>,
     void Visit##CLASS(clang::CLASS *Node);
 #include "clang/AST/StmtNodes.inc"
 };
+
+
+void NestedNameSpecifier_print(
+    clang::NestedNameSpecifier *Spec, Printer &printer,
+    const clang::PrintingPolicy &Policy,
+    bool ResolveTemplateArguments = false);
 
 void Decl_printGroup(clang::Decl** Begin, size_t NumDecls,
                      raw_string_ostream &Out, const clang::PrintingPolicy &Policy,

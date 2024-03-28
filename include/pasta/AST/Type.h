@@ -1392,7 +1392,7 @@ class SubstTemplateTypeParmPackType : public Type {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(SubstTemplateTypeParmPackType)
   PASTA_DECLARE_BASE_OPERATORS(Type, SubstTemplateTypeParmPackType)
   ::pasta::Type Desugar(void) const;
-  // ArgumentPack: (clang::TemplateArgument)
+  // ArgumentPack: (const clang::TemplateArgument &)
   ::pasta::Decl AssociatedDeclaration(void) const;
   bool Final(void) const;
   // Identifier: (clang::IdentifierInfo *)

@@ -6826,8 +6826,8 @@ enum class TokenKind : unsigned short {
   kRSquare = 20,
   kLParenthesis = 21,
   kRParenthesis = 22,
-  kLBraceToken = 23,
-  kRBraceToken = 24,
+  kLBrace = 23,
+  kRBrace = 24,
   kPeriod = 25,
   kEllipsis = 26,
   kAmp = 27,
@@ -6871,7 +6871,7 @@ enum class TokenKind : unsigned short {
   kComma = 65,
   kHash = 66,
   kHashHash = 67,
-  kHashat = 68,
+  kHashAt = 68,
   kPeriodStar = 69,
   kArrowStar = 70,
   kColonColon = 71,
@@ -7235,6 +7235,8 @@ enum class TokenKind : unsigned short {
   kAnnotModuleEnd = 429,
   kAnnotHeaderUnit = 430,
   kAnnotReplInputEnd = 431,
+  kLAngle,  // Manually added.
+  kRAngle  // Manually added.
 };
 
 enum class TrailingAllocKind : unsigned int {

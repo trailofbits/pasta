@@ -19,7 +19,6 @@ configure_lit_site_cfg(
 )
 
 set(PASTA_TEST_DEPENDS
-  print-tokens
   print-aligned-substitutions
 )
 

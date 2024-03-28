@@ -10,6 +10,7 @@
 #pragma GCC diagnostic ignored "-Wimplicit-int-conversion"
 #pragma GCC diagnostic ignored "-Wsign-conversion"
 #pragma GCC diagnostic ignored "-Wshorten-64-to-32"
+#include <clang/AST/PrettyPrinter.h>
 #include <clang/AST/TypeLoc.h>
 #include <llvm/Support/raw_ostream.h>
 #pragma GCC diagnostic pop
@@ -20,7 +21,7 @@
 #include <string>
 #include <unordered_map>
 
-#include "../Token.h"
+#include "../AST.h"
 
 namespace clang {
 class ClassTemplatePartialSpecializationDecl;
@@ -48,9 +49,30 @@ class ASTImpl;
 class raw_string_ostream;
 class PrintingPolicyAdaptor;
 
-// TODO(pag): Make `PrintedTokenImpl` independent of `TokenImpl`.
-class PrintedTokenImpl : public TokenImpl {
+class PrintedTokenImpl final {
  public:
+  // Offset and length of this token's data. If `data_offset` is positive, then
+  // the data is located in `ast->preprocessed_code`, otherwise it's located in
+  // `ast->backup_code`.
+  TokenDataOffset data_offset{0u};
+
+  // The Linux kernel has some *massive* comments, e.g. comments in
+  // `tools/include/uapi/linux/bpf.h`.
+  uint32_t data_len{0u};
+
+  // Index of the token context in `PrintedTokenRangeImpl::contexts`.
+  //
+  // If this is a `TokenImpl` in a `ASTImpl`, then this represents the index of
+  // a `MacroTokenImpl` in `ASTImpl::root_macro_node.token_nodes`.
+  //
+  // TODO(pag): Split `PrintedTokenImpl` off into its own thing.
+  TokenContextIndex context_index{kInvalidTokenContextIndex};
+
+  // Index of a token in `ASTImpl::parsed_tokens`.
+  DerivedTokenIndex derived_index{kInvalidDerivedTokenIndex};
+
+  // Kind of this token.
+  TokenKind kind{TokenKind::kUnknown};
 
   // NOTE(pag): Printed tokens are not just superficially used. They are
   //            critical to how PASTA maps tokens back into the AST's nodes.
@@ -61,23 +83,16 @@ class PrintedTokenImpl : public TokenImpl {
   //            that we don't need to repeatedly check it.
   bool matched_in_align{false};
 
-  uint8_t num_leading_new_lines{0};
-  uint16_t num_leading_spaces{0};
-
   inline PrintedTokenImpl(TokenDataOffset data_offset_, uint32_t data_len_,
-                          TokenContextIndex token_context_index_,
-                          unsigned num_leading_new_lines_,
-                          unsigned num_leading_spaces_,
-                          clang::tok::TokenKind kind_)
-      : TokenImpl(TokenImpl::kInvalidSourceLocation, data_offset_,
-                  data_len_, kind_, TokenRole::kInvalid,
-                  token_context_index_),
-        matched_in_align(false),
-        num_leading_new_lines(static_cast<uint8_t>(num_leading_new_lines_)),
-        num_leading_spaces(static_cast<uint16_t>(num_leading_spaces_)) {
-    assert(num_leading_new_lines == num_leading_new_lines_);
-    assert(num_leading_spaces == num_leading_spaces_);
-  }
+                          TokenContextIndex context_index_,
+                          TokenKind kind_)
+      : data_offset(data_offset_),
+        data_len(data_len_),
+        context_index(context_index_),
+        kind(kind_),
+        matched_in_align(false) {}
+
+  inline std::string_view Data(const PrintedTokenRangeImpl &range) const;
 };
 
 // The range of data contained in a token.
@@ -86,6 +101,10 @@ class PrintedTokenRangeImpl {
 
   // The AST context. This is nifty to have because generally `clang::Stmt`s
   // don't know about the context.
+  //
+  // NOTE(pag): If `ast` is non-null, then this is safe to use for the lifetime
+  //            of this range. Otherwise, it's only safe to use during the
+  //            process of printing.
   clang::ASTContext &ast_context;
 
   //
@@ -149,14 +168,20 @@ class PrintedTokenRangeImpl {
   const TokenContextIndex CreateAlias(
       TokenPrinterContext *tokenizer, TokenContextIndex aliasee);
 
-  void MarkLocation(PrintedTokenImpl &, const TokenImpl &tok);
-  void MarkLocation(size_t tok_index, const TokenImpl &tok);
+  template <typename ...Kinds>
+  bool LastTokenIsOneOf(Kinds... kinds);
+
+  void TryChangeLastKind(TokenKind old, TokenKind new_);
+
+  void MarkLocation(PrintedTokenImpl &, DerivedTokenIndex tok_index);
+  void MarkLocation(size_t tok_index, DerivedTokenIndex tok);
   void MarkLocation(size_t tok_index, const clang::SourceLocation &loc);
 
   // Try to align parsed tokens with printed tokens. See `AlignTokens.cpp`.
   std::optional<std::string> AlignTokens(
       PrintedTokenRangeImpl &printed_range,
-      TokenContextIndex decl_context_id);
+      TokenContextIndex decl_context_id,
+      bool recovery_mode);
 
   // If any token context index is invalid, then set it to `index`.
   void FixupInvalidTokenContexts(TokenContextIndex index);
@@ -170,6 +195,12 @@ class PrintedTokenRangeImpl {
     return PrintedTokenRange(std::move(self), first_tok, after_last_tok);
   }
 };
+
+std::string_view PrintedTokenImpl::Data(
+    const PrintedTokenRangeImpl &range) const {
+  std::string_view data(range.data);
+  return data.substr(data_offset, data_len);
+}
 
 class PrintingPolicyAdaptor final {
  private:
@@ -215,6 +246,30 @@ class PrintingPolicyAdaptor final {
                                  clang::FunctionDecl *) const;
 };
 
+/// A utility class that uses RAII to save and restore the value of a variable.
+template<typename T>
+struct SaveAndRestore {
+  SaveAndRestore(T &X)
+      : X(X),
+        OldValue(X) {}
+
+  SaveAndRestore(T &X, const T &NewValue)
+      : X(X),
+        OldValue(X) {
+    X = NewValue;
+  }
+  ~SaveAndRestore() {
+    X = OldValue;
+  }
+  T get() {
+    return OldValue;
+  }
+
+ private:
+  T &X;
+  T OldValue;
+};
+
 class PrintingPolicyAdaptorRAII {
  private:
   PrintingPolicyAdaptor *&ppa_ptr;
@@ -231,6 +286,25 @@ class PrintingPolicyAdaptorRAII {
   inline ~PrintingPolicyAdaptorRAII(void) {
     ppa_ptr = nullptr;
   }
+};
+
+class PrintHelper final : public clang::PrinterHelper {
+  raw_string_ostream &OS;
+  clang::PrintingPolicy policy;
+  PrintedTokenRangeImpl &tokens;
+
+ public:
+  virtual ~PrintHelper(void);
+
+  inline explicit PrintHelper(raw_string_ostream &OS_,
+                              const clang::PrintingPolicy &policy_,
+                              PrintedTokenRangeImpl &tokens_)
+      : OS(OS_),
+        policy(policy_),
+        tokens(tokens_) {}
+
+  bool handledStmt(clang::Stmt *E, clang::raw_ostream &OS) final;
+  bool handleType(const clang::QualType &, clang::raw_ostream &OS) final;
 };
 
 struct no_alias_tag {};
@@ -258,10 +332,38 @@ class TokenPrinterContext {
 
   // Mark the last printed token as having location `loc`. This helps to
   // correlate things in the actual parsed tokens with printed tokens.
+  template <typename ...Kinds>
+  bool MarkLocationIfOneOf(clang::SourceLocation loc, Kinds... kinds) {
+    if (!tokens.ast) {
+      return false;
+    }
+
+    auto tok = tokens.ast->ParsedTokenOffset(loc);
+    if (!tok) {
+      return false;
+    }
+
+    return MarkLocationIfOneOf<Kinds...>(tok.value(), kinds...);
+  }
+
+  // Mark the last printed token as having location `loc`. This helps to
+  // correlate things in the actual parsed tokens with printed tokens.
+  template <typename ...Kinds>
+  bool MarkLocationIfOneOf(DerivedTokenIndex offset, Kinds... kinds) {
+    auto kind = tokens.ast->TokenKind(offset);
+    if ((false || ... || (kind == kinds))) {
+      MarkLocation(offset);
+      return true;
+    }
+    return false;
+  }
+
+  // Mark the last printed token as having location `loc`. This helps to
+  // correlate things in the actual parsed tokens with printed tokens.
   void MarkLocation(clang::SourceLocation loc);
 
   // Mark the last printed token as having the same location as `tok`.
-  void MarkLocation(const TokenImpl &tok);
+  void MarkLocation(DerivedTokenIndex tok);
 
   ~TokenPrinterContext(void);
 
@@ -272,9 +374,23 @@ class TokenPrinterContext {
   const void *owns_data{nullptr};
 };
 
+#ifndef NDEBUG
+__attribute__((noinline))
+extern "C" void CheckNotOnStack(const void *higher, const void *lower);
+#endif
+
 template <typename T>
 const TokenContextIndex PrintedTokenRangeImpl::CreateContext(
     TokenPrinterContext *tokenizer, const T *data) {
+
+#ifndef NDEBUG
+  // Make sure we're not referencing a local variable.
+  auto local_var = 1;
+  asm volatile (""::"m"(local_var):"memory");
+  CheckNotOnStack(data, &local_var);
+  asm volatile (""::"m"(local_var):"memory");
+#endif
+
   if (!data) {
     if (tokenizer->prev_printer_context) {
       return tokenizer->prev_printer_context->context_index;
@@ -348,5 +464,107 @@ const TokenContextIndex PrintedTokenRangeImpl::CreateContext(
 
   return index;
 }
+
+template <typename ...Kinds>
+bool PrintedTokenRangeImpl::LastTokenIsOneOf(Kinds... kinds) {
+  curr_printer_context->Tokenize();
+  for (auto size = tokens.size(); size; --size) {
+    if (tokens[size - 1u].kind == TokenKind::kUnknown) {
+      continue;  // Skip whitespace.
+    }
+    auto kind = tokens[size - 1u].kind;
+    if ((false || ... || (kind == kinds))) {
+      return true;
+    }
+  }
+  return false;
+}
+
+class TagDefinitionPolicyRAII {
+  clang::PrintingPolicy &Policy;
+  bool Old;
+
+ public:
+  explicit TagDefinitionPolicyRAII(clang::PrintingPolicy &Policy,
+                                   bool new_val=false)
+      : Policy(Policy),
+        Old(Policy.IncludeTagDefinition) {
+    Policy.IncludeTagDefinition = new_val;
+  }
+
+  ~TagDefinitionPolicyRAII() {
+    Policy.IncludeTagDefinition = Old;
+  }
+};
+
+/// RAII object that enables printing of the ARC __strong lifetime
+/// qualifier.
+class IncludeStrongLifetimeRAII {
+  clang::PrintingPolicy &Policy;
+  bool Old;
+
+ public:
+  explicit IncludeStrongLifetimeRAII(clang::PrintingPolicy &Policy)
+      : Policy(Policy),
+        Old(Policy.SuppressStrongLifetime) {
+    if (!Policy.SuppressLifetimeQualifiers)
+      Policy.SuppressStrongLifetime = false;
+  }
+
+  ~IncludeStrongLifetimeRAII() {
+    Policy.SuppressStrongLifetime = Old;
+  }
+};
+
+class ParamPolicyRAII {
+  clang::PrintingPolicy &Policy;
+  bool Old;
+
+ public:
+  explicit ParamPolicyRAII(clang::PrintingPolicy &Policy)
+      : Policy(Policy),
+        Old(Policy.SuppressSpecifiers) {
+    Policy.SuppressSpecifiers = false;
+  }
+
+  ~ParamPolicyRAII() {
+    Policy.SuppressSpecifiers = Old;
+  }
+};
+
+class DefaultTemplateArgsPolicyRAII {
+  clang::PrintingPolicy &Policy;
+  bool Old;
+
+ public:
+  explicit DefaultTemplateArgsPolicyRAII(clang::PrintingPolicy &Policy)
+      : Policy(Policy), Old(Policy.SuppressDefaultTemplateArgs) {
+    Policy.SuppressDefaultTemplateArgs = false;
+  }
+
+  ~DefaultTemplateArgsPolicyRAII() {
+    Policy.SuppressDefaultTemplateArgs = Old;
+  }
+};
+
+class ElaboratedTypePolicyRAII {
+  clang::PrintingPolicy &Policy;
+  bool SuppressTagKeyword;
+  bool SuppressScope;
+
+ public:
+  explicit ElaboratedTypePolicyRAII(clang::PrintingPolicy &Policy)
+      : Policy(Policy) {
+    SuppressTagKeyword = Policy.SuppressTagKeyword;
+    SuppressScope = Policy.SuppressScope;
+    Policy.SuppressTagKeyword = true;
+    Policy.SuppressScope = true;
+  }
+
+  ~ElaboratedTypePolicyRAII() {
+    Policy.SuppressTagKeyword = SuppressTagKeyword;
+    Policy.SuppressScope = SuppressScope;
+  }
+};
 
 }  // namespace pasta

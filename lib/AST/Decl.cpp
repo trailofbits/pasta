@@ -81,6 +81,8 @@ using OMPDeclarativeDirectiveValueDecl = OMPDeclarativeDirective<ValueDecl>;
       return *this; \
     }
 
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wreturn-type"
 namespace pasta {
 namespace {
 // Return the PASTA `DeclKind` for a Clang `Decl`.
@@ -9482,6 +9484,18 @@ std::optional<bool> CXXRecordDecl::IsInterfaceLike(void) const {
   if (!self.getDefinition()) {
     return std::nullopt;
   }
+  if (clang::isa<clang::ClassTemplatePartialSpecializationDecl>(self)) {
+    return std::nullopt;
+  }
+  if (self.isInterface()){
+    return false;
+  }
+  if (self.getNumBases() > 0) {
+    auto base_spec = *self.bases_begin();
+    if (auto base = base_spec.getType()->getAsCXXRecordDecl(); !base) {
+      return std::nullopt;
+    }
+  }
   decltype(auto) val = self.isInterfaceLike();
   return val;
 }
@@ -9993,4 +10007,5 @@ std::vector<::pasta::TemplateParameterList> ClassTemplatePartialSpecializationDe
 }
 
 }  // namespace pasta
+#pragma clang diagnostic pop
 #endif  // PASTA_IN_BOOTSTRAP

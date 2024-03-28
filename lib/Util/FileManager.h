@@ -37,8 +37,14 @@ struct FileTokenImpl {
     kind.extended.kind = static_cast<uint16_t>(kind_);
 #pragma GCC diagnostic pop
   }
+
+  // The offset of this token's data in `FileImpl::data`.
   uint32_t data_offset;
+
+  // The length of this token's data.
   uint32_t data_len;
+
+  // The line number associated with this token.
   uint32_t line;
   uint16_t column;
 

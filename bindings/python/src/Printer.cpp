@@ -28,6 +28,7 @@ void RegisterPrinter(nb::module_ &m) {
   nb::class_<TokenContext>(m, "TokenContext")
     .def("__hash__", [](const TokenContext& c) { return c.Hash(); })
     .def("__eq__", [](const TokenContext& a, const TokenContext& b) { return a == b;})
+    .def("__ne__", [](const TokenContext& a, const TokenContext& b) { return a != b;})
     .def_prop_ro("index", &TokenContext::Index)
     .def_prop_ro("kind", &TokenContext::Kind)
     .def_prop_ro("parent", &TokenContext::Parent)
@@ -64,19 +65,13 @@ void RegisterPrinter(nb::module_ &m) {
   nb::class_<PrintedToken>(m, "PrintedToken")
     .def("__hash__", [](const PrintedToken &tok) { return reinterpret_cast<intptr_t>(tok.RawToken()); })
     .def("__eq__", [](const PrintedToken &a, const PrintedToken &b) { return a.RawToken() == b.RawToken(); })
+    .def("__ne__", [](const PrintedToken &a, const PrintedToken &b) { return a.RawToken() != b.RawToken(); })
     .def("__str__", &PrintedToken::Data)
     .def_prop_ro("kind", &PrintedToken::Kind)
     .def_prop_ro("index", &PrintedToken::Index)
     .def_prop_ro("data", &PrintedToken::Data)
-    .def_prop_ro("leading_spaces",
-        [] (const PrintedToken &tok) {
-          return std::string(tok.NumLeadingSpaces(), ' ');
-        })
-    .def_prop_ro("leading_new_lines",
-        [] (const PrintedToken &tok) {
-          return std::string(tok.NumLeadingSpaces(), '\n');
-        })
-    .def_prop_ro("context", &PrintedToken::Context);
+    .def_prop_ro("context", &PrintedToken::Context)
+    .def_prop_ro("derived_location", &PrintedToken::DerivedLocation);
 
 
   nb::class_<PrintedTokenRange>(m, "PrintedTokenRange")

@@ -46,7 +46,7 @@ static bool AcceptEnumerator(const std::string &name) {
          enumerator_name != "NUM_OVERLOADED_OPERATORS";
 }
 
-static std::string RenameEnumerator(const std::string &name) {
+static std::string RenameEnumeratorInternal(const std::string &name) {
   if (enumerator_name == "eof") {
     return "EndOfFile";
 
@@ -61,99 +61,99 @@ static std::string RenameEnumerator(const std::string &name) {
 
   } else if (enumerator_name.endswith("less")) {
     enumerator_name = enumerator_name.substr(0, enumerator_name.size() - 4);
-    return RenameEnumerator(name) + "Less";
+    return RenameEnumeratorInternal(name) + "Less";
 
   } else if (enumerator_name.endswith("greater")) {
     enumerator_name = enumerator_name.substr(0, enumerator_name.size() - 7);
-    return RenameEnumerator(name) + "Greater";
+    return RenameEnumeratorInternal(name) + "Greater";
 
   } else if (enumerator_name.endswith("equal")) {
     enumerator_name = enumerator_name.substr(0, enumerator_name.size() - 5);
-    return RenameEnumerator(name) + "Equal";
+    return RenameEnumeratorInternal(name) + "Equal";
 
   } else if (enumerator_name.endswith("pipe")) {
     enumerator_name = enumerator_name.substr(0, enumerator_name.size() - 4);
-    return RenameEnumerator(name) + "Pipe";
+    return RenameEnumeratorInternal(name) + "Pipe";
 
   } else if (enumerator_name.endswith("colon")) {
     enumerator_name = enumerator_name.substr(0, enumerator_name.size() - 5);
-    return RenameEnumerator(name)+ "Colon";
+    return RenameEnumeratorInternal(name)+ "Colon";
 
   } else if (enumerator_name.endswith("plus")) {
     enumerator_name = enumerator_name.substr(0, enumerator_name.size() - 4);
-    return RenameEnumerator(name) + "Plus";
+    return RenameEnumeratorInternal(name) + "Plus";
 
   } else if (enumerator_name.endswith("minus")) {
     enumerator_name = enumerator_name.substr(0, enumerator_name.size() - 5);
-    return RenameEnumerator(name) + "Minus";
+    return RenameEnumeratorInternal(name) + "Minus";
 
   } else if (enumerator_name.endswith("hash")) {
     enumerator_name = enumerator_name.substr(0, enumerator_name.size() - 4);
-    return RenameEnumerator(name) + "Hash";
+    return RenameEnumeratorInternal(name) + "Hash";
 
   } else if (enumerator_name.endswith("amp")) {
     enumerator_name = enumerator_name.substr(0, enumerator_name.size() - 3);
-    return RenameEnumerator(name) + "Amp";
+    return RenameEnumeratorInternal(name) + "Amp";
 
   } else if (enumerator_name.endswith("star")) {
     enumerator_name = enumerator_name.substr(0, enumerator_name.size() - 4);
-    return RenameEnumerator(name) + "Star";
+    return RenameEnumeratorInternal(name) + "Star";
 
   } else if (enumerator_name.endswith("_begin")) {
     enumerator_name = enumerator_name.substr(0, enumerator_name.size() - 6);
-    return RenameEnumerator(name) + "Begin";
+    return RenameEnumeratorInternal(name) + "Begin";
 
   } else if (enumerator_name.endswith("_end")) {
     enumerator_name = enumerator_name.substr(0, enumerator_name.size() - 4);
-    return RenameEnumerator(name) + "End";
+    return RenameEnumeratorInternal(name) + "End";
 
   } else if (enumerator_name.endswith("_size")) {
     enumerator_name = enumerator_name.substr(0, enumerator_name.size() - 5);
-    return RenameEnumerator(name) + "Size";
+    return RenameEnumeratorInternal(name) + "Size";
 
   } else if (enumerator_name.endswith("_alloc")) {
     enumerator_name = enumerator_name.substr(0, enumerator_name.size() - 6);
-    return RenameEnumerator(name) + "Alloc";
+    return RenameEnumeratorInternal(name) + "Alloc";
 
   } else if (enumerator_name.endswith("_Alignas")) {
     enumerator_name = enumerator_name.substr(0, enumerator_name.size() - 8);
-    return RenameEnumerator(name) + "_Alignas";
+    return RenameEnumeratorInternal(name) + "_Alignas";
 
   } else if (enumerator_name.startswith("kw_")) {
     enumerator_name = enumerator_name.substr(3);
-    return "Keyword" + RenameEnumerator(name);
+    return "Keyword" + RenameEnumeratorInternal(name);
 
   } else if (enumerator_name.startswith("pp_") && name == "PPKeywordKind") {
     enumerator_name = enumerator_name.substr(3);
-    return RenameEnumerator(name);
+    return RenameEnumeratorInternal(name);
 
   } else if (enumerator_name.startswith("objc_") && name == "ObjCKeywordKind") {
     enumerator_name = enumerator_name.substr(5);
-    return RenameEnumerator(name);
+    return RenameEnumeratorInternal(name);
 
   } else if (enumerator_name.startswith("is_")) {
     enumerator_name = enumerator_name.substr(3);
-    return "Is" + RenameEnumerator(name);
+    return "Is" + RenameEnumeratorInternal(name);
 
   } else if (enumerator_name.startswith("has_")) {
     enumerator_name = enumerator_name.substr(4);
-    return "Has" + RenameEnumerator(name);
+    return "Has" + RenameEnumeratorInternal(name);
 
   } else if (enumerator_name.startswith("_is_")) {
     enumerator_name = enumerator_name.substr(4);
-    return "_Is" + RenameEnumerator(name);
+    return "_Is" + RenameEnumeratorInternal(name);
 
   } else if (enumerator_name.startswith("_has_")) {
     enumerator_name = enumerator_name.substr(5);
-    return "_Has" + RenameEnumerator(name);
+    return "_Has" + RenameEnumeratorInternal(name);
 
   } else if (enumerator_name.startswith("__is_")) {
     enumerator_name = enumerator_name.substr(5);
-    return "__Is" + RenameEnumerator(name);
+    return "__Is" + RenameEnumeratorInternal(name);
 
   } else if (enumerator_name.startswith("__has_")) {
     enumerator_name = enumerator_name.substr(6);
-    return "__Has" + RenameEnumerator(name);
+    return "__Has" + RenameEnumeratorInternal(name);
 
   // `CxxName` strips things starting with `end`.
   } else if (enumerator_name == "endif") {
@@ -171,6 +171,24 @@ static std::string RenameEnumerator(const std::string &name) {
     return Capitalize(enumerator_name);
   }
   return CxxName(enumerator_name);
+}
+
+static std::string RenameEnumerator(const std::string &name) {
+  auto ret = RenameEnumeratorInternal(name);
+
+  // `kRBraceToken` -> `kRBrace`.
+  if (name == "TokenKind") {
+    if (ret == "RBraceToken") {
+      return "RBrace";
+
+    } else if (ret == "LBraceToken") {
+      return "LBrace";
+
+    } else if (ret == "Hashat") {
+      return "HashAt";
+    }
+  }
+  return ret;
 }
 
 #define PASTA_BEGIN_NAMED_ENUM(enum_name, underlying_type) \
@@ -226,6 +244,11 @@ static std::string RenameEnumerator(const std::string &name) {
       if (enum_name_str == "TypeKind") { \
         os << "  kQualified  // Manually added.\n"; \
         os_py << "\n    .value(\"QUALIFIED\", pasta::TypeKind::kQualified)"; \
+      } else if (enum_name_str == "TokenKind") { \
+        os << "  kLAngle,  // Manually added.\n" \
+           << "  kRAngle  // Manually added.\n"; \
+        os_py << "\n    .value(\"L_ANGLE\", pasta::TokenKind::kLAngle)" \
+              << "\n    .value(\"R_ANGLE\", pasta::TokenKind::kRAngle)"; \
       } \
       os << "};\n\n"; \
       os_py << ";\n\n"; \

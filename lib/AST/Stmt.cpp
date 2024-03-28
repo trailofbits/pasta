@@ -59,6 +59,8 @@
       return *this; \
     }
 
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wreturn-type"
 namespace pasta {
 
 StmtVisitor::~StmtVisitor(void) {}
@@ -15177,7 +15179,7 @@ std::optional<::pasta::Designator> DesignatedInitExpr::Designator(unsigned int i
     return std::nullopt;
   }
   if (val) {
-    return DeclBuilder::Create<::pasta::Designator>(ast, val);
+    return DesignatorBuilder::Create<::pasta::Designator>(ast, val);
   }
   throw std::runtime_error("The unreachable has been reached");
 }
@@ -15736,9 +15738,17 @@ PASTA_DEFINE_BASE_OPERATORS(ValueStmt, UserDefinedLiteral)
   return ast->TokenAt(val);
 }
 
-::pasta::Expr UserDefinedLiteral::CookedLiteral(void) const {
+std::optional<::pasta::Expr> UserDefinedLiteral::CookedLiteral(void) const {
   auto &self = *const_cast<clang::UserDefinedLiteral *>(u.UserDefinedLiteral);
+  auto op_kind = self.getLiteralOperatorKind();
+  if (op_kind == clang::UserDefinedLiteral::LiteralOperatorKind::LOK_Template ||
+      op_kind == clang::UserDefinedLiteral::LiteralOperatorKind::LOK_Raw) {
+    return std::nullopt;
+  }
   decltype(auto) val = self.getCookedLiteral();
+  if (!val) {
+    return std::nullopt;
+  }
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
@@ -16189,4 +16199,5 @@ bool CXXDynamicCastExpr::IsAlwaysNull(void) const {
 }
 
 }  // namespace pasta
+#pragma clang diagnostic pop
 #endif  // PASTA_IN_BOOTSTRAP

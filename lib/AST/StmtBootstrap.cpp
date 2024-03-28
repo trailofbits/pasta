@@ -12,7 +12,7 @@ Stmt::Stmt(std::shared_ptr<ASTImpl> ast_, const ::clang::Stmt *stmt_)
     : Stmt(std::move(ast_), stmt_, static_cast<StmtKind>(0u)) {}
 
 std::string_view Stmt::KindName(void) const noexcept {
-  return std::string_view();
+  return std::string_view("");
 }
 
 }  // namespace pasta

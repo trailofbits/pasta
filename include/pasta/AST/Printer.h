@@ -167,12 +167,6 @@ class PrintedToken {
   // Find the parsed token from which this printed token was derived.
   std::optional<Token> DerivedLocation(void) const;
 
-  // Number of leading new lines (before any indentation spaces).
-  unsigned NumLeadingNewLines(void) const;
-
-  // Number of leading spaces (after any leading new lines).
-  unsigned NumLeadingSpaces(void) const;
-
   // Return the index of this token in its token range.
   unsigned Index(void) const;
 
@@ -386,6 +380,9 @@ class PrintedTokenRange {
   PrintedTokenRange &operator=(const PrintedTokenRange &) = default;
   PrintedTokenRange &operator=(PrintedTokenRange &&) noexcept = default;
 
+  // Create an empty range.
+  static PrintedTokenRange CreateEmpty(const AST &ast_);
+
   // Raw interfaces for when we're not using a PASTA AST, but when we want
   // the power of its token printer.
   static PrintedTokenRange Create(clang::ASTContext &context_,
@@ -424,8 +421,20 @@ class PrintedTokenRange {
   // derived from `Adopt` below.
   //
   // NOTE(pag): Both `with_locs` and `with_contexts` are mutated in-place.
+  //
+  // NOTE(pag): `recovery_mode` exists to instruct the alignment algorithm to
+  //            try to recover from failures. This generally corresponds with
+  //            things like unbalanced `}` and `{` and such in `with_locs`.
   static std::optional<std::string> Align(PrintedTokenRange &with_locs,
-                                          PrintedTokenRange &with_contexts);
+                                          PrintedTokenRange &with_contexts,
+                                          bool recovery_mode=false);
+  
+  // Create a new printed token range from `wants_ws` and `has_ws`, where
+  // `wants_ws` and `has_ws` share derived token locations, and we want to
+  // import whitespace from `has_ws` into places where it's missing in
+  // `wants_ws`, but without chaning `wants_ws`.
+  static PrintedTokenRange AdoptWhitespace(const PrintedTokenRange &wants_ws,
+                                           const PrintedTokenRange &has_ws);
 
   // Create a new printed token range, where the token data is taken from `a`.
   // The only token contexts in an adopted range are AST contexts. The only
@@ -480,6 +489,8 @@ class PrintedTokenRange {
     return impl == that.impl && first == that.first &&
            after_last == that.after_last;
   }
+
+  std::string_view Data(void) const noexcept;
 
  private:
   friend class AST;

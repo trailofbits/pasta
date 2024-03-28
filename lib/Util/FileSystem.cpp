@@ -165,8 +165,8 @@ Result<std::string, std::error_code> NativeFileSystem::ReadFile(
     ret = llvm::json::fixUTF8(ret);
   }
 
-  // strip Byte-Offset Marker from UTF8
-  skipBOM(ret);
+  // Strip Byte-Offset Marker from UTF8
+  RemoveBOM(ret);
   return ret;
 }
 

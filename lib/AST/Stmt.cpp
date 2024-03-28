@@ -2273,13 +2273,15 @@ std::optional<::pasta::DeclStmt> CXXForRangeStmt::EndStatement(void) const {
   return ast->TokenAt(val);
 }
 
-::pasta::Expr CXXForRangeStmt::Increment(void) const {
+std::optional<::pasta::Expr> CXXForRangeStmt::Increment(void) const {
   auto &self = *const_cast<clang::CXXForRangeStmt *>(u.CXXForRangeStmt);
   decltype(auto) val = self.getInc();
+  if (!val) {
+    return std::nullopt;
+  }
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
-  throw std::runtime_error("CXXForRangeStmt::Increment can return nullptr!");
 }
 
 std::optional<::pasta::Stmt> CXXForRangeStmt::Initializer(void) const {
@@ -15752,7 +15754,6 @@ std::optional<::pasta::Expr> UserDefinedLiteral::CookedLiteral(void) const {
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
-  throw std::runtime_error("UserDefinedLiteral::CookedLiteral can return nullptr!");
 }
 
 ::pasta::Token UserDefinedLiteral::EndToken(void) const {

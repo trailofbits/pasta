@@ -1144,7 +1144,7 @@ class CXXForRangeStmt : public Stmt {
   ::pasta::Token EndToken(void) const;
   std::optional<::pasta::DeclStmt> EndStatement(void) const;
   ::pasta::Token ForToken(void) const;
-  ::pasta::Expr Increment(void) const;
+  std::optional<::pasta::Expr> Increment(void) const;
   std::optional<::pasta::Stmt> Initializer(void) const;
   ::pasta::DeclStmt LoopVariableStatement(void) const;
   ::pasta::VarDecl LoopVariable(void) const;

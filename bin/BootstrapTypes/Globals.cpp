@@ -1241,6 +1241,7 @@ std::set<std::pair<std::string, std::string>> kCanReturnNullptr{
   {"DependentSizedArrayType", "SizeExpression"},
   {"CXXRecordDecl", "LambdaStaticInvoker"},
   {"CoroutineBodyStmt", "ResultDeclaration"},
+  {"BindingDecl", "Binding"},
 
 //  {"FunctionProtoType", "EllipsisToken"},
 //  {"FunctionDecl", "EllipsisToken"},

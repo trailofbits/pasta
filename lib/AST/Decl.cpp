@@ -3934,13 +3934,15 @@ BindingDecl::BindingDecl(
 PASTA_DEFINE_BASE_OPERATORS(Decl, BindingDecl)
 PASTA_DEFINE_BASE_OPERATORS(NamedDecl, BindingDecl)
 PASTA_DEFINE_BASE_OPERATORS(ValueDecl, BindingDecl)
-::pasta::Expr BindingDecl::Binding(void) const {
+std::optional<::pasta::Expr> BindingDecl::Binding(void) const {
   auto &self = *const_cast<clang::BindingDecl *>(u.BindingDecl);
   decltype(auto) val = self.getBinding();
+  if (!val) {
+    return std::nullopt;
+  }
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
-  throw std::runtime_error("BindingDecl::Binding can return nullptr!");
 }
 
 ::pasta::ValueDecl BindingDecl::DecomposedDeclaration(void) const {

@@ -216,6 +216,15 @@ void PrintAttribute(raw_string_ostream &Out, const clang::Attr *A,
     return;
   }
 
+  // If this attribute came from a pragma, then don't pretty print it.
+  if (tokens.ast) {
+    if (auto loc = tokens.ast->RawTokenAt(A->getLocation())) {
+      if (loc.IsInPragmaDirective()) {
+        return;
+      }
+    }
+  }
+
   tokens.curr_printer_context->Tokenize();
   auto old_num_toks = tokens.tokens.size();
 

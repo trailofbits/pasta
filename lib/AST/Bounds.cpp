@@ -1227,7 +1227,11 @@ class DeclBoundsFinder : public clang::DeclVisitor<DeclBoundsFinder>,
     }
 
     if (params_end && params_end.Kind() != TokenKind::kRParenthesis) {
-      params_end = FindNext(params_end, TokenKind::kRParenthesis, invalid);
+      auto ub = invalid;
+      if (proto.has_variable_form) {
+        ub = FindNext(params_end, TokenKind::kSemi, invalid, false);
+      }
+      params_end = FindNext(params_end, TokenKind::kRParenthesis, ub);
     }
 
     if (params_begin && !params_end) {

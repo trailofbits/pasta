@@ -548,7 +548,7 @@ class GapGeneratorSchema(ParameterizedSchema):
 
   @property
   def python_value_name(self):
-    return "Generator[{}]".format(self.element_type.python_value_name)
+    return "Iterable[{}]".format(self.element_type.python_value_name)
 
   @property
   def cxx_value_name(self):

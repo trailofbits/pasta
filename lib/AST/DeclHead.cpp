@@ -645,7 +645,7 @@ std::vector<::pasta::CXXCtorInitializer> CXXConstructorDecl::Initializers(void) 
   }
 
   bool CXXCtorInitializer::IsBaseVirtual(void) const noexcept {
-    return initializer->isBaseVirtual();
+    return initializer->isBaseInitializer() && initializer->isBaseVirtual();
   }
 
   std::optional<::pasta::FieldDecl> CXXCtorInitializer::Member(void) const noexcept {

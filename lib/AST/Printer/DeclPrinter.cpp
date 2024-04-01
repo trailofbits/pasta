@@ -1203,10 +1203,13 @@ void DeclPrinter::VisitFunctionDecl(clang::FunctionDecl *D) {
           case clang::EST_DependentNoexcept:
           case clang::EST_Unevaluated:
           case clang::EST_Uninstantiated:
-            Out << " noexcept(";
-            printPrettyStmt(FT->getNoexceptExpr(), Out,
+            Out << " noexcept";
+            if (auto NOE = FT->getNoexceptExpr()) {
+              Out << '(';
+              printPrettyStmt(NOE, Out,
                             nullptr, SubPolicy, Indentation);
-            Out << ")";
+              Out << ')';
+            }
             break;
           default:
             break;

@@ -1182,11 +1182,14 @@ static void FunctionProtoType_printExceptionSpecification(
     case clang::EST_DependentNoexcept:
     case clang::EST_Unevaluated:
     case clang::EST_Uninstantiated: {
-      Out << " noexcept(";
-      StmtPrinter stmtPrinter(Out, nullptr, tokens, Policy, 0, "\n",
+      Out << " noexcept";
+      if (auto NOE = FT->getNoexceptExpr()) {
+        Out << '(';
+        StmtPrinter stmtPrinter(Out, nullptr, tokens, Policy, 0, "\n",
                               &(tokens.ast_context));
-      stmtPrinter.Visit(FT->getNoexceptExpr());
-      Out << ")";
+        stmtPrinter.Visit(NOE);
+        Out << ')';
+      }
       break;
     }
     default:

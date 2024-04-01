@@ -1144,37 +1144,53 @@ void TypePrinter::printDependentSizedMatrix(
 }
 
 static void FunctionProtoType_printExceptionSpecification(
-    const clang::FunctionProtoType *T, PrintedTokenRangeImpl &tokens,
-    raw_string_ostream &OS, const clang::PrintingPolicy &Policy) {
+    const clang::FunctionProtoType *FT, PrintedTokenRangeImpl &tokens,
+    raw_string_ostream &Out, const clang::PrintingPolicy &Policy) {
 
-  if (T->hasDynamicExceptionSpec()) {
-    OS << " throw(";
-    if (T->getExceptionSpecType() == clang::EST_MSAny)
-      OS << "...";
-    else
-      for (unsigned I = 0, N = T->getNumExceptions(); I != N; ++I) {
+  switch (FT->getExceptionSpecType()) {
+    case clang::EST_None:
+      break;
+    case clang::EST_DynamicNone:
+      Out << " throw()";
+      break;
+    case clang::EST_MSAny:
+      Out << " throw(...)";
+      break;
+    case clang::EST_Dynamic: {
+      Out << " throw(";
+      for (unsigned I = 0, N = FT->getNumExceptions(); I != N; ++I) {
         if (I)
-          OS << ", ";
+          Out << ", ";
 
-        TypePrinter printer(OS, Policy, tokens, 0);
-        printer.print(T->getExceptionType(I), "", nullptr);
+        TypePrinter TP(Out, Policy, tokens);
+        TP.print(FT->getExceptionType(I), "", nullptr);
       }
-    OS << ')';
-  } else if (clang::EST_NoThrow == T->getExceptionSpecType()) {
-    OS << " __attribute__((nothrow))";
-  } else if (clang::isNoexceptExceptionSpec(T->getExceptionSpecType())) {
-    OS << " noexcept";
-    // FIXME:Is it useful to print out the expression for a non-dependent
-    // noexcept specification?
-    if (clang::isComputedNoexcept(T->getExceptionSpecType())) {
-      OS << '(';
-      if (T->getNoexceptExpr()) {
-        StmtPrinter stmtPrinter(OS, nullptr, tokens, Policy, 0, "\n",
-                                &(tokens.ast_context));
-        stmtPrinter.Visit((T->getNoexceptExpr()));
-      }
-      OS << ')';
+      Out << ")";
     }
+    case clang::EST_NoThrow:
+      Out << " __attribute__((nothrow))";
+      break;
+    case clang::EST_BasicNoexcept:
+      Out << " noexcept";
+      break;
+    case clang::EST_NoexceptFalse:
+      Out << " noexcept(false)";
+      break;
+    case clang::EST_NoexceptTrue:
+      Out << " noexcept(true)";
+      break;
+    case clang::EST_DependentNoexcept:
+    case clang::EST_Unevaluated:
+    case clang::EST_Uninstantiated: {
+      Out << " noexcept(";
+      StmtPrinter stmtPrinter(Out, nullptr, tokens, Policy, 0, "\n",
+                              &(tokens.ast_context));
+      stmtPrinter.Visit(FT->getNoexceptExpr());
+      Out << ")";
+      break;
+    }
+    default:
+      break;
   }
 }
 
@@ -1924,8 +1940,13 @@ void TypePrinter::printTemplateSpecialization(
     const clang::TemplateSpecializationType *T, raw_string_ostream &OS,
     std::function<void(void)> IdentFn) {
   TokenPrinterContext ctx(OS, T, tokens);
-  printTemplateId(T, OS, Policy.FullyQualifiedName);
-  IdentFn();
+  if (T->isSugared()) {
+    printBeforeAfter(T->desugar().getCanonicalType(), OS, std::move(IdentFn));
+  
+  } else {
+    printTemplateId(T, OS, Policy.FullyQualifiedName);
+    IdentFn();
+  }
 }
 
 void TypePrinter::printInjectedClassName(const clang::InjectedClassNameType *T,

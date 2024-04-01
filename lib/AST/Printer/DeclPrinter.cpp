@@ -1164,33 +1164,52 @@ void DeclPrinter::VisitFunctionDecl(clang::FunctionDecl *D) {
       };
     }
 
-    if (FT && FT->hasDynamicExceptionSpec()) {
+    if (FT) {
       ProtoFn = [&, ProtoFn = std::move(ProtoFn)] (void) {
         ProtoFn();
         TokenPrinterContext jump_up_stack(ctx);
-        Out << " throw(";
-        if (FT->getExceptionSpecType() == clang::EST_MSAny)
-          Out << "...";
-        else
-          for (unsigned I = 0, N = FT->getNumExceptions(); I != N; ++I) {
-            if (I)
-              Out << ", ";
+        switch (FT->getExceptionSpecType()) {
+          case clang::EST_None:
+            break;
+          case clang::EST_DynamicNone:
+            Out << " throw()";
+            break;
+          case clang::EST_MSAny:
+            Out << " throw(...)";
+            break;
+          case clang::EST_Dynamic: {
+            Out << " throw(";
+            for (unsigned I = 0, N = FT->getNumExceptions(); I != N; ++I) {
+              if (I)
+                Out << ", ";
 
-            TypePrinter TP(Out, SubPolicy, this->tokens);
-            TP.print(FT->getExceptionType(I), "", nullptr);
+              TypePrinter TP(Out, SubPolicy, this->tokens);
+              TP.print(FT->getExceptionType(I), "", nullptr);
+            }
+            Out << ")";
           }
-        Out << ")";
-      };
-    } else if (FT && isNoexceptExceptionSpec(FT->getExceptionSpecType())) {
-      ProtoFn = [&, ProtoFn = std::move(ProtoFn)] (void) {
-        ProtoFn();
-        TokenPrinterContext jump_up_stack(ctx);
-        Out << " noexcept";
-        if (isComputedNoexcept(FT->getExceptionSpecType())) {
-          Out << "(";
-          printPrettyStmt(FT->getNoexceptExpr(), Out,
-                          nullptr, SubPolicy, Indentation);
-          Out << ")";
+          case clang::EST_NoThrow:
+            Out << " __attribute__((nothrow))";
+            break;
+          case clang::EST_BasicNoexcept:
+            Out << " noexcept";
+            break;
+          case clang::EST_NoexceptFalse:
+            Out << " noexcept(false)";
+            break;
+          case clang::EST_NoexceptTrue:
+            Out << " noexcept(true)";
+            break;
+          case clang::EST_DependentNoexcept:
+          case clang::EST_Unevaluated:
+          case clang::EST_Uninstantiated:
+            Out << " noexcept(";
+            printPrettyStmt(FT->getNoexceptExpr(), Out,
+                            nullptr, SubPolicy, Indentation);
+            Out << ")";
+            break;
+          default:
+            break;
         }
       };
     }

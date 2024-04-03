@@ -33,10 +33,12 @@ namespace {
 
 static bool IsSpace(char c) {
   switch (c) {
+    case '\r':
+      assert(false);
+      [[fallthrough]];
     case '\t':
     case ' ':
     case '\n':
-    case '\r':
     case '\\':
       return true;
     default:
@@ -161,6 +163,7 @@ static bool ReadRawTokenData(clang::SourceManager &source_manager,
           out->push_back(data[i]);
           break;
         case '\r':
+          assert(false);
           break;
 
         // TODO(pag): This is kind of an error condition.
@@ -918,10 +921,12 @@ std::string_view TokenRange::Data(void) const noexcept {
 void SkipTrailingWhitespace(std::string &tok_data) {
   while (!tok_data.empty()) {
     switch (tok_data.back()) {
+      case '\r':
+        assert(false);
+        [[fallthrough]];
       case '\\':
       case ' ':
       case '\t':
-      case '\r':
       case '\n':
         tok_data.pop_back();
         break;

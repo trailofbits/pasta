@@ -448,9 +448,11 @@ static bool FixupEofEodToken(const clang::SourceManager &sm,
     switch (data[0]) {
       case '\0':
         return false;
+      case '\r':
+        assert(false);
+        [[fallthrough]];
       case ' ':
       case '\t':
-      case '\r':
         seen_star = false;
         seen_slash = false;
         if (in_comment || seen_escape) {

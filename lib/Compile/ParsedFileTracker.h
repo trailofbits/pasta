@@ -172,12 +172,13 @@ class ParsedFileTracker : public clang::PPCallbacks {
     if (HasBOM(buff_begin, buff_size)) {
       auto adjusted_offset = 3u;
       file.impl->tokens.emplace_back(
-            0u,
-            adjusted_offset,
-            0u,
-            0u,
-            clang::tok::unknown);
+          0u,
+          adjusted_offset,
+          0u,
+          0u,
+          clang::tok::unknown);
     }
+
     clang::Lexer lexer(loc, lang_opts, buff_begin, buff_begin, buff_end);
     lexer.SetKeepWhitespaceMode(true);  // Implies keep comments.
 
@@ -211,10 +212,12 @@ class ParsedFileTracker : public clang::PPCallbacks {
            skip && fixed_len && fixed_offset < buff_size; ) {
         skip = false;
         switch (buff_begin[fixed_offset]) {
+          case '\r':
+            assert(false);
+            [[fallthrough]];
           case '\\':
           case ' ':
           case '\t':
-          case '\r':
           case '\n':
             ++fixed_offset;
             --fixed_len;

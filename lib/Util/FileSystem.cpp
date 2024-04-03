@@ -160,13 +160,7 @@ Result<std::string, std::error_code> NativeFileSystem::ReadFile(
 
   f.close();
 
-  // A lot of code in PASTA relies on the file being formatted as UTF-8.
-  if (!llvm::json::isUTF8(ret)) {
-    ret = llvm::json::fixUTF8(ret);
-  }
-
-  // Strip Byte-Offset Marker from UTF8
-  RemoveBOM(ret);
+  SanitizeString(ret);
   return ret;
 }
 

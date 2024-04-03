@@ -544,8 +544,8 @@ void TokenPrinterContext::Tokenize(void) {
       if (!seen_data) {
         switch (token_data[i]) {
           case ' ':
-          case '\n':
           case '\r':
+          case '\n':
           case '\t':
           case '\0':
           case '\\':

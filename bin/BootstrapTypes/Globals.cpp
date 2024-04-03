@@ -1950,6 +1950,9 @@ std::map<std::pair<std::string, std::string>, std::string> kConditionalNullptr{
    "    if (!td->getTemplatedDecl()) {\n"
    "      return std::nullopt;\n"
    "    }\n"
+   "    if (!self.isLinkageValid()) {\n"
+   "      return std::nullopt;\n"
+   "    }\n"
    "  }\n"},
   {{"CXXRecordDecl", "LambdaStaticInvoker"},
    "  if (!self.getLambdaCallOperator()) {\n"

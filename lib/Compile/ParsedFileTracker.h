@@ -162,6 +162,22 @@ class ParsedFileTracker : public clang::PPCallbacks {
 
     const char * const buff_begin = &(data.front());
     const char * const buff_end = &(buff_begin[buff_size]);
+
+    // Note(kumarak): Check if the file buffer starts with
+    //                byte-offset marker. If yes then add
+    //                an unknown token of length 3.
+    // I expect lexer to look for token at offset 0 or 3 and
+    // not in between. If that is a possibility add different
+    // token for each bytes.
+    if (HasBOM(buff_begin, buff_size)) {
+      auto adjusted_offset = 3u;
+      file.impl->tokens.emplace_back(
+            0u,
+            adjusted_offset,
+            0u,
+            0u,
+            clang::tok::unknown);
+    }
     clang::Lexer lexer(loc, lang_opts, buff_begin, buff_begin, buff_end);
     lexer.SetKeepWhitespaceMode(true);  // Implies keep comments.
 

@@ -1947,6 +1947,9 @@ std::optional<enum Visibility> NamedDecl::Visibility(void) const {
     if (!td->getTemplatedDecl()) {
       return std::nullopt;
     }
+    if (!self.isLinkageValid()) {
+      return std::nullopt;
+    }
   }
   decltype(auto) val = self.getVisibility();
   return static_cast<::pasta::Visibility>(val);

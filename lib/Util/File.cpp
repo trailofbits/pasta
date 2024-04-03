@@ -87,6 +87,9 @@ Result<std::string_view, std::error_code> File::Data(void) const noexcept {
       impl->data = llvm::json::fixUTF8(impl->data);
     }
 
+    // Strip BOM characters
+    RemoveBOM(impl->data);
+
     // NOTE(pag): We use this extra trailing NUL to help us with location
     //            offsets for EOF tokens.
     impl->data.push_back('\0');

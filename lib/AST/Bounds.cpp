@@ -3,6 +3,7 @@
  */
 
 #include "AST.h"
+#include "Printer/Printer.h"
 
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wimplicit-int-conversion"
@@ -723,6 +724,22 @@ class DeclBoundsFinder : public clang::DeclVisitor<DeclBoundsFinder>,
     (void) loc;
   }
 
+  inline void Expand(clang::SourceLocation begin, clang::SourceLocation end, clang::SourceLocation loc={}) {
+#ifndef NDEBUG
+    if (begin.isValid() && end.isValid()) {
+      assert(begin.getRawEncoding() <= end.getRawEncoding());
+      if (loc.isValid()) {
+        assert(begin.getRawEncoding() <= loc.getRawEncoding());
+        assert(loc.getRawEncoding() <= end.getRawEncoding());
+      }
+    }
+#endif
+    Expand(begin);
+    Expand(end);
+
+    (void) loc;
+  }
+
  public:
 
   clang::Decl *curr_decl{nullptr};
@@ -772,6 +789,24 @@ class DeclBoundsFinder : public clang::DeclVisitor<DeclBoundsFinder>,
     VisitBaseDecl(decl);
     if (!clang::isa<clang::FunctionDecl>(decl)) {
       ExpandToTrailingToken(decl->getLocation(), TokenKind::kSemi);
+    }
+  }
+
+  void VisitExpr(clang::Expr *expr) {
+    switch (expr->getStmtClass()) {
+      case clang::Stmt::CallExprClass: {
+        auto begin = expr->getBeginLoc();
+        auto end = expr->getEndLoc();
+        if (begin > end) {
+          Expand(end, begin);
+        } else {
+          Expand(begin, end);
+        }
+        break;
+      }
+      default:
+        Expand(expr->getSourceRange());
+        break;
     }
   }
 
@@ -1133,7 +1168,7 @@ class DeclBoundsFinder : public clang::DeclVisitor<DeclBoundsFinder>,
     Expand(decl->getSourceRange(), decl->getLocation());
 
     if (decl->hasInit()) {
-      Expand(decl->getInit()->getSourceRange());
+      VisitExpr(decl->getInit());
     }
 
     // If this is an actual variable decl and not a derived type then go

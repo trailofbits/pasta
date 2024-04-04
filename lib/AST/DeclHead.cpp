@@ -644,7 +644,10 @@ std::vector<::pasta::CXXCtorInitializer> CXXConstructorDecl::Initializers(void) 
     return initializer->isPackExpansion();
   }
 
-  bool CXXCtorInitializer::IsBaseVirtual(void) const noexcept {
+  std::optional<bool> CXXCtorInitializer::IsBaseVirtual(void) const noexcept {
+    if (!initializer->isBaseInitializer()) {
+      return std::nullopt;
+    }
     return initializer->isBaseInitializer() && initializer->isBaseVirtual();
   }
 

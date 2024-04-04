@@ -8,6 +8,14 @@
 #include <pasta/Util/ArgumentVector.h>
 #include <pasta/Util/FileManager.h>
 
+namespace llvm {
+template <typename T>
+class ArrayRef;
+
+namespace opt {
+class InputArgList;
+}  // namespace opt
+}  // namespace llvm
 namespace pasta {
 
 class CompileJobImpl : public std::enable_shared_from_this<CompileJobImpl> {
@@ -29,6 +37,10 @@ class CompileJobImpl : public std::enable_shared_from_this<CompileJobImpl> {
         source_file(std::move(source_file_)),
         target_triple(std::move(target_triple_)),
         aux_triple(std::move(aux_triple_)) {}
+
+  static llvm::opt::InputArgList ParseDriverArguments(
+      const llvm::ArrayRef<const char *> &args, bool enable_cl,
+      unsigned &missing_arg_index, unsigned &missing_arg_count);
 
   // Arguments of the frontend compile command.
   const ArgumentVector argv;

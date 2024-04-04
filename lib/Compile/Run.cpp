@@ -29,12 +29,14 @@
 #include <clang/Basic/DiagnosticOptions.h>
 #include <clang/Basic/TargetInfo.h>
 #include <clang/Basic/TargetOptions.h>
+#include <clang/Driver/Options.h>
 #include <clang/Frontend/CompilerInstance.h>
 #include <clang/Lex/PPCallbacks.h>
 #include <clang/Lex/Preprocessor.h>
 #include <clang/Lex/PreprocessorOptions.h>
 #include <clang/Parse/Parser.h>
 #include <clang/Sema/Sema.h>
+#include <llvm/Option/ArgList.h>
 #include <llvm/Support/raw_ostream.h>
 #include <llvm/TargetParser/Host.h>
 #pragma GCC diagnostic pop
@@ -137,43 +139,17 @@ Result<AST, std::string> CompileJob::Run(void) const {
   ci.setFileManager(fm.get());
   ci.createSourceManager(*fm);
 
-  // Make sure the compiler instance is starting with the approximately
-  // the right cross-compilation target info.
-  clang::TargetOptions &target_opts = invocation.getTargetOpts();
-  target_opts.HostTriple = llvm::sys::getDefaultTargetTriple();
-  target_opts.Triple = TargetTriple();
-  target_opts.ForceEnableInt128 = true;
-
-  clang::TargetInfo *target_info = clang::TargetInfo::CreateTargetInfo(
-      ci.getDiagnostics(), invocation.TargetOpts);
-
-  // Some systems/targets declare/include these types, though the current target
-  // may not. Nonetheless, we want to parse them.
-  target_info->*PASTA_ACCESS_MEMBER(clang, TargetInfo, TLSSupported) = true;
-  target_info->*PASTA_ACCESS_MEMBER(clang, TargetInfo, VLASupported) = true;
-  target_info->*PASTA_ACCESS_MEMBER(clang, TargetInfo, HasFloat128) = true;
-  target_info->*PASTA_ACCESS_MEMBER(clang, TargetInfo, HasFloat16) = true;
-  target_info->*PASTA_ACCESS_MEMBER(clang, TargetInfo, HasBFloat16) = true;
-  target_info->*PASTA_ACCESS_MEMBER(clang, TargetInfo, HasIbm128) = true;
-  target_info->*PASTA_ACCESS_MEMBER(clang, TargetInfo, HasLongDouble) = true;
-  target_info->*PASTA_ACCESS_MEMBER(clang, TargetInfo, HasFPReturn) = true;
-
-  // NOTE(pag): Don't default enable `HasLegalHalfType`, as some local variables
-  //            might be named `half`. 
-  // const bool had_legal_half_type =
-  //     target_info->*PASTA_ACCESS_MEMBER(clang, TargetInfo, HasLegalHalfType);
-  // target_info->*PASTA_ACCESS_MEMBER(clang, TargetInfo, HasLegalHalfType) = true;
-  
-  ci.setTarget(target_info);
-
   const ArgumentVector &argv = Arguments();
   llvm::ArrayRef<const char *> argv_arr(argv.Argv(), argv.Size());
 
-//  // NOTE(pag): `CreateFromArgs` below requires that we not pass in a
-//  //            `-cc1` command.
-//  if (!argv_arr.empty() && !strcmp(argv_arr.front(), "-cc1")) {
-//    argv_arr = argv_arr.slice(1);
-//  }
+#ifdef PASTA_LLVM_18
+  clang::LangOptions &lang_opts = invocation.getLangOpts();
+#else
+  clang::LangOptions &lang_opts = *invocation.getLangOpts();
+#endif
+
+  // NOTE(pag): Don't default enable `HasLegalHalfType`, as some local variables
+  //            might be named `half`. 
 
   const auto invocation_is_valid = clang::CompilerInvocation::CreateFromArgs(
       invocation, argv_arr, *diagnostics_engine);
@@ -215,9 +191,74 @@ Result<AST, std::string> CompileJob::Run(void) const {
       clang::diag::pp_pragma_sysheader_in_main_file,
       clang::diag::pp_pragma_once_in_main_file,
   };
+
   for (auto kind : diags_to_ignore) {
     diagnostics_engine->setSeverity(kind, clang::diag::Severity::Ignored, {});
   }
+
+  // TODO(pag): Detect CL mode, or pass it through the CompileJob?
+  bool enable_cl = false;
+  auto missing_arg_index = 0u;
+  auto missing_arg_count = 0u;
+  auto parsed_args = CompileJobImpl::ParseDriverArguments(
+      argv_arr, enable_cl, missing_arg_index, missing_arg_count);
+
+  // Make sure the compiler instance is starting with the approximately
+  // the right cross-compilation target info.
+  clang::TargetOptions &target_opts = invocation.getTargetOpts();
+  target_opts.HostTriple = llvm::sys::getDefaultTargetTriple();
+  target_opts.Triple = TargetTriple();
+  target_opts.ForceEnableInt128 = true;
+
+  if (parsed_args.hasArg(clang::driver::options::OPT_target_cpu)) {
+    target_opts.CPU = parsed_args.getLastArgValue(
+        clang::driver::options::OPT_target_cpu);
+  }
+
+  if (parsed_args.hasArg(clang::driver::options::OPT_target_feature)) {
+    target_opts.Features = parsed_args.getAllArgValues(
+        clang::driver::options::OPT_target_feature);
+  }
+
+  // Create TargetInfo for the other side of CUDA and OpenMP compilation.
+  clang::FrontendOptions &frontend_opts = invocation.getFrontendOpts();
+  if ((lang_opts.CUDA || lang_opts.OpenMPIsTargetDevice) &&
+      !frontend_opts.AuxTriple.empty()) {
+    auto aux_target = std::make_shared<clang::TargetOptions>();
+    aux_target->Triple = llvm::Triple::normalize(frontend_opts.AuxTriple);
+    aux_target->HostTriple = target_opts.Triple;
+
+    if (parsed_args.hasArg(clang::driver::options::OPT_aux_target_cpu)) {
+      aux_target->CPU = parsed_args.getLastArgValue(
+          clang::driver::options::OPT_aux_target_cpu);
+    }
+
+    if (parsed_args.hasArg(clang::driver::options::OPT_aux_target_feature)) {
+      aux_target->Features = parsed_args.getAllArgValues(
+          clang::driver::options::OPT_aux_target_feature);
+    }
+
+    ci.setAuxTarget(
+        clang::TargetInfo::CreateTargetInfo(*diagnostics_engine, aux_target));
+  }
+
+  if (!ci.createTarget()) {
+    err << "Unable to create compiler target for command: "
+        << argv.Join();
+    return err.str();
+  }
+
+  // Some systems/targets declare/include these types, though the current target
+  // may not. Nonetheless, we want to parse them.
+  clang::TargetInfo &target_info = ci.getTarget();
+  target_info.*PASTA_ACCESS_MEMBER(clang, TargetInfo, TLSSupported) = true;
+  target_info.*PASTA_ACCESS_MEMBER(clang, TargetInfo, VLASupported) = true;
+  target_info.*PASTA_ACCESS_MEMBER(clang, TargetInfo, HasFloat128) = true;
+  target_info.*PASTA_ACCESS_MEMBER(clang, TargetInfo, HasFloat16) = true;
+  target_info.*PASTA_ACCESS_MEMBER(clang, TargetInfo, HasBFloat16) = true;
+  target_info.*PASTA_ACCESS_MEMBER(clang, TargetInfo, HasIbm128) = true;
+  target_info.*PASTA_ACCESS_MEMBER(clang, TargetInfo, HasLongDouble) = true;
+  target_info.*PASTA_ACCESS_MEMBER(clang, TargetInfo, HasFPReturn) = true;
 
   // TODO(pag): Consider setting `UsePredefines` to `false` and using an
   //            `-include` file generated by `mu-import` to deal with platform
@@ -242,12 +283,6 @@ Result<AST, std::string> CompileJob::Run(void) const {
   clang::PreprocessorOutputOptions &ppo_options =
       invocation.getPreprocessorOutputOpts();
   ppo_options = {};  // Reset to defaults.
-
-#ifdef PASTA_LLVM_18
-  clang::LangOptions &lang_opts = invocation.getLangOpts();
-#else
-  clang::LangOptions &lang_opts = *invocation.getLangOpts();
-#endif
 
   // Disable cpp language option that enable true/false keyword. It
   // can have conflict with C identifiers declaring true/false
@@ -308,7 +343,6 @@ Result<AST, std::string> CompileJob::Run(void) const {
   // Don't get whitespace.
   lang_opts.TraditionalCPP = false;
 
-  clang::FrontendOptions &frontend_opts = invocation.getFrontendOpts();
   frontend_opts.StatsFile.clear();
   frontend_opts.OverrideRecordLayoutsFile.clear();
   frontend_opts.ASTDumpFilter.clear();
@@ -337,17 +371,6 @@ Result<AST, std::string> CompileJob::Run(void) const {
   }
 
   clang::TargetInfo &invocation_target = ci.getTarget();
-
-  // Create TargetInfo for the other side of CUDA and OpenMP compilation.
-  if ((lang_opts.CUDA || lang_opts.OpenMPIsTargetDevice) &&
-      !frontend_opts.AuxTriple.empty()) {
-    auto aux_target = std::make_shared<clang::TargetOptions>();
-    aux_target->Triple = llvm::Triple::normalize(frontend_opts.AuxTriple);
-    aux_target->HostTriple = invocation_target.getTriple().str();
-    ci.setAuxTarget(
-        clang::TargetInfo::CreateTargetInfo(*diagnostics_engine, aux_target));
-  }
-
   invocation_target.adjust(*diagnostics_engine, lang_opts);
   if (auto aux_target = ci.getAuxTarget(); aux_target) {
     invocation_target.setAuxTarget(aux_target);

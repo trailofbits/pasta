@@ -235,6 +235,10 @@ Result<AST, std::string> CompileJob::Run(void) const {
   pp_options.LexEditorPlaceholders = false;
   pp_options.RetainRemappedFileBuffers = true;
 
+  // Clear ImplictPCHInclude to avoid using clang
+  // pre-serialized ASTs
+  pp_options.ImplicitPCHInclude.clear();
+
   clang::PreprocessorOutputOptions &ppo_options =
       invocation.getPreprocessorOutputOpts();
   ppo_options = {};  // Reset to defaults.

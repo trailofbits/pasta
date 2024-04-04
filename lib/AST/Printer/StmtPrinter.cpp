@@ -2075,11 +2075,10 @@ void StmtPrinter::VisitNoInitExpr(clang::NoInitExpr *Node) {
 void StmtPrinter::VisitImplicitValueInitExpr(clang::ImplicitValueInitExpr *Node) {
   TokenPrinterContext ctx(OS, Node, tokens);
   if (Node->getType()->getAsCXXRecordDecl()) {
-    OS << "/*implicit*/";
     printQualType(Node->getType(), OS, Policy);
     OS << "()";
   } else {
-    OS << "/*implicit*/(";
+    OS << "(";
     printQualType(Node->getType(), OS, Policy);
     OS << ')';
     if (Node->getType()->isRecordType())

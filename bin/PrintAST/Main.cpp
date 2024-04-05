@@ -74,13 +74,7 @@ int main(int argc, char *argv[]) {
       auto tu = maybe_ast->TranslationUnit();
       auto tokens = pasta::PrintedTokenRange::Create(tu);
       for (pasta::PrintedToken tok : tokens) {
-        for (auto i = 0u, max_i = tok.NumLeadingNewLines(); i < max_i; ++i) {
-          std::cerr << '\n';
-        }
-        for (auto i = 0u, max_i = tok.NumLeadingSpaces(); i < max_i; ++i) {
-          std::cerr << ' ';
-        }
-        std::cerr << tok.Data();
+        std::cerr << tok.Data() << ' ';
       }
     }
   }

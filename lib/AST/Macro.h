@@ -8,7 +8,6 @@
 
 #include <cassert>
 #include <deque>
-#include <variant>
 
 #include <pasta/Util/File.h>
 
@@ -26,9 +25,6 @@ namespace clang {
 class MacroInfo;
 }  // namespace clang
 namespace pasta {
-
-using Node = std::variant<std::monostate, MacroNodeImpl *, MacroTokenImpl *>;
-using NodeList = std::vector<Node>;
 
 inline static void NoOnTokenCB(unsigned, MacroTokenImpl *, MacroTokenImpl *) {}
 inline static void NoOnNodeCB(unsigned, MacroNodeImpl *, MacroNodeImpl *) {}
@@ -56,6 +52,10 @@ class MacroNodeImpl {
   MacroKind kind;
 
   const MacroNodeImpl *cloned_from{nullptr};
+
+  // Beginning parsed token index for the *entire* expansion range.
+  DerivedTokenIndex parsed_begin_index{~0u};
+
 #ifndef NDEBUG
   unsigned line_added{0u};
 #endif
@@ -65,9 +65,7 @@ class MacroTokenImpl final {
  public:
   Node parent;
 
-  // Offset of `TokenImpl` in `ASTImpl::tokens`. We don't use a pointer as
-  // `ASTImpl::tokens` is a vector, so the pointers aren't stable as it is
-  // extended.
+  // Offset of the token in `ASTImpl::macro_tokens`.
   uint32_t token_offset;
 
   // Copy of `TokenImpl::kind`. We often need to do checks on kinds to find
@@ -120,6 +118,9 @@ class MacroDirectiveImpl final : public MacroNodeImpl {
   // `#include`-like directive.
   std::optional<File> included_file;
 
+  // ID of the included file.
+  clang::FileID included_file_id;
+
   // Offset/index of the first body token if the defined macro, assuming this
   // directive is a `#define`.
   unsigned body_offset{0u};
@@ -130,6 +131,9 @@ class MacroDirectiveImpl final : public MacroNodeImpl {
   // Is this a warning or error directive? If so, this signals to try to collect
   // missing tokens when we come accross an EOD.
   bool collected_missing_tokens_on_eod{false};
+
+  // Return the offset of the marker token.
+  DerivedTokenIndex marker_token_offset{~0u};
 };
 
 class MacroArgumentImpl final : public MacroNodeImpl {

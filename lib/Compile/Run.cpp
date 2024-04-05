@@ -29,12 +29,14 @@
 #include <clang/Basic/DiagnosticOptions.h>
 #include <clang/Basic/TargetInfo.h>
 #include <clang/Basic/TargetOptions.h>
+#include <clang/Driver/Options.h>
 #include <clang/Frontend/CompilerInstance.h>
 #include <clang/Lex/PPCallbacks.h>
 #include <clang/Lex/Preprocessor.h>
 #include <clang/Lex/PreprocessorOptions.h>
 #include <clang/Parse/Parser.h>
 #include <clang/Sema/Sema.h>
+#include <llvm/Option/ArgList.h>
 #include <llvm/Support/raw_ostream.h>
 #include <llvm/TargetParser/Host.h>
 #pragma GCC diagnostic pop
@@ -51,7 +53,7 @@
 # error "Missing PASTA patches to Clang for tracking macro events"
 #endif
 #include "PatchedMacroTracker.h"
-using MacroTracker = pasta::PatchedMacroTracker;
+#include "SplitTokenTracker.h"
 #pragma GCC diagnostic pop
 
 #include "../AST/AST.h"
@@ -60,6 +62,22 @@ using MacroTracker = pasta::PatchedMacroTracker;
 
 namespace pasta {
 namespace detail {
+
+PASTA_BYPASS_MEMBER_OBJECT_ACCESS(clang, Decl, Loc, clang::SourceLocation);
+PASTA_BYPASS_MEMBER_OBJECT_ACCESS(clang, TemplateParameterList, LAngleLoc, clang::SourceLocation);
+PASTA_BYPASS_MEMBER_OBJECT_ACCESS(clang, TemplateParameterList, RAngleLoc, clang::SourceLocation);
+PASTA_BYPASS_MEMBER_OBJECT_ACCESS(clang, ASTTemplateArgumentListInfo, LAngleLoc, clang::SourceLocation);
+PASTA_BYPASS_MEMBER_OBJECT_ACCESS(clang, ASTTemplateArgumentListInfo, RAngleLoc, clang::SourceLocation);
+PASTA_BYPASS_MEMBER_OBJECT_ACCESS(clang, TemplateParameterList, TemplateLoc, clang::SourceLocation);
+PASTA_BYPASS_MEMBER_OBJECT_ACCESS(clang, DeclaratorDecl, InnerLocStart, clang::SourceLocation);
+PASTA_BYPASS_MEMBER_OBJECT_ACCESS(clang, FunctionDecl, EndRangeLoc, clang::SourceLocation);
+PASTA_BYPASS_MEMBER_OBJECT_ACCESS(clang, TypeDecl, LocStart, clang::SourceLocation);
+PASTA_BYPASS_MEMBER_OBJECT_ACCESS(clang, FileScopeAsmDecl, RParenLoc, clang::SourceLocation);
+PASTA_BYPASS_MEMBER_OBJECT_ACCESS(clang, ExportDecl, RBraceLoc, clang::SourceLocation);
+PASTA_BYPASS_MEMBER_OBJECT_ACCESS(clang, LabelDecl, LocStart, clang::SourceLocation);
+PASTA_BYPASS_MEMBER_OBJECT_ACCESS(clang, NamespaceDecl, LocStart, clang::SourceLocation);
+PASTA_BYPASS_MEMBER_OBJECT_ACCESS(clang, NamespaceDecl, RBraceLoc, clang::SourceLocation);
+
 PASTA_BYPASS_MEMBER_OBJECT_ACCESS(clang, TargetInfo, TLSSupported, bool);
 PASTA_BYPASS_MEMBER_OBJECT_ACCESS(clang, TargetInfo, VLASupported, bool);
 PASTA_BYPASS_MEMBER_OBJECT_ACCESS(clang, TargetInfo, HasLegalHalfType, bool);
@@ -121,43 +139,17 @@ Result<AST, std::string> CompileJob::Run(void) const {
   ci.setFileManager(fm.get());
   ci.createSourceManager(*fm);
 
-  // Make sure the compiler instance is starting with the approximately
-  // the right cross-compilation target info.
-  clang::TargetOptions &target_opts = invocation.getTargetOpts();
-  target_opts.HostTriple = llvm::sys::getDefaultTargetTriple();
-  target_opts.Triple = TargetTriple();
-  target_opts.ForceEnableInt128 = true;
-
-  clang::TargetInfo *target_info = clang::TargetInfo::CreateTargetInfo(
-      ci.getDiagnostics(), invocation.TargetOpts);
-
-  // Some systems/targets declare/include these types, though the current target
-  // may not. Nonetheless, we want to parse them.
-  target_info->*PASTA_ACCESS_MEMBER(clang, TargetInfo, TLSSupported) = true;
-  target_info->*PASTA_ACCESS_MEMBER(clang, TargetInfo, VLASupported) = true;
-  target_info->*PASTA_ACCESS_MEMBER(clang, TargetInfo, HasFloat128) = true;
-  target_info->*PASTA_ACCESS_MEMBER(clang, TargetInfo, HasFloat16) = true;
-  target_info->*PASTA_ACCESS_MEMBER(clang, TargetInfo, HasBFloat16) = true;
-  target_info->*PASTA_ACCESS_MEMBER(clang, TargetInfo, HasIbm128) = true;
-  target_info->*PASTA_ACCESS_MEMBER(clang, TargetInfo, HasLongDouble) = true;
-  target_info->*PASTA_ACCESS_MEMBER(clang, TargetInfo, HasFPReturn) = true;
-
-  // NOTE(pag): Don't default enable `HasLegalHalfType`, as some local variables
-  //            might be named `half`. 
-  // const bool had_legal_half_type =
-  //     target_info->*PASTA_ACCESS_MEMBER(clang, TargetInfo, HasLegalHalfType);
-  // target_info->*PASTA_ACCESS_MEMBER(clang, TargetInfo, HasLegalHalfType) = true;
-  
-  ci.setTarget(target_info);
-
   const ArgumentVector &argv = Arguments();
   llvm::ArrayRef<const char *> argv_arr(argv.Argv(), argv.Size());
 
-//  // NOTE(pag): `CreateFromArgs` below requires that we not pass in a
-//  //            `-cc1` command.
-//  if (!argv_arr.empty() && !strcmp(argv_arr.front(), "-cc1")) {
-//    argv_arr = argv_arr.slice(1);
-//  }
+#ifdef PASTA_LLVM_18
+  clang::LangOptions &lang_opts = invocation.getLangOpts();
+#else
+  clang::LangOptions &lang_opts = *invocation.getLangOpts();
+#endif
+
+  // NOTE(pag): Don't default enable `HasLegalHalfType`, as some local variables
+  //            might be named `half`. 
 
   const auto invocation_is_valid = clang::CompilerInvocation::CreateFromArgs(
       invocation, argv_arr, *diagnostics_engine);
@@ -199,9 +191,74 @@ Result<AST, std::string> CompileJob::Run(void) const {
       clang::diag::pp_pragma_sysheader_in_main_file,
       clang::diag::pp_pragma_once_in_main_file,
   };
+
   for (auto kind : diags_to_ignore) {
     diagnostics_engine->setSeverity(kind, clang::diag::Severity::Ignored, {});
   }
+
+  // TODO(pag): Detect CL mode, or pass it through the CompileJob?
+  bool enable_cl = false;
+  auto missing_arg_index = 0u;
+  auto missing_arg_count = 0u;
+  auto parsed_args = CompileJobImpl::ParseDriverArguments(
+      argv_arr, enable_cl, missing_arg_index, missing_arg_count);
+
+  // Make sure the compiler instance is starting with the approximately
+  // the right cross-compilation target info.
+  clang::TargetOptions &target_opts = invocation.getTargetOpts();
+  target_opts.HostTriple = llvm::sys::getDefaultTargetTriple();
+  target_opts.Triple = TargetTriple();
+  target_opts.ForceEnableInt128 = true;
+
+  if (parsed_args.hasArg(clang::driver::options::OPT_target_cpu)) {
+    target_opts.CPU = parsed_args.getLastArgValue(
+        clang::driver::options::OPT_target_cpu);
+  }
+
+  if (parsed_args.hasArg(clang::driver::options::OPT_target_feature)) {
+    target_opts.Features = parsed_args.getAllArgValues(
+        clang::driver::options::OPT_target_feature);
+  }
+
+  // Create TargetInfo for the other side of CUDA and OpenMP compilation.
+  clang::FrontendOptions &frontend_opts = invocation.getFrontendOpts();
+  if ((lang_opts.CUDA || lang_opts.OpenMPIsTargetDevice) &&
+      !frontend_opts.AuxTriple.empty()) {
+    auto aux_target = std::make_shared<clang::TargetOptions>();
+    aux_target->Triple = llvm::Triple::normalize(frontend_opts.AuxTriple);
+    aux_target->HostTriple = target_opts.Triple;
+
+    if (parsed_args.hasArg(clang::driver::options::OPT_aux_target_cpu)) {
+      aux_target->CPU = parsed_args.getLastArgValue(
+          clang::driver::options::OPT_aux_target_cpu);
+    }
+
+    if (parsed_args.hasArg(clang::driver::options::OPT_aux_target_feature)) {
+      aux_target->Features = parsed_args.getAllArgValues(
+          clang::driver::options::OPT_aux_target_feature);
+    }
+
+    ci.setAuxTarget(
+        clang::TargetInfo::CreateTargetInfo(*diagnostics_engine, aux_target));
+  }
+
+  if (!ci.createTarget()) {
+    err << "Unable to create compiler target for command: "
+        << argv.Join();
+    return err.str();
+  }
+
+  // Some systems/targets declare/include these types, though the current target
+  // may not. Nonetheless, we want to parse them.
+  clang::TargetInfo &target_info = ci.getTarget();
+  target_info.*PASTA_ACCESS_MEMBER(clang, TargetInfo, TLSSupported) = true;
+  target_info.*PASTA_ACCESS_MEMBER(clang, TargetInfo, VLASupported) = true;
+  target_info.*PASTA_ACCESS_MEMBER(clang, TargetInfo, HasFloat128) = true;
+  target_info.*PASTA_ACCESS_MEMBER(clang, TargetInfo, HasFloat16) = true;
+  target_info.*PASTA_ACCESS_MEMBER(clang, TargetInfo, HasBFloat16) = true;
+  target_info.*PASTA_ACCESS_MEMBER(clang, TargetInfo, HasIbm128) = true;
+  target_info.*PASTA_ACCESS_MEMBER(clang, TargetInfo, HasLongDouble) = true;
+  target_info.*PASTA_ACCESS_MEMBER(clang, TargetInfo, HasFPReturn) = true;
 
   // TODO(pag): Consider setting `UsePredefines` to `false` and using an
   //            `-include` file generated by `mu-import` to deal with platform
@@ -214,20 +271,18 @@ Result<AST, std::string> CompileJob::Run(void) const {
   //            disable their generation. This will then hopefully mean
   //            fewer implicit decls in the indexer.
   clang::PreprocessorOptions &pp_options = invocation.getPreprocessorOpts();
-  pp_options.DetailedRecord = true;
+  pp_options.DetailedRecord = false;  // We do our own detailed record keeping.
   pp_options.SingleFileParseMode = false;
   pp_options.LexEditorPlaceholders = false;
   pp_options.RetainRemappedFileBuffers = true;
 
+  // Clear ImplictPCHInclude to avoid using clang
+  // pre-serialized ASTs
+  pp_options.ImplicitPCHInclude.clear();
+
   clang::PreprocessorOutputOptions &ppo_options =
       invocation.getPreprocessorOutputOpts();
   ppo_options = {};  // Reset to defaults.
-
-#ifdef PASTA_LLVM_18
-  clang::LangOptions &lang_opts = invocation.getLangOpts();
-#else
-  clang::LangOptions &lang_opts = *invocation.getLangOpts();
-#endif
 
   // Disable cpp language option that enable true/false keyword. It
   // can have conflict with C identifiers declaring true/false
@@ -250,9 +305,18 @@ Result<AST, std::string> CompileJob::Run(void) const {
   lang_opts.CommentOpts.ParseAllComments = false;
   lang_opts.ForceEmitVTables = lang_opts.CPlusPlus;
 
+  // Force enable CXXExceptions
+  lang_opts.CXXExceptions = true;
+
   // This is a patch that preserve the lexical context of the
   // template instantiations in AST.
   lang_opts.LexicalTemplateInstantiation = true;
+
+  // This patch triggers aggressive instatiation of templates.
+  lang_opts.AggressiveTemplateInstantiation = true;
+
+  // Disable access control checking, e.g. `private`, `protected`.
+  lang_opts.AccessControl = false;
 
   // This is a patch that introduces transparent support for unknown attributes,
   // converting them into annotation attributes.
@@ -279,7 +343,6 @@ Result<AST, std::string> CompileJob::Run(void) const {
   // Don't get whitespace.
   lang_opts.TraditionalCPP = false;
 
-  clang::FrontendOptions &frontend_opts = invocation.getFrontendOpts();
   frontend_opts.StatsFile.clear();
   frontend_opts.OverrideRecordLayoutsFile.clear();
   frontend_opts.ASTDumpFilter.clear();
@@ -308,17 +371,6 @@ Result<AST, std::string> CompileJob::Run(void) const {
   }
 
   clang::TargetInfo &invocation_target = ci.getTarget();
-
-  // Create TargetInfo for the other side of CUDA and OpenMP compilation.
-  if ((lang_opts.CUDA || lang_opts.OpenMPIsTargetDevice) &&
-      !frontend_opts.AuxTriple.empty()) {
-    auto aux_target = std::make_shared<clang::TargetOptions>();
-    aux_target->Triple = llvm::Triple::normalize(frontend_opts.AuxTriple);
-    aux_target->HostTriple = invocation_target.getTriple().str();
-    ci.setAuxTarget(
-        clang::TargetInfo::CreateTargetInfo(*diagnostics_engine, aux_target));
-  }
-
   invocation_target.adjust(*diagnostics_engine, lang_opts);
   if (auto aux_target = ci.getAuxTarget(); aux_target) {
     invocation_target.setAuxTarget(aux_target);
@@ -338,7 +390,8 @@ Result<AST, std::string> CompileJob::Run(void) const {
   // NOTE(pag): Add the macro tracker first so that it can observe changes to
   //            `ASTImpl::id_to_file` enacted by
   //            `ParsedFileTracker::FileChanged`.
-  MacroTracker *macro_tracker_ptr = new MacroTracker(pp, sm, ast.get());
+  PatchedMacroTracker *macro_tracker_ptr =
+      new PatchedMacroTracker(pp, sm, ast.get());
   {
     std::unique_ptr<clang::PPCallbacks> macro_tracker(macro_tracker_ptr);
     pp.addPPCallbacks(std::move(macro_tracker));
@@ -364,19 +417,19 @@ Result<AST, std::string> CompileJob::Run(void) const {
   // If we didn't end up tracking any files then something is seriously wrong.
   assert(!ast->id_to_file.empty());
 
+  // Wipe out the old callbacks and any temporary data they stored.
   file_tracker_ptr->Clear();
   macro_tracker_ptr->Clear();
-
-  // auto fd = open("/tmp/source.cpp", O_TRUNC | O_CREAT | O_WRONLY, 0666);
-  // write(fd, ast->preprocessed_code.data(), ast->preprocessed_code.size());
-  // close(fd);
+  pp.clearPPCallbacks();
+  macro_tracker_ptr = nullptr;
+  file_tracker_ptr = nullptr;
 
   // Replace the main source file with the preprocessed file.
   const std::string main_file_name = input_files[0].getFile().str();
   bool added_file = mem_vfs->addFile(
-      "<pasta-input>", std::numeric_limits<time_t>::max(),
-      llvm::MemoryBuffer::getMemBuffer(ast->preprocessed_code,
-                                       "<pasta-input>", false),
+      "/pasta", std::numeric_limits<time_t>::max(),
+      llvm::MemoryBuffer::getMemBuffer(ast->parsed_tokens.Data(),
+                                       "/pasta", false),
       std::nullopt, std::nullopt, llvm::sys::fs::file_type::regular_file,
       llvm::sys::fs::perms::all_read);
 
@@ -385,7 +438,7 @@ Result<AST, std::string> CompileJob::Run(void) const {
     return err.str();
   }
 
-  const auto file_entry = fm->getFile("<pasta-input>");
+  const auto file_entry = fm->getFile("/pasta");
   if (!file_entry) {
     err << "Could not add overlay file entry for file '"
         << main_file_name << "'";
@@ -422,10 +475,28 @@ Result<AST, std::string> CompileJob::Run(void) const {
   clang::ASTConsumer &ast_consumer = ci.getASTConsumer();
   clang::Sema &sema = ci.getSema();
   clang::Preprocessor &pp2 = ci.getPreprocessor();
-  ast->token_per_line_pp = ci.getPreprocessorPtr();
+  clang::LangOptions &lang_opts2 = ci.getLangOpts();
+  ast->parsed_tokens_data_pp = ci.getPreprocessorPtr();
 
-  assert(pp2.getLangOpts().EmitAllDecls);
+  std::unique_ptr<clang::PPCallbacks> split_tracker(
+      new SplitTokenTracker(sm, ast.get()));
+  pp2.addPPCallbacks(std::move(split_tracker));
+
+  assert(lang_opts2.EmitAllDecls);
   assert(lang_opts.EmitAllDecls);
+
+  // No longer need pre-defined macros, and these could technically conflict
+  // with stuff, e.g. built-in ones if there was an `#undef`.
+  lang_opts2.EnablePredefines = false;
+
+  // Include comments in the AST.
+  //
+  // NOTE(pag): The way that Clang deals with comment parsing *isn't* by
+  //            changing the comment retention state in the preprocessor/lexer,
+  //            but instead by retroactively inspecting source locations for
+  //            leading/training comments.
+  lang_opts2.RetainCommentsFromSystemHeaders = true;
+  lang_opts2.CommentOpts.ParseAllComments = true;
 
   std::unique_ptr<clang::Parser> parser(
       new clang::Parser(pp2, sema, false /* SkipFunctionBodies */));
@@ -452,6 +523,9 @@ Result<AST, std::string> CompileJob::Run(void) const {
       break;
     }
   }
+
+  sema.PerformDeferredTypeCompletions();
+  sema.DefineUsedVTables();
 
   // Finalize any leftover instantiations.
   sema.PerformPendingInstantiations(false);
@@ -493,9 +567,8 @@ Result<AST, std::string> CompileJob::Run(void) const {
     policy->IncludeTagDefinition = true;
   }
 
-  ast->MarkMacroTokens();
-  ast->PreprocessLexicalParentage();
   ast->LinkMacroTokenContexts();
+
   return AST(std::move(ast));
 }
 

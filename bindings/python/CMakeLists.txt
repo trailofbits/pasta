@@ -1,4 +1,7 @@
-find_package(Python 3.8 COMPONENTS Interpreter Development REQUIRED)
+# Copyright (c) 2023 Trail of Bits, Inc., all rights reserved.
+
+find_package(Python COMPONENTS Interpreter Development REQUIRED)
+
 if(DEFINED nanobind_DIR)
     message(NOTICE "nanobind_DIR is defined, using it instead of invoking module")
 else()

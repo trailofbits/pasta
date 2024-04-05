@@ -1144,7 +1144,7 @@ class CXXForRangeStmt : public Stmt {
   ::pasta::Token EndToken(void) const;
   std::optional<::pasta::DeclStmt> EndStatement(void) const;
   ::pasta::Token ForToken(void) const;
-  ::pasta::Expr Increment(void) const;
+  std::optional<::pasta::Expr> Increment(void) const;
   std::optional<::pasta::Stmt> Initializer(void) const;
   ::pasta::DeclStmt LoopVariableStatement(void) const;
   ::pasta::VarDecl LoopVariable(void) const;
@@ -1265,7 +1265,7 @@ class CoreturnStmt : public Stmt {
   ::pasta::Token BeginToken(void) const;
   ::pasta::Token EndToken(void) const;
   ::pasta::Token KeywordToken(void) const;
-  ::pasta::Expr Operand(void) const;
+  std::optional<::pasta::Expr> Operand(void) const;
   ::pasta::Expr PromiseCall(void) const;
   bool IsImplicit(void) const;
  protected:
@@ -1295,7 +1295,7 @@ class CoroutineBodyStmt : public Stmt {
   ::pasta::Stmt PromiseDeclarationStatement(void) const;
   std::optional<::pasta::Stmt> ResultDeclaration(void) const;
   ::pasta::Stmt ReturnStatement(void) const;
-  ::pasta::Stmt ReturnStatementOnAllocFailure(void) const;
+  std::optional<::pasta::Stmt> ReturnStatementOnAllocFailure(void) const;
   ::pasta::Expr ReturnValue(void) const;
   ::pasta::Expr ReturnValueInitializer(void) const;
   bool HasDependentPromiseType(void) const;
@@ -4459,7 +4459,7 @@ class SubstNonTypeTemplateParmPackExpr : public Expr {
   PASTA_DECLARE_BASE_OPERATORS(Stmt, SubstNonTypeTemplateParmPackExpr)
   PASTA_DECLARE_BASE_OPERATORS(ValueStmt, SubstNonTypeTemplateParmPackExpr)
   std::vector<::pasta::Stmt> Children(void) const;
-  // ArgumentPack: (clang::TemplateArgument)
+  // ArgumentPack: (const clang::TemplateArgument &)
   ::pasta::Decl AssociatedDeclaration(void) const;
   ::pasta::Token BeginToken(void) const;
   ::pasta::Token EndToken(void) const;
@@ -6223,7 +6223,7 @@ class UserDefinedLiteral : public CallExpr {
   PASTA_DECLARE_BASE_OPERATORS(Stmt, UserDefinedLiteral)
   PASTA_DECLARE_BASE_OPERATORS(ValueStmt, UserDefinedLiteral)
   ::pasta::Token BeginToken(void) const;
-  ::pasta::Expr CookedLiteral(void) const;
+  std::optional<::pasta::Expr> CookedLiteral(void) const;
   ::pasta::Token EndToken(void) const;
   enum UserDefinedLiteralLiteralOperatorKind LiteralOperatorKind(void) const;
   // UDSuffix: (const clang::IdentifierInfo *)

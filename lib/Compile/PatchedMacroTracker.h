@@ -56,8 +56,8 @@ class PatchedMacroTracker : public clang::PPCallbacks {
   clang::Token skipped_hash;
 
   ASTImpl * const ast;
-  llvm::raw_string_ostream token_data_stream;
-  llvm::raw_string_ostream backup_token_data_stream;
+  // llvm::raw_string_ostream token_data_stream;
+  // llvm::raw_string_ostream backup_token_data_stream;
 
   std::string indent;
   bool suppress_indent{false};
@@ -70,7 +70,7 @@ class PatchedMacroTracker : public clang::PPCallbacks {
   int cond_skip_depth{0};
   int macro_skip_count{0};
 
-  bool skipped_area_recurisive_lock{false};
+  bool skipped_area_recursive_lock{false};
 
   std::vector<MacroDirectiveImpl *> includes;
   clang::Token last_token;
@@ -103,9 +103,6 @@ class PatchedMacroTracker : public clang::PPCallbacks {
   MacroDirectiveImpl *last_directive{nullptr};
 
   std::unordered_map<const clang::MacroInfo *, MacroDirectiveImpl *> defines;
-  std::unordered_map<OpaqueSourceLoc, DerivedTokenIndex> file_token_refs;
-  std::unordered_map<OpaqueSourceLoc, DerivedTokenIndex> macro_token_refs;
-  std::unordered_map<OpaqueSourceLoc, DerivedTokenIndex> concat_token_refs;
 
   // In evil scenarios where pre-expansion is cancelled (e.g. due to a nested
   // _Pragma()), Clang may presend us with an EOD/EOF that is really
@@ -114,17 +111,6 @@ class PatchedMacroTracker : public clang::PPCallbacks {
   // to recover the intended token from its location.
   std::unordered_map<clang::SourceLocation::UIntTy, clang::Token>
       end_of_arg_toks;
-
-  // The index of the last token whose role marks the beginning of a macro
-  // expansion.
-  //
-  // NOTE(pag): Points into `ASTImpl::tokens`.
-  DerivedTokenIndex parsed_start_of_macro_index{0u};
-
-  // Similar to above, but points into `ASTImpl::root_macro_node::tokens`.
-  DerivedTokenIndex macro_start_of_macro_index{0u};
-
-  DerivedTokenIndex last_fixed_index{0u};
 
   // Values to substitute for `__COUNTER__`. We need to try to maintain a
   // semblance of uniqueness, but also we want to try to have better
@@ -143,18 +129,7 @@ class PatchedMacroTracker : public clang::PPCallbacks {
 
   virtual ~PatchedMacroTracker(void);
 
-  void FixupDerivedLocations(void);
-
  private:
-  void FixupTokenProvenance(TokenImpl &tok, DerivedTokenIndex tok_index,
-                            bool can_be_derived, int depth,
-                            clang::SourceLocation loc);
-
-  void FixupTokenProvenance(const MacroTokenImpl *tok);
-
-  void FixupTokenProvenance(const MacroNodeImpl *node);
-
-  void CloseUnclosedExpansion(const clang::Token &tok);
 
   void Push(const clang::Token &tok);
   void Pop(const clang::Token &tok);
@@ -217,7 +192,6 @@ class PatchedMacroTracker : public clang::PPCallbacks {
   void DoAfterStringify(const clang::Token &tok, uintptr_t data);
 
  public:
-  // PASTA PATCH:
   void Event(const clang::Token &tok, EventKind kind, uintptr_t data) final;
 
   // Callback invoked whenever an inclusion directive of any kind (`#include`,
@@ -240,6 +214,9 @@ class PatchedMacroTracker : public clang::PPCallbacks {
                    clang::PPCallbacks::FileChangeReason reason,
                    clang::SrcMgr::CharacteristicKind file_type,
                    clang::FileID file_id = clang::FileID()) final;
+
+  // Called when we leave the main file.
+  void EndOfMainFile(void) final;
 
   // Callback invoked when a `#ident` or `#sccs` directive is read.
   void Ident(clang::SourceLocation loc, clang::StringRef) final;

@@ -367,7 +367,7 @@ void StmtPrinter::VisitMSDependentExistsStmt(clang::MSDependentExistsStmt *Node)
 
   if (clang::NestedNameSpecifier *Qualifier
         = Node->getQualifierLoc().getNestedNameSpecifier())
-    Qualifier->print(OS, Policy);
+    NestedNameSpecifier_print(Qualifier, *this, Policy);
 
   OS << Node->getNameInfo() << ") ";
 
@@ -1232,8 +1232,13 @@ void StmtPrinter::VisitDeclRefExpr(clang::DeclRefExpr *Node) {
     TPOD->printAsExpr(OS, Policy);
     return;
   }
-  if (clang::NestedNameSpecifier *Qualifier = Node->getQualifier())
-    Qualifier->print(OS, Policy);
+  if (Node->getLocation().getRawEncoding() == 7633582) {
+    (void) Node->getLocation();   // f 21, __wrap_iter char *
+  }
+  if (clang::NestedNameSpecifier *Qualifier = Node->getQualifier()) {
+    TagDefinitionPolicyRAII disable_tags(Policy);
+    NestedNameSpecifier_print(Qualifier, *this, Policy);
+  }
   if (Node->hasTemplateKeyword()) {
     OS << "template ";
     ctx.MarkLocation(Node->getTemplateKeywordLoc());
@@ -1244,6 +1249,8 @@ void StmtPrinter::VisitDeclRefExpr(clang::DeclRefExpr *Node) {
     if (!Node->hadMultipleCandidates())
       if (auto *TD = clang::dyn_cast<clang::TemplateDecl>(Node->getDecl()))
         TPL = TD->getTemplateParameters();
+
+    TagDefinitionPolicyRAII disable_tags(Policy);
     printTemplateArgumentList(*this, Node->template_arguments(), Policy, TPL);
   }
 }
@@ -1252,14 +1259,16 @@ void StmtPrinter::VisitDependentScopeDeclRefExpr(
     clang::DependentScopeDeclRefExpr *Node) {
   TokenPrinterContext ctx(OS, Node, tokens);
   if (clang::NestedNameSpecifier *Qualifier = Node->getQualifier())
-    Qualifier->print(OS, Policy);
+    NestedNameSpecifier_print(Qualifier, *this, Policy);
   if (Node->hasTemplateKeyword()) {
     OS << "template ";
     ctx.MarkLocation(Node->getTemplateKeywordLoc());
   }
   OS << Node->getNameInfo();
-  if (Node->hasExplicitTemplateArgs())
+  if (Node->hasExplicitTemplateArgs()) {
+    TagDefinitionPolicyRAII disable_tags(Policy);
     printTemplateArgumentList(*this, Node->template_arguments(), Policy);
+  }
 }
 
 void StmtPrinter::VisitUnresolvedLookupExpr(clang::UnresolvedLookupExpr *Node) {
@@ -1271,8 +1280,10 @@ void StmtPrinter::VisitUnresolvedLookupExpr(clang::UnresolvedLookupExpr *Node) {
     ctx.MarkLocation(Node->getTemplateKeywordLoc());
   }
   OS << Node->getNameInfo();
-  if (Node->hasExplicitTemplateArgs())
+  if (Node->hasExplicitTemplateArgs()) {
+    TagDefinitionPolicyRAII disable_tags(Policy);
     printTemplateArgumentList(*this, Node->template_arguments(), Policy);
+  }
 }
 
 static bool isImplicitSelf(const clang::Expr *E) {
@@ -1760,7 +1771,7 @@ void StmtPrinter::VisitMemberExpr(clang::MemberExpr *Node) {
       return;
 
   if (clang::NestedNameSpecifier *Qualifier = Node->getQualifier())
-    Qualifier->print(OS, Policy);
+    NestedNameSpecifier_print(Qualifier, *this, Policy);
   if (Node->hasTemplateKeyword()) {
     OS << "template ";
     ctx.MarkLocation(Node->getTemplateKeywordLoc());
@@ -1774,8 +1785,10 @@ void StmtPrinter::VisitMemberExpr(clang::MemberExpr *Node) {
   } else if (auto *VTSD =
                  clang::dyn_cast<clang::VarTemplateSpecializationDecl>(Node->getMemberDecl()))
     TPL = VTSD->getSpecializedTemplate()->getTemplateParameters();
-  if (Node->hasExplicitTemplateArgs())
+  if (Node->hasExplicitTemplateArgs()) {
+    TagDefinitionPolicyRAII disable_tags(Policy);
     printTemplateArgumentList(*this, Node->template_arguments(), Policy, TPL);
+  }
 }
 
 void StmtPrinter::VisitObjCIsaExpr(clang::ObjCIsaExpr *Node) {
@@ -1919,15 +1932,16 @@ void StmtPrinter::VisitConvertVectorExpr(clang::ConvertVectorExpr *Node) {
 }
 
 void StmtPrinter::VisitInitListExpr(clang::InitListExpr *Node) {
-  TokenPrinterContext ctx(OS, Node, tokens);
   if (Node->getSyntacticForm()) {
     Visit(Node->getSyntacticForm());
     return;
   }
 
+  TokenPrinterContext ctx(OS, Node, tokens);
   OS << "{";
   ctx.MarkLocation(Node->getLBraceLoc());
-  const TokenImpl *comma_loc = nullptr;
+
+  std::optional<DerivedTokenIndex> comma_loc;
   for (unsigned i = 0, e = Node->getNumInits(); i != e; ++i) {
     if (i) {
       OS << ", ";
@@ -1936,27 +1950,32 @@ void StmtPrinter::VisitInitListExpr(clang::InitListExpr *Node) {
       //            lists are *giant* and that can cause bad computational
       //            complexity in AlignTokens.
       if (comma_loc) {
-        ctx.MarkLocation(*comma_loc);
+        ctx.MarkLocation(comma_loc.value());
       }
     }
 
-    comma_loc = nullptr;
-    if (auto E = Node->getInit(i)) {
-      PrintExpr(E);
-
-      if (tokens.ast) {
-        if (const TokenImpl *raw_tok = tokens.ast->RawTokenAt(E->getEndLoc())) {
-          for (auto i = 0u; i <= 1u; ++i) {
-            if (raw_tok[i].Kind() == clang::tok::TokenKind::comma) {
-              comma_loc = &(raw_tok[i]);
-              break;
-            }
-          }
-        }
-      }
-
-    } else {
+    comma_loc.reset();
+    auto E = Node->getInit(i);
+    if (!E) {
       OS << "{}";
+      continue;
+    }
+    PrintExpr(E);
+
+    if (!tokens.ast) {
+      continue;
+    }
+
+    auto raw_tok = tokens.ast->ParsedTokenOffset(E->getEndLoc());
+    if (!raw_tok) {
+      continue;
+    }
+
+    for (auto j = 0u; j <= 1u; ++j) {
+      if (tokens.ast->TokenKind(raw_tok.value() + j) == TokenKind::kComma) {
+        comma_loc = raw_tok.value() + j;
+        break;
+      }
     }
   }
   OS << "}";
@@ -2056,11 +2075,10 @@ void StmtPrinter::VisitNoInitExpr(clang::NoInitExpr *Node) {
 void StmtPrinter::VisitImplicitValueInitExpr(clang::ImplicitValueInitExpr *Node) {
   TokenPrinterContext ctx(OS, Node, tokens);
   if (Node->getType()->getAsCXXRecordDecl()) {
-    OS << "/*implicit*/";
     printQualType(Node->getType(), OS, Policy);
     OS << "()";
   } else {
-    OS << "/*implicit*/(";
+    OS << "(";
     printQualType(Node->getType(), OS, Policy);
     OS << ')';
     if (Node->getType()->isRecordType())
@@ -2213,11 +2231,16 @@ void StmtPrinter::VisitCXXNamedCastExpr(clang::CXXNamedCastExpr *Node) {
   TokenPrinterContext ctx(OS, Node, tokens);
   OS << Node->getCastName();
   ctx.MarkLocation(Node->getBeginLoc());
-  OS << '<';
+  OS << " <";
   ctx.MarkLocation(Node->getAngleBrackets().getBegin());
-  printQualType(Node->getTypeAsWritten(), OS, Policy);
-  OS << ">";
+  tokens.TryChangeLastKind(TokenKind::kLess, TokenKind::kLAngle);
+  {
+    TagDefinitionPolicyRAII disable_tags(Policy);
+    printQualType(Node->getTypeAsWritten(), OS, Policy);
+  }
+  OS << " >";
   ctx.MarkLocation(Node->getAngleBrackets().getEnd());
+  tokens.TryChangeLastKind(TokenKind::kGreater, TokenKind::kRAngle);
   OS << "(";
   PrintExpr(Node->getSubExpr());
   OS << ")";
@@ -2289,7 +2312,7 @@ void StmtPrinter::VisitMSPropertyRefExpr(clang::MSPropertyRefExpr *Node) {
     OS << ".";
   if (clang::NestedNameSpecifier *Qualifier =
       Node->getQualifierLoc().getNestedNameSpecifier())
-    Qualifier->print(OS, Policy);
+    NestedNameSpecifier_print(Qualifier, *this, Policy);
   OS << Node->getPropertyDecl()->getDeclName();
   ctx.MarkLocation(Node->getMemberLoc());
 }
@@ -2403,7 +2426,12 @@ void StmtPrinter::VisitCXXFunctionalCastExpr(clang::CXXFunctionalCastExpr *Node)
   // Parenthesize deduced casts.
   if (Bare)
     OS << '(';
-  TargetType.print(OS, Policy);
+
+  {
+    TagDefinitionPolicyRAII disable_tags(Policy);
+    TargetType.print(OS, Policy);
+  }
+
   if (Bare)
     OS << ')';
 
@@ -2748,14 +2776,16 @@ void StmtPrinter::VisitCXXDependentScopeMemberExpr(
     ctx.MarkLocation(Node->getOperatorLoc());
   }
   if (clang::NestedNameSpecifier *Qualifier = Node->getQualifier())
-    Qualifier->print(OS, Policy);
+    NestedNameSpecifier_print(Qualifier, *this, Policy);
   if (Node->hasTemplateKeyword()) {
     OS << "template ";
     ctx.MarkLocation(Node->getTemplateKeywordLoc());
   }
   OS << Node->getMemberNameInfo();
-  if (Node->hasExplicitTemplateArgs())
+  if (Node->hasExplicitTemplateArgs()) {
+    TagDefinitionPolicyRAII disable_tags(Policy);
     printTemplateArgumentList(*this, Node->template_arguments(), Policy);
+  }
 }
 
 void StmtPrinter::VisitUnresolvedMemberExpr(clang::UnresolvedMemberExpr *Node) {
@@ -2766,14 +2796,16 @@ void StmtPrinter::VisitUnresolvedMemberExpr(clang::UnresolvedMemberExpr *Node) {
     ctx.MarkLocation(Node->getOperatorLoc());
   }
   if (clang::NestedNameSpecifier *Qualifier = Node->getQualifier())
-    Qualifier->print(OS, Policy);
+    NestedNameSpecifier_print(Qualifier, *this, Policy);
   if (Node->hasTemplateKeyword()) {
     OS << "template ";
     ctx.MarkLocation(Node->getTemplateKeywordLoc());
   }
   OS << Node->getMemberNameInfo();
-  if (Node->hasExplicitTemplateArgs())
+  if (Node->hasExplicitTemplateArgs()) {
+    TagDefinitionPolicyRAII disable_tags(Policy);
     printTemplateArgumentList(*this, Node->template_arguments(), Policy);
+  }
 }
 
 void StmtPrinter::VisitTypeTraitExpr(clang::TypeTraitExpr *E) {
@@ -2897,6 +2929,8 @@ void StmtPrinter::VisitConceptSpecializationExpr(clang::ConceptSpecializationExp
     ctx.MarkLocation(E->getTemplateKWLoc());
   }
   OS << E->getFoundDecl()->getName();
+
+  TagDefinitionPolicyRAII disable_tags(Policy);
   printTemplateArgumentList(*this,
                             E->getTemplateArgsAsWritten()->arguments(), Policy,
                             E->getNamedConcept()->getTemplateParameters());

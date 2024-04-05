@@ -33,7 +33,41 @@ static const std::string_view kObjCKeywordSpelling[] = {
 #include "clang/Basic/TokenKinds.def"
 };
 
-}  // namespace
+// Strip Byte Offset Marker character from the string if it exists.
+static inline void RemoveBOM(std::string &value) {
+  if (HasBOM(value.c_str(), value.size())) {
+    value.erase(0, 3);
+  }
+}
+
+// Strip carriage returns from the string.
+static inline void RemoveCarriageReturns(std::string &value) {
+  auto it = std::remove(value.begin(), value.end(), '\r');
+  value.erase(it, value.end());
+}
+
+} // namespace
+
+// Check if string has Byte-offset marker
+bool HasBOM(const char *value, size_t size) {
+  if (3 > size) {
+    return false;
+  }
+
+  return ((value[0] & 0xff) == 0xef) &&
+         ((value[1] & 0xff) == 0xbb) &&
+         ((value[2] & 0xff) == 0xbf);
+}
+
+// Sanitize a string for PASTA's use. A lot of code in PASTA relies on the file
+// being formatted as UTF-8.
+void SanitizeString(std::string &data) {
+  if (!llvm::json::isUTF8(data)) {
+    llvm::json::fixUTF8(data).swap(data);
+  }
+  RemoveBOM(data);
+  RemoveCarriageReturns(data);
+}
 
 FileImpl::FileImpl(const std::shared_ptr<FileManagerImpl> &owner_, Stat stat_)
     : owner(owner_),
@@ -82,10 +116,7 @@ Result<std::string_view, std::error_code> File::Data(void) const noexcept {
   if (maybe_file.Succeeded()) {
     maybe_file.TakeValue().swap(impl->data);
 
-    // A lot of code in PASTA relies on the file being formatted as UTF-8.
-    if (!llvm::json::isUTF8(impl->data)) {
-      impl->data = llvm::json::fixUTF8(impl->data);
-    }
+    SanitizeString(impl->data);
 
     // NOTE(pag): We use this extra trailing NUL to help us with location
     //            offsets for EOF tokens.
@@ -141,10 +172,22 @@ FileTokenRange File::Tokens(void) const noexcept {
   }
 }
 
-// Return a token at a specific file offset.
-std::optional<FileToken> File::TokenAtOffset(unsigned offset) const noexcept {
+// Return the Nth token.
+std::optional<FileToken> File::TokenAtIndex(size_t n) const noexcept {
+  std::unique_lock<std::mutex> locker(impl->tokens_lock);
+  const auto num_toks = impl->tokens.size();
+  if (n >= num_toks) {
+    return std::nullopt;
+  }
 
-  FileTokenImpl fake_tok(offset, 0, 0, 0, clang::tok::unknown);
+  return FileToken(impl, &(impl->tokens[n]));
+}
+
+// Return a token at a specific file offset.
+std::optional<FileToken> File::TokenAtOffset(size_t offset) const noexcept {
+
+  FileTokenImpl fake_tok(static_cast<unsigned>(offset), 0, 0, 0,
+                         clang::tok::unknown);
 
   {
     std::unique_lock<std::mutex> locker(impl->tokens_lock);

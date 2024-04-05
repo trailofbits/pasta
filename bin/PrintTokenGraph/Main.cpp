@@ -57,21 +57,35 @@ const char* AttributeKindName(const clang::Attr *attr) {
 }
 
 static void PrintTokenGraph(pasta::Decl tld) {
+
+  // if (auto nd = pasta::NamedDecl::From(tld)) {
+  //   if (nd->Name() != "DomTreeNodeBase") {
+  //     return;
+  //   }
+  // }
+
   pasta::PrintedTokenRange printed_tokens = pasta::PrintedTokenRange::Create(tld);
   pasta::PrintedTokenRange tokens = printed_tokens;
   if (!gShowPrinted) {
-
     if (!tokens) {
       return;  // Probably an implicit decl, e.g. `__int128`.
     }
 
     // Get the range of parsed tokens for this top-level declarations.
     pasta::TokenRange parsed_tokens = tld.Tokens();
+    if (!parsed_tokens) {
+      return;  // Probably an implicit decl, e.g. `__int128`.
+    }
 
     // Make a printed token range out of just the parsed tokens. This excludes
     // intermediate macro tokens. These adopted tokens have mostly empty token
     // context chains.
     tokens = pasta::PrintedTokenRange::Adopt(parsed_tokens);
+
+    // // Useful heuristic to find weird issues in the pretty printer, e.g.
+    // // going off and printing a definition when it should just have the name or
+    // // a declaration.
+    // assert((2 * tokens.Data().size()) > printed_tokens.Data().size());
     
     // Try to "align" the pretty-printed tokens, which come with full token
     // context chains with the adopted tokens, forming a range of parsed tokens

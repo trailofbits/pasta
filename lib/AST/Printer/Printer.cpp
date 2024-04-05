@@ -27,13 +27,27 @@
 #include "../Builder.h"  // For `DeclBuilder`.
 #include "../Token.h"  // For `TokenImpl`.
 
+#include "DeclStmtPrinter.h"
+
 namespace pasta {
+
+#ifndef NDEBUG
+__attribute__((noinline))
+extern "C" void CheckNotOnStack(const void *higher, const void *lower);
+__attribute__((noinline))
+extern "C" void CheckNotOnStack(const void *higher, const void *lower) {
+  asm volatile (""::"m"(higher), "m"(lower):"memory");
+  auto higher_addr = reinterpret_cast<uintptr_t>(higher);
+  auto lower_addr = reinterpret_cast<uintptr_t>(lower);
+  assert(!((higher_addr - lower_addr) < 4096));
+}
+#endif
 
 static void TryLocateAttribute(const clang::Attr *A,
                                PrintedTokenRangeImpl &tokens,
                                size_t old_num_toks) {
   
-  clang::tok::TokenKind opener_kind = clang::tok::unknown;
+  TokenKind opener_kind = TokenKind::kUnknown;
 
   unsigned expected_num_openers = 0u;
   unsigned num_found_openers = 0u;
@@ -46,18 +60,18 @@ static void TryLocateAttribute(const clang::Attr *A,
 
     case clang::AttributeCommonInfo::AS_CXX11:
     case clang::AttributeCommonInfo::AS_C23:
-      opener_kind = clang::tok::l_square;
+      opener_kind = TokenKind::kLSquare;
       expected_num_openers = 2u;
       break;
 
     case clang::AttributeCommonInfo::AS_GNU:
-      opener_kind = clang::tok::l_paren;
+      opener_kind = TokenKind::kLParenthesis;
       expected_num_openers = 2u;
       break;
 
     case clang::AttributeCommonInfo::AS_Declspec:
     case clang::AttributeCommonInfo::AS_Microsoft:
-      opener_kind = clang::tok::l_paren;
+      opener_kind = TokenKind::kLParenthesis;
       expected_num_openers = 1u;
       break;
 
@@ -77,10 +91,12 @@ static void TryLocateAttribute(const clang::Attr *A,
   // something that is "inside" of the attribute, e.g. `nonnull` in
   // `__attribute__((nonnull))`.
   clang::SourceLocation loc = A->getLocation();
-  const TokenImpl *parsed_tok = tokens.ast->RawTokenAt(loc);
-  if (!parsed_tok) {
+  auto maybe_parsed_tok = tokens.ast->ParsedTokenOffset(loc);
+  if (!maybe_parsed_tok) {
     return;
   }
+
+  DerivedTokenIndex parsed_tok = maybe_parsed_tok.value();
 
   // Go look for the printed attribute keyword token in the most recently
   // printed tokens, storing the discovered keyword token in `attr_tok`. If we
@@ -89,25 +105,25 @@ static void TryLocateAttribute(const clang::Attr *A,
   PrintedTokenImpl *opener_toks[2u] = {};
   for (size_t i = old_num_toks; i < max_i; ++i) {
     PrintedTokenImpl &tok = tokens.tokens[i];
-    clang::tok::TokenKind kind = tok.Kind();
+    TokenKind kind = tok.kind;
 
     // Look for the keyword.
     switch (kind) {
-      case clang::tok::kw___attribute:
-      case clang::tok::kw___declspec:
-      case clang::tok::kw_asm:
-      case clang::tok::kw___ptr32:
-      case clang::tok::kw___ptr64:
-      case clang::tok::kw___fastcall:
-      case clang::tok::kw___stdcall:
-      case clang::tok::kw___thiscall:
-      case clang::tok::kw___vectorcall:
-      case clang::tok::kw___cdecl:
-      case clang::tok::kw___forceinline:  // Maybe.
-      case clang::tok::kw__Nonnull:
-      case clang::tok::kw__Nullable:
-      case clang::tok::kw__Null_unspecified:
-      case clang::tok::kw__Nullable_result:
+      case TokenKind::kKeyword__Attribute:
+      case TokenKind::kKeyword__Declspec:
+      case TokenKind::kKeywordAssembly:
+      case TokenKind::kKeyword__Ptr32:
+      case TokenKind::kKeyword__Ptr64:
+      case TokenKind::kKeyword__Fastcall:
+      case TokenKind::kKeyword__Stdcall:
+      case TokenKind::kKeyword__Thiscall:
+      case TokenKind::kKeyword__Vectorcall:
+      case TokenKind::kKeyword__Cdecl:
+      case TokenKind::kKeyword__Forceinline:  // Maybe.
+      case TokenKind::kKeyword_Nonnull:
+      case TokenKind::kKeyword_Nullable:
+      case TokenKind::kKeyword_NullUnspecified:
+      case TokenKind::kKeyword_NullableResult:
         attr_tok = &tok;
         break;
       default:
@@ -118,8 +134,8 @@ static void TryLocateAttribute(const clang::Attr *A,
     // we can match the actual attribute (e.g. `nonnull` above).
     if (num_found_openers >= expected_num_openers) {
       if (tok.derived_index == kInvalidDerivedTokenIndex &&
-          (kind == clang::tok::identifier ||
-           kind == clang::tok::raw_identifier)) {
+          (kind == TokenKind::kIdentifier ||
+           kind == TokenKind::kRawIdentifier)) {
         llvm::StringRef data(tok.Data(tokens));
 
         // TODO(pag): uuid, guid?
@@ -140,57 +156,50 @@ static void TryLocateAttribute(const clang::Attr *A,
     return;
   }
 
-  // Starting at where we have found the attribute in the parsed tokens, use a
-  // fudge factor to scan backwards through the parsed tokens and match the
-  // keyword itself.
-  const TokenImpl *first_parsed_tok = tokens.ast->tokens.data();
-
   // Limiter used to prevent us from going too far once we've matched either
   // a keyword or an opener.
   auto fudge = ~0ull;
 
   // Try to find the location of `__attribute__`, `__asm`, etc.
-  for (; first_parsed_tok < parsed_tok && fudge &&
-         (attr_tok || num_found_openers); --parsed_tok) {
-    if (!parsed_tok->IsParsed()) {
-      continue;
-    }
+  for (; parsed_tok && fudge && (attr_tok || num_found_openers); --parsed_tok) {
 
     --fudge;
 
     // Match an opener.
-    auto tok_kind = parsed_tok->Kind();
+    auto tok_kind = tokens.ast->TokenKind(parsed_tok);
     if (tok_kind == opener_kind && num_found_openers) {
-      tokens.MarkLocation(*opener_toks[--num_found_openers], *parsed_tok);
+      tokens.MarkLocation(*opener_toks[--num_found_openers], parsed_tok);
       fudge = 32u;
     }
 
-    if (attr_tok && tok_kind == attr_tok->Kind()) {
-      tokens.MarkLocation(*attr_tok, *parsed_tok);
+    if (attr_tok && tok_kind == attr_tok->kind) {
+      tokens.MarkLocation(*attr_tok, parsed_tok);
       fudge = 32u;
       attr_tok = nullptr;
     }
   }
 }
 
-// Undo raw newlines and other things in strings.
-static void ReEscapeOutput(raw_string_ostream &Out, std::string a) {
-  for (char c : a) {
-    switch (c) {
-      case '\n':
-        Out << "\\n";
-        break;
-      case '\r':
-        Out << "\\r";
-        break;
-      case '\t':
-        Out << "\\t";
-        break;
-      default:
-        Out << c;
-        break;
-    }
-  }
+PrintHelper::~PrintHelper(void) {}
+
+bool PrintHelper::handledStmt(clang::Stmt *E, clang::raw_ostream &OS_) {
+  assert(&OS_ == &OS);
+  (void) OS_;
+
+  StmtPrinter stmtPrinter(OS, nullptr, tokens, policy, 0, "\n",
+                          &(tokens.ast_context));
+  stmtPrinter.Visit(E);
+  return true;
+}
+
+bool PrintHelper::handleType(
+    const clang::QualType &type, clang::raw_ostream &OS_) {
+  assert(&OS_ == &OS);
+  (void) OS_;
+
+  TagDefinitionPolicyRAII disable_tags(policy);
+  TypePrinter(OS, policy, tokens, 0).print(type, "");
+  return true;
 }
 
 // Clang's code for printing attributes doesn't escape nested double quotes in
@@ -207,71 +216,30 @@ void PrintAttribute(raw_string_ostream &Out, const clang::Attr *A,
     return;
   }
 
-  std::string a;
-  std::string new_a;
-  {
-    llvm::raw_string_ostream os(a);
-    A->printPretty(os, Policy);
-    os.flush();
+  // If this attribute came from a pragma, then don't pretty print it.
+  if (tokens.ast) {
+    if (auto loc = tokens.ast->RawTokenAt(A->getLocation())) {
+      if (loc.IsInPragmaDirective()) {
+        return;
+      }
+    }
   }
 
   tokens.curr_printer_context->Tokenize();
-  const size_t old_num_toks = tokens.tokens.size();
+  auto old_num_toks = tokens.tokens.size();
 
-  // Fast path: no embedded strings.
-  const char *start = a.c_str();
-  const char *first_quote = strchr(start, '"');
-  if (!first_quote || first_quote[0] != '"') {
+  PrintHelper helper(Out, Policy, tokens);
+
+  {
     TokenPrinterContext ctx(Out, A, tokens);
-    ReEscapeOutput(Out, std::move(a));
-    Out.flush();
-
-    tokens.curr_printer_context->Tokenize();
-    TryLocateAttribute(A, tokens, old_num_toks);
-    return;
+    clang::Attr::SetPrinterHelper(&helper);
+    A->printPretty(Out, Policy);
+    clang::Attr::SetPrinterHelper(nullptr);
   }
-
-  auto end = &(start[a.size()]);
-  auto second_quote = strchr(&(first_quote[1]), '"');
-  assert(second_quote && second_quote[0] == '"');
-  auto third_quote = strchr(&(second_quote[1]), '"');
-
-  // If there is no third quote, then assume no nesting. This is a dumb
-  // hack to handle things like `asm("label")`.
-  if (!third_quote || third_quote[0] != '"') {
-    TokenPrinterContext ctx(Out, A, tokens);
-    ReEscapeOutput(Out, std::move(a));
-    Out.flush();
-
-    tokens.curr_printer_context->Tokenize();
-    TryLocateAttribute(A, tokens, old_num_toks);
-    return;
-  }
-
-  // TODO(pag): This won't handle doubly/triply nested quotes. Just single
-  //            nested quotes.
-  new_a.reserve(a.size());
-  while (second_quote && strchr(&(second_quote[1]), '"')) {
-    new_a.insert(new_a.end(), start, second_quote);
-    new_a.push_back('\\');
-    new_a.push_back('"');
-    start = &(second_quote[1]);
-    second_quote = strchr(&(start[1]), '"');
-  }
-
-  if (second_quote) {
-    new_a.insert(new_a.end(), second_quote, end);
-
-  } else if (start) {
-    new_a.insert(new_a.end(), start, end);
-  }
-
-  TokenPrinterContext ctx(Out, A, tokens);
-  ReEscapeOutput(Out, std::move(new_a));
-  Out.flush();
 
   tokens.curr_printer_context->Tokenize();
   TryLocateAttribute(A, tokens, old_num_toks);
+  return;
 }
 
 PrintedToken::~PrintedToken(void) {}
@@ -280,10 +248,13 @@ PrintedToken::~PrintedToken(void) {}
 std::optional<Token> PrintedToken::DerivedLocation(void) const {
   if (!impl || !range->ast ||
       impl->derived_index == kInvalidDerivedTokenIndex ||
-      impl->derived_index >= range->ast->tokens.size()) {
+      impl->derived_index >= range->ast->parsed_tokens.size()) {
     return std::nullopt;
   }
-  return Token(range->ast, &(range->ast->tokens[impl->derived_index]));
+  return Token(
+      std::shared_ptr<ParsedTokenStorage>(
+          range->ast, &(range->ast->parsed_tokens)),
+      impl->derived_index);
 }
 
 // Return the data associated with this token.
@@ -298,19 +269,9 @@ std::string_view PrintedToken::Data(void) const {
 // Kind of this token.
 TokenKind PrintedToken::Kind(void) const {
   if (impl) {
-    return static_cast<TokenKind>(impl->Kind());
+    return static_cast<TokenKind>(impl->kind);
   }
   return TokenKind::kUnknown;
-}
-
-// Number of leading new lines (before any indentation spaces).
-unsigned PrintedToken::NumLeadingNewLines(void) const {
-  return impl->num_leading_new_lines;
-}
-
-// Number of leading spaces (after any leading new lines).
-unsigned PrintedToken::NumLeadingSpaces(void) const {
-  return impl->num_leading_spaces;
 }
 
 // Return the index of this token in its token range.
@@ -425,14 +386,19 @@ void PrintedTokenRangeImpl::FixupInvalidTokenContexts(TokenContextIndex index) {
 }
 
 void PrintedTokenRangeImpl::AddTrailingEOF(void) {
-  if (tokens.empty() || tokens.back().Kind() != clang::tok::eof) {
+  if (tokens.empty() || tokens.back().kind != TokenKind::kEndOfFile) {
+
     tokens.emplace_back(
         0u  /* data_offset */,
         0u  /* data_len */,
         kInvalidTokenContextIndex,
-        0u  /* num_leading_new_lines */,
-        0u  /* num_leading_spaces */,
-        clang::tok::eof);
+        TokenKind::kEndOfFile);
+
+    if (!data.empty() && data.back() == ' ') {
+      data.back() = '\0';
+    } else {
+      data.push_back('\0');
+    }
   }
 }
 
@@ -490,38 +456,6 @@ const TokenContextIndex PrintedTokenRangeImpl::CreateAlias(
   return index;
 }
 
-namespace {
-
-static std::tuple<unsigned, unsigned, unsigned> SkipWhitespace(
-    const std::string &data, unsigned i) {
-  unsigned num_leading_spaces = 0;
-  unsigned num_leading_lines = 0;
-
-  for (const auto size = data.size(); i < size; ++i) {
-    switch (data[i]) {
-      case '\t':
-        num_leading_spaces += 4;
-        continue;
-      case ' ':
-        num_leading_spaces += 1;
-        continue;
-      case '\r':
-        continue;
-      case '\n':
-        num_leading_spaces = 0;
-        num_leading_lines += 1;
-        break;
-      case '\\':
-        return {num_leading_lines, num_leading_spaces, i};
-      default:
-        return {num_leading_lines, num_leading_spaces, i};
-    }
-  }
-  return {num_leading_lines, num_leading_spaces, i};
-}
-
-}  // namespace
-
 TokenPrinterContext::TokenPrinterContext(
     const TokenPrinterContext &that_, no_alias_tag)
     : out(that_.out),
@@ -564,37 +498,27 @@ void TokenPrinterContext::Tokenize(void) {
   clang::Lexer lexer(
       clang::SourceLocation(),
       lo,
-      &(token_data[0]),
-      &(token_data[0]),
-      &(token_data[0]) + token_data.size());
+      token_data.data(),
+      token_data.data(),
+      token_data.data() + token_data.size());
 
   lexer.SetKeepWhitespaceMode(false);
   lexer.SetCommentRetentionState(false);
 
   clang::Token tok;
 
-  unsigned num_nl = 0u;
-  unsigned num_sp = 0u;
   unsigned i = 0u;
 
   for (auto size = token_data.size(); i < size; ) {
-    unsigned last_i = i;
-    std::tie(num_nl, num_sp, i) = SkipWhitespace(token_data, i);
     if (i >= size) {
       break;
     }
 
-    lexer.seek(last_i, false);
-    last_i = i;
+    lexer.seek(i, false);
 
     const auto at_end = lexer.LexFromRawLexer(tok);
     if (tok.is(clang::tok::eof)) {
       break;
-    }
-
-    if (tok.isOneOf(clang::tok::semi, clang::tok::comma)) {
-      num_nl = 0;
-      num_sp = 0;
     }
 
     // Try to identify keywords where possible.
@@ -610,27 +534,60 @@ void TokenPrinterContext::Tokenize(void) {
     }
 
     const auto data_offset = static_cast<TokenDataIndex>(tokens.data.size());
-    assert(0ll <= static_cast<TokenDataOffset>(data_offset));
-    uint32_t data_len = 0u;
-    tokens.data.reserve(data_offset + tok.getLength());
-    for (last_i = i, i += tok.getLength(); last_i < i && token_data[last_i];
-        ++last_i) {
-      tokens.data.push_back(token_data[last_i]);
-      ++data_len;
-      assert(static_cast<uint32_t>(data_len & TokenImpl::kTokenSizeMask) != 0u);
+    const auto tok_len = tok.getLength();
+    tokens.data.reserve(data_offset + tok_len);
+    bool seen_data = false;
+
+    for (auto j = 0u; i < size && j < tok_len; ++i) {
+      
+      // Skip leading whitespace.
+      if (!seen_data) {
+        switch (token_data[i]) {
+          case ' ':
+          case '\r':
+          case '\n':
+          case '\t':
+          case '\0':
+          case '\\':
+            continue;
+          default:
+            seen_data = true;
+            break;
+        }
+      }
+
+      ++j;
+      tokens.data.push_back(token_data[i]);
     }
-    tokens.data.push_back('\0');  // Make sure all tokens end up NUL-terminated.
+
+    if (seen_data) {
+      SkipTrailingWhitespace(tokens.data);
+    }
+
+    const auto data_len = tokens.data.size() - data_offset;
+    assert(0u < data_len);
+    assert(data_len <= tok.getLength());
+    tokens.data.push_back(' ');
+
+    // Migrate all kinds to `identifier` now that we've got the data.
+    if (tok.is(clang::tok::raw_identifier)) {
+      tok.setKind(clang::tok::identifier);
+    }
+
+    // NOTE(pag): This can be a good heuristic to detect when qualifier printing
+    //            goes into clang and prints template declarations inside of
+    //            template argument lists. At the same time, this also ends up
+    //            triggering on template template parameters.
+    // if (tok.getKind() == clang::tok::kw_template) {
+    //   assert(tokens.tokens.empty() ||
+    //          (tokens.tokens.back().kind != TokenKind::kLess));
+    // }
 
     // Add the token in.
     tokens.tokens.emplace_back(
         static_cast<TokenDataOffset>(data_offset),
-        static_cast<uint32_t>(data_len),
-        context_index, num_nl, num_sp, tok.getKind());
-
-    // Reset so that if there is no whitespace afte the last token, then we
-    // don't randomly add in trailing whitespace.
-    num_nl = 0;
-    num_sp = 0;
+        static_cast<uint32_t>(data_len), context_index,
+        static_cast<TokenKind>(tok.getKind()));
 
     if (at_end) {
       break;
@@ -639,33 +596,41 @@ void TokenPrinterContext::Tokenize(void) {
 
   // Clear out so future streaming just re-fills.
   token_data.clear();
+}
 
-  // We only track spaces before a token, but there might be trailing whitespace
-  // after a token that needs to get picked up by the next call to `Tokenize`,
-  // so re-introduce the whitespace here.
-  for (i = 0u; i < num_nl; ++i) {
-    token_data.push_back('\n');
+void PrintedTokenRangeImpl::TryChangeLastKind(TokenKind old, TokenKind new_) {
+  curr_printer_context->Tokenize();
+  for (auto size = tokens.size(); size; --size) {
+    if (tokens[size - 1u].kind == TokenKind::kUnknown) {
+      continue;  // Skip whitespace.
+    
+    } else if (tokens[size - 1u].kind == old) {
+      tokens[size - 1u].kind = new_;
+      return;
+    }
   }
-
-  for (i = 0u; i < num_sp; ++i) {
-    token_data.push_back(' ');
-  }
+  
+  assert(false);
 }
 
 void PrintedTokenRangeImpl::MarkLocation(PrintedTokenImpl &printed,
-                                         const TokenImpl &parsed) {
-  printed.derived_index =
-      static_cast<DerivedTokenIndex>(&parsed - ast->tokens.data());
+                                         DerivedTokenIndex parsed) {
+  curr_printer_context->Tokenize();
+  printed.derived_index = parsed;
 }
 
 void PrintedTokenRangeImpl::MarkLocation(
-    size_t printed_tok_index, const TokenImpl &parsed) {
+    size_t printed_tok_index, DerivedTokenIndex parsed) {
+  curr_printer_context->Tokenize();
   assert(printed_tok_index < tokens.size());
-  MarkLocation(tokens[printed_tok_index], parsed);
+  tokens[printed_tok_index].derived_index = parsed;
 }
 
-void PrintedTokenRangeImpl::MarkLocation(size_t tok_index,
-                                         const clang::SourceLocation &loc) {
+void PrintedTokenRangeImpl::MarkLocation(
+    size_t printed_tok_index, const clang::SourceLocation &loc) {
+  curr_printer_context->Tokenize();
+  assert(printed_tok_index < tokens.size());
+
   if (!loc.isValid()) {
     return;
   }
@@ -673,15 +638,12 @@ void PrintedTokenRangeImpl::MarkLocation(size_t tok_index,
   // Go figure it out from the AST. We need to go through a lot of indirection
   // because the source locations inside of the parsed AST relate to a huge
   // in-memory file where each post-preprocessed token is on its own line.
-  if (ast) {
-    if (const TokenImpl *raw_tok = ast->RawTokenAt(loc)) {
-      MarkLocation(tok_index, *raw_tok);
-    }
+  if (!ast) {
+    return;
+  }
 
-  // We don't have an `ASTImpl`, so we'll assume that `loc` is a "real" source
-  // location and not our weird indirect kind.
-  } else {
-    tokens[tok_index].opaque_source_loc = loc.getRawEncoding();
+  if (auto parsed = ast->ParsedTokenOffset(loc)) {
+    tokens[printed_tok_index].derived_index = parsed.value();
   }
 }
 
@@ -693,10 +655,10 @@ void TokenPrinterContext::MarkLocation(clang::SourceLocation loc) {
 }
 
 // Mark the last printed token as having the same location as `tok`.
-void TokenPrinterContext::MarkLocation(const TokenImpl &tok) {
+void TokenPrinterContext::MarkLocation(DerivedTokenIndex parsed) {
   Tokenize();
   if (auto num_tokens = tokens.tokens.size()) {
-    tokens.MarkLocation(num_tokens - 1u, tok);
+    tokens.MarkLocation(num_tokens - 1u, parsed);
   }
 }
 
@@ -706,6 +668,14 @@ TokenPrinterContext::~TokenPrinterContext(void) {
   if (owns_data) {
     tokens.data_to_index.erase(owns_data);
   }
+}
+
+// Create an empty range.
+PrintedTokenRange PrintedTokenRange::CreateEmpty(const AST &ast) {
+  auto &context = ast.impl->tu->getASTContext();
+  auto tokens = std::make_shared<PrintedTokenRangeImpl>(context);
+  tokens->AddTrailingEOF();
+  return PrintedTokenRangeImpl::ToPrintedTokenRange(std::move(tokens));
 }
 
 // More typical APIs when we've got PASTA ASTs.
@@ -738,6 +708,17 @@ PrintedTokenRange PrintedTokenRange::Create(
 // Number of tokens in this range.
 size_t PrintedTokenRange::Size(void) const noexcept {
   return first < after_last ? static_cast<size_t>(after_last - first) : 0;
+}
+
+std::string_view PrintedTokenRange::Data(void) const noexcept {
+  if (first >= after_last) {
+    return "";
+  }
+
+  auto begin_offset = first->data_offset;
+  auto end_offset = after_last[-1].data_offset + after_last[-1].data_len;
+  std::string_view all_data(impl->data);
+  return all_data.substr(begin_offset, end_offset - begin_offset);
 }
 
 // Return the `index`th token in this range. If `index` is too big, then
@@ -801,7 +782,7 @@ std::optional<PrintedTokenRange> PrintedTokenRange::Concatenate(
   context_map.assign(a.impl->contexts.size(), kInvalidTokenContextIndex);
 
   for (auto a_tok = a.first; a_tok < a.after_last; ++a_tok) {
-    if (a_tok->Kind() != clang::tok::eof) {
+    if (a_tok->kind != TokenKind::kEndOfFile) {
       PrintedTokenImpl &new_tok = new_impl->tokens.emplace_back(*a_tok);
       new_tok.matched_in_align = false;
       new_tok.context_index = MigrateContexts(
@@ -814,7 +795,7 @@ std::optional<PrintedTokenRange> PrintedTokenRange::Concatenate(
 
   auto a_data_size = static_cast<TokenDataOffset>(a.impl->data.size());
   for (auto b_tok = b.first; b_tok < b.after_last; ++b_tok) {
-    if (b_tok->Kind() != clang::tok::eof) {
+    if (b_tok->kind != TokenKind::kEndOfFile) {
       PrintedTokenImpl &new_tok = new_impl->tokens.emplace_back(*b_tok);
       new_tok.matched_in_align = false;
       new_tok.data_offset += a_data_size;
@@ -840,18 +821,371 @@ static bool IsParsedToken(const pasta::Token &tok) {
   }
 }
 
+namespace {
+
+static std::optional<DerivedTokenIndex> LeadingWhitespaceTokenOffset(
+    const ParsedTokenStorage &tokens, DerivedTokenIndex offset) {
+  std::optional<DerivedTokenIndex> min_found;
+  while (offset) {
+    switch (tokens.Role(--offset)) {
+      case TokenRole::kBeginOfFileMarker:
+      case TokenRole::kEndOfFileMarker:
+      case TokenRole::kEndOfMacroExpansionMarker:
+      case TokenRole::kMacroDirectiveMarker:
+        return min_found;
+      case TokenRole::kInitialMacroUseToken:
+      case TokenRole::kIntermediateMacroExpansionToken:
+        assert(false);
+        continue;
+      case TokenRole::kFinalMacroExpansionToken:
+      case TokenRole::kFileToken:
+        break;
+      case TokenRole::kInvalid:
+      case TokenRole::kBeginOfMacroExpansionMarker:
+        continue;
+    }
+
+    switch (tokens.Kind(offset)) {
+      case TokenKind::kUnknown:
+      case TokenKind::kComment:
+        min_found = offset;
+        continue;
+      default:
+        return min_found;
+    }
+  }
+
+  return min_found;
+}
+
+
+static std::optional<DerivedTokenIndex> TrailingWhitespaceTokenOffset(
+    const ParsedTokenStorage &tokens, DerivedTokenIndex offset) {
+  std::optional<DerivedTokenIndex> min_found;
+  auto size = tokens.size();
+  while ((offset + 1u) < size) {
+    switch (tokens.Role(++offset)) {
+      case TokenRole::kBeginOfFileMarker:
+      case TokenRole::kEndOfFileMarker:
+      case TokenRole::kBeginOfMacroExpansionMarker:
+      case TokenRole::kEndOfMacroExpansionMarker:
+      case TokenRole::kMacroDirectiveMarker:
+        return min_found;
+      case TokenRole::kInitialMacroUseToken:
+      case TokenRole::kIntermediateMacroExpansionToken:
+        assert(false);
+        continue;
+      case TokenRole::kFinalMacroExpansionToken:
+      case TokenRole::kFileToken:
+        break;
+      case TokenRole::kInvalid:
+        continue;
+    }
+
+    switch (tokens.Kind(offset)) {
+      case TokenKind::kUnknown:
+      case TokenKind::kComment:
+        min_found = offset;
+        continue;
+      default:
+        return min_found;
+    }
+  }
+
+  return min_found;
+}
+
+static bool IsIdentifierLike(TokenKind prev) {
+  if (prev == TokenKind::kIdentifier) {
+    return true;
+  } else if (prev == TokenKind::kLAngle || prev == TokenKind::kRAngle) {
+    return false;
+  } else {
+    return !!clang::tok::getKeywordSpelling(
+        static_cast<clang::tok::TokenKind>(prev));
+  }
+}
+
+static bool IsPunctuation(TokenKind prev) {
+  if (prev == TokenKind::kLAngle || prev == TokenKind::kRAngle) {
+    return true;
+  } else {
+    return !!clang::tok::getPunctuatorSpelling(
+        static_cast<clang::tok::TokenKind>(prev));
+  }
+}
+
+static char AddWhitespaceBetween(TokenKind prev, TokenKind next) {
+  if (prev == TokenKind::kUnknown || prev == TokenKind::kComment) {
+    return false;
+  }
+
+  if (next == TokenKind::kUnknown || next == TokenKind::kComment) {
+    return false;
+  }
+
+  if (prev == TokenKind::kColon ||
+      prev == TokenKind::kComma ||
+      prev == TokenKind::kSemi) {
+    return true;
+  }
+
+  auto prev_is_ident = IsIdentifierLike(prev);
+  auto next_is_ident = IsIdentifierLike(next);
+
+  if (prev_is_ident && next_is_ident) {
+    return true;
+  }
+
+  auto prev_is_punc = IsPunctuation(prev);
+  if (prev_is_punc && next_is_ident) {
+    return prev != TokenKind::kColonColon &&
+           prev != TokenKind::kLAngle &&
+           prev != TokenKind::kLParenthesis &&
+           prev != TokenKind::kLSquare;
+  }
+
+  auto next_is_punc = IsPunctuation(next);
+  if (prev_is_ident && next_is_punc) {
+    return next != TokenKind::kColonColon &&
+           next != TokenKind::kLAngle &&
+           next != TokenKind::kRAngle &&
+           next != TokenKind::kLParenthesis &&
+           next != TokenKind::kRParenthesis &&
+           next != TokenKind::kLSquare &&
+           next != TokenKind::kRSquare &&
+           next != TokenKind::kSemi &&
+           next != TokenKind::kColon &&
+           next != TokenKind::kComma;
+  }
+
+  return prev_is_punc && next == TokenKind::kLBrace;
+}
+
+}  // namespace
+
+// Create a new printed token range from `wants_ws` and `has_ws`, where
+// `wants_ws` and `has_ws` share derived token locations, and we want to
+// import whitespace from `has_ws` into places where it's missing in
+// `wants_ws`, but without chaning `wants_ws`.
+PrintedTokenRange PrintedTokenRange::AdoptWhitespace(
+    const PrintedTokenRange &wants_ws, const PrintedTokenRange &has_ws) {
+  
+  if (!wants_ws.impl->ast || !has_ws.impl->ast ||
+      &(wants_ws.impl->ast_context) != &(has_ws.impl->ast_context)) {
+    return wants_ws;
+  }
+
+  const ParsedTokenStorage &parsed_tokens = has_ws.impl->ast->parsed_tokens;
+
+  // Create a map of token indices to offsets of the earlier whitespace/comment
+  // preceding that token index, where there are no intermediate things that
+  // shouldn't be injected.
+  std::unordered_map<DerivedTokenIndex, DerivedTokenIndex> leading_ws;
+  std::unordered_map<DerivedTokenIndex, DerivedTokenIndex> trailing_ws;
+
+  auto first = true;
+  for (const auto &has_ws_tok : has_ws.impl->tokens) {
+    if (has_ws_tok.derived_index == kInvalidDerivedTokenIndex) {
+      continue;
+    }
+
+    if (has_ws_tok.kind == TokenKind::kComment ||
+        has_ws_tok.kind == TokenKind::kUnknown) {
+      continue;
+    }
+
+    auto offset = TrailingWhitespaceTokenOffset(
+        parsed_tokens, has_ws_tok.derived_index);
+    if (offset) {
+      trailing_ws.emplace(has_ws_tok.derived_index, offset.value());
+    }
+
+    if (first) {
+      first = false;
+      continue;
+    }
+
+    offset = LeadingWhitespaceTokenOffset(
+        parsed_tokens, has_ws_tok.derived_index);
+    if (offset) {
+      leading_ws.emplace(has_ws_tok.derived_index, offset.value());
+    }
+  }
+
+  // We won't succeed at injecting any leading whitespace because we don't know
+  // of any.
+  if (leading_ws.empty() && trailing_ws.empty()) {
+    return wants_ws;
+  }
+
+  auto new_impl = std::make_shared<PrintedTokenRangeImpl>(
+      has_ws.impl->ast->ci->getASTContext());
+  new_impl->ast = has_ws.impl->ast;
+  new_impl->tokens.reserve(std::max(wants_ws.Size(), has_ws.Size()) + 1u);
+  new_impl->data.reserve(
+      std::max(wants_ws.Data().size(), has_ws.Data().size()) + 1u);
+
+  std::unordered_multimap<const void *, TokenContextIndex> data_to_context;
+
+  // Top-level context should be the AST.
+  if (new_impl->ast) {
+    new_impl->contexts.emplace_back(*(new_impl->ast));
+    data_to_context.emplace(new_impl->ast.get(), kASTTokenContextIndex);
+  }
+
+  std::vector<TokenContextIndex> context_map;
+  context_map.assign(
+      wants_ws.impl->contexts.size() + has_ws.impl->contexts.size(),
+      kInvalidTokenContextIndex);
+
+  // Get the first leading whitespace.
+  for (const auto &has_ws_tok : has_ws.impl->tokens) {
+    if (has_ws_tok.kind != TokenKind::kComment &&
+        has_ws_tok.kind != TokenKind::kUnknown) {
+      break;
+    }
+
+    if (has_ws_tok.derived_index == kInvalidDerivedTokenIndex) {
+      break;
+    }
+
+    auto new_context_index = MigrateContexts(
+        has_ws_tok.context_index, has_ws.impl->contexts,
+        new_impl->contexts, data_to_context, context_map);
+
+    auto data = has_ws_tok.Data(*(has_ws.impl));
+    auto &new_tok = new_impl->tokens.emplace_back(
+        static_cast<uint32_t>(new_impl->data.size()),
+        static_cast<uint32_t>(data.size()),
+        new_context_index, has_ws_tok.kind);
+    new_tok.derived_index = has_ws_tok.derived_index;
+    new_impl->data.insert(new_impl->data.end(), data.begin(), data.end());
+  }
+
+  auto add_ws_tok = [&] (auto new_context_index, auto ws_offset) {
+    switch (parsed_tokens.Role(ws_offset)) {
+      case TokenRole::kFileToken:
+      case TokenRole::kFinalMacroExpansionToken:
+        break;
+      default:
+        return;
+    }
+
+    // TODO(pag): Double check what the last non-whitespace token kind was,
+    //            e.g. a `,` or `;` or a `)` or a `}` means we should look
+    //            at the context parent.
+    auto ci = new_impl->tokens.empty() ? new_context_index :
+              new_impl->tokens.back().context_index;
+
+    auto data = parsed_tokens.Data(ws_offset);
+    auto &new_tok = new_impl->tokens.emplace_back(
+        static_cast<uint32_t>(new_impl->data.size()),
+        static_cast<uint32_t>(data.size()),
+        ci, parsed_tokens.Kind(ws_offset));
+    new_tok.derived_index = ws_offset;
+    new_impl->data.insert(new_impl->data.end(), data.begin(), data.end());
+  };
+
+  // Keep track of what the next non-whitespace derived token is in `wants_ws`.
+  // We don't want to double add whitespace with `leading_ws` before the next
+  // thing and `trailing_ws` after the previous thing.
+  std::unordered_map<DerivedTokenIndex, DerivedTokenIndex> succ_toks;
+  DerivedTokenIndex prev_index = kInvalidDerivedTokenIndex;
+  for (const auto &wants_ws_tok : wants_ws.impl->tokens) {
+    if (wants_ws_tok.kind == TokenKind::kComment ||
+        wants_ws_tok.kind == TokenKind::kUnknown ||
+        wants_ws_tok.kind == TokenKind::kEndOfFile ||
+        wants_ws_tok.derived_index == kInvalidDerivedTokenIndex) {
+      continue;
+    }
+
+    if (prev_index != kInvalidDerivedTokenIndex) {
+      succ_toks.emplace(prev_index, wants_ws_tok.derived_index);
+    }
+
+    prev_index = wants_ws_tok.derived_index;
+  }
+
+  // Now bring in the normal tokens.
+  for (const auto &wants_ws_tok : wants_ws.impl->tokens) {
+    
+    // Strip existing whitespace to make comparison logic easier.
+    if (wants_ws_tok.kind == TokenKind::kComment ||
+        wants_ws_tok.kind == TokenKind::kUnknown ||
+        wants_ws_tok.kind == TokenKind::kEndOfFile) {
+      continue;
+    }
+
+    auto new_context_index = MigrateContexts(
+        wants_ws_tok.context_index, wants_ws.impl->contexts,
+        new_impl->contexts, data_to_context, context_map);
+
+    // Add in the leading whitespace/comments.
+    auto it = leading_ws.find(wants_ws_tok.derived_index);
+    if (it != leading_ws.end()) {
+      
+      for (auto ws_offset = it->second; ws_offset < wants_ws_tok.derived_index;
+           ++ws_offset) {
+        add_ws_tok(new_context_index, ws_offset);
+      }
+    
+    } else if (new_impl->tokens.empty()) {
+
+    } else if (it = trailing_ws.find(new_impl->tokens.back().derived_index);
+               it != trailing_ws.end()) {
+
+      auto derived_index = new_impl->tokens.back().derived_index;
+
+      // Go check to see if the next parsed token will have leading whitespace.
+      // This is a not quite right
+      auto succ_it = succ_toks.find(derived_index);
+      if (succ_it == succ_toks.end() ||
+          leading_ws.find(succ_it->second) == leading_ws.end() ||
+          leading_ws.find(succ_it->second)->second > (derived_index + 1u)) {
+        
+        for (auto ws_offset = new_impl->tokens.back().derived_index + 1u;
+             ws_offset <= it->second; ++ws_offset) {
+          add_ws_tok(new_context_index, ws_offset);
+        }
+      }
+    }
+
+    // Try to inject fake whitespace.
+    auto last_kind = new_impl->tokens.empty() ? TokenKind::kUnknown :
+                     new_impl->tokens.back().kind;
+    if (AddWhitespaceBetween(last_kind, wants_ws_tok.kind)) {
+      new_impl->tokens.emplace_back(
+          static_cast<uint32_t>(new_impl->data.size()), 1u, new_context_index,
+          TokenKind::kUnknown);
+      new_impl->data.push_back(' ');
+    }
+
+    // Add in the original token.
+    auto data = wants_ws_tok.Data(*(wants_ws.impl));
+    auto &new_tok = new_impl->tokens.emplace_back(
+        static_cast<uint32_t>(new_impl->data.size()),
+        static_cast<uint32_t>(data.size()), new_context_index,
+        wants_ws_tok.kind);
+    new_tok.derived_index = wants_ws_tok.derived_index;
+    new_impl->data.insert(new_impl->data.end(), data.begin(), data.end());
+  }
+
+  new_impl->AddTrailingEOF();
+  return PrintedTokenRangeImpl::ToPrintedTokenRange(std::move(new_impl));
+}
+
 // Create a new printed token range, where the token data is taken from `a`.
 // The only token contexts in an adopted range are AST contexts. The only tokens
 // in a printed token range are file tokens and complete macro expansion tokens.
 PrintedTokenRange PrintedTokenRange::Adopt(const TokenRange &a) {
   
   auto new_impl = std::make_shared<PrintedTokenRangeImpl>(
-      a.ast->ci->getASTContext());
-  new_impl->ast = a.ast;
+      a.storage->ast->ci->getASTContext());
+  new_impl->ast = std::shared_ptr<ASTImpl>(a.storage, a.storage->ast);
   new_impl->tokens.reserve(a.Size() + 1u);
   new_impl->contexts.emplace_back(*(new_impl->ast));  // AST context.
 
-  auto num_leading_spaces = 0u;
   for (Token tok : a) {
     if (!IsParsedToken(tok)) {
       continue;
@@ -862,16 +1196,10 @@ PrintedTokenRange PrintedTokenRange::Adopt(const TokenRange &a) {
         static_cast<TokenDataOffset>(new_impl->data.size()),
         static_cast<uint32_t>(data.size()),
         kASTTokenContextIndex,
-        0u  /* Leading new lines */,
-        num_leading_spaces,
-        tok.impl->Kind());
+        tok.Kind());
 
-    num_leading_spaces = 1u;
-
-    new_tok.role = static_cast<TokenKindBase>(TokenRole::kFileToken);
     new_tok.derived_index = static_cast<DerivedTokenIndex>(tok.Index());
     new_impl->data.insert(new_impl->data.end(), data.begin(), data.end());
-    new_impl->data.push_back('\0');
   }
 
   new_impl->AddTrailingEOF();
@@ -887,7 +1215,6 @@ PrintedTokenRange PrintedTokenRange::Copy(const PrintedTokenRange &a) {
 // Dump token provenance information.
 void PrintedTokenRange::DumpProvenanceInformation(void) {
   for (auto tok = first; tok < after_last; ++tok) {
-    tok->opaque_source_loc = TokenImpl::kInvalidSourceLocation;
     tok->derived_index = kInvalidDerivedTokenIndex;
   }
 }

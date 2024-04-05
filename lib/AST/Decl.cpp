@@ -81,6 +81,8 @@ using OMPDeclarativeDirectiveValueDecl = OMPDeclarativeDirective<ValueDecl>;
       return *this; \
     }
 
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wreturn-type"
 namespace pasta {
 namespace {
 // Return the PASTA `DeclKind` for a Clang `Decl`.
@@ -1943,6 +1945,9 @@ std::optional<enum Visibility> NamedDecl::Visibility(void) const {
   if (auto td = clang::dyn_cast<clang::TemplateDecl>(
                                  u.NamedDecl)) {
     if (!td->getTemplatedDecl()) {
+      return std::nullopt;
+    }
+    if (!self.isLinkageValid()) {
       return std::nullopt;
     }
   }
@@ -3932,13 +3937,15 @@ BindingDecl::BindingDecl(
 PASTA_DEFINE_BASE_OPERATORS(Decl, BindingDecl)
 PASTA_DEFINE_BASE_OPERATORS(NamedDecl, BindingDecl)
 PASTA_DEFINE_BASE_OPERATORS(ValueDecl, BindingDecl)
-::pasta::Expr BindingDecl::Binding(void) const {
+std::optional<::pasta::Expr> BindingDecl::Binding(void) const {
   auto &self = *const_cast<clang::BindingDecl *>(u.BindingDecl);
   decltype(auto) val = self.getBinding();
+  if (!val) {
+    return std::nullopt;
+  }
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
-  throw std::runtime_error("BindingDecl::Binding can return nullptr!");
 }
 
 ::pasta::ValueDecl BindingDecl::DecomposedDeclaration(void) const {
@@ -3950,13 +3957,15 @@ PASTA_DEFINE_BASE_OPERATORS(ValueDecl, BindingDecl)
   throw std::runtime_error("BindingDecl::DecomposedDeclaration can return nullptr!");
 }
 
-::pasta::VarDecl BindingDecl::HoldingVariable(void) const {
+std::optional<::pasta::VarDecl> BindingDecl::HoldingVariable(void) const {
   auto &self = *const_cast<clang::BindingDecl *>(u.BindingDecl);
   decltype(auto) val = self.getHoldingVar();
+  if (!val) {
+    return std::nullopt;
+  }
   if (val) {
     return DeclBuilder::Create<::pasta::VarDecl>(ast, val);
   }
-  throw std::runtime_error("BindingDecl::HoldingVariable can return nullptr!");
 }
 
 BlockDecl::BlockDecl(
@@ -9482,6 +9491,18 @@ std::optional<bool> CXXRecordDecl::IsInterfaceLike(void) const {
   if (!self.getDefinition()) {
     return std::nullopt;
   }
+  if (clang::isa<clang::ClassTemplatePartialSpecializationDecl>(self)) {
+    return std::nullopt;
+  }
+  if (self.isInterface()){
+    return false;
+  }
+  if (self.getNumBases() > 0) {
+    auto base_spec = *self.bases_begin();
+    if (auto base = base_spec.getType()->getAsCXXRecordDecl(); !base) {
+      return std::nullopt;
+    }
+  }
   decltype(auto) val = self.isInterfaceLike();
   return val;
 }
@@ -9993,4 +10014,5 @@ std::vector<::pasta::TemplateParameterList> ClassTemplatePartialSpecializationDe
 }
 
 }  // namespace pasta
+#pragma clang diagnostic pop
 #endif  // PASTA_IN_BOOTSTRAP

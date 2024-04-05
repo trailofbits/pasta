@@ -59,6 +59,8 @@
       return *this; \
     }
 
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wreturn-type"
 namespace pasta {
 
 StmtVisitor::~StmtVisitor(void) {}
@@ -2271,13 +2273,15 @@ std::optional<::pasta::DeclStmt> CXXForRangeStmt::EndStatement(void) const {
   return ast->TokenAt(val);
 }
 
-::pasta::Expr CXXForRangeStmt::Increment(void) const {
+std::optional<::pasta::Expr> CXXForRangeStmt::Increment(void) const {
   auto &self = *const_cast<clang::CXXForRangeStmt *>(u.CXXForRangeStmt);
   decltype(auto) val = self.getInc();
+  if (!val) {
+    return std::nullopt;
+  }
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
-  throw std::runtime_error("CXXForRangeStmt::Increment can return nullptr!");
 }
 
 std::optional<::pasta::Stmt> CXXForRangeStmt::Initializer(void) const {
@@ -2702,13 +2706,15 @@ std::vector<::pasta::Stmt> CoreturnStmt::Children(void) const {
   return ast->TokenAt(val);
 }
 
-::pasta::Expr CoreturnStmt::Operand(void) const {
+std::optional<::pasta::Expr> CoreturnStmt::Operand(void) const {
   auto &self = *const_cast<clang::CoreturnStmt *>(u.CoreturnStmt);
   decltype(auto) val = self.getOperand();
+  if (!val) {
+    return std::nullopt;
+  }
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
-  throw std::runtime_error("CoreturnStmt::Operand can return nullptr!");
 }
 
 ::pasta::Expr CoreturnStmt::PromiseCall(void) const {
@@ -2881,13 +2887,15 @@ std::optional<::pasta::Stmt> CoroutineBodyStmt::ResultDeclaration(void) const {
   throw std::runtime_error("CoroutineBodyStmt::ReturnStatement can return nullptr!");
 }
 
-::pasta::Stmt CoroutineBodyStmt::ReturnStatementOnAllocFailure(void) const {
+std::optional<::pasta::Stmt> CoroutineBodyStmt::ReturnStatementOnAllocFailure(void) const {
   auto &self = *const_cast<clang::CoroutineBodyStmt *>(u.CoroutineBodyStmt);
   decltype(auto) val = self.getReturnStmtOnAllocFailure();
+  if (!val) {
+    return std::nullopt;
+  }
   if (val) {
     return StmtBuilder::Create<::pasta::Stmt>(ast, val);
   }
-  throw std::runtime_error("CoroutineBodyStmt::ReturnStatementOnAllocFailure can return nullptr!");
 }
 
 ::pasta::Expr CoroutineBodyStmt::ReturnValue(void) const {
@@ -15177,7 +15185,7 @@ std::optional<::pasta::Designator> DesignatedInitExpr::Designator(unsigned int i
     return std::nullopt;
   }
   if (val) {
-    return DeclBuilder::Create<::pasta::Designator>(ast, val);
+    return DesignatorBuilder::Create<::pasta::Designator>(ast, val);
   }
   throw std::runtime_error("The unreachable has been reached");
 }
@@ -15736,13 +15744,20 @@ PASTA_DEFINE_BASE_OPERATORS(ValueStmt, UserDefinedLiteral)
   return ast->TokenAt(val);
 }
 
-::pasta::Expr UserDefinedLiteral::CookedLiteral(void) const {
+std::optional<::pasta::Expr> UserDefinedLiteral::CookedLiteral(void) const {
   auto &self = *const_cast<clang::UserDefinedLiteral *>(u.UserDefinedLiteral);
+  auto op_kind = self.getLiteralOperatorKind();
+  if (op_kind == clang::UserDefinedLiteral::LiteralOperatorKind::LOK_Template ||
+      op_kind == clang::UserDefinedLiteral::LiteralOperatorKind::LOK_Raw) {
+    return std::nullopt;
+  }
   decltype(auto) val = self.getCookedLiteral();
+  if (!val) {
+    return std::nullopt;
+  }
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
-  throw std::runtime_error("UserDefinedLiteral::CookedLiteral can return nullptr!");
 }
 
 ::pasta::Token UserDefinedLiteral::EndToken(void) const {
@@ -16189,4 +16204,5 @@ bool CXXDynamicCastExpr::IsAlwaysNull(void) const {
 }
 
 }  // namespace pasta
+#pragma clang diagnostic pop
 #endif  // PASTA_IN_BOOTSTRAP

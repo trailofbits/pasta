@@ -21,6 +21,12 @@
 
 namespace pasta {
 
+// Check if string has Byte-offset marker
+bool HasBOM(const char *value, size_t size);
+
+// Sanitize a string for PASTA's use.
+void SanitizeString(std::string &data);
+
 static_assert(
     static_cast<unsigned>(clang::tok::TokenKind::NUM_TOKENS) <= (1u << 9u));
 
@@ -37,8 +43,14 @@ struct FileTokenImpl {
     kind.extended.kind = static_cast<uint16_t>(kind_);
 #pragma GCC diagnostic pop
   }
+
+  // The offset of this token's data in `FileImpl::data`.
   uint32_t data_offset;
+
+  // The length of this token's data.
   uint32_t data_len;
+
+  // The line number associated with this token.
   uint32_t line;
   uint16_t column;
 

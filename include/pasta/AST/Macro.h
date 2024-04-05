@@ -9,6 +9,7 @@
 #include <memory>
 #include <optional>
 #include <string_view>
+#include <variant>
 #include <vector>
 
 namespace pasta {
@@ -16,6 +17,7 @@ namespace pasta {
 class AST;
 class ASTImpl;
 class Decl;
+class DefineMacroDirective;
 class File;
 class FileToken;
 class FileTokenRange;
@@ -44,6 +46,8 @@ class Token;
 class TokenContext;
 class TokenImpl;
 class TokenRange;
+
+using DerivedToken = std::variant<std::monostate, MacroToken, FileToken>;
 
 #define PASTA_FOR_EACH_MACRO_IMPL(m, t, d, cd, dd, id, a) \
     a(Macro) \
@@ -93,6 +97,7 @@ enum class MacroKind : unsigned char {
 #undef PASTA_IGNORE
 };
 
+enum class TokenRole : unsigned char;
 enum class TokenKind : unsigned short;
 
 // Base for all macro nodes.
@@ -101,6 +106,7 @@ class Macro {
   friend class AST;
   friend class MacroIterator;
   friend class MacroRange;
+  friend class MacroToken;
   friend class PatchedMacroTracker;
   friend class Token;
 
@@ -117,6 +123,9 @@ class Macro {
   inline static std::optional<Macro> From(const TokenContext &) {
     return std::nullopt;
   }
+
+  // Return the macro associated with a marker token.
+  static std::optional<Macro> FromMarkerToken(const Token &tok) noexcept;
 
   MacroKind Kind(void) const noexcept;
 
@@ -145,6 +154,10 @@ class Macro {
   // Begin and ending usage tokens.
   std::optional<MacroToken> BeginToken(void) const noexcept;
   std::optional<MacroToken> EndToken(void) const noexcept;
+
+  // Return the parsed token range bounded by marker tokens of the complete
+  // expansion range for `macro`.
+  static TokenRange CompleteExpansionRange(const Macro &macro);
 };
 
 // A token produced inside of a macro expansion.
@@ -177,17 +190,35 @@ class MacroToken final : public Macro {
     }
   }
 
+  enum TokenRole TokenRole(void) const noexcept;
   enum TokenKind TokenKind(void) const noexcept;
   std::string_view TokenKindName(void) const noexcept;
 
   // Return the data associated with this token.
   std::string_view Data(void) const noexcept;
 
-  // Location of the token in a file.
+  // Location of the token in a file. Note: this is a multi-step process that
+  // follows the chain backward.
   std::optional<FileToken> FileLocation(void) const noexcept;
 
-  // Location of the token as parsed.
-  Token ParsedLocation(void) const noexcept;
+  // Find the token from which this token was derived.
+  DerivedToken DerivedLocation(void) const;
+
+  // `#define` associated with the name of this token. This doesn't
+  // necessarily mean that this token is actually expanded as the macro,
+  // just that it could be referring to it at the point of use. An example
+  // of where this can seem misleading is:
+  //
+  //      #define FOO() ...
+  //      #define not_FOO
+  //      #define BAR(x) not_ ## x
+  //
+  //      BAR(FOO)
+  //
+  // Here, `FOO` in the parameter to `BAR` refers to the macro `FOO`, but it
+  // actually ends up being concatenated with `not_`, becoming a different
+  // macro, `not_FOO`, which expands to nothing.
+  std::optional<DefineMacroDirective> AssociatedMacro(void) const;
 };
 
 static_assert(sizeof(MacroToken) == sizeof(Macro));
@@ -196,6 +227,7 @@ static_assert(sizeof(MacroToken) == sizeof(Macro));
 class MacroDirective : public Macro {
  protected:
   friend class MacroExpansion;
+  friend class Token;
 
   using Macro::Macro;
 
@@ -210,6 +242,9 @@ class MacroDirective : public Macro {
   // of some other expansion, e.g. `_Pragma("...")` expanding into
   // `#pragma ...`.
   std::optional<MacroToken> DirectiveName(void) const noexcept;
+
+  // The location of this directive in the parsed tokens.
+  Token ParsedLocation(void) const noexcept;
 };
 
 static_assert(sizeof(MacroDirective) == sizeof(Macro));
@@ -391,10 +426,10 @@ class MacroSubstitution : public Macro {
   MacroRange ReplacementChildren(void) const noexcept;
 
   // Returns the first fully substituted token in this substitution, if any.
-  std::optional<Token> FirstFullySubstitutedToken(void) const noexcept;
+  std::optional<MacroToken> FirstFullySubstitutedToken(void) const noexcept;
 
   // Returns the last fully substituted token in this substitution, if any.
-  std::optional<Token> LastFullySubstitutedToken(void) const noexcept;
+  std::optional<MacroToken> LastFullySubstitutedToken(void) const noexcept;
 
   // Returns the name of the substituted macro if any. If this substitution
   // comes from a stringification or token-pasting macro, then return the
@@ -460,7 +495,7 @@ class MacroExpansion final : public MacroSubstitution {
 
   // Maps each of the macro's parameters to a vector of Stmts that their
   // substitutions align with in the given statement.
-  std::map<MacroParameter, std::vector<pasta::Stmt>>
+  std::vector<std::pair<MacroParameter, std::vector<pasta::Stmt>>>
   AlignedParameterSubstitutions(const pasta::Stmt &stmt) const noexcept;
 
   // Maps each of the macro's parameters to the number of times it is used in

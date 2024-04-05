@@ -47,6 +47,7 @@ void SaveFirstErrorDiagConsumer::HandleDiagnostic(
       clang::diag::err_drv_unsupported_opt_with_suggestion,
       clang::diag::err_drv_unsupported_option_argument,
       clang::diag::err_drv_output_argument_with_multiple_files,
+      clang::diag::err_drv_no_cuda_libdevice,
   };
 
   clang::diag::kind id = info.getID();
@@ -59,9 +60,9 @@ void SaveFirstErrorDiagConsumer::HandleDiagnostic(
 //  std::cerr << "diag=" << info.getID() << '\n';
 
   std::stringstream ss;
-  const auto &tokens = ast->tokens;
+  // const auto &tokens = ast->tokens;
   clang::PresumedLoc presumed_loc;
-  unsigned line_number = 0;
+  // unsigned line_number = 0;
 
   // Build up relevant source location info for the diagnostic.
   auto source_location = info.getLocation();
@@ -87,16 +88,16 @@ void SaveFirstErrorDiagConsumer::HandleDiagnostic(
       goto bail;
     }
 
-    // We may be in a big file full of pre-processed code, with one token
-    // per line, so go and try to get an actual location from the original
-    // tokens.
-    line_number = presumed_loc.getLine();
-    if (ast && 0u < line_number && line_number <= tokens.size()) {
-      source_location = tokens[line_number - 1u].Location();
-      if (!try_get_loc_info(source_location)) {
-        goto bail;
-      }
-    }
+    // // We may be in a big file full of pre-processed code, with one token
+    // // per line, so go and try to get an actual location from the original
+    // // tokens.
+    // line_number = presumed_loc.getLine();
+    // if (ast && 0u < line_number && line_number <= tokens.size()) {
+    //   source_location = tokens[line_number - 1u].Location();
+    //   if (!try_get_loc_info(source_location)) {
+    //     goto bail;
+    //   }
+    // }
 
     if (presumed_loc.isValid()) {
       ss << presumed_loc.getFilename()

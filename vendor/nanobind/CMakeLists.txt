@@ -18,7 +18,9 @@ if(NOT PASTA_USE_VENDORED_NANOBIND)
       list(APPEND CMAKE_PREFIX_PATH "${NB_DIR}")
   endif()
 
+  find_package(Python COMPONENTS Interpreter Development REQUIRED)
   find_package(nanobind CONFIG QUIET)
+
   if(nanobind_FOUND)
     return()
   endif()

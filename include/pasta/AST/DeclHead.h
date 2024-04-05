@@ -311,7 +311,7 @@ class CXXCtorInitializer {
   bool IsInClassMemberInitializer(void) const noexcept;
   bool IsDelegatingInitializer(void) const noexcept;
   bool IsPackExpansion(void) const noexcept;
-  bool IsBaseVirtual(void) const noexcept;
+  std::optional<bool> IsBaseVirtual(void) const noexcept;
 
   std::optional<::pasta::FieldDecl> Member(void) const noexcept;
   std::optional<::pasta::FieldDecl> AnyMember(void) const noexcept;

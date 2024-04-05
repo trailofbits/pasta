@@ -26,7 +26,15 @@ class DeclBuilder {
  public:
   template <typename T, typename D>
   inline static T Create(std::shared_ptr<ASTImpl> ast_, const D *decl_) {
-    return T(std::move(ast_), decl_);
+    return T(std::move(ast_), reinterpret_cast<const D *>(decl_->RemappedDecl));
+  }
+};
+
+class DesignatorBuilder {
+ public:
+  template <typename T, typename D>
+  inline static T Create(std::shared_ptr<ASTImpl> ast_, const D *designator_) {
+    return T(std::move(ast_), designator_);
   }
 };
 

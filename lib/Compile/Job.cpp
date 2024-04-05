@@ -598,6 +598,48 @@ CreateAdjustedCompilerCommand(FileSystemView &fs, const Compiler &compiler,
 
 }  // namespace
 
+llvm::opt::InputArgList CompileJobImpl::ParseDriverArguments(
+    const llvm::ArrayRef<const char *> &command_args_, bool enable_cl,
+    unsigned &missing_arg_index, unsigned &missing_arg_count) {
+
+  auto command_args = command_args_;
+
+  missing_arg_index = 0u;
+  missing_arg_count = 0u;
+
+#ifdef PASTA_LLVM_18
+  unsigned driver_options =
+    clang::driver::options::ClangOption |  // TODO(pag): Unsure on this.
+    clang::driver::options::CC1Option |
+    clang::driver::options::CC1AsOption; // Used to be `DriverOption`.
+
+  if (enable_cl) {
+    driver_options |= clang::driver::options::CLOption;
+  }
+  return clang::driver::getDriverOptTable().ParseArgs(
+      command_args.drop_front(), missing_arg_index, missing_arg_count,
+      llvm::opt::Visibility(driver_options));
+
+#else  // LLVM 17
+  unsigned int driver_options =
+      clang::driver::options::CC1Option |
+      clang::driver::options::CC1AsOption |
+      clang::driver::options::CoreOption |
+      clang::driver::options::NoDriverOption |
+      clang::driver::options::NoXarchOption; // Used to be `DriverOption`.
+  unsigned int excluded_driver_options = 0;
+
+  if (enable_cl) {
+    driver_options |= clang::driver::options::CLOption;
+  } else {
+    excluded_driver_options |= clang::driver::options::CLOption;
+  }
+  return clang::driver::getDriverOptTable().ParseArgs(
+      command_args.slice(1u), missing_arg_index, missing_arg_count,
+      driver_options, excluded_driver_options);
+#endif 
+}
+
 // The list of compiler jobs associated with this command.
 Result<std::vector<CompileJob>, std::string>
 Compiler::CreateJobsForCommand(const CompileCommand &command) const {
@@ -678,42 +720,12 @@ Compiler::CreateJobsForCommand(const CompileCommand &command) const {
     may_need_skip = !strcmp("-main-file-name", arg);
   }
 
-  llvm::ArrayRef<const char *> command_args(all_args);
+  // TODO(pag): Is there a way to set CL mode?
+  bool enable_cl = driver.IsCLMode();
   auto missing_arg_index = 0u;
   auto missing_arg_count = 0u;
-  bool enable_cl = driver.IsCLMode();
-
-#ifdef PASTA_LLVM_18
-  unsigned driver_options =
-    clang::driver::options::ClangOption |  // TODO(pag): Unsure on this.
-    clang::driver::options::CC1Option |
-    clang::driver::options::CC1AsOption; // Used to be `DriverOption`.
-
-  if (enable_cl) {
-    driver_options |= clang::driver::options::CLOption;
-  }
-  auto parsed_args = driver.getOpts().ParseArgs(
-      command_args.drop_front(), missing_arg_index, missing_arg_count,
-      llvm::opt::Visibility(driver_options));
-
-#else  // LLVM 17
-  unsigned int driver_options =
-      clang::driver::options::CC1Option |
-      clang::driver::options::CC1AsOption |
-      clang::driver::options::CoreOption |
-      clang::driver::options::NoDriverOption |
-      clang::driver::options::NoXarchOption; // Used to be `DriverOption`.
-  unsigned int excluded_driver_options = 0;
-
-  if (enable_cl) {
-    driver_options |= clang::driver::options::CLOption;
-  } else {
-    excluded_driver_options |= clang::driver::options::CLOption;
-  }
-  auto parsed_args = driver.getOpts().ParseArgs(
-      command_args.slice(1u), missing_arg_index, missing_arg_count,
-      driver_options, excluded_driver_options);
-#endif
+  auto parsed_args = CompileJobImpl::ParseDriverArguments(
+      all_args, enable_cl, missing_arg_index, missing_arg_count);
 
   // Something didn't parse.
   if (0 < missing_arg_count) {

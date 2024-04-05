@@ -33,6 +33,7 @@ class CompileJob;
 class Compiler;
 class Decl;
 class Macro;
+class PrintedTokenRange;
 class Stmt;
 class Token;
 class TokenContext;
@@ -43,9 +44,7 @@ class Type;
 class AST {
  public:
   // Return the AST containing a token.
-  inline static AST From(const Token &token) {
-    return AST(token.ast);
-  }
+  static AST From(const Token &token);
 
   // Return the AST containing a declaration.
   static AST From(const Decl &decl);
@@ -105,6 +104,7 @@ class AST {
   friend class CompileJob;
   friend class DeclBase;
   friend class DeclPrinter;
+  friend class PrintedTokenRange;
 
   AST(void) = delete;
 
@@ -112,6 +112,5 @@ class AST {
 
   std::shared_ptr<ASTImpl> impl;
 };
-
 
 }  // namespace pasta

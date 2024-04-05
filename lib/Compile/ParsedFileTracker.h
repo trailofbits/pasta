@@ -42,9 +42,6 @@ class ParsedFileTracker : public clang::PPCallbacks {
   const std::filesystem::path cwd;
 
   ASTImpl * const ast;
-
-  // Tracks whether or not we've tokenized a file.
-  std::unordered_set<pasta::FileImpl *> seen;
  public:
 
   explicit ParsedFileTracker(clang::SourceManager &sm_,
@@ -62,7 +59,6 @@ class ParsedFileTracker : public clang::PPCallbacks {
   virtual ~ParsedFileTracker(void) {}
 
   void Clear(void) {
-    seen.clear();
     fs.reset();
   }
 
@@ -76,7 +72,9 @@ class ParsedFileTracker : public clang::PPCallbacks {
     assert(file.impl->data.back() == '\0');
     const auto tok_loc = tok.getLocation();
     file.impl->tokens.emplace_back(
-        file.impl->data.size() - 1u, 0u, sm.getSpellingLineNumber(tok_loc),
+        file.impl->data.size() - 1u,
+        0u,
+        sm.getSpellingLineNumber(tok_loc),
         sm.getSpellingColumnNumber(tok_loc), clang::tok::eof);
   }
 
@@ -129,23 +127,23 @@ class ParsedFileTracker : public clang::PPCallbacks {
     File file = maybe_file.TakeValue();
 
     // Keep a mapping of Clang file IDs to parsed files.
-    auto [file_it, just_added] = ast->id_to_file.emplace(
-        file_id.getHashValue(), file);
+    auto raw_file_id = file_id.getHashValue();
+    auto [file_it, added] = ast->id_to_file.emplace(raw_file_id, file);
     assert(file_it->second.impl.get() == file.impl.get());
-    (void) file_it;
-    (void) just_added;
 
     // If we've seen this file already, then don't tokenize it.
-    if (auto [seen_it, added] = seen.emplace(file.impl.get()); !added) {
+    if (!added) {
       return;
     }
+
+    auto file_index = static_cast<unsigned>(ast->parsed_files.size());
+    ast->parsed_files.emplace_back(file);
+    ast->id_to_file_offset.emplace(raw_file_id, file_index);
 
     auto maybe_data = file.Data();
     if (!maybe_data.Succeeded()) {
       return;
     }
-
-    ast->parsed_files.emplace_back(std::move(file));
 
     std::unique_lock<std::mutex> locker(file.impl->tokens_lock);
     if (file.impl->has_tokens) {
@@ -154,19 +152,33 @@ class ParsedFileTracker : public clang::PPCallbacks {
 
     auto data = maybe_data.TakeValue();
     file.impl->has_tokens = true;
-    if (data.empty()) {
-      return;
-    }
-
     const size_t buff_size = data.size();
     if (!buff_size) {
-      file.impl->data.push_back('\0');
+      // NOTE(pag): The file already has a trailing `\0`, but doesn't include it
+      //            in `data`.
       AddEOF(file, file_id, sm);
       return;
     }
 
     const char * const buff_begin = &(data.front());
     const char * const buff_end = &(buff_begin[buff_size]);
+
+    // Note(kumarak): Check if the file buffer starts with
+    //                byte-offset marker. If yes then add
+    //                an unknown token of length 3.
+    // I expect lexer to look for token at offset 0 or 3 and
+    // not in between. If that is a possibility add different
+    // token for each bytes.
+    if (HasBOM(buff_begin, buff_size)) {
+      auto adjusted_offset = 3u;
+      file.impl->tokens.emplace_back(
+          0u,
+          adjusted_offset,
+          0u,
+          0u,
+          clang::tok::unknown);
+    }
+
     clang::Lexer lexer(loc, lang_opts, buff_begin, buff_begin, buff_end);
     lexer.SetKeepWhitespaceMode(true);  // Implies keep comments.
 
@@ -200,10 +212,12 @@ class ParsedFileTracker : public clang::PPCallbacks {
            skip && fixed_len && fixed_offset < buff_size; ) {
         skip = false;
         switch (buff_begin[fixed_offset]) {
+          case '\r':
+            assert(false);
+            [[fallthrough]];
           case '\\':
           case ' ':
           case '\t':
-          case '\r':
           case '\n':
             ++fixed_offset;
             --fixed_len;

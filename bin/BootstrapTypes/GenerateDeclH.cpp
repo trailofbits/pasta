@@ -74,7 +74,8 @@ void GenerateDeclH(void) {
   os << "\n"
      << "  const ::clang::DeclContext *RawDeclContext(void) const noexcept {\n"
      << "    return u.DeclContext;\n"
-     << "  }\n\n";
+     << "  }\n\n"
+     << "  static std::optional<DeclContext> From(const pasta::Decl &);\n\n";
 
   DeclareCppMethods(os, decl_context, gClassIDs[decl_context]);
 

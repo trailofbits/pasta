@@ -108,6 +108,14 @@ static constexpr clang::Builtin::Info kPPCBuiltins[] = {
 #include "BuiltinsPPC.h"
 };
 
+static constexpr clang::Builtin::Info kARMBuiltins[] = {
+
+#define BUILTIN(id, type, attrs) \
+  {#id, type, attrs, "", kNoHeaderName, clang::LanguageID::ALL_LANGUAGES},
+
+#include "BuiltinsARM.h"
+};
+
 }  // namespace
 
 // Create a custom builtin context for the preprocessor, that has extensions.
@@ -147,6 +155,12 @@ void AddCustomBuiltinsToPreprocessor(ASTImpl &ast, clang::Preprocessor &pp) {
       }
     } else if (triple.isPPC()) {
       for (const clang::Builtin::Info &info : kPPCBuiltins) {
+        if (table.find(info.Name) == table.end()) {
+          ast.target_specific_records.emplace_back(info);
+        }
+      }
+    } else if (triple.isARM() || triple.isAArch64()) {
+      for (const clang::Builtin::Info &info : kARMBuiltins) {
         if (table.find(info.Name) == table.end()) {
           ast.target_specific_records.emplace_back(info);
         }

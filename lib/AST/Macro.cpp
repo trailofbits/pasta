@@ -645,6 +645,12 @@ enum TokenRole MacroToken::TokenRole(void) const noexcept {
   return ast->macro_tokens.Role(MacroTokenOffset(impl));
 }
 
+// Index of this token in the macro token area. Useful for uniquely
+// identifying them.
+unsigned MacroToken::Index(void) const noexcept {
+  return static_cast<unsigned>(MacroTokenOffset(impl));
+}
+
 std::string_view MacroToken::TokenKindName(void) const noexcept {
   return clang::tok::getTokenName(
       static_cast<clang::tok::TokenKind>(TokenKind()));

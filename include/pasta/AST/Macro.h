@@ -219,6 +219,10 @@ class MacroToken final : public Macro {
   // actually ends up being concatenated with `not_`, becoming a different
   // macro, `not_FOO`, which expands to nothing.
   std::optional<DefineMacroDirective> AssociatedMacro(void) const;
+
+  // Index of this token in the macro token area. Useful for uniquely
+  // identifying them.
+  unsigned Index(void) const noexcept;
 };
 
 static_assert(sizeof(MacroToken) == sizeof(Macro));

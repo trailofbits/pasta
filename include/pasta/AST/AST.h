@@ -35,6 +35,7 @@ class Decl;
 class Macro;
 class PrintedTokenRange;
 class Stmt;
+class TemplateArgument;
 class Token;
 class TokenContext;
 class Type;
@@ -57,6 +58,9 @@ class AST {
 
   // Return the AST containing a Type.
   static AST From(const Type &type);
+
+  // Return the AST containing a template argument.
+  static AST From(const TemplateArgument &arg);
 
   ~AST(void);
   AST(const AST &);

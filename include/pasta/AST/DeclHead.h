@@ -142,6 +142,8 @@ class CXXBaseSpecifier {
 
 class TemplateArgument {
  private:
+  friend class AST;
+
   std::shared_ptr<ASTImpl> ast;
   const clang::TemplateArgument *arg;
 

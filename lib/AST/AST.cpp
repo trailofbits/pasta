@@ -57,6 +57,11 @@ AST AST::From(const Type &type) {
   return AST(type.ast);
 }
 
+// Return the AST containing a template argument.
+AST AST::From(const TemplateArgument &arg) {
+  return AST(arg.ast);
+}
+
 AST::~AST(void) {}
 
 AST::AST(const AST &that) : impl(that.impl) {}

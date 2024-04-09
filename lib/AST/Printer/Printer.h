@@ -329,6 +329,7 @@ class TokenPrinterContext {
   TokenPrinterContext(const TokenPrinterContext &that_);
 
   void Tokenize(void);
+  void TokenizeAs(pasta::TokenKind kind);
 
   // Mark the last printed token as having location `loc`. This helps to
   // correlate things in the actual parsed tokens with printed tokens.

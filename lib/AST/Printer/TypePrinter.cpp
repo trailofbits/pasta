@@ -1878,8 +1878,11 @@ void TypePrinter::printTemplateTypeParm(const clang::TemplateTypeParmType *T,
     OS << Id->getName();
   } else if (D) {
     OS << D->getName();
-  } else
+  } else {
+    ctx.Tokenize();
     OS << "type-parameter-" << T->getDepth() << '-' << T->getIndex();
+    ctx.TokenizeAs(pasta::TokenKind::kIdentifier);
+  }
 
   spaceBeforePlaceHolder(OS);
   IdentFn();

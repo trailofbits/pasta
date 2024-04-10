@@ -163,7 +163,6 @@ void printArgument(Printer &printer, const clang::TemplateArgument &A,
 
   switch (A.getKind()) {
     case clang::TemplateArgument::Null:
-      Out << "(no value)";
       break;
 
     case clang::TemplateArgument::Type: {
@@ -218,11 +217,16 @@ void printArgument(Printer &printer, const clang::TemplateArgument &A,
     }
 
     case clang::TemplateArgument::Pack: {
+      if (!A.pack_size()) {
+        break;
+      }
+
       auto needs_angles = !tokens.LastTokenIsOneOf(
           TokenKind::kComma, TokenKind::kLAngle);
 
       if (needs_angles) {
-        Out << " <";
+        ctx.Tokenize();
+        Out << "<";
         tokens.TryChangeLastKind(TokenKind::kLess, TokenKind::kLAngle);
       }
 
@@ -230,6 +234,10 @@ void printArgument(Printer &printer, const clang::TemplateArgument &A,
           TokenKind::kComma, TokenKind::kLAngle);
 
       for (const clang::TemplateArgument &P : A.pack_elements()) {
+        if (P.getKind() == clang::TemplateArgument::Null) {
+          continue;
+        }
+
         if (First)
           First = false;
         else
@@ -239,7 +247,21 @@ void printArgument(Printer &printer, const clang::TemplateArgument &A,
         printArgument(printer, P, SubPolicy, IncludeType);
       }
       if (needs_angles) {
-        Out << " >";
+        ctx.Tokenize();
+
+        // Remove trailing whitespace.
+        if (tokens.tokens.back().kind == TokenKind::kUnknown) {
+          tokens.data.resize(tokens.tokens.back().data_offset);
+          tokens.tokens.pop_back();
+        }
+
+        // Remove trailing comma.
+        if (tokens.tokens.back().kind == TokenKind::kComma) {
+          tokens.data.resize(tokens.tokens.back().data_offset);
+          tokens.tokens.pop_back();
+        }
+
+        Out << ">";
         tokens.TryChangeLastKind(TokenKind::kGreater, TokenKind::kRAngle);
       }
       break;
@@ -303,20 +325,24 @@ printTo(Printer &printer, llvm::ArrayRef<TA> Args,
 
   const char *Comma = Policy.MSVCFormatting ? "," : ", ";
   if (!IsPack) {
-    OS << " <";
+    OS << "<";
     tokens.TryChangeLastKind(TokenKind::kLess, TokenKind::kLAngle);
   }
 
   bool FirstArg = true;
   for (const auto &Arg : Args) {
-    if (FirstArg) {
-      OS << ' ';  // avoid printing the diagraph '<:'.
-    }
-
     const clang::TemplateArgument &Argument = getArgument(Arg);
+    if (Argument.getKind() == clang::TemplateArgument::Null)
+      continue;
+
     if (Argument.getKind() == clang::TemplateArgument::Pack) {
-      if (Argument.pack_size() && !FirstArg)
+      if (!Argument.pack_size()) {
+        continue;
+      }
+      
+      if (!FirstArg)
         OS << Comma;
+      
       printTo(printer, Argument.getPackAsArray(), Policy, TPL,
               /*IsPack*/ true, ParmIndex);
     } else {
@@ -337,7 +363,21 @@ printTo(Printer &printer, llvm::ArrayRef<TA> Args,
   }
 
   if (!IsPack) {
-    OS << " >";
+    tokens.curr_printer_context->Tokenize();
+
+    // Remove trailing whitespace.
+    if (tokens.tokens.back().kind == TokenKind::kUnknown) {
+      tokens.data.resize(tokens.tokens.back().data_offset);
+      tokens.tokens.pop_back();
+    }
+
+    // Remove trailing comma.
+    if (tokens.tokens.back().kind == TokenKind::kComma) {
+      tokens.data.resize(tokens.tokens.back().data_offset);
+      tokens.tokens.pop_back();
+    }
+
+    OS << ">";
     tokens.TryChangeLastKind(TokenKind::kGreater, TokenKind::kRAngle);
   }
 }

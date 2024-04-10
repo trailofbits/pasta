@@ -45,6 +45,8 @@ static ::pasta::DeclCategory ClassifyDecl(const clang::Decl *decl) {
   if (auto tpl_decl = clang::dyn_cast<clang::TemplateDecl>(decl)) {
     if (clang::isa<clang::TemplateTemplateParmDecl>(decl)) {
       return ::pasta::DeclCategory::kTemplateTypeParameter;
+    } else if (clang::isa<clang::BuiltinTemplateDecl>(decl)) {
+      return ::pasta::DeclCategory::kUnknown;
     }
     return ClassifyDecl(tpl_decl->getTemplatedDecl());
   }

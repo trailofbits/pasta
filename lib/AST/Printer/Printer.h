@@ -172,6 +172,7 @@ class PrintedTokenRangeImpl {
   bool LastTokenIsOneOf(Kinds... kinds);
 
   void TryChangeLastKind(TokenKind old, TokenKind new_);
+  void TryRemoveTrailingComma(void);
 
   void MarkLocation(PrintedTokenImpl &, DerivedTokenIndex tok_index);
   void MarkLocation(size_t tok_index, DerivedTokenIndex tok);

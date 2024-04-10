@@ -259,22 +259,11 @@ void printArgument(Printer &printer, const clang::TemplateArgument &A,
 
         assert(!SubPolicy.IncludeTagDefinition);
         printArgument(printer, P, SubPolicy, IncludeType);
+
+        tokens.TryRemoveTrailingComma();
       }
       if (needs_angles) {
-        ctx.Tokenize();
-
-        // Remove trailing whitespace.
-        if (tokens.tokens.back().kind == TokenKind::kUnknown) {
-          tokens.data.resize(tokens.tokens.back().data_offset);
-          tokens.tokens.pop_back();
-        }
-
-        // Remove trailing comma.
-        if (tokens.tokens.back().kind == TokenKind::kComma) {
-          tokens.data.resize(tokens.tokens.back().data_offset);
-          tokens.tokens.pop_back();
-        }
-
+        tokens.TryRemoveTrailingComma();
         Out << ">";
         tokens.TryChangeLastKind(TokenKind::kGreater, TokenKind::kRAngle);
       }
@@ -341,6 +330,8 @@ printTo(Printer &printer, llvm::ArrayRef<TA> Args,
       
       printTo(printer, Args, Policy, TPL,
               /*IsPack*/ true, ParmIndex);
+
+      tokens.TryRemoveTrailingComma();
     } else {
       if (!FirstArg)
         OS << ", ";
@@ -349,6 +340,7 @@ printTo(Printer &printer, llvm::ArrayRef<TA> Args,
       printArgument(printer, Arg, Policy,
                     clang::TemplateParameterList::shouldIncludeTypeForArgument(
                         Policy, TPL, ParmIndex));
+      tokens.TryRemoveTrailingComma();
     }
 
     FirstArg = false;
@@ -360,20 +352,7 @@ printTo(Printer &printer, llvm::ArrayRef<TA> Args,
   }
 
   if (!IsPack) {
-    tokens.curr_printer_context->Tokenize();
-
-    // Remove trailing whitespace.
-    if (tokens.tokens.back().kind == TokenKind::kUnknown) {
-      tokens.data.resize(tokens.tokens.back().data_offset);
-      tokens.tokens.pop_back();
-    }
-
-    // Remove trailing comma.
-    if (tokens.tokens.back().kind == TokenKind::kComma) {
-      tokens.data.resize(tokens.tokens.back().data_offset);
-      tokens.tokens.pop_back();
-    }
-
+    tokens.TryRemoveTrailingComma();
     OS << ">";
     tokens.TryChangeLastKind(TokenKind::kGreater, TokenKind::kRAngle);
   }
@@ -2422,7 +2401,7 @@ void TypePrinter::printObjCTypeParam(const clang::ObjCTypeParamType *T,
         OS << ", ";
       OS << I->getName();
     }
-    ctx.Tokenize();
+    tokens.TryRemoveTrailingComma();
     OS << ">";
     tokens.TryChangeLastKind(TokenKind::kGreater, TokenKind::kRAngle);
   }
@@ -2457,8 +2436,7 @@ void TypePrinter::printObjCObject(const clang::ObjCObjectType *T,
       TagDefinitionPolicyRAII disable_tags(Policy);
       print(typeArg, clang::StringRef());
     }
-
-    ctx.Tokenize();
+    tokens.TryRemoveTrailingComma();
     OS << ">";
     tokens.TryChangeLastKind(TokenKind::kGreater, TokenKind::kRAngle);
   }
@@ -2478,7 +2456,7 @@ void TypePrinter::printObjCObject(const clang::ObjCObjectType *T,
       OS << I->getName();
     }
 
-    ctx.Tokenize();
+    tokens.TryRemoveTrailingComma();
     OS << ">";
     tokens.TryChangeLastKind(TokenKind::kGreater, TokenKind::kRAngle);
   }

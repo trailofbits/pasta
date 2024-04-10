@@ -158,32 +158,11 @@ void ParsedFileTracker::FileChanged(clang::SourceLocation loc,
     clang::SourceLocation fixed_loc = tok_loc;
     auto fixed_offset = offset;
     auto fixed_len = len;
-    auto has_nl = false;
-    auto num_non_nl_endings = 0u;
 
     // Skip over leading whitespace if this isn't a whitespace token.
-    for (auto skip = clang::tok::unknown != tok_kind;
-         skip && fixed_len && fixed_offset < buff_size; ) {
+    for (auto skip = true; skip && fixed_len && fixed_offset < buff_size; ) {
       skip = false;
-      auto ch = buff_begin[fixed_offset];
-
-      switch (ch) {
-        case '\r':
-        case '\\':
-        case '\n':
-          has_nl = true;
-          num_non_nl_endings = 0;
-          break;
-        case ' ':
-        case '\t':
-          ++num_non_nl_endings;
-          break;
-        default:
-          num_non_nl_endings = 0;
-          break;
-      }
-
-      switch (ch) {
+      switch (buff_begin[fixed_offset]) {
         case '\r':
           assert(false);
           [[fallthrough]];
@@ -198,19 +177,40 @@ void ParsedFileTracker::FileChanged(clang::SourceLocation loc,
           break;
         default:
           skip = false;
+          break;
       }
     }
 
     // There was leading whitespace, go and form a token for it.
     if (auto diff = fixed_offset - offset) {
-      assert(diff < len);
+      assert(diff < len || (diff == len && clang::tok::unknown == tok_kind));
+      auto has_nl = false;
+      auto num_non_nl_endings = 0u;
+      for (auto i = offset; i < fixed_offset; ++i) {
+        switch (buff_begin[i]) {
+          case '\r':
+          case '\\':
+          case '\n':
+            has_nl = true;
+            num_non_nl_endings = 0;
+            break;
+          case ' ':
+          case '\t':
+            ++num_non_nl_endings;
+            break;
+          default:
+            assert(false);
+            num_non_nl_endings = 0;
+            break;
+        }
+      }
 
       // Break the whitespace into two: the leading part with newlines, and the
       // trailing part with only indentation.
       if (has_nl && num_non_nl_endings) {
         file.impl->tokens.emplace_back(
             offset,
-            diff,
+            (diff - num_non_nl_endings),
             sm.getSpellingLineNumber(tok_loc),
             sm.getSpellingColumnNumber(tok_loc),
             clang::tok::unknown);
@@ -238,6 +238,10 @@ void ParsedFileTracker::FileChanged(clang::SourceLocation loc,
       // Fixup the token to no longer include the leading whitespace.
       tok.setLocation(fixed_loc);
       tok.setLength(tok.getLength() - diff);
+    }
+
+    if (clang::tok::unknown == tok_kind) {
+      continue;
     }
 
     if (clang::tok::isAnyIdentifier(tok_kind)) {

@@ -368,19 +368,39 @@ PrintedTokenRangeImpl::~PrintedTokenRangeImpl(void) {}
 // If any token context index is invalid, then set it to `index`.
 void PrintedTokenRangeImpl::FixupInvalidTokenContexts(TokenContextIndex index) {
 
-  const auto num_contexts = contexts.size();
-  for (TokenContextIndex i = 0u; i < num_contexts; ++i) {
-    if (i != index) {
-      TokenContextImpl &context = contexts[i];
-      if (context.parent_index == kInvalidTokenContextIndex) {
-        context.parent_index = index;
+  if (index != kInvalidTokenContextIndex) {
+    const auto num_contexts = contexts.size();
+    for (TokenContextIndex i = 0u; i < num_contexts; ++i) {
+      if (i != index) {
+        TokenContextImpl &context = contexts[i];
+        if (context.parent_index == kInvalidTokenContextIndex) {
+          context.parent_index = index;
+        }
       }
     }
   }
 
-  for (PrintedTokenImpl &tok : tokens) {
-    if (tok.context_index == kInvalidTokenContextIndex) {
-      tok.context_index = index;
+  std::vector<TokenContextIndex> indexes;
+  indexes.push_back(index);
+  for (auto &tok : tokens) {
+    switch (tok.kind) {
+      case TokenKind::kLParenthesis:
+      case TokenKind::kLSquare:
+      case TokenKind::kLBrace:
+      case TokenKind::kLAngle:
+        indexes.push_back(tok.context_index);
+        continue;
+      case TokenKind::kRParenthesis:
+      case TokenKind::kRSquare:
+      case TokenKind::kRBrace:
+      case TokenKind::kRAngle:
+        indexes.pop_back();
+        continue;
+      default:
+        if (tok.context_index == kInvalidTokenContextIndex) {
+          tok.context_index = indexes.back();
+        }
+        continue;
     }
   }
 }
@@ -1083,7 +1103,7 @@ PrintedTokenRange PrintedTokenRange::AdoptWhitespace(
     new_impl->data.insert(new_impl->data.end(), data.begin(), data.end());
   }
 
-  auto add_ws_tok = [&] (auto new_context_index, auto ws_offset) {
+  auto add_ws_tok = [&] (auto ws_offset) {
     switch (parsed_tokens.Role(ws_offset)) {
       case TokenRole::kFileToken:
       case TokenRole::kFinalMacroExpansionToken:
@@ -1092,17 +1112,11 @@ PrintedTokenRange PrintedTokenRange::AdoptWhitespace(
         return;
     }
 
-    // TODO(pag): Double check what the last non-whitespace token kind was,
-    //            e.g. a `,` or `;` or a `)` or a `}` means we should look
-    //            at the context parent.
-    auto ci = new_impl->tokens.empty() ? new_context_index :
-              new_impl->tokens.back().context_index;
-
     auto data = parsed_tokens.Data(ws_offset);
     auto &new_tok = new_impl->tokens.emplace_back(
         static_cast<uint32_t>(new_impl->data.size()),
         static_cast<uint32_t>(data.size()),
-        ci, parsed_tokens.Kind(ws_offset));
+        kInvalidTokenContextIndex, parsed_tokens.Kind(ws_offset));
     new_tok.derived_index = ws_offset;
     new_impl->data.insert(new_impl->data.end(), data.begin(), data.end());
   };
@@ -1137,17 +1151,13 @@ PrintedTokenRange PrintedTokenRange::AdoptWhitespace(
       continue;
     }
 
-    auto new_context_index = MigrateContexts(
-        wants_ws_tok.context_index, wants_ws.impl->contexts,
-        new_impl->contexts, data_to_context, context_map);
-
     // Add in the leading whitespace/comments.
     auto it = leading_ws.find(wants_ws_tok.derived_index);
     if (it != leading_ws.end()) {
       
       for (auto ws_offset = it->second; ws_offset < wants_ws_tok.derived_index;
            ++ws_offset) {
-        add_ws_tok(new_context_index, ws_offset);
+        add_ws_tok(ws_offset);
       }
     
     } else if (new_impl->tokens.empty()) {
@@ -1166,7 +1176,7 @@ PrintedTokenRange PrintedTokenRange::AdoptWhitespace(
         
         for (auto ws_offset = new_impl->tokens.back().derived_index + 1u;
              ws_offset <= it->second; ++ws_offset) {
-          add_ws_tok(new_context_index, ws_offset);
+          add_ws_tok(ws_offset);
         }
       }
     }
@@ -1176,10 +1186,15 @@ PrintedTokenRange PrintedTokenRange::AdoptWhitespace(
                      new_impl->tokens.back().kind;
     if (AddWhitespaceBetween(last_kind, wants_ws_tok.kind)) {
       new_impl->tokens.emplace_back(
-          static_cast<uint32_t>(new_impl->data.size()), 1u, new_context_index,
-          TokenKind::kUnknown);
+          static_cast<uint32_t>(new_impl->data.size()), 1u,
+          kInvalidTokenContextIndex, TokenKind::kUnknown);
       new_impl->data.push_back(' ');
     }
+
+    // Migrate the token context.
+    auto new_context_index = MigrateContexts(
+        wants_ws_tok.context_index, wants_ws.impl->contexts,
+        new_impl->contexts, data_to_context, context_map);
 
     // Add in the original token.
     auto data = wants_ws_tok.Data(*(wants_ws.impl));
@@ -1191,6 +1206,7 @@ PrintedTokenRange PrintedTokenRange::AdoptWhitespace(
     new_impl->data.insert(new_impl->data.end(), data.begin(), data.end());
   }
 
+  new_impl->FixupInvalidTokenContexts(kASTTokenContextIndex);
   new_impl->AddTrailingEOF();
   return PrintedTokenRangeImpl::ToPrintedTokenRange(std::move(new_impl));
 }

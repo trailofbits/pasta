@@ -869,9 +869,8 @@ void DeclPrinter::VisitFunctionDecl(clang::FunctionDecl *D) {
     tokens.TryChangeLastKind(TokenKind::kLess, TokenKind::kLAngle);
     Out << ">";
     tokens.TryChangeLastKind(TokenKind::kGreater, TokenKind::kRAngle);
-  }
 
-  else if (!D->getDescribedFunctionTemplate()) {
+  } else if (!D->getDescribedFunctionTemplate()) {
     for (unsigned I = 0, NumTemplateParams = D->getNumTemplateParameterLists();
          I < NumTemplateParams; ++I)
       printTemplateParameters(D->getTemplateParameterList(I));
@@ -955,8 +954,10 @@ void DeclPrinter::VisitFunctionDecl(clang::FunctionDecl *D) {
       // a `MarkLocation` for the name location but on the `<<` token.
       auto i = 0u;
       for (; i < name.size(); ++i) {
-        if (std::ispunct(name[i]) || std::isspace(name[i])) {
-          break;
+        if (name[i] != '_') {
+          if (std::ispunct(name[i]) || std::isspace(name[i])) {
+            break;
+          }
         }
         Out << name[i];
       }

@@ -938,6 +938,35 @@ class DeclBoundsFinder : public clang::DeclVisitor<DeclBoundsFinder>,
       }
     }
 
+    const ASTImpl::FunctionProto *proto = FunctionProtoFor(decl);
+
+    // If it looks like a typedef/variable form, then try to expand a bit into
+    // the previous tokens. This helps the `VisitDeclaratorDecl` logic work
+    // better.
+    if (proto && proto->has_variable_form && !proto->l_paren) {
+      auto prev_tok = PreviousToken(tok);
+      while (prev_tok) {
+        switch (prev_tok.Kind()) {
+          case TokenKind::kIdentifier:
+            Expand(prev_tok);
+            prev_tok = invalid;
+            break;
+          case TokenKind::kCaret:
+          case TokenKind::kCaretcaret:
+          case TokenKind::kStar:
+          case TokenKind::kAmp:
+          case TokenKind::kAmpAmp:
+          case TokenKind::kLParenthesis:
+            Expand(prev_tok);
+            prev_tok = PreviousToken(tok);
+            break;
+          default:
+            prev_tok = invalid;
+            break;
+        }
+      }
+    }
+
     VisitDeclaratorDecl(decl);
 
     const clang::FunctionDecl *def = nullptr;
@@ -964,7 +993,6 @@ class DeclBoundsFinder : public clang::DeclVisitor<DeclBoundsFinder>,
       ExpandToTrailingToken(tok, TokenKind::kSemi);
     }
 
-    const ASTImpl::FunctionProto *proto = FunctionProtoFor(decl);
     if (!proto) {
       return;
     }

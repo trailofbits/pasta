@@ -197,22 +197,21 @@ static bool MergeToken(PrintedTokenImpl *parsed, PrintedTokenImpl *printed,
     return false;
   }
 
-  if (parsed->context_index == kInvalidTokenContextIndex) {
-    parsed->context_index = printed->context_index;
-    changed = true;
-    force = true;
-  }
-
-  if (printed->derived_index == kInvalidDerivedTokenIndex &&
-      parsed->derived_index != kInvalidDerivedTokenIndex) {
-    printed->derived_index = parsed->derived_index;
-    changed = true;
-    force = true;
-  }
-
   auto locs_match = TokenLocationsMatch(parsed, printed);
   if (locs_match) {
     force = true;
+  }
+
+  if (force && parsed->context_index == kInvalidTokenContextIndex) {
+    parsed->context_index = printed->context_index;
+    changed = true;
+  }
+
+  if (force &&
+      printed->derived_index == kInvalidDerivedTokenIndex &&
+      parsed->derived_index != kInvalidDerivedTokenIndex) {
+    printed->derived_index = parsed->derived_index;
+    changed = true;
   }
 
   if (force && parsed->context_index != printed->context_index) {

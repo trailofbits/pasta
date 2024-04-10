@@ -653,6 +653,26 @@ void PrintedTokenRangeImpl::TryChangeLastKind(TokenKind old, TokenKind new_) {
   assert(false);
 }
 
+void PrintedTokenRangeImpl::TryRemoveTrailingComma(void) {
+  curr_printer_context->Tokenize();
+
+  if (!data.ends_with(',') && !data.ends_with(", ")) {
+    return;
+  }
+
+  // Remove trailing whitespace.
+  if (tokens.back().kind == TokenKind::kUnknown) {
+    data.resize(tokens.back().data_offset);
+    tokens.pop_back();
+  }
+
+  // Remove trailing comma.
+  if (tokens.back().kind == TokenKind::kComma) {
+    data.resize(tokens.back().data_offset);
+    tokens.pop_back();
+  }
+}
+
 void PrintedTokenRangeImpl::MarkLocation(PrintedTokenImpl &printed,
                                          DerivedTokenIndex parsed) {
   curr_printer_context->Tokenize();

@@ -1642,7 +1642,8 @@ void DeclPrinter::printTemplateParameters(
     ctx.MarkLocation(Params->getTemplateLoc());
   }
 
-  Out << " <";
+  ctx.Tokenize();
+  Out << "<";
   ctx.MarkLocation(Params->getLAngleLoc());
   tokens.TryChangeLastKind(TokenKind::kLess, TokenKind::kLAngle);
 
@@ -1665,9 +1666,11 @@ void DeclPrinter::printTemplateParameters(
       VisitTemplateDecl(TTPD);
       // FIXME: print the default argument, if present.
     }
+
+    tokens.TryRemoveTrailingComma();
   }
-  ctx.Tokenize();
-  Out << " >";
+  tokens.TryRemoveTrailingComma();
+  Out << ">";
   ctx.MarkLocation(Params->getRAngleLoc());
   tokens.TryChangeLastKind(TokenKind::kGreater, TokenKind::kRAngle);
 
@@ -1678,7 +1681,7 @@ void DeclPrinter::printTemplateParameters(
 void DeclPrinter::printTemplateArguments(llvm::ArrayRef<clang::TemplateArgument> Args,
                                          const clang::TemplateParameterList *Params,
                                          bool TemplOverloaded) {
-  Out << " <";
+  Out << "<";
   tokens.TryChangeLastKind(TokenKind::kLess, TokenKind::kLAngle);
   for (size_t I = 0, E = Args.size(); I < E; ++I) {
     if (I)
@@ -1693,14 +1696,15 @@ void DeclPrinter::printTemplateArguments(llvm::ArrayRef<clang::TemplateArgument>
                     clang::TemplateParameterList::shouldIncludeTypeForArgument(
                                   Policy, Params, static_cast<unsigned int>(I)));
   }
-  Out << " >";
+  tokens.TryRemoveTrailingComma();
+  Out << ">";
   tokens.TryChangeLastKind(TokenKind::kGreater, TokenKind::kRAngle);
 }
 
 void DeclPrinter::printTemplateArguments(llvm::ArrayRef<clang::TemplateArgumentLoc> Args,
                                          const clang::TemplateParameterList *Params,
                                          bool TemplOverloaded) {
-  Out << " <";
+  Out << "<";
   tokens.TryChangeLastKind(TokenKind::kLess, TokenKind::kLAngle);
 
   for (size_t I = 0, E = Args.size(); I < E; ++I) {
@@ -1716,7 +1720,8 @@ void DeclPrinter::printTemplateArguments(llvm::ArrayRef<clang::TemplateArgumentL
                     clang::TemplateParameterList::shouldIncludeTypeForArgument(
                                   Policy, Params, static_cast<unsigned int>(I)));
   }
-  Out << " >";
+  tokens.TryRemoveTrailingComma();
+  Out << ">";
   tokens.TryChangeLastKind(TokenKind::kGreater, TokenKind::kRAngle);
 }
 
@@ -1810,9 +1815,9 @@ void DeclPrinter::VisitVarTemplateSpecializationDecl(
   ctx.MarkLocation(D->getTemplateKeywordLoc());
   Out << " <";
   tokens.TryChangeLastKind(TokenKind::kLess, TokenKind::kLAngle);
-  Out << "> ";
+  Out << '>';
   tokens.TryChangeLastKind(TokenKind::kGreater, TokenKind::kRAngle);
-
+  Out << '\n';
   VisitVarDecl(D);
 }
 
@@ -1838,8 +1843,9 @@ void DeclPrinter::VisitClassTemplateSpecializationDecl(clang::ClassTemplateSpeci
   ctx.MarkLocation(D->getTemplateKeywordLoc());
   Out << " <";
   tokens.TryChangeLastKind(TokenKind::kLess, TokenKind::kLAngle);
-  Out << "> ";
+  Out << '>';
   tokens.TryChangeLastKind(TokenKind::kGreater, TokenKind::kRAngle);
+  Out << '\n';
   VisitCXXRecordDecl(D);
 }
 
@@ -1883,7 +1889,7 @@ void DeclPrinter::PrintObjCMethodType(clang::ASTContext &Ctx,
 
 void DeclPrinter::PrintObjCTypeParams(clang::ObjCTypeParamList *Params) {
   //DeclPrinterContext ctx(Out, Params);
-  Out << " <";
+  Out << "<";
   tokens.TryChangeLastKind(TokenKind::kLess, TokenKind::kLAngle);
 
   unsigned First = true;
@@ -1915,7 +1921,8 @@ void DeclPrinter::PrintObjCTypeParams(clang::ObjCTypeParamList *Params) {
       printQualType(Param->getUnderlyingType(), Out, Policy);
     }
   }
-  Out << " >";
+  tokens.TryRemoveTrailingComma();
+  Out << ">";
   tokens.TryChangeLastKind(TokenKind::kGreater, TokenKind::kRAngle);
 }
 
@@ -2031,16 +2038,17 @@ void DeclPrinter::VisitObjCInterfaceDecl(clang::ObjCInterfaceDecl *OID) {
     for (clang::ObjCList<clang::ObjCProtocolDecl>::iterator I = Protocols.begin(),
          E = Protocols.end(); I != E; ++I) {
       if (I == Protocols.begin()) {
-        Out << " <";
+        Out << '<';
         tokens.TryChangeLastKind(TokenKind::kLess, TokenKind::kLAngle);
       } else {
-        Out << ',';
+        Out << ", ";
       }
 
       TagDefinitionPolicyRAII tag_raii(Policy);
       Out << **I;
     }
-    Out << " > ";
+    tokens.TryRemoveTrailingComma();
+    Out << '>';
     tokens.TryChangeLastKind(TokenKind::kGreater, TokenKind::kRAngle);
   }
 
@@ -2083,17 +2091,19 @@ void DeclPrinter::VisitObjCProtocolDecl(clang::ObjCProtocolDecl *PID) {
     for (clang::ObjCList<clang::ObjCProtocolDecl>::iterator I = Protocols.begin(),
          E = Protocols.end(); I != E; ++I) {
       if (I == Protocols.begin()) {
-        Out << " <";
+        Out << '<';
         tokens.TryChangeLastKind(TokenKind::kLess, TokenKind::kLAngle);
       } else {
-        Out << ',';
+        Out << ", ";
       }
 
       TagDefinitionPolicyRAII tag_raii(Policy);
       Out << **I;
     }
-    Out << " >\n";
+    tokens.TryRemoveTrailingComma();
+    Out << '>';
     tokens.TryChangeLastKind(TokenKind::kGreater, TokenKind::kRAngle);
+    Out << '\n';
   } else
     Out << "@protocol " << *PID << '\n';
   VisitDeclContext(PID, false);

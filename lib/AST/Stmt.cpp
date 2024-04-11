@@ -3366,13 +3366,24 @@ bool Expr::HasSideEffects(void) const {
   throw std::runtime_error("Expr::IgnoreParenthesisLValueCasts can return nullptr!");
 }
 
-::pasta::Expr Expr::IgnoreParenthesisNoopCasts(void) const {
+std::optional<::pasta::Expr> Expr::IgnoreParenthesisNoopCasts(void) const {
   auto &self = *(u.Expr);
+  if (auto cast_expr = pasta::CastExpr::From(*this)) {
+    auto &new_self = *(u.CastExpr);
+    if (auto sub_expr = new_self.getSubExpr()) {
+      auto type_ptr = sub_expr->getType().getTypePtr();
+      if (type_ptr && type_ptr->isDependentType()) {
+        return std::nullopt;
+      }
+    }
+  }
   decltype(auto) val = self.IgnoreParenNoopCasts(ast->ci->getASTContext());
+  if (!val) {
+    return std::nullopt;
+  }
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
-  throw std::runtime_error("Expr::IgnoreParenthesisNoopCasts can return nullptr!");
 }
 
 ::pasta::Expr Expr::IgnoreParentheses(void) const {

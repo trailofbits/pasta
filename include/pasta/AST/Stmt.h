@@ -1523,7 +1523,7 @@ class Expr : public ValueStmt {
   ::pasta::Expr IgnoreParenthesisCasts(void) const;
   ::pasta::Expr IgnoreParenthesisImplicitCasts(void) const;
   ::pasta::Expr IgnoreParenthesisLValueCasts(void) const;
-  ::pasta::Expr IgnoreParenthesisNoopCasts(void) const;
+  std::optional<::pasta::Expr> IgnoreParenthesisNoopCasts(void) const;
   ::pasta::Expr IgnoreParentheses(void) const;
   ::pasta::Expr IgnoreUnlessSpelledInSource(void) const;
   bool ContainsErrors(void) const;

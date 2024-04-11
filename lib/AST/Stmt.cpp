@@ -13853,10 +13853,15 @@ std::optional<::pasta::Expr> CXXTypeidExpr::ExpressionOperand(void) const {
   return ast->TokenRangeFrom(val);
 }
 
-::pasta::Type CXXTypeidExpr::TypeOperand(void) const {
+std::optional<::pasta::Type> CXXTypeidExpr::TypeOperand(void) const {
   auto &self = *(u.CXXTypeidExpr);
+  if (!self.isTypeOperand()) {
+    return std::nullopt;
+  }
   decltype(auto) val = self.getTypeOperand(ast->ci->getASTContext());
-  assert(!val.isNull());
+  if (val.isNull()) {
+    return std::nullopt;
+  }
   return TypeBuilder::Build(ast, val);
 }
 

@@ -5396,7 +5396,7 @@ class CXXTypeidExpr : public Expr {
   ::pasta::Token EndToken(void) const;
   std::optional<::pasta::Expr> ExpressionOperand(void) const;
   ::pasta::TokenRange Tokens(void) const;
-  ::pasta::Type TypeOperand(void) const;
+  std::optional<::pasta::Type> TypeOperand(void) const;
   ::pasta::Type TypeOperandSourceInfo(void) const;
   std::optional<bool> IsMostDerived(void) const;
   bool IsPotentiallyEvaluated(void) const;

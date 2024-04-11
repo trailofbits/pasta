@@ -299,12 +299,12 @@ class TokenRange {
   // comes after the ending token.
   static std::optional<TokenRange> From(Token begin, Token end);
 
-  inline size_t size(void) const noexcept {
+  inline unsigned size(void) const noexcept {
     return after_last - first;
   }
 
   // Number of tokens in this range.
-  inline size_t Size(void) const noexcept {
+  inline unsigned Size(void) const noexcept {
     return after_last - first;
   }
 

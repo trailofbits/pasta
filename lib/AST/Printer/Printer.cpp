@@ -766,8 +766,8 @@ PrintedTokenRange PrintedTokenRange::Create(
 }
 
 // Number of tokens in this range.
-size_t PrintedTokenRange::Size(void) const noexcept {
-  return first < after_last ? static_cast<size_t>(after_last - first) : 0;
+unsigned PrintedTokenRange::Size(void) const noexcept {
+  return first < after_last ? static_cast<unsigned>(after_last - first) : 0u;
 }
 
 std::string_view PrintedTokenRange::Data(void) const noexcept {

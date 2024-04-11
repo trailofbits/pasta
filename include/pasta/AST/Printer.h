@@ -456,7 +456,7 @@ class PrintedTokenRange {
     return PrintedTokenIterator(impl, after_last);
   }
 
-  inline size_t size(void) const noexcept {
+  inline unsigned size(void) const noexcept {
     return Size();
   }
 
@@ -465,7 +465,7 @@ class PrintedTokenRange {
   }
 
   // Number of tokens in this range.
-  size_t Size(void) const noexcept;
+  unsigned Size(void) const noexcept;
 
   // Return the `index`th token in this range. If `index` is too big, then
   // return nothing.

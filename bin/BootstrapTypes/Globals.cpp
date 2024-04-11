@@ -1978,6 +1978,18 @@ std::map<std::pair<std::string, std::string>, std::string> kConditionalNullptr{
    "  if (!self.isTypeOperand()) {\n"
    "    return std::nullopt;\n"
    "  }\n"},
+  {{"CXXTypeidExpr", "TypeOperandSourceInfo"},
+   "  if (!self.isTypeOperand()) {\n"
+   "    return std::nullopt;\n"
+   "  }\n"},
+  {{"CXXTypeidExpr", "TypeOperandSourceInfo"},
+   "  if (!self.isTypeOperand()) {\n"
+   "    return std::nullopt;\n"
+   "  }\n"},
+  {{"CXXUuidofExpr", "TypeOperand"},
+   "  if (!self.isTypeOperand()) {\n"
+   "    return std::nullopt;\n"
+   "  }\n"},
 };
 
 std::unordered_map<std::string, uint32_t> gClassIDs;

@@ -13865,11 +13865,16 @@ std::optional<::pasta::Type> CXXTypeidExpr::TypeOperand(void) const {
   return TypeBuilder::Build(ast, val);
 }
 
-::pasta::Type CXXTypeidExpr::TypeOperandSourceInfo(void) const {
+std::optional<::pasta::Type> CXXTypeidExpr::TypeOperandSourceInfo(void) const {
   auto &self = *const_cast<clang::CXXTypeidExpr *>(u.CXXTypeidExpr);
+  if (!self.isTypeOperand()) {
+    return std::nullopt;
+  }
   decltype(auto) val = self.getTypeOperandSourceInfo();
+  if (!val) {
+    return std::nullopt;
+  }
   return TypeBuilder::Build(ast, val->getType());
-  throw std::runtime_error("CXXTypeidExpr::TypeOperandSourceInfo can return nullptr!");
 }
 
 std::optional<bool> CXXTypeidExpr::IsMostDerived(void) const {
@@ -14033,10 +14038,15 @@ std::optional<::pasta::Expr> CXXUuidofExpr::ExpressionOperand(void) const {
   return ast->TokenRangeFrom(val);
 }
 
-::pasta::Type CXXUuidofExpr::TypeOperand(void) const {
+std::optional<::pasta::Type> CXXUuidofExpr::TypeOperand(void) const {
   auto &self = *(u.CXXUuidofExpr);
+  if (!self.isTypeOperand()) {
+    return std::nullopt;
+  }
   decltype(auto) val = self.getTypeOperand(ast->ci->getASTContext());
-  assert(!val.isNull());
+  if (val.isNull()) {
+    return std::nullopt;
+  }
   return TypeBuilder::Build(ast, val);
 }
 

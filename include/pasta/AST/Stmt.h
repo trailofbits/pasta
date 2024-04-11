@@ -5397,7 +5397,7 @@ class CXXTypeidExpr : public Expr {
   std::optional<::pasta::Expr> ExpressionOperand(void) const;
   ::pasta::TokenRange Tokens(void) const;
   std::optional<::pasta::Type> TypeOperand(void) const;
-  ::pasta::Type TypeOperandSourceInfo(void) const;
+  std::optional<::pasta::Type> TypeOperandSourceInfo(void) const;
   std::optional<bool> IsMostDerived(void) const;
   bool IsPotentiallyEvaluated(void) const;
   bool IsTypeOperand(void) const;
@@ -5445,7 +5445,7 @@ class CXXUuidofExpr : public Expr {
   std::optional<::pasta::Expr> ExpressionOperand(void) const;
   ::pasta::MSGuidDecl GuidDeclaration(void) const;
   ::pasta::TokenRange Tokens(void) const;
-  ::pasta::Type TypeOperand(void) const;
+  std::optional<::pasta::Type> TypeOperand(void) const;
   ::pasta::Type TypeOperandSourceInfo(void) const;
   bool IsTypeOperand(void) const;
  protected:

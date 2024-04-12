@@ -919,6 +919,15 @@ class DeclBoundsFinder : public clang::DeclVisitor<DeclBoundsFinder>,
           } else {
             Expand(pattern_decl->getSourceRange(), CheckLocation(pattern_decl));
           }
+
+          // The template pattern may have skipped body during partial instantiation
+          // and body is not set. In that case get the end of the Function token and
+          // expand till the `end_tok`.
+        } else if (pattern_decl->hasSkippedBody()) {
+          if (auto end_tok = FindEndOfFunction(decl, tok);
+              end_tok > upper_bound) {
+            Expand(end_tok);
+          }
         } else {
           Expand(pattern_decl->getSourceRange(), CheckLocation(pattern_decl));
           ExpandToTrailingToken(tok, TokenKind::kSemi);

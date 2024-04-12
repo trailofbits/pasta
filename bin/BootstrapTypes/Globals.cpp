@@ -1964,6 +1964,32 @@ std::map<std::pair<std::string, std::string>, std::string> kConditionalNullptr{
    "      op_kind == clang::UserDefinedLiteral::LiteralOperatorKind::LOK_Raw) {\n"
    "    return std::nullopt;\n"
    "  }\n"},
+  {{"Expr", "IgnoreParenthesisNoopCasts"},
+   "  if (auto cast_expr = pasta::CastExpr::From(*this)) {\n"
+   "    auto &new_self = *(u.CastExpr);\n"
+   "    if (auto sub_expr = new_self.getSubExpr()) {\n"
+   "      auto type_ptr = sub_expr->getType().getTypePtr();\n"
+   "      if (type_ptr && type_ptr->isDependentType()) {\n"
+   "        return std::nullopt;\n"
+   "      }\n"
+   "    }\n"
+   "  }\n"},
+  {{"CXXTypeidExpr", "TypeOperand"},
+   "  if (!self.isTypeOperand()) {\n"
+   "    return std::nullopt;\n"
+   "  }\n"},
+  {{"CXXTypeidExpr", "TypeOperandSourceInfo"},
+   "  if (!self.isTypeOperand()) {\n"
+   "    return std::nullopt;\n"
+   "  }\n"},
+  {{"CXXTypeidExpr", "TypeOperandSourceInfo"},
+   "  if (!self.isTypeOperand()) {\n"
+   "    return std::nullopt;\n"
+   "  }\n"},
+  {{"CXXUuidofExpr", "TypeOperand"},
+   "  if (!self.isTypeOperand()) {\n"
+   "    return std::nullopt;\n"
+   "  }\n"},
 };
 
 std::unordered_map<std::string, uint32_t> gClassIDs;

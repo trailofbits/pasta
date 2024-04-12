@@ -80,8 +80,8 @@ void RegisterAST(nb::module_ &m) {
     .def_prop_ro("is_instantiation_dependent", &TemplateArgument::IsInstantiationDependent)
     .def_prop_ro("contains_unexpanded_parameter_pack", &TemplateArgument::ContainsUnexpandedParameterPack)
     .def_prop_ro("is_pack_expansion", &TemplateArgument::IsPackExpansion)
-    .def_prop_ro("as_declaration", &TemplateArgument::AsDeclaration)
-    .def_prop_ro("as_type", &TemplateArgument::AsType)
+    .def_prop_ro("declaration", &TemplateArgument::Declaration)
+    .def_prop_ro("type", &TemplateArgument::Type)
     .def_prop_ro("parameter_type_for_declaration", &TemplateArgument::ParameterTypeForDeclaration)
     .def_prop_ro("null_pointer_type", &TemplateArgument::NullPointerType)
     .def_prop_ro("pack_elements", &TemplateArgument::PackElements);

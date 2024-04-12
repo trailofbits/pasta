@@ -5,6 +5,7 @@
 #include "AST.h"
 
 #include <pasta/AST/Decl.h>
+#include <pasta/AST/DeclHead.h>
 
 #include <cassert>
 #include <limits>

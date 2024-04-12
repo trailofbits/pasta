@@ -3366,13 +3366,24 @@ bool Expr::HasSideEffects(void) const {
   throw std::runtime_error("Expr::IgnoreParenthesisLValueCasts can return nullptr!");
 }
 
-::pasta::Expr Expr::IgnoreParenthesisNoopCasts(void) const {
+std::optional<::pasta::Expr> Expr::IgnoreParenthesisNoopCasts(void) const {
   auto &self = *(u.Expr);
+  if (auto cast_expr = pasta::CastExpr::From(*this)) {
+    auto &new_self = *(u.CastExpr);
+    if (auto sub_expr = new_self.getSubExpr()) {
+      auto type_ptr = sub_expr->getType().getTypePtr();
+      if (type_ptr && type_ptr->isDependentType()) {
+        return std::nullopt;
+      }
+    }
+  }
   decltype(auto) val = self.IgnoreParenNoopCasts(ast->ci->getASTContext());
+  if (!val) {
+    return std::nullopt;
+  }
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
-  throw std::runtime_error("Expr::IgnoreParenthesisNoopCasts can return nullptr!");
 }
 
 ::pasta::Expr Expr::IgnoreParentheses(void) const {
@@ -13842,18 +13853,28 @@ std::optional<::pasta::Expr> CXXTypeidExpr::ExpressionOperand(void) const {
   return ast->TokenRangeFrom(val);
 }
 
-::pasta::Type CXXTypeidExpr::TypeOperand(void) const {
+std::optional<::pasta::Type> CXXTypeidExpr::TypeOperand(void) const {
   auto &self = *(u.CXXTypeidExpr);
+  if (!self.isTypeOperand()) {
+    return std::nullopt;
+  }
   decltype(auto) val = self.getTypeOperand(ast->ci->getASTContext());
-  assert(!val.isNull());
+  if (val.isNull()) {
+    return std::nullopt;
+  }
   return TypeBuilder::Build(ast, val);
 }
 
-::pasta::Type CXXTypeidExpr::TypeOperandSourceInfo(void) const {
+std::optional<::pasta::Type> CXXTypeidExpr::TypeOperandSourceInfo(void) const {
   auto &self = *const_cast<clang::CXXTypeidExpr *>(u.CXXTypeidExpr);
+  if (!self.isTypeOperand()) {
+    return std::nullopt;
+  }
   decltype(auto) val = self.getTypeOperandSourceInfo();
+  if (!val) {
+    return std::nullopt;
+  }
   return TypeBuilder::Build(ast, val->getType());
-  throw std::runtime_error("CXXTypeidExpr::TypeOperandSourceInfo can return nullptr!");
 }
 
 std::optional<bool> CXXTypeidExpr::IsMostDerived(void) const {
@@ -14017,10 +14038,15 @@ std::optional<::pasta::Expr> CXXUuidofExpr::ExpressionOperand(void) const {
   return ast->TokenRangeFrom(val);
 }
 
-::pasta::Type CXXUuidofExpr::TypeOperand(void) const {
+std::optional<::pasta::Type> CXXUuidofExpr::TypeOperand(void) const {
   auto &self = *(u.CXXUuidofExpr);
+  if (!self.isTypeOperand()) {
+    return std::nullopt;
+  }
   decltype(auto) val = self.getTypeOperand(ast->ci->getASTContext());
-  assert(!val.isNull());
+  if (val.isNull()) {
+    return std::nullopt;
+  }
   return TypeBuilder::Build(ast, val);
 }
 

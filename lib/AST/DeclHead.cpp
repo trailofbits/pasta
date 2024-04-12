@@ -371,7 +371,7 @@ bool TemplateArgument::IsPackExpansion(void) const noexcept {
 }
 
 // Retrieve the declaration for a declaration non-type template argument.
-std::optional<ValueDecl> TemplateArgument::AsDeclaration(void) const noexcept {
+std::optional<ValueDecl> TemplateArgument::Declaration(void) const noexcept {
   if (Kind() == TemplateArgumentKind::kDeclaration) {
     return DeclBuilder::Create<pasta::ValueDecl>(ast, arg->getAsDecl());
   }
@@ -379,14 +379,14 @@ std::optional<ValueDecl> TemplateArgument::AsDeclaration(void) const noexcept {
 }
 
 // Retrieve the type for a type template argument.
-std::optional<Type> TemplateArgument::AsType(void) const noexcept {
+std::optional<::pasta::Type> TemplateArgument::Type(void) const noexcept {
   if (Kind() == TemplateArgumentKind::kType) {
     return TypeBuilder::Build(ast, arg->getAsType());
   }
   return std::nullopt;
 }
 
-std::optional<Type>
+std::optional<::pasta::Type>
 TemplateArgument::ParameterTypeForDeclaration(void) const noexcept {
   if (Kind() == TemplateArgumentKind::kDeclaration) {
     return TypeBuilder::Build(ast, arg->getParamTypeForDecl());
@@ -394,7 +394,8 @@ TemplateArgument::ParameterTypeForDeclaration(void) const noexcept {
   return std::nullopt;
 }
 
-std::optional<Type> TemplateArgument::NullPointerType(void) const noexcept {
+std::optional<::pasta::Type>
+TemplateArgument::NullPointerType(void) const noexcept {
   if (Kind() == TemplateArgumentKind::kNullPointer) {
     return TypeBuilder::Build(ast, arg->getNullPtrType());
   }

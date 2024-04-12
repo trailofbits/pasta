@@ -192,14 +192,14 @@ class TemplateArgument {
   bool IsPackExpansion(void) const noexcept;
 
   // Retrieve the declaration for a declaration non-type template argument.
-  std::optional<ValueDecl> AsDeclaration(void) const noexcept;
+  std::optional<ValueDecl> Declaration(void) const noexcept;
 
   // Retrieve the type for a type template argument.
-  std::optional<Type> AsType(void) const noexcept;
+  std::optional<::pasta::Type> Type(void) const noexcept;
 
-  std::optional<Type> ParameterTypeForDeclaration(void) const noexcept;
+  std::optional<::pasta::Type> ParameterTypeForDeclaration(void) const noexcept;
 
-  std::optional<Type> NullPointerType(void) const noexcept;
+  std::optional<::pasta::Type> NullPointerType(void) const noexcept;
 
   // If this argument is an argument pack, then return the inner arguments.
   std::optional<std::vector<TemplateArgument>> PackElements(void) const noexcept;

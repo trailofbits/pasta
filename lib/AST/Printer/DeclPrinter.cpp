@@ -452,7 +452,22 @@ void DeclPrinter::ProcessDeclGroup(clang::SmallVectorImpl<clang::Decl*>& Decls) 
   this->Indent();
   Decl_printGroup(Decls.data(), static_cast<unsigned>(Decls.size()), Out,
                   Policy, Indentation, tokens);
-  Out << ";\n";
+  if (!Decls.empty()) {
+    auto decl = Decls.front();
+    TokenPrinterContext ctx(Out, decl, tokens);
+    Out << ';';
+
+    if (tokens.ast) {
+      // Mark the location of the trailing semicolon, if any.
+      auto [begin_tok, end_tok] = tokens.ast->DeclBounds(decl);
+      if (begin_tok < end_tok &&
+          tokens.ast->TokenKind(end_tok) == TokenKind::kSemi &&
+          tokens.tokens.back().kind == TokenKind::kSemi) {
+        ctx.MarkLocation(end_tok);
+      }
+    }
+  }
+  Out << '\n';
   Decls.clear();
 }
 
@@ -676,8 +691,20 @@ void DeclPrinter::VisitDeclContext(clang::DeclContext *DC, bool Indent) {
     } else
       Terminator = ";";
 
-    if (Terminator)
+    if (Terminator) {
+      TokenPrinterContext ctx(Out, *D, tokens);
       Out << Terminator;
+
+      if (Terminator[0] == ';' && tokens.ast) {
+        auto [begin_tok, end_tok] = tokens.ast->DeclBounds(*D);
+        if (begin_tok < end_tok &&
+            tokens.ast->TokenKind(end_tok) == TokenKind::kSemi &&
+            tokens.tokens.back().kind == TokenKind::kSemi) {
+          ctx.MarkLocation(end_tok);
+        }
+      }
+    }
+
     if (!Policy.TerseOutput &&
         ((clang::isa<clang::FunctionDecl>(*D) &&
           clang::cast<clang::FunctionDecl>(*D)->doesThisDeclarationHaveABody()) ||
@@ -1781,6 +1808,8 @@ void DeclPrinter::VisitFunctionTemplateDecl(clang::FunctionTemplateDecl *D) {
   for (auto *I : D->specializations()) {
     if (tokens.ppa->ShouldPrintSpecialization(D, I)) {
       Indent();
+
+      TokenPrinterContext ctx(Out, I, tokens);
       prettyPrintPragmas(I);
       Visit(I);
 
@@ -2588,8 +2617,11 @@ PrintedTokenRange PrintedTokenRange::Create(clang::ASTContext &context,
     printer.Visit(decl);
 
     // Add a trailing semicolon.
-    TokenPrinterContext ctx(out, decl, *tokens);
-    out << OptionalTrailingSemiColon(tokens, decl);
+    auto semi = OptionalTrailingSemiColon(tokens, decl);
+    if (semi[0]) {
+      TokenPrinterContext ctx(out, decl, *tokens);
+      out << semi[0];
+    }
   }
 
   tokens->AddTrailingEOF();

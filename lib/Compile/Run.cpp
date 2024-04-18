@@ -93,7 +93,7 @@ PASTA_BYPASS_MEMBER_OBJECT_ACCESS(clang, FileEntry, File,
 }  // namespace detail
 
 extern void PreprocessCode(ASTImpl &impl, clang::CompilerInstance &ci,
-                           clang::Preprocessor &pp);
+                           clang::Preprocessor &pp, PatchedMacroTracker &pmt);
 
 extern void AddCustomBuiltinsToPreprocessor(ASTImpl &ast,
                                             clang::Preprocessor &pp);
@@ -412,7 +412,7 @@ Result<AST, std::string> CompileJob::Run(void) const {
 
   // Picks up on the pre-processor and stuff.
   ci.InitializeSourceManager(input_files[0]);
-  PreprocessCode(*ast, ci, pp);
+  PreprocessCode(*ast, ci, pp, *macro_tracker_ptr);
 
   // If we didn't end up tracking any files then something is seriously wrong.
   assert(!ast->id_to_file.empty());

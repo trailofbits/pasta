@@ -80,6 +80,9 @@ class PatchedMacroTracker : public clang::PPCallbacks {
   std::vector<std::string> tok_data_vec;
   size_t next_tok_data{0};
 
+
+  std::vector<MacroNodeImpl *> popped_nodes;
+
   std::vector<MacroNodeImpl *> nodes;
   std::vector<MacroDirectiveImpl *> directives;
   std::vector<MacroExpansionImpl *> expansions;
@@ -129,7 +132,12 @@ class PatchedMacroTracker : public clang::PPCallbacks {
 
   virtual ~PatchedMacroTracker(void);
 
+  void FlushPopped(void);
+
  private:
+
+  void SetupNode(MacroNodeImpl *node);
+  void PopNode(void);
 
   void Push(const clang::Token &tok);
   void Pop(const clang::Token &tok);

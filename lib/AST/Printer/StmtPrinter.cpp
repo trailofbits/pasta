@@ -13,7 +13,17 @@
 
 #include "DeclStmtPrinter.h"
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wbitfield-enum-conversion"
+#pragma GCC diagnostic ignored "-Wimplicit-int-conversion"
+#pragma GCC diagnostic ignored "-Wsign-conversion"
+#pragma GCC diagnostic ignored "-Wshorten-64-to-32"
+#pragma GCC diagnostic ignored "-Wold-style-cast"
+#pragma GCC diagnostic ignored "-Wunused-parameter"
+#pragma GCC diagnostic ignored "-Wshadow"
+#pragma GCC diagnostic ignored "-Wcast-align"
 #include <llvm/ADT/StringExtras.h>
+#pragma GCC diagnostic pop
 
 //===----------------------------------------------------------------------===//
 //  Stmt printing methods.
@@ -2554,6 +2564,10 @@ void StmtPrinter::VisitLambdaExpr(clang::LambdaExpr *Node) {
   OS << ']';
   ctx.MarkLocation(Node->getIntroducerRange().getEnd());
 
+  clang::CXXMethodDecl *Method = Node->getCallOperator();
+  TokenPrinterContext ctx2(OS, Method->getParent(), tokens);
+  TokenPrinterContext ctx3(OS, Method, tokens);
+
   if (!Node->getExplicitTemplateParameters().empty()) {
     Node->getTemplateParameterList()->print(
         OS, Node->getLambdaClass()->getASTContext(),
@@ -2562,7 +2576,6 @@ void StmtPrinter::VisitLambdaExpr(clang::LambdaExpr *Node) {
 
   if (Node->hasExplicitParameters()) {
     OS << '(';
-    clang::CXXMethodDecl *Method = Node->getCallOperator();
     NeedComma = false;
     for (const auto *P : Method->parameters()) {
       if (NeedComma) {

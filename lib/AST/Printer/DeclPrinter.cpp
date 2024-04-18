@@ -566,9 +566,6 @@ void DeclPrinter::PrintConstructorInitializers(
 //----------------------------------------------------------------------------
 
 void DeclPrinter::VisitDeclContext(clang::DeclContext *DC, bool Indent) {
-  if (Policy.TerseOutput)
-    return;
-
   if (Indent)
     Indentation += Policy.Indentation;
 
@@ -705,14 +702,7 @@ void DeclPrinter::VisitDeclContext(clang::DeclContext *DC, bool Indent) {
       }
     }
 
-    if (!Policy.TerseOutput &&
-        ((clang::isa<clang::FunctionDecl>(*D) &&
-          clang::cast<clang::FunctionDecl>(*D)->doesThisDeclarationHaveABody()) ||
-         (clang::isa<clang::FunctionTemplateDecl>(*D) &&
-          clang::cast<clang::FunctionTemplateDecl>(*D)->getTemplatedDecl()->doesThisDeclarationHaveABody())))
-      ; // StmtPrinter already added '\n' after CompoundStmt.
-    else
-      Out << "\n";
+    Out << "\n";
 
     // Declare target attribute is special one, natural spelling for the pragma
     // assumes "ending" construct so print it here.
@@ -983,11 +973,7 @@ void DeclPrinter::VisitFunctionDecl(clang::FunctionDecl *D) {
           }
         }
 
-        std::string name;
-        llvm::raw_string_ostream name_os(name);
-
-        TagDefinitionPolicyRAII disable_tags(Policy);
-        D->getNameInfo().printName(name_os, Policy);
+        std::string name = D->getNameAsString();
 
         // Handle things like `operator<<` being the name. We don't want to do
         // a `MarkLocation` for the name location but on the `<<` token.
@@ -999,9 +985,18 @@ void DeclPrinter::VisitFunctionDecl(clang::FunctionDecl *D) {
             }
           }
           Out << name[i];
+
+          // Mark the location of the `~` in a destructor.
+          if (!i && name[i] == '~' && DDecl && tokens.ast) {
+            auto loc = tokens.ast->RawTokenAt(D->getLocation());
+            if (loc && loc.Previous() && loc.Kind() == TokenKind::kTilde) {
+              ctx.MarkLocation(loc);
+            }
+          }
         }
 
         ctx.MarkLocation(D->getLocation());
+
         for (; i < name.size(); ++i) {
           Out << name[i];
         }
@@ -1259,7 +1254,7 @@ void DeclPrinter::VisitFunctionDecl(clang::FunctionDecl *D) {
     }
 
     if (CDecl) {
-      if (!Policy.TerseOutput && !D->isPure() && !D->isDeletedAsWritten() &&
+      if (!D->isPure() && !D->isDeletedAsWritten() &&
           !D->isExplicitlyDefaulted() && D->isThisDeclarationADefinition())
         PrintConstructorInitializers(ctx, CDecl, ProtoFn);
     } else if (!ConversionDecl && !clang::isa<clang::CXXDestructorDecl>(D)) {
@@ -1297,15 +1292,16 @@ void DeclPrinter::VisitFunctionDecl(clang::FunctionDecl *D) {
     prettyPrintAttributes(D);
   }
 
-  if (D->isPure())
-    Out << " = 0";
-  else if (D->isDeletedAsWritten())
-    Out << " = delete";
-  else if (D->isExplicitlyDefaulted())
-    Out << " = default";
-  else if (D->doesThisDeclarationHaveABody()) {
-    if (!Policy.TerseOutput) {
-      if (!D->hasPrototype() && num_params) {
+  std::function<void(clang::FunctionDecl *, bool)> PrintBody;
+  PrintBody = [&] (clang::FunctionDecl *D, bool Descend) {
+    if (D->isPure())
+      Out << " = 0";
+    else if (D->isDeletedAsWritten())
+      Out << " = delete";
+    else if (D->isExplicitlyDefaulted())
+      Out << " = default";
+    else if (D->doesThisDeclarationHaveABody()) {
+      if (!D->hasPrototype() && num_params && Descend) {
         // This is a K&R function definition, so we need to print the
         // parameters.
         Out << '\n';
@@ -1320,16 +1316,27 @@ void DeclPrinter::VisitFunctionDecl(clang::FunctionDecl *D) {
       } else
         Out << ' ';
 
-      if (D->getBody()) {
+      auto B = D->getBody();
+      if (B && Descend) {
         StmtPrinter stmtPrinter(Out, nullptr, tokens, SubPolicy, Indentation, "\n", &Context);
         stmtPrinter.suppress_leading_indent = true;
-        stmtPrinter.Visit(D->getBody());
+        stmtPrinter.Visit(B);
+
+      // This will happen when we have a method in a specialization, but where
+      // the body of the method hasn't been substituted.
+      } else if (auto C = dyn_cast<clang::CompoundStmt>(B)) {
+        OS << "{";
+        ctx.MarkLocation(C->getLBracLoc());
+        OS << "}";
+        ctx.MarkLocation(C->getRBracLoc());
       }
-    } else {
-      if (!Policy.TerseOutput && clang::isa<clang::CXXConstructorDecl>(*D))
-        Out << " {}";
+
+    } else if (auto P = D->getInstantiatedFromMemberFunction()) {
+      PrintBody(P, false);
     }
-  }
+  };
+
+  PrintBody(D, true);
 }
 
 void DeclPrinter::VisitFriendDecl(clang::FriendDecl *D) {
@@ -1631,21 +1638,12 @@ void DeclPrinter::VisitCXXRecordDecl(clang::CXXRecordDecl *D) {
       }
     }
 
-    // Print the class definition
-    // FIXME: Doesn't print access specifiers, e.g., "public:"
-    if (Policy.TerseOutput) {
-      Out << " {";
-      ctx.MarkLocation(D->getBraceRange().getBegin());
-      Out << "}";
-      ctx.MarkLocation(D->getBraceRange().getEnd());
-    } else {
-      Out << " {";
-      ctx.MarkLocation(D->getBraceRange().getBegin());
-      Out << "\n";
-      VisitDeclContext(D);
-      Indent() << "}";
-      ctx.MarkLocation(D->getBraceRange().getEnd());
-    }
+    Out << " {";
+    ctx.MarkLocation(D->getBraceRange().getBegin());
+    Out << "\n";
+    VisitDeclContext(D);
+    Indent() << "}";
+    ctx.MarkLocation(D->getBraceRange().getEnd());
   }
 }
 
@@ -2003,14 +2001,13 @@ void DeclPrinter::VisitObjCMethodDecl(clang::ObjCMethodDecl *OMD) {
 
   prettyPrintAttributes(OMD);
 
-  if (OMD->getBody() && !Policy.TerseOutput) {
+  if (OMD->getBody()) {
     Out << ' ';
     printPrettyStmt(OMD->getBody(), Out, nullptr, Policy);
-  }
-  else if (Policy.PolishForDeclaration)
+  } else {
     Out << ';';
-
-  ctx.MarkLocation(OMD->getDeclaratorEndLoc());
+    ctx.MarkLocation(OMD->getDeclaratorEndLoc());
+  }
 }
 
 void DeclPrinter::VisitObjCImplementationDecl(clang::ObjCImplementationDecl *OID) {
@@ -2680,6 +2677,11 @@ PrintedTokenRange PrintedTokenRange::Create(const std::shared_ptr<ASTImpl> &ast,
     PrintingPolicyAdaptorRAII ppa_set_reset(tokens, ppa);
 
     clang::PrintingPolicy pp = *(ast->printing_policy);
+    pp.SuppressTemplateArgsInCXXConstructors = true;
+    pp.FullyQualifiedName = false;
+    pp.TerseOutput = false;
+    pp.SuppressDefaultTemplateArgs = false;
+    pp.ConstantsAsWritten = true;
     pp.IncludeTagDefinition = high_pp.ShouldPrintTagBodies();
 
     DeclPrinter printer(out, pp, context, *tokens);

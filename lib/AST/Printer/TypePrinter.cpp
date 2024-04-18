@@ -240,7 +240,7 @@ void printArgument(Printer &printer, const clang::TemplateArgument &A,
 
       if (needs_angles) {
         ctx.Tokenize();
-        Out << "<";
+        Out << '<';
         tokens.TryChangeLastKind(TokenKind::kLess, TokenKind::kLAngle);
       }
 
@@ -264,7 +264,7 @@ void printArgument(Printer &printer, const clang::TemplateArgument &A,
       }
       if (needs_angles) {
         tokens.TryRemoveTrailingComma();
-        Out << ">";
+        Out << '>';
         tokens.TryChangeLastKind(TokenKind::kGreater, TokenKind::kRAngle);
       }
       break;
@@ -301,7 +301,7 @@ printTo(Printer &printer, llvm::ArrayRef<TA> Args,
   auto &tokens = printer.tokens;
 
   if (!IsPack) {
-    OS << "<";
+    OS << '<';
     tokens.TryChangeLastKind(TokenKind::kLess, TokenKind::kLAngle);
   }
 
@@ -353,7 +353,7 @@ printTo(Printer &printer, llvm::ArrayRef<TA> Args,
 
   if (!IsPack) {
     tokens.TryRemoveTrailingComma();
-    OS << ">";
+    OS << '>';
     tokens.TryChangeLastKind(TokenKind::kGreater, TokenKind::kRAngle);
   }
 }
@@ -2391,7 +2391,7 @@ void TypePrinter::printObjCTypeParam(const clang::ObjCTypeParamType *T,
     TagDefinitionPolicyRAII disable_tags(Policy);
 
     bool isFirst = true;
-    OS << "<";
+    OS << '<';
     tokens.TryChangeLastKind(TokenKind::kLess, TokenKind::kLAngle);
 
     for (const auto *I : T->quals()) {
@@ -2402,7 +2402,7 @@ void TypePrinter::printObjCTypeParam(const clang::ObjCTypeParamType *T,
       OS << I->getName();
     }
     tokens.TryRemoveTrailingComma();
-    OS << ">";
+    OS << '>';
     tokens.TryChangeLastKind(TokenKind::kGreater, TokenKind::kRAngle);
   }
 
@@ -2425,7 +2425,7 @@ void TypePrinter::printObjCObject(const clang::ObjCObjectType *T,
   ctx.Tokenize();
   if (T->isSpecializedAsWritten()) {
     bool isFirst = true;
-    OS << "<";
+    OS << '<';
     tokens.TryChangeLastKind(TokenKind::kLess, TokenKind::kLAngle);
     for (auto typeArg : T->getTypeArgsAsWritten()) {
       if (isFirst)
@@ -2437,14 +2437,14 @@ void TypePrinter::printObjCObject(const clang::ObjCObjectType *T,
       print(typeArg, clang::StringRef());
     }
     tokens.TryRemoveTrailingComma();
-    OS << ">";
+    OS << '>';
     tokens.TryChangeLastKind(TokenKind::kGreater, TokenKind::kRAngle);
   }
 
   if (!T->qual_empty()) {
     ctx.Tokenize();
     bool isFirst = true;
-    OS << "<";
+    OS << '<';
     tokens.TryChangeLastKind(TokenKind::kLess, TokenKind::kLAngle);
     for (const auto *I : T->quals()) {
       if (isFirst)
@@ -2457,7 +2457,7 @@ void TypePrinter::printObjCObject(const clang::ObjCObjectType *T,
     }
 
     tokens.TryRemoveTrailingComma();
-    OS << ">";
+    OS << '>';
     tokens.TryChangeLastKind(TokenKind::kGreater, TokenKind::kRAngle);
   }
 

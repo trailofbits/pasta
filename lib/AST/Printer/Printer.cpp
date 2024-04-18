@@ -1202,9 +1202,13 @@ PrintedTokenRange PrintedTokenRange::AdoptWhitespace(
     }
 
     // Try to inject fake whitespace.
-    auto last_kind = new_impl->tokens.empty() ? TokenKind::kUnknown :
+    auto no_tokens_yet = new_impl->tokens.empty();
+    auto last_kind = no_tokens_yet ? TokenKind::kUnknown :
                      new_impl->tokens.back().kind;
-    if (AddWhitespaceBetween(last_kind, wants_ws_tok.kind)) {
+    auto last_index = no_tokens_yet ? kInvalidDerivedTokenIndex :
+                      new_impl->tokens.back().derived_index;
+    if (AddWhitespaceBetween(last_kind, wants_ws_tok.kind) &&
+        (last_index + 1u) != wants_ws_tok.derived_index) {
       new_impl->tokens.emplace_back(
           static_cast<uint32_t>(new_impl->data.size()), 1u,
           kInvalidTokenContextIndex, TokenKind::kUnknown);

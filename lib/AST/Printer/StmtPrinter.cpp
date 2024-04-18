@@ -2614,10 +2614,7 @@ void StmtPrinter::VisitLambdaExpr(clang::LambdaExpr *Node) {
 
   // Print the body.
   OS << ' ';
-  if (Policy.TerseOutput)
-    OS << "{}";
-  else
-    PrintRawCompoundStmt(Node->getCompoundStmtBody());
+  PrintRawCompoundStmt(Node->getCompoundStmtBody());
 }
 
 void StmtPrinter::VisitCXXScalarValueInitExpr(clang::CXXScalarValueInitExpr *Node) {
@@ -3287,6 +3284,11 @@ PrintedTokenRange PrintedTokenRange::Create(const std::shared_ptr<ASTImpl> &ast,
     PrintingPolicyAdaptorRAII ppa_set_reset(tokens, ppa);
 
     clang::PrintingPolicy pp = *(ast->printing_policy);
+    pp.SuppressTemplateArgsInCXXConstructors = true;
+    pp.FullyQualifiedName = false;
+    pp.TerseOutput = false;
+    pp.SuppressDefaultTemplateArgs = false;
+    pp.ConstantsAsWritten = true;
     pp.IncludeTagDefinition = high_pp.ShouldPrintTagBodies();
 
     StmtPrinter printer(out, nullptr, *tokens, pp);

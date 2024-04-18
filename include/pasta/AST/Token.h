@@ -267,7 +267,6 @@ class TokenRange {
         first(0u),
         after_last(0u) {}
 
-
   explicit TokenRange(std::shared_ptr<ASTImpl> ast_,
                       unsigned first_, unsigned after_last_);
 
@@ -282,6 +281,11 @@ class TokenRange {
   TokenRange(TokenRange &&) noexcept = default;
   TokenRange &operator=(const TokenRange &) = default;
   TokenRange &operator=(TokenRange &&) noexcept = default;
+
+  inline TokenRange(const Token &that)
+      : storage(that.storage),
+        first(that.offset),
+        after_last(that.offset + unsigned(bool(that))) {}
 
   inline TokenIterator begin(void) const noexcept {
     return TokenIterator(storage, first);

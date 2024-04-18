@@ -740,6 +740,23 @@ class DeclBoundsFinder : public clang::DeclVisitor<DeclBoundsFinder>,
     (void) loc;
   }
 
+  void UncheckedVisit(clang::Decl *decl) {
+    ParsedTokenIterator tok = ast.RawTokenAt(decl->getLocation());
+    if (!tok) {
+      return;
+    }
+
+    lower_bound = upper_bound = tok;
+
+    if (decl->hasAttrs()) {
+      for (clang::Attr *attr : decl->getAttrs()) {
+        VisitAttribute(attr);
+      }
+    }
+
+    this->DeclVisitor::Visit(decl);
+  }
+
  public:
 
   clang::Decl *curr_decl{nullptr};
@@ -749,27 +766,15 @@ class DeclBoundsFinder : public clang::DeclVisitor<DeclBoundsFinder>,
       return;
     }
 
-    ParsedTokenIterator tok = ast.RawTokenAt(decl->getLocation());
-    if (!tok) {
-      return;
-    }
-
     const auto prev_decl = curr_decl;
     const auto prev_attr_decl = attr_decl;
     const auto prev_lower_bound = lower_bound;
     const auto prev_upper_bound = upper_bound;
 
     curr_decl = decl;
-    lower_bound = upper_bound = tok;
     attr_decl = decl;
 
-    if (decl->hasAttrs()) {
-      for (clang::Attr *attr : decl->getAttrs()) {
-        VisitAttribute(attr);
-      }
-    }
-
-    this->DeclVisitor::Visit(decl);
+    UncheckedVisit(decl);
 
     curr_decl = prev_decl;
     attr_decl = prev_attr_decl;
@@ -878,7 +883,20 @@ class DeclBoundsFinder : public clang::DeclVisitor<DeclBoundsFinder>,
     }
   }
 
+
   void VisitFunctionDecl(clang::FunctionDecl *decl) {
+    VisitCommonFunction(decl);
+
+    // If this is a lambda, then don't actually include the capture clause.
+    if (IsLambdaMethod(decl) &&
+        lower_bound.Kind() == pasta::TokenKind::kLSquare) {
+      lower_bound = GetMatching(lower_bound).second;
+      lower_bound.Next();
+    }
+  }
+
+  void VisitCommonFunction(clang::FunctionDecl *decl) {
+
     if (clang::FunctionTypeLoc ftl = decl->getFunctionTypeLoc()) {
       this->TypeLocVisitor::Visit(ftl);
     }
@@ -1693,6 +1711,15 @@ class DeclBoundsFinder : public clang::DeclVisitor<DeclBoundsFinder>,
     }
 
     VisitCXXRecordDecl(decl);
+  }
+
+  void VisitCXXRecordDecl(clang::CXXRecordDecl *decl) {
+    if (!decl->isLambda()) {
+      VisitRecordDecl(decl);
+      return;
+    }
+
+    UncheckedVisit(decl->getLambdaCallOperator());
   }
 
   void VisitVarTemplateSpecializationDecl(

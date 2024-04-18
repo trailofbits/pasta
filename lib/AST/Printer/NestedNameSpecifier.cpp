@@ -11,7 +11,18 @@
 //
 //===----------------------------------------------------------------------===//
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeprecated-anon-enum-enum-conversion"
+#pragma GCC diagnostic ignored "-Wbitfield-enum-conversion"
+#pragma GCC diagnostic ignored "-Wimplicit-int-conversion"
+#pragma GCC diagnostic ignored "-Wsign-conversion"
+#pragma GCC diagnostic ignored "-Wshorten-64-to-32"
+#pragma GCC diagnostic ignored "-Wold-style-cast"
+#pragma GCC diagnostic ignored "-Wunused-parameter"
+#pragma GCC diagnostic ignored "-Wshadow"
+#pragma GCC diagnostic ignored "-Wcast-align"
 #include <clang/AST/NestedNameSpecifier.h>
+#pragma GCC diagnostic pop
 
 #include "DeclStmtPrinter.h"
 

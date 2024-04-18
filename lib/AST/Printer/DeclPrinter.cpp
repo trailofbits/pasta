@@ -879,72 +879,16 @@ void DeclPrinter::VisitFunctionDecl(clang::FunctionDecl *D) {
   // Comes up with destructors and such, but if we're printing a method, then
   // we definitely don't want to print its enclosing class anywhere inside of
   // it.
+
+  auto IsLambda = false;
   if (auto M = clang::dyn_cast<clang::CXXMethodDecl>(D)) {
     if (auto C = clang::dyn_cast<clang::CXXRecordDecl>(M->getParent())) {
       for (auto R : C->redecls()) {
         Out.printed_defs.emplace(R);
       }
     }
-  }
 
-  if (!D->getDescribedFunctionTemplate() &&
-      !D->isFunctionTemplateSpecialization())
-    prettyPrintPragmas(D);
-
-  if (D->isFunctionTemplateSpecialization()) {
-    Out << "template <";
-    tokens.TryChangeLastKind(TokenKind::kLess, TokenKind::kLAngle);
-    Out << ">";
-    tokens.TryChangeLastKind(TokenKind::kGreater, TokenKind::kRAngle);
-
-  } else if (!D->getDescribedFunctionTemplate()) {
-    for (unsigned I = 0, NumTemplateParams = D->getNumTemplateParameterLists();
-         I < NumTemplateParams; ++I)
-      printTemplateParameters(D->getTemplateParameterList(I));
-  }
-
-  auto printed_attributes = false;
-  if (clang::isa<clang::CXXConstructorDecl>(D) ||
-      clang::isa<clang::CXXDestructorDecl>(D)) {
-    prettyPrintAttributes(D);
-    printed_attributes = true;
-  }
-
-  clang::CXXConstructorDecl *CDecl = clang::dyn_cast<clang::CXXConstructorDecl>(D);
-  clang::CXXConversionDecl *ConversionDecl = clang::dyn_cast<clang::CXXConversionDecl>(D);
-  clang::CXXDeductionGuideDecl *GuideDecl = clang::dyn_cast<clang::CXXDeductionGuideDecl>(D);
-  if (!Policy.SuppressSpecifiers) {
-    switch (D->getStorageClass()) {
-    case clang::SC_None: break;
-    case clang::SC_Extern: Out << "extern "; break;
-    case clang::SC_Static: Out << "static "; break;
-    case clang::SC_PrivateExtern: Out << "__private_extern__ "; break;
-    case clang::SC_Auto: case clang::SC_Register:
-      llvm_unreachable("invalid for functions");
-    }
-
-    if (D->isInlineSpecified())  Out << "inline ";
-    if (D->isVirtualAsWritten()) Out << "virtual ";
-    if (D->isModulePrivate())    Out << "__module_private__ ";
-    if (D->isConstexprSpecified() && !D->isExplicitlyDefaulted())
-      Out << "constexpr ";
-    if (D->isConsteval())
-      Out << "consteval ";
-
-    clang::ExplicitSpecifier ES = clang::ExplicitSpecifier::getFromDecl(D);
-    if (ES.isSpecified()) {
-      Out << "explicit";
-      if (ES.getExpr()) {
-        Out << "(";
-        {
-          StmtPrinter stmtPrinter(Out, nullptr, tokens, Policy, Indentation,
-                                  "\n", &tokens.ast_context);
-          stmtPrinter.Visit(const_cast<clang::Expr *>(ES.getExpr()));
-        }
-        Out << ")";
-      }
-      Out << " ";
-    }
+    IsLambda = M->getParent()->isLambda();
   }
 
   clang::PrintingPolicy SubPolicy(Policy);
@@ -953,115 +897,184 @@ void DeclPrinter::VisitFunctionDecl(clang::FunctionDecl *D) {
 
   std::function<void(void)> ProtoFn = [=](void) -> void { };
   std::function<void(void)> EmtpyProtoFn = [](void) -> void { };
-  if (Policy.FullyQualifiedName) {
-    ProtoFn = [&, ProtoFn = std::move(ProtoFn)] (void) {
-      ProtoFn();
-      TokenPrinterContext jump_up_stack(ctx);
-      Out << D->getQualifiedNameAsString();
-      ctx.MarkLocation(D->getLocation());
-    };
-  } else {
-    ProtoFn = [&, ProtoFn = std::move(ProtoFn)] (void) {
-      ProtoFn();
-      TokenPrinterContext jump_up_stack(ctx);
-      if (!Policy.SuppressScope) {
-        if (const clang::NestedNameSpecifier *NS = D->getQualifier()) {
-          TagDefinitionPolicyRAII disable_tags(Policy);
-          PrintNestedNameSpecifier(*this, NS, Policy);
-        }
-      }
 
-      std::string name;
-      llvm::raw_string_ostream name_os(name);
-
-      TagDefinitionPolicyRAII disable_tags(Policy);
-      D->getNameInfo().printName(name_os, Policy);
-
-      // Handle things like `operator<<` being the name. We don't want to do
-      // a `MarkLocation` for the name location but on the `<<` token.
-      auto i = 0u;
-      for (; i < name.size(); ++i) {
-        if (name[i] != '_') {
-          if (std::ispunct(name[i]) || std::isspace(name[i])) {
-            break;
-          }
-        }
-        Out << name[i];
-      }
-
-      ctx.MarkLocation(D->getLocation());
-      for (; i < name.size(); ++i) {
-        Out << name[i];
-      }
-    };
-  }
-
-  if (GuideDecl) {
-    ProtoFn = [&, ProtoFn = std::move(ProtoFn)] (void) {
-      ProtoFn();
-      TokenPrinterContext jump_up_stack(ctx);
-      Out << GuideDecl->getDeducedTemplate()->getDeclName().getAsString();
-    };
-  }
-  if (D->isFunctionTemplateSpecialization()) {
-    ProtoFn = [=, ProtoFn = std::move(ProtoFn), this] (void) {
-      ProtoFn();
-      DeclPrinter TArgPrinter(Out, SubPolicy, Context, tokens, Indentation);
-
-      const auto *TArgAsWritten = D->getTemplateSpecializationArgsAsWritten();
-      const clang::TemplateParameterList *TPL = D->getTemplateSpecializationInfo()
-                                                ->getTemplate()
-                                                ->getTemplateParameters();
-
-      TokenPrinterContext ctx(Out, TPL, this->tokens);
-      if (const clang::TemplateArgumentList *TArgs =
-              D->getTemplateSpecializationArgs())
-        TArgPrinter.printTemplateArguments(TArgs->asArray(), TPL, true);
-      else if (TArgAsWritten)
-        TArgPrinter.printTemplateArguments(TArgAsWritten->arguments(), TPL, true);
-    };
-  }
+  clang::CXXConstructorDecl *CDecl = clang::dyn_cast<clang::CXXConstructorDecl>(D);
+  clang::CXXDestructorDecl *DDecl = clang::dyn_cast<clang::CXXDestructorDecl>(D);
+  clang::CXXConversionDecl *ConversionDecl = clang::dyn_cast<clang::CXXConversionDecl>(D);
+  clang::CXXDeductionGuideDecl *GuideDecl = clang::dyn_cast<clang::CXXDeductionGuideDecl>(D);
 
   clang::QualType Ty = D->getType();
-  while (const clang::ParenType *PT = clang::dyn_cast<clang::ParenType>(Ty)) {
-    ProtoFn = [=, ProtoFn = std::move(ProtoFn), this] (void) {
-      TokenPrinterContext ctx(Out, PT, this->tokens);
-      Out << '(';
-      ProtoFn();
-      Out << ')';
-    };
-    Ty = PT->getInnerType();
-  }
 
+  auto printed_attributes = IsLambda;
+  auto looks_like_var = Ty.getTypePtr()->isTypedefNameType() && !IsLambda;
   auto num_params = D->getNumParams();
 
-  // In this test case, the function definition has a typedef type. Clang
-  // doesn't have a good way of telling us that this is actually happening.
-  // `D->hasWrittenPrototype()` returns `true` for both declarations of
-  // `sctp_sf_do_9_1_abort`.
-  //
-  //    typedef int i32;
-  //    typedef i32 (func_t)(i32 *);
-  //    func_t sctp_sf_do_9_1_abort;
-  //    i32 sctp_sf_do_9_1_abort(i32 *bar) { return *bar; }
-  //
-  // These are heuristics to try to detect this case.
-  //
-  // TODO(pag): Could go searching for a `(`, or `)`.
-  bool looks_like_var = Ty.getTypePtr()->isTypedefNameType();
-  if (looks_like_var) {
-    if (D->isPure() || D->isDeletedAsWritten() || D->isExplicitlyDefaulted() ||
-        D->doesThisDeclarationHaveABody()) {
-      looks_like_var = false;
+  if (!IsLambda) {
+    if (!D->getDescribedFunctionTemplate() &&
+        !D->isFunctionTemplateSpecialization())
+      prettyPrintPragmas(D);
 
-    } else if (!D->isImplicit() && num_params) {
-      for (unsigned i = 0; i < num_params; ++i) {
-        clang::ParmVarDecl *P = D->getParamDecl(i);
-        if (!P->isImplicit()) {
-          looks_like_var = false;
+    if (D->isFunctionTemplateSpecialization()) {
+      Out << "template <";
+      tokens.TryChangeLastKind(TokenKind::kLess, TokenKind::kLAngle);
+      Out << ">";
+      tokens.TryChangeLastKind(TokenKind::kGreater, TokenKind::kRAngle);
+
+    } else if (!D->getDescribedFunctionTemplate()) {
+      for (unsigned I = 0, NumTemplateParams = D->getNumTemplateParameterLists();
+           I < NumTemplateParams; ++I)
+        printTemplateParameters(D->getTemplateParameterList(I));
+    }
+
+    if (CDecl || DDecl) {
+      prettyPrintAttributes(D);
+      printed_attributes = true;
+    }
+
+    if (!Policy.SuppressSpecifiers) {
+      switch (D->getStorageClass()) {
+      case clang::SC_None: break;
+      case clang::SC_Extern: Out << "extern "; break;
+      case clang::SC_Static: Out << "static "; break;
+      case clang::SC_PrivateExtern: Out << "__private_extern__ "; break;
+      case clang::SC_Auto: case clang::SC_Register:
+        llvm_unreachable("invalid for functions");
+      }
+
+      if (D->isInlineSpecified())  Out << "inline ";
+      if (D->isVirtualAsWritten()) Out << "virtual ";
+      if (D->isModulePrivate())    Out << "__module_private__ ";
+      if (D->isConstexprSpecified() && !D->isExplicitlyDefaulted())
+        Out << "constexpr ";
+      if (D->isConsteval())
+        Out << "consteval ";
+
+      clang::ExplicitSpecifier ES = clang::ExplicitSpecifier::getFromDecl(D);
+      if (ES.isSpecified()) {
+        Out << "explicit";
+        if (ES.getExpr()) {
+          Out << "(";
+          {
+            StmtPrinter stmtPrinter(Out, nullptr, tokens, Policy, Indentation,
+                                    "\n", &tokens.ast_context);
+            stmtPrinter.Visit(const_cast<clang::Expr *>(ES.getExpr()));
+          }
+          Out << ")";
+        }
+        Out << " ";
+      }
+    }
+
+    if (Policy.FullyQualifiedName) {
+      ProtoFn = [&, ProtoFn = std::move(ProtoFn)] (void) {
+        ProtoFn();
+        TokenPrinterContext jump_up_stack(ctx);
+        Out << D->getQualifiedNameAsString();
+        ctx.MarkLocation(D->getLocation());
+      };
+    } else {
+      ProtoFn = [&, ProtoFn = std::move(ProtoFn)] (void) {
+        ProtoFn();
+        TokenPrinterContext jump_up_stack(ctx);
+        if (!Policy.SuppressScope) {
+          if (const clang::NestedNameSpecifier *NS = D->getQualifier()) {
+            TagDefinitionPolicyRAII disable_tags(Policy);
+            PrintNestedNameSpecifier(*this, NS, Policy);
+          }
+        }
+
+        std::string name;
+        llvm::raw_string_ostream name_os(name);
+
+        TagDefinitionPolicyRAII disable_tags(Policy);
+        D->getNameInfo().printName(name_os, Policy);
+
+        // Handle things like `operator<<` being the name. We don't want to do
+        // a `MarkLocation` for the name location but on the `<<` token.
+        auto i = 0u;
+        for (; i < name.size(); ++i) {
+          if (name[i] != '_') {
+            if (std::ispunct(name[i]) || std::isspace(name[i])) {
+              break;
+            }
+          }
+          Out << name[i];
+        }
+
+        ctx.MarkLocation(D->getLocation());
+        for (; i < name.size(); ++i) {
+          Out << name[i];
+        }
+      };
+    }
+
+    if (GuideDecl) {
+      ProtoFn = [&, ProtoFn = std::move(ProtoFn)] (void) {
+        ProtoFn();
+        TokenPrinterContext jump_up_stack(ctx);
+        Out << GuideDecl->getDeducedTemplate()->getDeclName().getAsString();
+      };
+    }
+    if (D->isFunctionTemplateSpecialization()) {
+      ProtoFn = [=, ProtoFn = std::move(ProtoFn), this] (void) {
+        ProtoFn();
+        DeclPrinter TArgPrinter(Out, SubPolicy, Context, tokens, Indentation);
+
+        const auto *TArgAsWritten = D->getTemplateSpecializationArgsAsWritten();
+        const clang::TemplateParameterList *TPL = D->getTemplateSpecializationInfo()
+                                                  ->getTemplate()
+                                                  ->getTemplateParameters();
+
+        TokenPrinterContext ctx(Out, TPL, this->tokens);
+        if (const clang::TemplateArgumentList *TArgs =
+                D->getTemplateSpecializationArgs())
+          TArgPrinter.printTemplateArguments(TArgs->asArray(), TPL, true);
+        else if (TArgAsWritten)
+          TArgPrinter.printTemplateArguments(TArgAsWritten->arguments(), TPL, true);
+      };
+    }
+
+    while (const clang::ParenType *PT = clang::dyn_cast<clang::ParenType>(Ty)) {
+      ProtoFn = [=, ProtoFn = std::move(ProtoFn), this] (void) {
+        TokenPrinterContext ctx(Out, PT, this->tokens);
+        Out << '(';
+        ProtoFn();
+        Out << ')';
+      };
+      Ty = PT->getInnerType();
+    }
+
+    // In this test case, the function definition has a typedef type. Clang
+    // doesn't have a good way of telling us that this is actually happening.
+    // `D->hasWrittenPrototype()` returns `true` for both declarations of
+    // `sctp_sf_do_9_1_abort`.
+    //
+    //    typedef int i32;
+    //    typedef i32 (func_t)(i32 *);
+    //    func_t sctp_sf_do_9_1_abort;
+    //    i32 sctp_sf_do_9_1_abort(i32 *bar) { return *bar; }
+    //
+    // These are heuristics to try to detect this case.
+    //
+    // TODO(pag): Could go searching for a `(`, or `)`.
+    if (looks_like_var) {
+      if (D->isPure() || D->isDeletedAsWritten() || D->isExplicitlyDefaulted() ||
+          D->doesThisDeclarationHaveABody()) {
+        looks_like_var = false;
+
+      } else if (!D->isImplicit() && num_params) {
+        for (unsigned i = 0; i < num_params; ++i) {
+          clang::ParmVarDecl *P = D->getParamDecl(i);
+          if (!P->isImplicit()) {
+            looks_like_var = false;
+          }
         }
       }
     }
+
+  // It's a lambda.
+  } else {
+
   }
 
   const clang::FunctionType *AFT = Ty->getAs<clang::FunctionType>();
@@ -1251,21 +1264,22 @@ void DeclPrinter::VisitFunctionDecl(clang::FunctionDecl *D) {
         PrintConstructorInitializers(ctx, CDecl, ProtoFn);
     } else if (!ConversionDecl && !clang::isa<clang::CXXDestructorDecl>(D)) {
       ProtoFn = [&, ProtoFn = std::move(ProtoFn)] (void) mutable {
-        if (FT && FT->hasTrailingReturn()) {
+        if (IsLambda || (FT && FT->hasTrailingReturn())) {
           TokenPrinterContext jump_up_stack(ctx);
-          if (!GuideDecl)
+          if (!GuideDecl && !IsLambda)
             Out << "auto ";
           ProtoFn();
           Out << " -> ";
           ProtoFn = EmtpyProtoFn;
         }
 
+        auto RT = IsLambda ? D->getReturnType().getCanonicalType() : D->getDeclaredReturnType();
+
         clang::PrintingPolicy SubPolicy = Policy;
         SubPolicy.IncludeTagDefinition = false;
-        printQualType(D->getDeclaredReturnType(), Out, SubPolicy, std::move(ProtoFn));
+        printQualType(RT, Out, SubPolicy, std::move(ProtoFn));
       };
     }
-
 
     ProtoFn();
     ProtoFn = EmtpyProtoFn;

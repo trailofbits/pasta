@@ -272,9 +272,21 @@ class MacroExpansionImpl final : public MacroSubstitutionImpl {
   // derived.
   MacroExpansionImpl *parent_for_prearg{nullptr};
 
+  // // If we have a deferred expansion with nodes preceding the expansion, then
+  // // we want to clone the arguments from a prior node to make the output
+  // // resemble something realistic.
+  // MacroExpansionImpl *clone_deferred_arguments_from{nullptr};
+
   MacroTokenImpl *ident{nullptr};
   MacroTokenImpl *l_paren{nullptr};
   MacroTokenImpl *r_paren{nullptr};
+
+  // The index of where the `l_paren` should be, i.e. after `ident`. There
+  // may not actually be an `l_paren`, but we try to keep track of the index
+  // logically "after" the macro name (which may be in a nested substitution)
+  // so that we can locate any possible arguments. This is helpful for when we
+  // need to replicate arguments up into the 
+  unsigned l_paren_index{0u};
 
   // We need to know the `r_paren` index so that we can possibly clone stuff
   // following the `r_paren` into a pre-argument expansion. This will happen
@@ -320,7 +332,6 @@ class RootMacroNode final : public MacroNodeImpl {
 
 template <typename TokenCB, typename NodeCB>
 static void CloneNode(ASTImpl &ast,
-                      const MacroNodeImpl *old_parent,
                       const Node &node, unsigned node_index,
                       MacroNodeImpl *new_parent,
                       NodeList &new_nodes,
@@ -329,7 +340,6 @@ static void CloneNode(ASTImpl &ast,
   if (std::holds_alternative<MacroTokenImpl *>(node)) {
     MacroTokenImpl *tok = std::get<MacroTokenImpl *>(node);
     assert(std::holds_alternative<MacroNodeImpl *>(tok->parent));
-    assert(std::get<MacroNodeImpl *>(tok->parent) == old_parent);
     MacroTokenImpl *cloned_tok = tok->Clone(ast, new_parent);
     assert(tok->token_offset < cloned_tok->token_offset);
     new_nodes.emplace_back(cloned_tok);
@@ -339,7 +349,6 @@ static void CloneNode(ASTImpl &ast,
   } else if (std::holds_alternative<MacroNodeImpl *>(node)) {
     MacroNodeImpl *sub_node = std::get<MacroNodeImpl *>(node);
     assert(std::holds_alternative<MacroNodeImpl *>(sub_node->parent));
-    assert(std::get<MacroNodeImpl *>(sub_node->parent) == old_parent);
     auto cloned_node = sub_node->Clone(ast, new_parent);
     new_nodes.emplace_back(cloned_node);
 
@@ -347,9 +356,13 @@ static void CloneNode(ASTImpl &ast,
   }
 }
 
+void SimpleCloneNodeList(ASTImpl &ast,
+                         const NodeList &old_nodes,
+                         MacroNodeImpl *new_parent,
+                         NodeList &new_nodes);
+
 template <typename TokenCB, typename NodeCB>
 static void CloneNodeList(ASTImpl &ast,
-                          const MacroNodeImpl *old_parent,
                           const NodeList &old_nodes,
                           MacroNodeImpl *new_parent,
                           NodeList &new_nodes,
@@ -357,7 +370,7 @@ static void CloneNodeList(ASTImpl &ast,
                           NodeCB on_node) {
   auto i = 0u;
   for (const Node &node : old_nodes) {
-    CloneNode(ast, old_parent, node, i, new_parent, new_nodes,
+    CloneNode(ast, node, i, new_parent, new_nodes,
               on_token, on_node);
     ++i;
   }

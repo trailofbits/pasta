@@ -34,12 +34,13 @@ static void ReparentNode(Node &node, MacroNodeImpl *new_parent) {
   }
 }
 
-static void ReparentNodes(NodeList nodes, MacroNodeImpl *new_parent) {
+static void ReparentNodes(NodeList nodes, MacroNodeImpl *new_parent,
+                          NodeList &new_parent_nodes) {
   for (Node &node : nodes) {
     ReparentNode(node, new_parent);
   }
 
-  new_parent->nodes.insert(new_parent->nodes.end(), nodes.begin(), nodes.end());
+  new_parent_nodes.insert(new_parent_nodes.end(), nodes.begin(), nodes.end());
   nodes.clear();
 }
 
@@ -234,12 +235,13 @@ MacroExpansionImpl *PatchedMacroTracker::DoPreExpansionSetup(
   assert(exp->ident->token_offset < new_ident->token_offset);
   assert(exp->l_paren->token_offset < new_l_paren->token_offset);
   new_exp->nodes.push_back(new_ident);
+  new_exp->l_paren_index = static_cast<unsigned>(new_exp->nodes.size());
   new_exp->nodes.push_back(new_l_paren);
   new_exp->ident = new_ident;
   new_exp->name = new_ident;
   new_exp->l_paren = new_l_paren;
 
-  ReparentNodes(std::move(exp->nodes), new_exp);
+  ReparentNodes(std::move(exp->nodes), new_exp, new_exp->nodes);
 
   exp->nodes.push_back(new_exp);
   new_exp->is_prearg_expansion = true;
@@ -744,8 +746,11 @@ void PatchedMacroTracker::DoToken(const clang::Token &tok_, uintptr_t data) {
         tok_.getIdentifierInfo()->hasMacroDefinition()) {
       exp->ident = tok_node;
       exp->name = exp->ident;
+      exp->l_paren_index = static_cast<unsigned>(exp->nodes.size());
+
     } else if (tok_node->kind == TokenKind::kLParenthesis &&
                exp->ident && !exp->l_paren) {
+      exp->l_paren_index = static_cast<unsigned>(exp->nodes.size() - 1u);
       exp->l_paren = tok_node;
     }
   }
@@ -1114,7 +1119,8 @@ void PatchedMacroTracker::DoEndNonDirective(const clang::Token &tok,
   assert(std::get<MacroNodeImpl *>(parent_node->nodes.back()) ==
          last_directive);
   parent_node->nodes.pop_back();
-  ReparentNodes(std::move(last_directive->nodes), parent_node);
+  ReparentNodes(std::move(last_directive->nodes), parent_node,
+                parent_node->nodes);
   Pop(tok);
   last_directive = nullptr;
   last_token.startToken();
@@ -1640,6 +1646,79 @@ void PatchedMacroTracker::DoSwitchToExpansion(
 
   expansion->nodes.swap(expansion->use_nodes);
 
+  // TODO(pag): The idea with the below code was to handle the `dprintk`-type
+  //            case with "deferral with other tokens" case, i.e. where the
+  //            expansion of one macro ends with a function-like macro name,
+  //            where the argument list is at a higher level. This caused some
+  //            downstream issues with recognizing parsed tokens were located.
+  //
+  //            The idea with this code was to clone the argument lists that are
+  //            only observable later up into the higher level uses.  
+
+  // if (auto first_parent = expansion->clone_deferred_arguments_from) {
+  //   D( std::cerr << indent << "~~~ clone arguments from deferred parent\n"; )
+
+  //   std::vector<MacroExpansionImpl *> next_parents;
+  //   next_parents.push_back(first_parent);
+    
+  //   // Find the topmost use.
+  //   while (auto next_parent = first_parent->clone_deferred_arguments_from) {
+  //     next_parents.push_back(next_parent);
+  //     first_parent = next_parent;
+  //   }
+
+  //   next_parents.pop_back();  // Topmost, i.e. `first_parent`.
+  //   std::reverse(next_parents.begin(), next_parents.end());
+
+  //   assert(first_parent != expansion);
+
+  //   // Move the use nodes into the topmost use.
+  //   NodeList cloned_nodes;
+  //   NodeList orig_nodes;
+
+  //   // We "steal" the nodes from `expansion`, placing them into `first_parent`,
+  //   // so that the eventual provenance code connect the source locations in
+  //   // a reasonable way. This does result in a lot of ugly/repetitive code,
+  //   // though.
+  //   auto size = expansion->use_nodes.size();
+  //   for (auto i = expansion->l_paren_index; i < size; ++i) {
+  //     D( std::cerr << "~~~ Moving argument node to original parent\n"; )
+  //     auto &node = expansion->use_nodes[i];
+  //     orig_nodes.emplace_back(node);
+
+  //     if (std::holds_alternative<MacroNodeImpl *>(node)) {
+  //       if (auto arg = dynamic_cast<MacroArgumentImpl *>(
+  //               std::get<MacroNodeImpl *>(node))) {
+          
+  //         NodeList arg_list_nodes = arg->nodes;
+  //         cloned_nodes.insert(cloned_nodes.end(), arg_list_nodes.begin(),
+  //                             arg_list_nodes.end());
+  //         ReparentNodes(std::move(arg_list_nodes), first_parent,
+  //                       first_parent->use_nodes);
+  //         continue;
+  //       }
+  //     }
+
+  //     cloned_nodes.emplace_back(node);
+  //     ReparentNode(node, first_parent);
+  //     first_parent->use_nodes.emplace_back(std::move(node));
+  //   }
+
+  //   // Delete the nodes.
+  //   expansion->use_nodes.resize(expansion->l_paren_index);
+
+  //   // Clone them into all intermediate uses.
+  //   for (auto next_parent : next_parents) {
+  //     assert(next_parent != first_parent);
+  //     SimpleCloneNodeList(*ast, cloned_nodes, next_parent,
+  //                         next_parent->use_nodes);
+  //   }
+
+  //   // Put them back in to where they lived originally.
+  //   SimpleCloneNodeList(*ast, orig_nodes, expansion,
+  //                       expansion->use_nodes);
+  // }
+
   // If there are no arguments, then there will not be any closing paren.
   if (!expansion->defined_macro->isFunctionLike()) {
     return;
@@ -1776,7 +1855,8 @@ void PatchedMacroTracker::DoEndMacroExpansion(
   if (expansion->is_cancelled) {
     assert(expansion->use_nodes.empty());
     parent_node->nodes.pop_back();
-    ReparentNodes(std::move(expansion->nodes), parent_node);
+    ReparentNodes(std::move(expansion->nodes), parent_node,
+                  parent_node->nodes);
   }
 
   if (!deferred_expansion) {
@@ -1867,7 +1947,8 @@ void PatchedMacroTracker::DoEndMacroExpansion(
     deferred_expansion->parent = grand_parent_node;
     parent_node->parent = deferred_expansion;
 
-    ReparentNodes(std::move(deferred_expansion->nodes), expansion);
+    ReparentNodes(std::move(deferred_expansion->nodes), expansion,
+                  expansion->nodes);
 
     deferred_expansion->nodes.push_back(parent_node);
 
@@ -1884,11 +1965,9 @@ void PatchedMacroTracker::DoEndMacroExpansion(
   // * NOTE: the `E` will be swapped into `use_nodes` later.
   } else {
 
-#if D(1 + ) 0
     if (expansion->nodes.size() == 1) {
-
-      std::cerr << indent << "Normal deferral\n";
-
+      D( std::cerr << indent << "Normal deferral\n"; )
+    
     // We have a `dprintk`-like situation. We have come across a macro close
     // for `dprintk`, but the expansion of `printk` has already begun, so we
     // want to leave the expansion of `printk`, which is `deffered_expansion`
@@ -1898,9 +1977,13 @@ void PatchedMacroTracker::DoEndMacroExpansion(
     //      #define printk(fmt, ...) /* something */
     //      #define dprintk if (debug) printk
     } else {
-      std::cerr << indent << "!! Deferral with other nodes!\n";
+      D( std::cerr << indent << "!! Deferral with other nodes!\n"; )
+    
+    // deferred_expansion->clone_deferred_arguments_from = expansion;
+    // if (expansion->parent_for_prearg) {
+    //   expansion->clone_deferred_arguments_from = expansion->parent_for_prearg;
+    // }
     }
-#endif
 
     parent_node->nodes.pop_back();  // Remove `E`
     parent_node->nodes.push_back(deferred_expansion);  // Add `DE`.
@@ -1908,7 +1991,8 @@ void PatchedMacroTracker::DoEndMacroExpansion(
     expansion->parent = deferred_expansion;
 
     expansion->nodes.pop_back();
-    ReparentNodes(std::move(deferred_expansion->nodes), expansion);
+    ReparentNodes(std::move(deferred_expansion->nodes), expansion,
+                  expansion->nodes);
     deferred_expansion->nodes.push_back(expansion);
   }
 

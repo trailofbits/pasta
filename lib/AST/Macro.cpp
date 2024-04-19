@@ -157,7 +157,7 @@ MacroNodeImpl *MacroDirectiveImpl::Clone(
   clone->parent = new_parent;
 
   CloneNodeList(
-      ast, this, nodes, clone, clone->nodes,
+      ast, nodes, clone, clone->nodes,
       [=] (unsigned i, MacroTokenImpl *tok, MacroTokenImpl *cloned_tok) {
         if (std::holds_alternative<MacroTokenImpl *>(directive_name) &&
             std::get<MacroTokenImpl *>(directive_name) == tok) {
@@ -198,8 +198,7 @@ MacroNodeImpl *MacroArgumentImpl::Clone(
   }
   clone->parent = new_parent;
 
-  CloneNodeList(ast, this, nodes, clone, clone->nodes, NoOnTokenCB,
-                NoOnNodeCB);
+  SimpleCloneNodeList(ast, nodes, clone, clone->nodes);
 
   clone->parsed_right_corner = ast.parsed_tokens.size();
   return clone;
@@ -208,6 +207,14 @@ MacroNodeImpl *MacroArgumentImpl::Clone(
 MacroNodeImpl *MacroParameterImpl::Clone(ASTImpl &, MacroNodeImpl *) const {
   assert(false);
   return nullptr;
+}
+
+void SimpleCloneNodeList(ASTImpl &ast,
+                         const NodeList &old_nodes,
+                         MacroNodeImpl *new_parent,
+                         NodeList &new_nodes) {
+  CloneNodeList(ast, old_nodes, new_parent, new_nodes,
+                NoOnTokenCB, NoOnNodeCB);
 }
 
 MacroNodeImpl *MacroSubstitutionImpl::Clone(
@@ -220,9 +227,8 @@ MacroNodeImpl *MacroSubstitutionImpl::Clone(
   clone->cloned_from = this;
   clone->parent = new_parent;
 
-  CloneNodeList(ast, this, nodes, clone, clone->nodes, NoOnTokenCB, NoOnNodeCB);
-  CloneNodeList(ast, this, use_nodes, clone, clone->use_nodes, NoOnTokenCB,
-                NoOnNodeCB);
+  SimpleCloneNodeList(ast, nodes, clone, clone->nodes);
+  SimpleCloneNodeList(ast, use_nodes, clone, clone->use_nodes);
 
   clone->parsed_right_corner = ast.parsed_tokens.size();
   return clone;
@@ -305,7 +311,7 @@ void MacroExpansionImpl::CopyFromBody(
     const Node *last_def_node = LastTokenImpl(node);
     if (!last_def_node) {
       DD( std::cerr << "Injecting 1: (unknown)\n"; )
-      CloneNode(ast, definition_impl, node, 0u, curr,
+      CloneNode(ast, node, 0u, curr,
                 curr_nodes, NoOnTokenCB, NoOnNodeCB);
       has_interesting_body = true;
       continue;
@@ -322,8 +328,7 @@ void MacroExpansionImpl::CopyFromBody(
     if (last_def_loc != end_loc) {
       DD( std::cerr << "Injecting 2: " << amt.Data(last_def_tok->token_offset)
                    << '\n'; )
-
-      CloneNode(ast, definition_impl, node, 0u, curr,
+      CloneNode(ast, node, 0u, curr,
                 curr_nodes, NoOnTokenCB, NoOnNodeCB);
       has_interesting_body = true;
       continue;
@@ -362,23 +367,22 @@ MacroNodeImpl *MacroExpansionImpl::Clone(
   clone->is_cancelled = is_cancelled;
   clone->is_prearg_expansion = is_prearg_expansion;
 
-  CloneNodeList(ast, this, body, clone, clone->body, NoOnTokenCB,
-                NoOnNodeCB);
-
-  CloneNodeList(ast, this, nodes, clone, clone->nodes, NoOnTokenCB,
-                NoOnNodeCB);
+  SimpleCloneNodeList(ast, body, clone, clone->body);
+  SimpleCloneNodeList(ast, nodes, clone, clone->nodes);
 
   unsigned arg_num = 0u;
 
   CloneNodeList(
-      ast, this, use_nodes, clone, clone->use_nodes,
+      ast, use_nodes, clone, clone->use_nodes,
       [=, &arg_num] (unsigned i, MacroTokenImpl *tok,
                      MacroTokenImpl *cloned_tok) {
         if (ident == tok) {
           clone->ident = cloned_tok;
+          clone->l_paren_index = i + 1u;
         }
 
         if (l_paren == tok) {
+          clone->l_paren_index = i;
           clone->l_paren = cloned_tok;
         }
 
@@ -399,10 +403,12 @@ MacroNodeImpl *MacroExpansionImpl::Clone(
 
         if (ident == node->FirstExpansionToken()) {
           clone->ident = cloned_node->FirstExpansionToken();
+          clone->l_paren_index = i + 1u;
         }
 
         if (l_paren == node->FirstExpansionToken()) {
           clone->l_paren = cloned_node->FirstExpansionToken();
+          clone->l_paren_index = i;
         }
 
         if (r_paren == node->FirstExpansionToken()) {

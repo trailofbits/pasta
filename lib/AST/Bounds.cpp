@@ -883,7 +883,6 @@ class DeclBoundsFinder : public clang::DeclVisitor<DeclBoundsFinder>,
     }
   }
 
-
   void VisitFunctionDecl(clang::FunctionDecl *decl) {
     VisitCommonFunction(decl);
 
@@ -1714,12 +1713,12 @@ class DeclBoundsFinder : public clang::DeclVisitor<DeclBoundsFinder>,
   }
 
   void VisitCXXRecordDecl(clang::CXXRecordDecl *decl) {
-    if (!decl->isLambda()) {
-      VisitRecordDecl(decl);
+    if (decl->isLambda()) {
+      UncheckedVisit(decl->getLambdaCallOperator());
       return;
     }
 
-    UncheckedVisit(decl->getLambdaCallOperator());
+    VisitRecordDecl(decl);
   }
 
   void VisitVarTemplateSpecializationDecl(
@@ -2080,7 +2079,10 @@ ASTImpl::BoundingTokens ASTImpl::DeclBounds(clang::Decl *decl) {
   }
 
   if (decl->isImplicit()) {
-    return it->second;
+    auto cls = clang::dyn_cast<clang::CXXRecordDecl>(decl);
+    if (!cls || !cls->isLambda()) {
+      return it->second;
+    }
   }
 
   // Handle this off-the-bat; it doesn't really conform to any other thing.

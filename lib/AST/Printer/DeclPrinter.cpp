@@ -1069,7 +1069,7 @@ void DeclPrinter::VisitFunctionDecl(clang::FunctionDecl *D) {
 
   // It's a lambda.
   } else {
-
+    Out << "auto operator()";
   }
 
   const clang::FunctionType *AFT = Ty->getAs<clang::FunctionType>();

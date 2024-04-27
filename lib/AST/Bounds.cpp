@@ -304,6 +304,7 @@ class DeclBoundsFinder : public clang::DeclVisitor<DeclBoundsFinder>,
     }
 
     assert(!expect_braces);
+    (void) expect_braces;
     return ret;
   }
 
@@ -860,23 +861,24 @@ class DeclBoundsFinder : public clang::DeclVisitor<DeclBoundsFinder>,
       return false;
     }
 
-    if (meth->isLambdaStaticInvoker()) {
-      return true;
-    }
+    return meth->getParent()->isLambda() &&
+           meth->getOverloadedOperator() == clang::OO_Call;
+  }
 
-    if (meth->getOverloadedOperator() != clang::OO_Call) {
+  static bool IsMethodInLambda(clang::FunctionDecl *decl) {
+    auto meth = clang::dyn_cast<clang::CXXMethodDecl>(decl);
+    if (!meth) {
       return false;
     }
 
-    clang::CXXRecordDecl *record = meth->getParent();
-    return record->isLambda();
+    return meth->getParent()->isLambda();
   }
 
   // NOTE(pag): In the case of lamdas, the `->getLocation()` can be
   //            the capture clause, but the source range is more closely
   //            related to the body.
   static clang::SourceLocation CheckLocation(clang::FunctionDecl *decl) {
-    if (IsLambdaMethod(decl)) {
+    if (IsMethodInLambda(decl)) {
       return {};
     } else {
       return decl->getLocation();
@@ -887,10 +889,22 @@ class DeclBoundsFinder : public clang::DeclVisitor<DeclBoundsFinder>,
     VisitCommonFunction(decl);
 
     // If this is a lambda, then don't actually include the capture clause.
-    if (IsLambdaMethod(decl) &&
-        lower_bound.Kind() == pasta::TokenKind::kLSquare) {
-      lower_bound = GetMatching(lower_bound).second;
-      lower_bound.Next();
+    if (IsLambdaMethod(decl)) {
+      if (lower_bound.Kind() == pasta::TokenKind::kLSquare) {
+        lower_bound = GetMatching(lower_bound).second;
+        lower_bound.Next();
+      }
+    
+    // E.g. lambda static invoker (`__invoke`), or conversion operators.
+    } else if (IsMethodInLambda(decl)) {
+      auto method = clang::dyn_cast<clang::CXXMethodDecl>(decl);
+      auto record = method->getParent();
+      auto lambda_func = record->getLambdaCallOperator();
+      assert(decl != lambda_func);
+      lower_bound = invalid;
+      upper_bound = invalid;
+      VisitFunctionDecl(lambda_func);
+      assert(lower_bound.Kind() != pasta::TokenKind::kLSquare);
     }
   }
 
@@ -1259,7 +1273,8 @@ class DeclBoundsFinder : public clang::DeclVisitor<DeclBoundsFinder>,
     ASTImpl::FunctionProto &proto = ast.func_proto[func];
 
     // Just always fail.
-    if (clang::isa<clang::CXXDeductionGuideDecl>(func)) {
+    if (clang::isa<clang::CXXDeductionGuideDecl>(func) ||
+        func->isImplicit()) {
       return &proto;
     }
 
@@ -1465,13 +1480,25 @@ class DeclBoundsFinder : public clang::DeclVisitor<DeclBoundsFinder>,
   //            out-of-line methods on class templates.
   void VisitParmVarDecl(clang::ParmVarDecl *decl) {
 
+    if (decl->isImplicit()) {
+      return;
+    }
+
     clang::FunctionDecl *func =
         clang::dyn_cast<clang::FunctionDecl>(decl->getDeclContext());
 
+    // The parameter might be explicit, but the function can be implicit.
+    // Happens in the case of lambda static invokers, which are normal functions
+    // taking the same arguments as the lambda call operator, then constructing
+    // the lambda object from the the arguments, and invoking the call operator.
+    if (func->isImplicit()) {
+      return;
+    }
+
     // Note: If the ParamVarDecl is from the implicitly defaulted FunctionDecl
     //       then the corresponding token does not exist. No need to look for
-    //       token bounds in that case; Return early with the default initialization
-    //       of `lower_bounds` and `upper_bounds`
+    //       token bounds in that case; Return early with the default
+    //       initialization of `lower_bounds` and `upper_bounds`
     if (!func || func->isDefaulted() ||
         clang::isa<clang::CXXDeductionGuideDecl>(func)) {
       return;
@@ -1699,6 +1726,9 @@ class DeclBoundsFinder : public clang::DeclVisitor<DeclBoundsFinder>,
   void VisitCXXRecordDecl(clang::CXXRecordDecl *decl) {
     if (decl->isLambda()) {
       UncheckedVisit(decl->getLambdaCallOperator());
+      return;
+
+    } else if (decl->isImplicit()) {
       return;
     }
 
@@ -2063,11 +2093,28 @@ ASTImpl::BoundingTokens ASTImpl::DeclBounds(clang::Decl *decl) {
   }
 
   if (decl->isImplicit()) {
-    auto cls = clang::dyn_cast<clang::CXXRecordDecl>(decl);
-    if (!cls || !cls->isLambda()) {
-      return it->second;
+    if (auto func = clang::dyn_cast<clang::FunctionDecl>(decl)) {
+      if (func->getBuiltinID()) {
+        return it->second;
+      }
     }
   }
+
+  // if (decl->isImplicit()) {
+  //   if (auto cls = clang::dyn_cast<clang::CXXRecordDecl>(decl)) {
+  //     if (!cls->isLambda()) {
+  //       return it->second;
+  //     }
+  //   } else if (auto meth = clang::dyn_cast<clang::CXXMethodDecl>(decl)) {
+  //     if (!meth->getParent()->isLambda()) {
+  //       return it->second;
+  //     }
+  //   }
+
+  //   if (!cls || !cls->isLambda()) {
+  //     return it->second;
+  //   }
+  // }
 
   // Handle this off-the-bat; it doesn't really conform to any other thing.
   if (clang::isa<clang::TranslationUnitDecl>(decl)) {

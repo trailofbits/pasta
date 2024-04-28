@@ -80,6 +80,7 @@ static const TokenKind kLeadingKeywords[] = {
   TokenKind::kKeyword__PrivateExtern__,
   TokenKind::kKeyword__ModulePrivate__,
   TokenKind::kKeyword__Extension__,
+  TokenKind::kKeywordRequires,
 };
 
 // The decl bounds finder exists to find the beginning and ending of
@@ -1041,8 +1042,15 @@ class DeclBoundsFinder : public clang::DeclVisitor<DeclBoundsFinder>,
       return;
     }
 
-    assert(lower_bound.Offset() < proto->l_paren);
+#ifndef NDEBUG
+    if (IsMethodInLambda(decl)) {
+      assert(lower_bound.Offset() <= proto->l_paren);
+    } else {
+      assert(lower_bound.Offset() < proto->l_paren);
+    }
+
     assert(proto->r_paren <= upper_bound.Offset());
+#endif
   }
 
   void VisitAttribute(const clang::Attr *attr) {
@@ -1484,38 +1492,45 @@ class DeclBoundsFinder : public clang::DeclVisitor<DeclBoundsFinder>,
       return;
     }
 
-    clang::FunctionDecl *func =
-        clang::dyn_cast<clang::FunctionDecl>(decl->getDeclContext());
+    auto dc = decl->getDeclContext();
 
-    // The parameter might be explicit, but the function can be implicit.
-    // Happens in the case of lambda static invokers, which are normal functions
-    // taking the same arguments as the lambda call operator, then constructing
-    // the lambda object from the the arguments, and invoking the call operator.
-    if (func->isImplicit()) {
-      return;
+    if (auto func = clang::dyn_cast<clang::FunctionDecl>(dc)) {
+
+      // The parameter might be explicit, but the function can be implicit.
+      // Happens in the case of lambda static invokers, which are normal functions
+      // taking the same arguments as the lambda call operator, then constructing
+      // the lambda object from the the arguments, and invoking the call operator.
+      if (func->isImplicit()) {
+        return;
+      }
+
+      // Note: If the ParamVarDecl is from the implicitly defaulted FunctionDecl
+      //       then the corresponding token does not exist. No need to look for
+      //       token bounds in that case; Return early with the default
+      //       initialization of `lower_bounds` and `upper_bounds`
+      if (func->isDefaulted() ||
+          clang::isa<clang::CXXDeductionGuideDecl>(func)) {
+        return;
+      }
+
+      const ASTImpl::FunctionProto *proto = FunctionProtoFor(func);
+      if (!proto) {
+        return;
+      }
+
+      unsigned param_index = decl->getFunctionScopeIndex();
+      assert(param_index < proto->params.size());
+
+      // This just ends up re-reading the bounds back out of the AST.
+      const ASTImpl::BoundingTokens *param_proto = proto->params[param_index];
+      lower_bound = ast.RawTokenAt(param_proto->first);
+      upper_bound = ast.RawTokenAt(param_proto->second);
+
+    } else if (auto reb = clang::dyn_cast<clang::RequiresExprBodyDecl>(dc)) {
+      if (reb->isImplicit()) {
+        return;
+      }
     }
-
-    // Note: If the ParamVarDecl is from the implicitly defaulted FunctionDecl
-    //       then the corresponding token does not exist. No need to look for
-    //       token bounds in that case; Return early with the default
-    //       initialization of `lower_bounds` and `upper_bounds`
-    if (!func || func->isDefaulted() ||
-        clang::isa<clang::CXXDeductionGuideDecl>(func)) {
-      return;
-    }
-
-    const ASTImpl::FunctionProto *proto = FunctionProtoFor(func);
-    if (!proto) {
-      return;
-    }
-
-    unsigned param_index = decl->getFunctionScopeIndex();
-    assert(param_index < proto->params.size());
-
-    // This just ends up re-reading the bounds back out of the AST.
-    const ASTImpl::BoundingTokens *param_proto = proto->params[param_index];
-    lower_bound = ast.RawTokenAt(param_proto->first);
-    upper_bound = ast.RawTokenAt(param_proto->second);
   }
 
   ParsedTokenIterator ExpandToLeadingToken(ParsedTokenIterator name_tok,

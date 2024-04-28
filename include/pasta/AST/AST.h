@@ -48,6 +48,9 @@ class AST {
   static AST From(const Token &token);
 
   // Return the AST containing a declaration.
+  static AST From(const DeclContext &decl);
+
+  // Return the AST containing a declaration.
   static AST From(const Decl &decl);
 
   // Return the AST containing a Stmt.
@@ -98,6 +101,7 @@ class AST {
   Token Adopt(const clang::SourceLocation &loc) const;
   Attr Adopt(const clang::Attr *attr) const;
   Decl Adopt(const clang::Decl *decl) const;
+  Decl AdoptWithoutRemap(const clang::Decl *decl) const;
   Stmt Adopt(const clang::Stmt *stmt) const;
   Type Adopt(const clang::Type *type, uint32_t qual = 0u) const;
 #endif

@@ -42,6 +42,11 @@ AST AST::From(const Token &token) {
   return AST(std::shared_ptr<ASTImpl>(token.storage, token.storage->ast));
 }
 
+// Return the AST containing a declaration.
+AST AST::From(const DeclContext &decl) {
+  return AST(decl.ast);
+}
+
 AST AST::From(const Decl &decl) {
   return AST(decl.ast);
 }
@@ -248,6 +253,10 @@ Attr AST::Adopt(const clang::Attr *attr) const {
 
 Decl AST::Adopt(const clang::Decl *decl) const {
   return Decl(impl, decl->RemappedDecl);
+}
+
+Decl AST::AdoptWithoutRemap(const clang::Decl *decl) const {
+  return Decl(impl, decl);
 }
 
 Stmt AST::Adopt(const clang::Stmt *stmt) const {

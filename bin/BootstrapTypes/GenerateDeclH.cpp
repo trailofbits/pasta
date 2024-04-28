@@ -80,6 +80,7 @@ void GenerateDeclH(void) {
   DeclareCppMethods(os, decl_context, gClassIDs[decl_context]);
 
   os << " private:\n"
+     << "  friend class AST;\n"
      << "  friend class Decl;\n"
      << "  friend class DeclVisitor;\n"
      << "  friend class UsingDirectiveDecl;\n"

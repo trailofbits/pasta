@@ -227,6 +227,7 @@ class DeclContext {
   bool ShouldUseQualifiedLookup(void) const;
   // UsingDirectives: (llvm::iterator_range<clang::DeclContext::udir_iterator>)
  private:
+  friend class AST;
   friend class Decl;
   friend class DeclVisitor;
   friend class UsingDirectiveDecl;

@@ -200,6 +200,10 @@ TokenRange ASTImpl::TokenRangeFrom(clang::SourceRange range) {
   auto end = TokenAt(range.getEnd());
   
   if (begin && end) {
+    if (range.getBegin().getRawEncoding() > range.getEnd().getRawEncoding()) {
+      std::swap(begin, end);
+    }
+
     if (auto range = TokenRange::From(std::move(begin), std::move(end))) {
       return range.value();
     }

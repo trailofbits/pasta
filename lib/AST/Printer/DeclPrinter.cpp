@@ -1420,14 +1420,10 @@ void DeclPrinter::VisitLabelDecl(clang::LabelDecl *D) {
   Out << ":";
 }
 
-void DeclPrinter::VisitVarDecl(clang::VarDecl *D) {
-  TokenPrinterContext ctx(Out, D, tokens);
-  prettyPrintPragmas(D);
-
+clang::QualType DeclPrinter::VisitVarDeclSpecifiers(clang::VarDecl *D) {
   clang::QualType T = D->getTypeSourceInfo()
-    ? D->getTypeSourceInfo()->getType()
-    : D->getASTContext().getUnqualifiedObjCPointerType(D->getType());
-
+      ? D->getTypeSourceInfo()->getType()
+      : D->getASTContext().getUnqualifiedObjCPointerType(D->getType());
   if (!Policy.SuppressSpecifiers) {
     clang::StorageClass SC = D->getStorageClass();
     if (SC != clang::SC_None)
@@ -1456,14 +1452,10 @@ void DeclPrinter::VisitVarDecl(clang::VarDecl *D) {
     }
   }
 
-  printDeclType(T, [&] () {
-    if (auto name = D->getName(); !name.empty()) {
-      TokenPrinterContext jump_up_stack(ctx);
-      Out << name;
-      ctx.MarkLocation(D->getLocation());
-    }
-  });
+  return T;
+}
 
+void DeclPrinter::VisitVarDeclInitializer(clang::VarDecl *D) {
   clang::Expr *Init = D->getInit();
   if (!Policy.SuppressInitializers && Init) {
     bool ImplicitInit = false;
@@ -1493,6 +1485,64 @@ void DeclPrinter::VisitVarDecl(clang::VarDecl *D) {
     }
   }
   prettyPrintAttributes(D);
+}
+
+void DeclPrinter::VisitDecompositionDecl(clang::DecompositionDecl *D) {
+  TokenPrinterContext ctx(Out, D, tokens);
+  prettyPrintPragmas(D);
+  clang::QualType T = VisitVarDeclSpecifiers(D);
+
+  printDeclType(T, [&] () {
+    Out << '[';
+    if (tokens.ast) {
+      auto l_square = tokens.ast->RawTokenAt(D->getLocation());
+      if (l_square.Kind() == TokenKind::kLSquare) {
+        ctx.MarkLocation(l_square);
+      }
+    }
+
+    auto sep = "";
+    for (clang::BindingDecl *B : D->bindings()) {
+      Out << sep;
+      TokenPrinterContext ctx(Out, B, tokens);
+      if (auto name = B->getName(); !name.empty()) {
+        Out << name;
+        ctx.MarkLocation(B->getLocation());
+      }
+      sep = ", ";
+    }
+
+    Out << ']';
+    if (tokens.ast) {
+      if (auto l_square = tokens.ast->RawTokenAt(D->getLocation())) {
+        auto r_square_it = tokens.ast->matching.find(l_square.Offset());
+        if (r_square_it != tokens.ast->matching.end()) {
+          auto r_square = tokens.ast->RawTokenAt(r_square_it->second);
+          if (r_square.Kind() == TokenKind::kRSquare) {
+            ctx.MarkLocation(r_square);
+          }
+        }
+      }
+    }
+  });
+
+  VisitVarDeclInitializer(D);
+}
+
+void DeclPrinter::VisitVarDecl(clang::VarDecl *D) {
+  TokenPrinterContext ctx(Out, D, tokens);
+  prettyPrintPragmas(D);
+  clang::QualType T = VisitVarDeclSpecifiers(D);
+
+  printDeclType(T, [&] () {
+    if (auto name = D->getName(); !name.empty()) {
+      TokenPrinterContext jump_up_stack(ctx);
+      Out << name;
+      ctx.MarkLocation(D->getLocation());
+    }
+  });
+
+  VisitVarDeclInitializer(D);
 }
 
 void DeclPrinter::VisitParmVarDecl(clang::ParmVarDecl *D) {

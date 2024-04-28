@@ -170,6 +170,9 @@ class DeclPrinter final : public clang::DeclVisitor<DeclPrinter>,
   void VisitFunctionDecl(clang::FunctionDecl *D);
   void VisitFriendDecl(clang::FriendDecl *D);
   void VisitFieldDecl(clang::FieldDecl *D);
+  clang::QualType VisitVarDeclSpecifiers(clang::VarDecl *D);
+  void VisitVarDeclInitializer(clang::VarDecl *D);
+  void VisitDecompositionDecl(clang::DecompositionDecl *D);
   void VisitVarDecl(clang::VarDecl *D);
   void VisitLabelDecl(clang::LabelDecl *D);
   void VisitParmVarDecl(clang::ParmVarDecl *D);

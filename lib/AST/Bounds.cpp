@@ -1008,6 +1008,23 @@ class DeclBoundsFinder : public clang::DeclVisitor<DeclBoundsFinder>,
       }
     }
 
+    // If this is a constructor / destructor, then try to expand to include
+    // all nested class/namespace specifiers.
+    if (decl->isOutOfLine() &&
+        (clang::isa<clang::CXXConstructorDecl>(decl) ||
+         clang::isa<clang::CXXDestructorDecl>(decl))) {
+      auto prev = PreviousToken(lower_bound);
+      while (prev.Kind() == TokenKind::kColonColon) {
+        lower_bound = prev;
+        lower_bound.Previous();  // Name or `>`
+        if (lower_bound.Kind() == TokenKind::kRAngle) {
+          lower_bound = GetMatching(lower_bound).first;
+          lower_bound.Previous();  // Name.
+        }
+        prev = PreviousToken(lower_bound);
+      }
+    }
+
     VisitDeclaratorDecl(decl);
 
     const clang::FunctionDecl *def = nullptr;

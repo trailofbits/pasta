@@ -1760,17 +1760,22 @@ static bool isImplicitThis(const clang::Expr *E) {
 
 void StmtPrinter::VisitMemberExpr(clang::MemberExpr *Node) {
   TokenPrinterContext ctx(OS, Node, tokens);
-  if (!Policy.SuppressImplicitBase || !isImplicitThis(Node->getBase())) {
-    PrintExpr(Node->getBase());
+  auto LHS = Node->getBase();
+  if (!isImplicitThis(LHS)) {
+    PrintExpr(LHS);
 
-    auto *ParentMember = clang::dyn_cast<clang::MemberExpr>(Node->getBase());
-    clang::FieldDecl *ParentDecl =
-        ParentMember ? clang::dyn_cast<clang::FieldDecl>(ParentMember->getMemberDecl())
-                     : nullptr;
-
-    if (!ParentDecl || !ParentDecl->isAnonymousStructOrUnion()) {
-      OS << (Node->isArrow() ? "->" : ".");
-      ctx.MarkLocation(Node->getOperatorLoc());
+    // NOTE(pag): The left-hand side might be a call to an `operator->`, and so
+    //            we don't want to re-print the `->`.
+    if (Node->isArrow()) {
+      if (!tokens.LastTokenIsOneOf(TokenKind::kArrow)) {
+        OS << "->";
+        ctx.MarkLocation(Node->getOperatorLoc());
+      }
+    } else {
+      if (!tokens.LastTokenIsOneOf(TokenKind::kPeriod)) {
+        OS << '.';
+        ctx.MarkLocation(Node->getOperatorLoc());
+      }
     }
   }
 
@@ -2167,16 +2172,19 @@ void StmtPrinter::VisitCXXOperatorCallExpr(clang::CXXOperatorCallExpr *Node) {
   clang::OverloadedOperatorKind Kind = Node->getOperator();
   if (Kind == clang::OO_PlusPlus || Kind == clang::OO_MinusMinus) {
     if (Node->getNumArgs() == 1) {
-      OS << getOperatorSpelling(Kind) << ' ';
+      OS << getOperatorSpelling(Kind);
       ctx.MarkLocation(Node->getOperatorLoc());
       PrintExpr(Node->getArg(0));
     } else {
       PrintExpr(Node->getArg(0));
-      OS << ' ' << getOperatorSpelling(Kind);
+      OS << getOperatorSpelling(Kind);
       ctx.MarkLocation(Node->getOperatorLoc());
     }
   } else if (Kind == clang::OO_Arrow) {
     PrintExpr(Node->getArg(0));
+    OS << getOperatorSpelling(Kind);
+    ctx.MarkLocation(Node->getOperatorLoc());
+
   } else if (Kind == clang::OO_Call || Kind == clang::OO_Subscript) {
     PrintExpr(Node->getArg(0));
     OS << (Kind == clang::OO_Call ? '(' : '[');
@@ -2187,12 +2195,17 @@ void StmtPrinter::VisitCXXOperatorCallExpr(clang::CXXOperatorCallExpr *Node) {
         PrintExpr(Node->getArg(ArgIdx));
     }
     OS << (Kind == clang::OO_Call ? ')' : ']');
+
   } else if (Node->getNumArgs() == 1) {
-    OS << getOperatorSpelling(Kind) << ' ';
+    OS << getOperatorSpelling(Kind);
+    ctx.MarkLocation(Node->getOperatorLoc());
     PrintExpr(Node->getArg(0));
+
   } else if (Node->getNumArgs() == 2) {
     PrintExpr(Node->getArg(0));
-    OS << ' ' << getOperatorSpelling(Kind) << ' ';
+    OS << ' ' << getOperatorSpelling(Kind);
+    ctx.MarkLocation(Node->getOperatorLoc());
+    OS << ' ';
     PrintExpr(Node->getArg(1));
   } else {
     llvm_unreachable("unknown overloaded operator");

@@ -509,8 +509,11 @@ void DeclPrinter::PrintConstructorInitializers(
     } else
       Out << ", ";
 
+    TokenPrinterContext ctx(Out, BMInitializer, tokens);
+
     if (BMInitializer->isAnyMemberInitializer()) {
       clang::FieldDecl *FD = BMInitializer->getAnyMember();
+      TokenPrinterContext ctx(Out, FD, tokens);
       Out << *FD;
     } else {
       printQualType(clang::QualType(BMInitializer->getBaseClass(), 0), Out, Policy);
@@ -1634,13 +1637,21 @@ void DeclPrinter::VisitCXXRecordDecl(clang::CXXRecordDecl *D) {
 
   if (!Policy.SuppressSpecifiers && D->isModulePrivate())
     Out << "__module_private__ ";
-  Out << D->getKindName();
+  Out << D->getKindName();  // Struct, union, etc.
 
   prettyPrintAttributes(D);
 
   if (D->getIdentifier()) {
-    Out << ' ' << *D;
-    MarkNamedDeclName(ctx, D);
+    Out << ' ';
+
+    if (D->isOutOfLine()) {
+      PrintNestedNameSpecifier(*this, D, Policy);
+    }
+
+    if (D->getDeclName()) {
+      OS << *D;
+      MarkNamedDeclName(ctx, D);
+    }
 
     if (auto S = clang::dyn_cast<clang::ClassTemplateSpecializationDecl>(D)) {
       clang::ArrayRef<clang::TemplateArgument> Args = S->getTemplateArgs().asArray();

@@ -95,6 +95,7 @@ void RegisterDecl(nb::module_ &m) {
     .def_prop_ro("is_unconditionally_visible", &Decl::IsUnconditionallyVisible)
     .def_prop_ro("is_used", &Decl::IsUsed)
     .def_prop_ro("is_weak_imported", &Decl::IsWeakImported)
-    .def_prop_ro("redeclarations", &Decl::Redeclarations);
+    .def_prop_ro("redeclarations", &Decl::Redeclarations)
+    .def_prop_ro("should_skip_checking_odr", &Decl::ShouldSkipCheckingODR);
 }
 } // namespace pasta

@@ -649,7 +649,7 @@ void DeclPrinter::VisitDeclContext(clang::DeclContext *DC, bool Indent) {
     else if (clang::isa<clang::ObjCMethodDecl>(*D) && clang::cast<clang::ObjCMethodDecl>(*D)->hasBody())
       Terminator = nullptr;
     else if (auto FD = clang::dyn_cast<clang::FunctionDecl>(*D)) {
-      if (FD->isExplicitlyDefaulted() || FD->isDeletedAsWritten() || FD->isPure())
+      if (FD->isExplicitlyDefaulted() || FD->isDeletedAsWritten() || FD->isPureVirtual())
         Terminator = ";";
       else if (FD->isThisDeclarationADefinition())
         Terminator = nullptr;
@@ -658,7 +658,7 @@ void DeclPrinter::VisitDeclContext(clang::DeclContext *DC, bool Indent) {
     } else if (auto TD = clang::dyn_cast<clang::FunctionTemplateDecl>(*D)) {
       if (TD->getTemplatedDecl()->isExplicitlyDefaulted() ||
           TD->getTemplatedDecl()->isDeletedAsWritten() ||
-          TD->getTemplatedDecl()->isPure())
+          TD->getTemplatedDecl()->isPureVirtual())
         Terminator = ";";
       else if (TD->getTemplatedDecl()->isThisDeclarationADefinition())
         Terminator = nullptr;
@@ -1022,7 +1022,7 @@ void DeclPrinter::VisitFunctionDecl(clang::FunctionDecl *D) {
   // TODO(pag): Could go searching for a `(`, or `)`.
   bool looks_like_var = Ty.getTypePtr()->isTypedefNameType();
   if (looks_like_var) {
-    if (D->isPure() || D->isDeletedAsWritten() || D->isExplicitlyDefaulted() ||
+    if (D->isPureVirtual() || D->isDeletedAsWritten() || D->isExplicitlyDefaulted() ||
         D->doesThisDeclarationHaveABody()) {
       looks_like_var = false;
 
@@ -1218,7 +1218,7 @@ void DeclPrinter::VisitFunctionDecl(clang::FunctionDecl *D) {
     }
 
     if (CDecl) {
-      if (!Policy.TerseOutput && !D->isPure() && !D->isDeletedAsWritten() &&
+      if (!Policy.TerseOutput && !D->isPureVirtual() && !D->isDeletedAsWritten() &&
           !D->isExplicitlyDefaulted() && D->isThisDeclarationADefinition())
         PrintConstructorInitializers(ctx, CDecl, ProtoFn);
     } else if (!ConversionDecl && !clang::isa<clang::CXXDestructorDecl>(D)) {
@@ -1255,7 +1255,7 @@ void DeclPrinter::VisitFunctionDecl(clang::FunctionDecl *D) {
     prettyPrintAttributes(D);
   }
 
-  if (D->isPure())
+  if (D->isPureVirtual())
     Out << " = 0";
   else if (D->isDeletedAsWritten())
     Out << " = delete";
@@ -1610,10 +1610,10 @@ void DeclPrinter::VisitCXXRecordDecl(clang::CXXRecordDecl *D) {
 void DeclPrinter::VisitLinkageSpecDecl(clang::LinkageSpecDecl *D) {
   TokenPrinterContext ctx(Out, D, tokens);
   const char *l;
-  if (D->getLanguage() == clang::LinkageSpecDecl::lang_c)
+  if (D->getLanguage() == clang::LinkageSpecLanguageIDs::C)
     l = "C";
   else {
-    assert(D->getLanguage() == clang::LinkageSpecDecl::lang_cxx &&
+    assert(D->getLanguage() == clang::LinkageSpecLanguageIDs::CXX &&
            "unknown language in linkage specification");
     l = "C++";
   }
@@ -2266,7 +2266,7 @@ void DeclPrinter::VisitObjCPropertyDecl(clang::ObjCPropertyDecl *PDecl) {
       PDecl->getASTContext().getUnqualifiedObjCPointerType(T),
       Out, Policy);
 
-  if (!clang::StringRef(TypeStr).endswith("*"))
+  if (!clang::StringRef(TypeStr).ends_with("*"))
     Out << ' ';
   Out << *PDecl;
   if (Policy.PolishForDeclaration)
@@ -2419,17 +2419,17 @@ void DeclPrinter::VisitOMPDeclareReductionDecl(clang::OMPDeclareReductionDecl *D
     if (auto *Init = D->getInitializer()) {
       Out << " initializer(";
       switch (D->getInitializerKind()) {
-      case clang::OMPDeclareReductionDecl::DirectInit:
+      case clang::OMPDeclareReductionInitKind::Direct:
         Out << "omp_priv(";
         break;
-      case clang::OMPDeclareReductionDecl::CopyInit:
+      case clang::OMPDeclareReductionInitKind::Copy:
         Out << "omp_priv = ";
         break;
-      case clang::OMPDeclareReductionDecl::CallInit:
+      case clang::OMPDeclareReductionInitKind::Call:
         break;
       }
       printPrettyStmt(Init, Out, nullptr, Policy, 0);
-      if (D->getInitializerKind() == clang::OMPDeclareReductionDecl::DirectInit)
+      if (D->getInitializerKind() == clang::OMPDeclareReductionInitKind::Direct)
         Out << ")";
       Out << ")";
     }
@@ -2534,7 +2534,7 @@ static const char *OptionalTrailingSemiColon(
     const std::shared_ptr<PrintedTokenRangeImpl> &tokens, clang::Decl *decl) {
   if (auto fd = clang::dyn_cast<clang::FunctionDecl>(decl)) {
     if (fd->isExplicitlyDefaulted() || fd->isDeletedAsWritten() ||
-        fd->isPure()) {
+        fd->isPureVirtual()) {
       return ";";
     } else if (!fd->isThisDeclarationADefinition()) {
       return ";";

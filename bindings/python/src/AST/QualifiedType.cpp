@@ -59,6 +59,7 @@ void RegisterQualifiedType(nb::module_ &m) {
     .def_prop_ro("is_referenceable", &QualifiedType::IsReferenceable)
     .def_prop_ro("is_restrict_qualified", &QualifiedType::IsRestrictQualified)
     .def_prop_ro("is_trivial_type", &QualifiedType::IsTrivialType)
+    .def_prop_ro("is_trivially_copy_constructible_type", &QualifiedType::IsTriviallyCopyConstructibleType)
     .def_prop_ro("is_trivially_copyable_type", &QualifiedType::IsTriviallyCopyableType)
     .def_prop_ro("is_trivially_equality_comparable_type", &QualifiedType::IsTriviallyEqualityComparableType)
     .def_prop_ro("is_trivially_relocatable_type", &QualifiedType::IsTriviallyRelocatableType)

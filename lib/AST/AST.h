@@ -29,6 +29,8 @@
 #include "Macro.h"
 #include "Token.h"
 
+#define PASTA_LLVM_18
+
 #ifndef PASTA_LLVM_18
 #define AS_C23 AS_C2x
 #endif

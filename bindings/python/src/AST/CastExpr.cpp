@@ -19,6 +19,7 @@ namespace nb = nanobind;
 
 void RegisterCastExpr(nb::module_ &m) {
   nb::class_<CastExpr, Expr>(m, "CastExpr")
+    .def_prop_ro("changes_volatile_qualification", &CastExpr::ChangesVolatileQualification)
     .def_prop_ro("children", &CastExpr::Children)
     .def_prop_ro("cast_kind", &CastExpr::CastKind)
     .def_prop_ro("cast_kind_name", &CastExpr::CastKindName)

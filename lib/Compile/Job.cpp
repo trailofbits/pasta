@@ -43,6 +43,8 @@
 #include "Diagnostic.h"
 #include "FileSystem.h"
 
+#define PASTA_LLVM_18
+
 namespace pasta {
 
 CompileJob::~CompileJob(void) {}

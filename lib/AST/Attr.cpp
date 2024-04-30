@@ -144,6 +144,10 @@ void AttrVisitor::VisitM68kInterruptAttr(const M68kInterruptAttr &attr) {
   VisitInheritableAttr(attr);
 }
 
+void AttrVisitor::VisitM68kRTDAttr(const M68kRTDAttr &attr) {
+  VisitInheritableAttr(attr);
+}
+
 void AttrVisitor::VisitMIGServerRoutineAttr(const MIGServerRoutineAttr &attr) {
   VisitInheritableAttr(attr);
 }
@@ -153,6 +157,10 @@ void AttrVisitor::VisitMSABIAttr(const MSABIAttr &attr) {
 }
 
 void AttrVisitor::VisitMSAllocatorAttr(const MSAllocatorAttr &attr) {
+  VisitInheritableAttr(attr);
+}
+
+void AttrVisitor::VisitMSConstexprAttr(const MSConstexprAttr &attr) {
   VisitInheritableAttr(attr);
 }
 
@@ -588,6 +596,10 @@ void AttrVisitor::VisitPreferredNameAttr(const PreferredNameAttr &attr) {
   VisitInheritableAttr(attr);
 }
 
+void AttrVisitor::VisitPreferredTypeAttr(const PreferredTypeAttr &attr) {
+  VisitInheritableAttr(attr);
+}
+
 void AttrVisitor::VisitPreserveAllAttr(const PreserveAllAttr &attr) {
   VisitInheritableAttr(attr);
 }
@@ -724,10 +736,6 @@ void AttrVisitor::VisitStrictGuardStackCheckAttr(const StrictGuardStackCheckAttr
   VisitInheritableAttr(attr);
 }
 
-void AttrVisitor::VisitSuppressAttr(const SuppressAttr &attr) {
-  VisitStmtAttr(attr);
-}
-
 void AttrVisitor::VisitSwiftAsyncAttr(const SwiftAsyncAttr &attr) {
   VisitInheritableAttr(attr);
 }
@@ -776,6 +784,14 @@ void AttrVisitor::VisitSwiftErrorResultAttr(const SwiftErrorResultAttr &attr) {
   VisitParameterABIAttr(attr);
 }
 
+void AttrVisitor::VisitSwiftImportAsNonGenericAttr(const SwiftImportAsNonGenericAttr &attr) {
+  VisitInheritableAttr(attr);
+}
+
+void AttrVisitor::VisitSwiftImportPropertyAsAccessorsAttr(const SwiftImportPropertyAsAccessorsAttr &attr) {
+  VisitInheritableAttr(attr);
+}
+
 void AttrVisitor::VisitSwiftIndirectResultAttr(const SwiftIndirectResultAttr &attr) {
   VisitParameterABIAttr(attr);
 }
@@ -794,6 +810,14 @@ void AttrVisitor::VisitSwiftObjCMembersAttr(const SwiftObjCMembersAttr &attr) {
 
 void AttrVisitor::VisitSwiftPrivateAttr(const SwiftPrivateAttr &attr) {
   VisitInheritableAttr(attr);
+}
+
+void AttrVisitor::VisitSwiftVersionedAdditionAttr(const SwiftVersionedAdditionAttr &attr) {
+  VisitAttr(attr);
+}
+
+void AttrVisitor::VisitSwiftVersionedRemovalAttr(const SwiftVersionedRemovalAttr &attr) {
+  VisitAttr(attr);
 }
 
 void AttrVisitor::VisitSysVABIAttr(const SysVABIAttr &attr) {
@@ -1112,11 +1136,39 @@ void AttrVisitor::VisitArmBuiltinAliasAttr(const ArmBuiltinAliasAttr &attr) {
   VisitInheritableAttr(attr);
 }
 
+void AttrVisitor::VisitArmInAttr(const ArmInAttr &attr) {
+  VisitTypeAttr(attr);
+}
+
+void AttrVisitor::VisitArmInOutAttr(const ArmInOutAttr &attr) {
+  VisitTypeAttr(attr);
+}
+
+void AttrVisitor::VisitArmLocallyStreamingAttr(const ArmLocallyStreamingAttr &attr) {
+  VisitInheritableAttr(attr);
+}
+
 void AttrVisitor::VisitArmMveStrictPolymorphismAttr(const ArmMveStrictPolymorphismAttr &attr) {
   VisitTypeAttr(attr);
 }
 
+void AttrVisitor::VisitArmNewAttr(const ArmNewAttr &attr) {
+  VisitInheritableAttr(attr);
+}
+
+void AttrVisitor::VisitArmOutAttr(const ArmOutAttr &attr) {
+  VisitTypeAttr(attr);
+}
+
+void AttrVisitor::VisitArmPreservesAttr(const ArmPreservesAttr &attr) {
+  VisitTypeAttr(attr);
+}
+
 void AttrVisitor::VisitArmStreamingAttr(const ArmStreamingAttr &attr) {
+  VisitTypeAttr(attr);
+}
+
+void AttrVisitor::VisitArmStreamingCompatibleAttr(const ArmStreamingCompatibleAttr &attr) {
   VisitTypeAttr(attr);
 }
 
@@ -1157,6 +1209,10 @@ void AttrVisitor::VisitAvailableOnlyInDefaultEvalMethodAttr(const AvailableOnlyI
 }
 
 void AttrVisitor::VisitBPFPreserveAccessIndexAttr(const BPFPreserveAccessIndexAttr &attr) {
+  VisitInheritableAttr(attr);
+}
+
+void AttrVisitor::VisitBPFPreserveStaticOffsetAttr(const BPFPreserveStaticOffsetAttr &attr) {
   VisitInheritableAttr(attr);
 }
 
@@ -1292,6 +1348,14 @@ void AttrVisitor::VisitCmseNSEntryAttr(const CmseNSEntryAttr &attr) {
   VisitInheritableAttr(attr);
 }
 
+void AttrVisitor::VisitCodeAlignAttr(const CodeAlignAttr &attr) {
+  VisitStmtAttr(attr);
+}
+
+void AttrVisitor::VisitCodeModelAttr(const CodeModelAttr &attr) {
+  VisitInheritableAttr(attr);
+}
+
 void AttrVisitor::VisitCodeSegAttr(const CodeSegAttr &attr) {
   VisitInheritableAttr(attr);
 }
@@ -1329,6 +1393,30 @@ void AttrVisitor::VisitConsumableSetOnReadAttr(const ConsumableSetOnReadAttr &at
 }
 
 void AttrVisitor::VisitConvergentAttr(const ConvergentAttr &attr) {
+  VisitInheritableAttr(attr);
+}
+
+void AttrVisitor::VisitCoroDisableLifetimeBoundAttr(const CoroDisableLifetimeBoundAttr &attr) {
+  VisitInheritableAttr(attr);
+}
+
+void AttrVisitor::VisitCoroLifetimeBoundAttr(const CoroLifetimeBoundAttr &attr) {
+  VisitInheritableAttr(attr);
+}
+
+void AttrVisitor::VisitCoroOnlyDestroyWhenCompleteAttr(const CoroOnlyDestroyWhenCompleteAttr &attr) {
+  VisitInheritableAttr(attr);
+}
+
+void AttrVisitor::VisitCoroReturnTypeAttr(const CoroReturnTypeAttr &attr) {
+  VisitInheritableAttr(attr);
+}
+
+void AttrVisitor::VisitCoroWrapperAttr(const CoroWrapperAttr &attr) {
+  VisitInheritableAttr(attr);
+}
+
+void AttrVisitor::VisitCountedByAttr(const CountedByAttr &attr) {
   VisitInheritableAttr(attr);
 }
 
@@ -1472,6 +1560,10 @@ void AttrVisitor::VisitHLSLNumThreadsAttr(const HLSLNumThreadsAttr &attr) {
   VisitInheritableAttr(attr);
 }
 
+void AttrVisitor::VisitHLSLParamModifierAttr(const HLSLParamModifierAttr &attr) {
+  VisitTypeAttr(attr);
+}
+
 void AttrVisitor::VisitHLSLResourceAttr(const HLSLResourceAttr &attr) {
   VisitInheritableAttr(attr);
 }
@@ -1584,6 +1676,10 @@ void AttrVisitor::VisitSPtrAttr(const SPtrAttr &attr) {
   VisitTypeAttr(attr);
 }
 
+void AttrVisitor::VisitSuppressAttr(const SuppressAttr &attr) {
+  VisitDeclOrStmtAttr(attr);
+}
+
 void AttrVisitor::VisitAlwaysInlineAttr(const AlwaysInlineAttr &attr) {
   VisitDeclOrStmtAttr(attr);
 }
@@ -1656,8 +1752,15 @@ PASTA_DEFINE_DERIVED_OPERATORS(Attr, AnyX86NoCfCheckAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(Attr, ArcWeakrefUnavailableAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(Attr, ArgumentWithTypeTagAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(Attr, ArmBuiltinAliasAttr)
+PASTA_DEFINE_DERIVED_OPERATORS(Attr, ArmInAttr)
+PASTA_DEFINE_DERIVED_OPERATORS(Attr, ArmInOutAttr)
+PASTA_DEFINE_DERIVED_OPERATORS(Attr, ArmLocallyStreamingAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(Attr, ArmMveStrictPolymorphismAttr)
+PASTA_DEFINE_DERIVED_OPERATORS(Attr, ArmNewAttr)
+PASTA_DEFINE_DERIVED_OPERATORS(Attr, ArmOutAttr)
+PASTA_DEFINE_DERIVED_OPERATORS(Attr, ArmPreservesAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(Attr, ArmStreamingAttr)
+PASTA_DEFINE_DERIVED_OPERATORS(Attr, ArmStreamingCompatibleAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(Attr, ArtificialAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(Attr, AsmLabelAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(Attr, AssertCapabilityAttr)
@@ -1668,6 +1771,7 @@ PASTA_DEFINE_DERIVED_OPERATORS(Attr, AssumptionAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(Attr, AvailabilityAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(Attr, AvailableOnlyInDefaultEvalMethodAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(Attr, BPFPreserveAccessIndexAttr)
+PASTA_DEFINE_DERIVED_OPERATORS(Attr, BPFPreserveStaticOffsetAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(Attr, BTFDeclTagAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(Attr, BTFTypeTagAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(Attr, BlocksAttr)
@@ -1703,6 +1807,8 @@ PASTA_DEFINE_DERIVED_OPERATORS(Attr, CarriesDependencyAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(Attr, CleanupAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(Attr, CmseNSCallAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(Attr, CmseNSEntryAttr)
+PASTA_DEFINE_DERIVED_OPERATORS(Attr, CodeAlignAttr)
+PASTA_DEFINE_DERIVED_OPERATORS(Attr, CodeModelAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(Attr, CodeSegAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(Attr, ColdAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(Attr, CommonAttr)
@@ -1713,6 +1819,12 @@ PASTA_DEFINE_DERIVED_OPERATORS(Attr, ConsumableAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(Attr, ConsumableAutoCastAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(Attr, ConsumableSetOnReadAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(Attr, ConvergentAttr)
+PASTA_DEFINE_DERIVED_OPERATORS(Attr, CoroDisableLifetimeBoundAttr)
+PASTA_DEFINE_DERIVED_OPERATORS(Attr, CoroLifetimeBoundAttr)
+PASTA_DEFINE_DERIVED_OPERATORS(Attr, CoroOnlyDestroyWhenCompleteAttr)
+PASTA_DEFINE_DERIVED_OPERATORS(Attr, CoroReturnTypeAttr)
+PASTA_DEFINE_DERIVED_OPERATORS(Attr, CoroWrapperAttr)
+PASTA_DEFINE_DERIVED_OPERATORS(Attr, CountedByAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(Attr, DLLExportAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(Attr, DLLExportStaticLocalAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(Attr, DLLImportAttr)
@@ -1748,6 +1860,7 @@ PASTA_DEFINE_DERIVED_OPERATORS(Attr, HIPManagedAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(Attr, HLSLAnnotationAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(Attr, HLSLGroupSharedAddressSpaceAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(Attr, HLSLNumThreadsAttr)
+PASTA_DEFINE_DERIVED_OPERATORS(Attr, HLSLParamModifierAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(Attr, HLSLResourceAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(Attr, HLSLResourceBindingAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(Attr, HLSLSV_DispatchThreadIDAttr)
@@ -1774,9 +1887,11 @@ PASTA_DEFINE_DERIVED_OPERATORS(Attr, LockReturnedAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(Attr, LocksExcludedAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(Attr, LoopHintAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(Attr, M68kInterruptAttr)
+PASTA_DEFINE_DERIVED_OPERATORS(Attr, M68kRTDAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(Attr, MIGServerRoutineAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(Attr, MSABIAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(Attr, MSAllocatorAttr)
+PASTA_DEFINE_DERIVED_OPERATORS(Attr, MSConstexprAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(Attr, MSInheritanceAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(Attr, MSNoVTableAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(Attr, MSP430InterruptAttr)
@@ -1900,6 +2015,7 @@ PASTA_DEFINE_DERIVED_OPERATORS(Attr, PragmaClangRelroSectionAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(Attr, PragmaClangRodataSectionAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(Attr, PragmaClangTextSectionAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(Attr, PreferredNameAttr)
+PASTA_DEFINE_DERIVED_OPERATORS(Attr, PreferredTypeAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(Attr, PreserveAllAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(Attr, PreserveMostAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(Attr, PtGuardedByAttr)
@@ -1950,11 +2066,15 @@ PASTA_DEFINE_DERIVED_OPERATORS(Attr, SwiftCallAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(Attr, SwiftContextAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(Attr, SwiftErrorAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(Attr, SwiftErrorResultAttr)
+PASTA_DEFINE_DERIVED_OPERATORS(Attr, SwiftImportAsNonGenericAttr)
+PASTA_DEFINE_DERIVED_OPERATORS(Attr, SwiftImportPropertyAsAccessorsAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(Attr, SwiftIndirectResultAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(Attr, SwiftNameAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(Attr, SwiftNewTypeAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(Attr, SwiftObjCMembersAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(Attr, SwiftPrivateAttr)
+PASTA_DEFINE_DERIVED_OPERATORS(Attr, SwiftVersionedAdditionAttr)
+PASTA_DEFINE_DERIVED_OPERATORS(Attr, SwiftVersionedRemovalAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(Attr, SysVABIAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(Attr, TLSModelAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(Attr, TargetAttr)
@@ -2162,6 +2282,8 @@ PASTA_DEFINE_DERIVED_OPERATORS(InheritableAttr, AnyX86NoCfCheckAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(InheritableAttr, ArcWeakrefUnavailableAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(InheritableAttr, ArgumentWithTypeTagAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(InheritableAttr, ArmBuiltinAliasAttr)
+PASTA_DEFINE_DERIVED_OPERATORS(InheritableAttr, ArmLocallyStreamingAttr)
+PASTA_DEFINE_DERIVED_OPERATORS(InheritableAttr, ArmNewAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(InheritableAttr, ArtificialAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(InheritableAttr, AsmLabelAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(InheritableAttr, AssertCapabilityAttr)
@@ -2172,6 +2294,7 @@ PASTA_DEFINE_DERIVED_OPERATORS(InheritableAttr, AssumptionAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(InheritableAttr, AvailabilityAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(InheritableAttr, AvailableOnlyInDefaultEvalMethodAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(InheritableAttr, BPFPreserveAccessIndexAttr)
+PASTA_DEFINE_DERIVED_OPERATORS(InheritableAttr, BPFPreserveStaticOffsetAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(InheritableAttr, BTFDeclTagAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(InheritableAttr, BlocksAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(InheritableAttr, BuiltinAttr)
@@ -2203,6 +2326,7 @@ PASTA_DEFINE_DERIVED_OPERATORS(InheritableAttr, CapturedRecordAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(InheritableAttr, CarriesDependencyAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(InheritableAttr, CleanupAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(InheritableAttr, CmseNSEntryAttr)
+PASTA_DEFINE_DERIVED_OPERATORS(InheritableAttr, CodeModelAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(InheritableAttr, CodeSegAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(InheritableAttr, ColdAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(InheritableAttr, CommonAttr)
@@ -2213,6 +2337,12 @@ PASTA_DEFINE_DERIVED_OPERATORS(InheritableAttr, ConsumableAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(InheritableAttr, ConsumableAutoCastAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(InheritableAttr, ConsumableSetOnReadAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(InheritableAttr, ConvergentAttr)
+PASTA_DEFINE_DERIVED_OPERATORS(InheritableAttr, CoroDisableLifetimeBoundAttr)
+PASTA_DEFINE_DERIVED_OPERATORS(InheritableAttr, CoroLifetimeBoundAttr)
+PASTA_DEFINE_DERIVED_OPERATORS(InheritableAttr, CoroOnlyDestroyWhenCompleteAttr)
+PASTA_DEFINE_DERIVED_OPERATORS(InheritableAttr, CoroReturnTypeAttr)
+PASTA_DEFINE_DERIVED_OPERATORS(InheritableAttr, CoroWrapperAttr)
+PASTA_DEFINE_DERIVED_OPERATORS(InheritableAttr, CountedByAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(InheritableAttr, DLLExportAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(InheritableAttr, DLLExportStaticLocalAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(InheritableAttr, DLLImportAttr)
@@ -2266,9 +2396,11 @@ PASTA_DEFINE_DERIVED_OPERATORS(InheritableAttr, LifetimeBoundAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(InheritableAttr, LockReturnedAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(InheritableAttr, LocksExcludedAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(InheritableAttr, M68kInterruptAttr)
+PASTA_DEFINE_DERIVED_OPERATORS(InheritableAttr, M68kRTDAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(InheritableAttr, MIGServerRoutineAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(InheritableAttr, MSABIAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(InheritableAttr, MSAllocatorAttr)
+PASTA_DEFINE_DERIVED_OPERATORS(InheritableAttr, MSConstexprAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(InheritableAttr, MSInheritanceAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(InheritableAttr, MSNoVTableAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(InheritableAttr, MSP430InterruptAttr)
@@ -2362,6 +2494,7 @@ PASTA_DEFINE_DERIVED_OPERATORS(InheritableAttr, PragmaClangRelroSectionAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(InheritableAttr, PragmaClangRodataSectionAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(InheritableAttr, PragmaClangTextSectionAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(InheritableAttr, PreferredNameAttr)
+PASTA_DEFINE_DERIVED_OPERATORS(InheritableAttr, PreferredTypeAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(InheritableAttr, PreserveAllAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(InheritableAttr, PreserveMostAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(InheritableAttr, PtGuardedByAttr)
@@ -2394,6 +2527,7 @@ PASTA_DEFINE_DERIVED_OPERATORS(InheritableAttr, StandaloneDebugAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(InheritableAttr, StdCallAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(InheritableAttr, StrictFPAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(InheritableAttr, StrictGuardStackCheckAttr)
+PASTA_DEFINE_DERIVED_OPERATORS(InheritableAttr, SuppressAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(InheritableAttr, SwiftAsyncAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(InheritableAttr, SwiftAsyncCallAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(InheritableAttr, SwiftAsyncContextAttr)
@@ -2406,6 +2540,8 @@ PASTA_DEFINE_DERIVED_OPERATORS(InheritableAttr, SwiftCallAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(InheritableAttr, SwiftContextAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(InheritableAttr, SwiftErrorAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(InheritableAttr, SwiftErrorResultAttr)
+PASTA_DEFINE_DERIVED_OPERATORS(InheritableAttr, SwiftImportAsNonGenericAttr)
+PASTA_DEFINE_DERIVED_OPERATORS(InheritableAttr, SwiftImportPropertyAsAccessorsAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(InheritableAttr, SwiftIndirectResultAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(InheritableAttr, SwiftNameAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(InheritableAttr, SwiftNewTypeAttr)
@@ -2796,6 +2932,25 @@ std::string_view M68kInterruptAttr::Spelling(void) const {
   throw std::runtime_error("M68kInterruptAttr::Spelling can return nullptr!");
 }
 
+M68kRTDAttr::M68kRTDAttr(
+    std::shared_ptr<ASTImpl> ast_,
+    const ::clang::Attr *attr_)
+    : InheritableAttr(std::move(ast_), attr_) {}
+
+PASTA_DEFINE_BASE_OPERATORS(Attr, M68kRTDAttr)
+PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, M68kRTDAttr)
+// 1: M68kRTDAttr::Clone
+std::string_view M68kRTDAttr::Spelling(void) const {
+  auto &self = *const_cast<clang::M68kRTDAttr *>(u.M68kRTDAttr);
+  decltype(auto) val = self.getSpelling();
+  if (val) {
+    return std::string_view(val);
+  } else {
+    return std::string_view();
+  }
+  throw std::runtime_error("M68kRTDAttr::Spelling can return nullptr!");
+}
+
 MIGServerRoutineAttr::MIGServerRoutineAttr(
     std::shared_ptr<ASTImpl> ast_,
     const ::clang::Attr *attr_)
@@ -2851,6 +3006,25 @@ std::string_view MSAllocatorAttr::Spelling(void) const {
     return std::string_view();
   }
   throw std::runtime_error("MSAllocatorAttr::Spelling can return nullptr!");
+}
+
+MSConstexprAttr::MSConstexprAttr(
+    std::shared_ptr<ASTImpl> ast_,
+    const ::clang::Attr *attr_)
+    : InheritableAttr(std::move(ast_), attr_) {}
+
+PASTA_DEFINE_BASE_OPERATORS(Attr, MSConstexprAttr)
+PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, MSConstexprAttr)
+// 1: MSConstexprAttr::Clone
+std::string_view MSConstexprAttr::Spelling(void) const {
+  auto &self = *const_cast<clang::MSConstexprAttr *>(u.MSConstexprAttr);
+  decltype(auto) val = self.getSpelling();
+  if (val) {
+    return std::string_view(val);
+  } else {
+    return std::string_view();
+  }
+  throw std::runtime_error("MSConstexprAttr::Spelling can return nullptr!");
 }
 
 MSInheritanceAttr::MSInheritanceAttr(
@@ -3270,15 +3444,7 @@ NSErrorDomainAttr::NSErrorDomainAttr(
 PASTA_DEFINE_BASE_OPERATORS(Attr, NSErrorDomainAttr)
 PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, NSErrorDomainAttr)
 // 1: NSErrorDomainAttr::Clone
-::pasta::VarDecl NSErrorDomainAttr::ErrorDomain(void) const {
-  auto &self = *const_cast<clang::NSErrorDomainAttr *>(u.NSErrorDomainAttr);
-  decltype(auto) val = self.getErrorDomain();
-  if (val) {
-    return DeclBuilder::Create<::pasta::VarDecl>(ast, val);
-  }
-  throw std::runtime_error("NSErrorDomainAttr::ErrorDomain can return nullptr!");
-}
-
+// 0: NSErrorDomainAttr::ErrorDomain
 std::string_view NSErrorDomainAttr::Spelling(void) const {
   auto &self = *const_cast<clang::NSErrorDomainAttr *>(u.NSErrorDomainAttr);
   decltype(auto) val = self.getSpelling();
@@ -5388,6 +5554,39 @@ std::string_view PreferredNameAttr::Spelling(void) const {
   throw std::runtime_error("PreferredNameAttr::TypedefTypeToken can return nullptr!");
 }
 
+PreferredTypeAttr::PreferredTypeAttr(
+    std::shared_ptr<ASTImpl> ast_,
+    const ::clang::Attr *attr_)
+    : InheritableAttr(std::move(ast_), attr_) {}
+
+PASTA_DEFINE_BASE_OPERATORS(Attr, PreferredTypeAttr)
+PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, PreferredTypeAttr)
+// 1: PreferredTypeAttr::Clone
+std::string_view PreferredTypeAttr::Spelling(void) const {
+  auto &self = *const_cast<clang::PreferredTypeAttr *>(u.PreferredTypeAttr);
+  decltype(auto) val = self.getSpelling();
+  if (val) {
+    return std::string_view(val);
+  } else {
+    return std::string_view();
+  }
+  throw std::runtime_error("PreferredTypeAttr::Spelling can return nullptr!");
+}
+
+::pasta::Type PreferredTypeAttr::Type(void) const {
+  auto &self = *const_cast<clang::PreferredTypeAttr *>(u.PreferredTypeAttr);
+  decltype(auto) val = self.getType();
+  assert(!val.isNull());
+  return TypeBuilder::Build(ast, val);
+}
+
+::pasta::Type PreferredTypeAttr::TypeToken(void) const {
+  auto &self = *const_cast<clang::PreferredTypeAttr *>(u.PreferredTypeAttr);
+  decltype(auto) val = self.getTypeLoc();
+  return TypeBuilder::Build(ast, val->getType());
+  throw std::runtime_error("PreferredTypeAttr::TypeToken can return nullptr!");
+}
+
 PreserveAllAttr::PreserveAllAttr(
     std::shared_ptr<ASTImpl> ast_,
     const ::clang::Attr *attr_)
@@ -6125,11 +6324,11 @@ StmtAttr::StmtAttr(
     : Attr(std::move(ast_), attr_) {}
 
 PASTA_DEFINE_BASE_OPERATORS(Attr, StmtAttr)
+PASTA_DEFINE_DERIVED_OPERATORS(StmtAttr, CodeAlignAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(StmtAttr, FallThroughAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(StmtAttr, LikelyAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(StmtAttr, MustTailAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(StmtAttr, OpenCLUnrollHintAttr)
-PASTA_DEFINE_DERIVED_OPERATORS(StmtAttr, SuppressAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(StmtAttr, UnlikelyAttr)
 StrictFPAttr::StrictFPAttr(
     std::shared_ptr<ASTImpl> ast_,
@@ -6167,29 +6366,6 @@ std::string_view StrictGuardStackCheckAttr::Spelling(void) const {
     return std::string_view();
   }
   throw std::runtime_error("StrictGuardStackCheckAttr::Spelling can return nullptr!");
-}
-
-SuppressAttr::SuppressAttr(
-    std::shared_ptr<ASTImpl> ast_,
-    const ::clang::Attr *attr_)
-    : StmtAttr(std::move(ast_), attr_) {}
-
-PASTA_DEFINE_BASE_OPERATORS(Attr, SuppressAttr)
-PASTA_DEFINE_BASE_OPERATORS(StmtAttr, SuppressAttr)
-// 1: SuppressAttr::Clone
-// 0: SuppressAttr::DiagnosticIdentifiers
-// 0: SuppressAttr::
-// 0: SuppressAttr::
-// 0: SuppressAttr::
-std::string_view SuppressAttr::Spelling(void) const {
-  auto &self = *const_cast<clang::SuppressAttr *>(u.SuppressAttr);
-  decltype(auto) val = self.getSpelling();
-  if (val) {
-    return std::string_view(val);
-  } else {
-    return std::string_view();
-  }
-  throw std::runtime_error("SuppressAttr::Spelling can return nullptr!");
 }
 
 SwiftAsyncAttr::SwiftAsyncAttr(
@@ -6499,6 +6675,44 @@ std::string_view SwiftErrorResultAttr::Spelling(void) const {
   throw std::runtime_error("SwiftErrorResultAttr::Spelling can return nullptr!");
 }
 
+SwiftImportAsNonGenericAttr::SwiftImportAsNonGenericAttr(
+    std::shared_ptr<ASTImpl> ast_,
+    const ::clang::Attr *attr_)
+    : InheritableAttr(std::move(ast_), attr_) {}
+
+PASTA_DEFINE_BASE_OPERATORS(Attr, SwiftImportAsNonGenericAttr)
+PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, SwiftImportAsNonGenericAttr)
+// 1: SwiftImportAsNonGenericAttr::Clone
+std::string_view SwiftImportAsNonGenericAttr::Spelling(void) const {
+  auto &self = *const_cast<clang::SwiftImportAsNonGenericAttr *>(u.SwiftImportAsNonGenericAttr);
+  decltype(auto) val = self.getSpelling();
+  if (val) {
+    return std::string_view(val);
+  } else {
+    return std::string_view();
+  }
+  throw std::runtime_error("SwiftImportAsNonGenericAttr::Spelling can return nullptr!");
+}
+
+SwiftImportPropertyAsAccessorsAttr::SwiftImportPropertyAsAccessorsAttr(
+    std::shared_ptr<ASTImpl> ast_,
+    const ::clang::Attr *attr_)
+    : InheritableAttr(std::move(ast_), attr_) {}
+
+PASTA_DEFINE_BASE_OPERATORS(Attr, SwiftImportPropertyAsAccessorsAttr)
+PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, SwiftImportPropertyAsAccessorsAttr)
+// 1: SwiftImportPropertyAsAccessorsAttr::Clone
+std::string_view SwiftImportPropertyAsAccessorsAttr::Spelling(void) const {
+  auto &self = *const_cast<clang::SwiftImportPropertyAsAccessorsAttr *>(u.SwiftImportPropertyAsAccessorsAttr);
+  decltype(auto) val = self.getSpelling();
+  if (val) {
+    return std::string_view(val);
+  } else {
+    return std::string_view();
+  }
+  throw std::runtime_error("SwiftImportPropertyAsAccessorsAttr::Spelling can return nullptr!");
+}
+
 SwiftIndirectResultAttr::SwiftIndirectResultAttr(
     std::shared_ptr<ASTImpl> ast_,
     const ::clang::Attr *attr_)
@@ -6623,6 +6837,77 @@ std::string_view SwiftPrivateAttr::Spelling(void) const {
   throw std::runtime_error("SwiftPrivateAttr::Spelling can return nullptr!");
 }
 
+SwiftVersionedAdditionAttr::SwiftVersionedAdditionAttr(
+    std::shared_ptr<ASTImpl> ast_,
+    const ::clang::Attr *attr_)
+    : Attr(std::move(ast_), attr_) {}
+
+PASTA_DEFINE_BASE_OPERATORS(Attr, SwiftVersionedAdditionAttr)
+// 1: SwiftVersionedAdditionAttr::Clone
+::pasta::Attr SwiftVersionedAdditionAttr::AdditionalAttribute(void) const {
+  auto &self = *const_cast<clang::SwiftVersionedAdditionAttr *>(u.SwiftVersionedAdditionAttr);
+  decltype(auto) val = self.getAdditionalAttr();
+  if (val) {
+    return AttrBuilder::Create<::pasta::Attr>(ast, val);
+  }
+  throw std::runtime_error("SwiftVersionedAdditionAttr::AdditionalAttribute can return nullptr!");
+}
+
+bool SwiftVersionedAdditionAttr::IsReplacedByActive(void) const {
+  auto &self = *const_cast<clang::SwiftVersionedAdditionAttr *>(u.SwiftVersionedAdditionAttr);
+  decltype(auto) val = self.getIsReplacedByActive();
+  return val;
+}
+
+std::string_view SwiftVersionedAdditionAttr::Spelling(void) const {
+  auto &self = *const_cast<clang::SwiftVersionedAdditionAttr *>(u.SwiftVersionedAdditionAttr);
+  decltype(auto) val = self.getSpelling();
+  if (val) {
+    return std::string_view(val);
+  } else {
+    return std::string_view();
+  }
+  throw std::runtime_error("SwiftVersionedAdditionAttr::Spelling can return nullptr!");
+}
+
+// 0: SwiftVersionedAdditionAttr::Version
+SwiftVersionedRemovalAttr::SwiftVersionedRemovalAttr(
+    std::shared_ptr<ASTImpl> ast_,
+    const ::clang::Attr *attr_)
+    : Attr(std::move(ast_), attr_) {}
+
+PASTA_DEFINE_BASE_OPERATORS(Attr, SwiftVersionedRemovalAttr)
+// 1: SwiftVersionedRemovalAttr::Clone
+enum ::pasta::AttrKind SwiftVersionedRemovalAttr::AttributeKindToRemove(void) const {
+  auto &self = *const_cast<clang::SwiftVersionedRemovalAttr *>(u.SwiftVersionedRemovalAttr);
+  decltype(auto) val = self.getAttrKindToRemove();
+  return static_cast<enum ::pasta::AttrKind>(val);
+}
+
+bool SwiftVersionedRemovalAttr::IsReplacedByActive(void) const {
+  auto &self = *const_cast<clang::SwiftVersionedRemovalAttr *>(u.SwiftVersionedRemovalAttr);
+  decltype(auto) val = self.getIsReplacedByActive();
+  return val;
+}
+
+uint32_t SwiftVersionedRemovalAttr::RawKind(void) const {
+  auto &self = *const_cast<clang::SwiftVersionedRemovalAttr *>(u.SwiftVersionedRemovalAttr);
+  decltype(auto) val = self.getRawKind();
+  return val;
+}
+
+std::string_view SwiftVersionedRemovalAttr::Spelling(void) const {
+  auto &self = *const_cast<clang::SwiftVersionedRemovalAttr *>(u.SwiftVersionedRemovalAttr);
+  decltype(auto) val = self.getSpelling();
+  if (val) {
+    return std::string_view(val);
+  } else {
+    return std::string_view();
+  }
+  throw std::runtime_error("SwiftVersionedRemovalAttr::Spelling can return nullptr!");
+}
+
+// 0: SwiftVersionedRemovalAttr::Version
 SysVABIAttr::SysVABIAttr(
     std::shared_ptr<ASTImpl> ast_,
     const ::clang::Attr *attr_)
@@ -6957,11 +7242,17 @@ TypeAttr::TypeAttr(
 PASTA_DEFINE_BASE_OPERATORS(Attr, TypeAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(TypeAttr, AddressSpaceAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(TypeAttr, AnnotateTypeAttr)
+PASTA_DEFINE_DERIVED_OPERATORS(TypeAttr, ArmInAttr)
+PASTA_DEFINE_DERIVED_OPERATORS(TypeAttr, ArmInOutAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(TypeAttr, ArmMveStrictPolymorphismAttr)
+PASTA_DEFINE_DERIVED_OPERATORS(TypeAttr, ArmOutAttr)
+PASTA_DEFINE_DERIVED_OPERATORS(TypeAttr, ArmPreservesAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(TypeAttr, ArmStreamingAttr)
+PASTA_DEFINE_DERIVED_OPERATORS(TypeAttr, ArmStreamingCompatibleAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(TypeAttr, BTFTypeTagAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(TypeAttr, CmseNSCallAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(TypeAttr, HLSLGroupSharedAddressSpaceAttr)
+PASTA_DEFINE_DERIVED_OPERATORS(TypeAttr, HLSLParamModifierAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(TypeAttr, NoDerefAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(TypeAttr, ObjCGCAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(TypeAttr, ObjCInertUnsafeUnretainedAttr)
@@ -8797,6 +9088,71 @@ std::string_view ArmBuiltinAliasAttr::Spelling(void) const {
   throw std::runtime_error("ArmBuiltinAliasAttr::Spelling can return nullptr!");
 }
 
+ArmInAttr::ArmInAttr(
+    std::shared_ptr<ASTImpl> ast_,
+    const ::clang::Attr *attr_)
+    : TypeAttr(std::move(ast_), attr_) {}
+
+PASTA_DEFINE_BASE_OPERATORS(Attr, ArmInAttr)
+PASTA_DEFINE_BASE_OPERATORS(TypeAttr, ArmInAttr)
+// 1: ArmInAttr::Clone
+std::string_view ArmInAttr::Spelling(void) const {
+  auto &self = *const_cast<clang::ArmInAttr *>(u.ArmInAttr);
+  decltype(auto) val = self.getSpelling();
+  if (val) {
+    return std::string_view(val);
+  } else {
+    return std::string_view();
+  }
+  throw std::runtime_error("ArmInAttr::Spelling can return nullptr!");
+}
+
+// 0: ArmInAttr::InArguments
+// 0: ArmInAttr::
+// 0: ArmInAttr::
+// 0: ArmInAttr::
+ArmInOutAttr::ArmInOutAttr(
+    std::shared_ptr<ASTImpl> ast_,
+    const ::clang::Attr *attr_)
+    : TypeAttr(std::move(ast_), attr_) {}
+
+PASTA_DEFINE_BASE_OPERATORS(Attr, ArmInOutAttr)
+PASTA_DEFINE_BASE_OPERATORS(TypeAttr, ArmInOutAttr)
+// 1: ArmInOutAttr::Clone
+std::string_view ArmInOutAttr::Spelling(void) const {
+  auto &self = *const_cast<clang::ArmInOutAttr *>(u.ArmInOutAttr);
+  decltype(auto) val = self.getSpelling();
+  if (val) {
+    return std::string_view(val);
+  } else {
+    return std::string_view();
+  }
+  throw std::runtime_error("ArmInOutAttr::Spelling can return nullptr!");
+}
+
+// 0: ArmInOutAttr::InOutArguments
+// 0: ArmInOutAttr::
+// 0: ArmInOutAttr::
+// 0: ArmInOutAttr::
+ArmLocallyStreamingAttr::ArmLocallyStreamingAttr(
+    std::shared_ptr<ASTImpl> ast_,
+    const ::clang::Attr *attr_)
+    : InheritableAttr(std::move(ast_), attr_) {}
+
+PASTA_DEFINE_BASE_OPERATORS(Attr, ArmLocallyStreamingAttr)
+PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, ArmLocallyStreamingAttr)
+// 1: ArmLocallyStreamingAttr::Clone
+std::string_view ArmLocallyStreamingAttr::Spelling(void) const {
+  auto &self = *const_cast<clang::ArmLocallyStreamingAttr *>(u.ArmLocallyStreamingAttr);
+  decltype(auto) val = self.getSpelling();
+  if (val) {
+    return std::string_view(val);
+  } else {
+    return std::string_view();
+  }
+  throw std::runtime_error("ArmLocallyStreamingAttr::Spelling can return nullptr!");
+}
+
 ArmMveStrictPolymorphismAttr::ArmMveStrictPolymorphismAttr(
     std::shared_ptr<ASTImpl> ast_,
     const ::clang::Attr *attr_)
@@ -8816,6 +9172,87 @@ std::string_view ArmMveStrictPolymorphismAttr::Spelling(void) const {
   throw std::runtime_error("ArmMveStrictPolymorphismAttr::Spelling can return nullptr!");
 }
 
+ArmNewAttr::ArmNewAttr(
+    std::shared_ptr<ASTImpl> ast_,
+    const ::clang::Attr *attr_)
+    : InheritableAttr(std::move(ast_), attr_) {}
+
+PASTA_DEFINE_BASE_OPERATORS(Attr, ArmNewAttr)
+PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, ArmNewAttr)
+// 1: ArmNewAttr::Clone
+std::string_view ArmNewAttr::Spelling(void) const {
+  auto &self = *const_cast<clang::ArmNewAttr *>(u.ArmNewAttr);
+  decltype(auto) val = self.getSpelling();
+  if (val) {
+    return std::string_view(val);
+  } else {
+    return std::string_view();
+  }
+  throw std::runtime_error("ArmNewAttr::Spelling can return nullptr!");
+}
+
+bool ArmNewAttr::IsNewZA(void) const {
+  auto &self = *const_cast<clang::ArmNewAttr *>(u.ArmNewAttr);
+  decltype(auto) val = self.isNewZA();
+  return val;
+}
+
+bool ArmNewAttr::IsNewZT0(void) const {
+  auto &self = *const_cast<clang::ArmNewAttr *>(u.ArmNewAttr);
+  decltype(auto) val = self.isNewZT0();
+  return val;
+}
+
+// 0: ArmNewAttr::NewArguments
+// 0: ArmNewAttr::
+// 0: ArmNewAttr::
+// 0: ArmNewAttr::
+ArmOutAttr::ArmOutAttr(
+    std::shared_ptr<ASTImpl> ast_,
+    const ::clang::Attr *attr_)
+    : TypeAttr(std::move(ast_), attr_) {}
+
+PASTA_DEFINE_BASE_OPERATORS(Attr, ArmOutAttr)
+PASTA_DEFINE_BASE_OPERATORS(TypeAttr, ArmOutAttr)
+// 1: ArmOutAttr::Clone
+std::string_view ArmOutAttr::Spelling(void) const {
+  auto &self = *const_cast<clang::ArmOutAttr *>(u.ArmOutAttr);
+  decltype(auto) val = self.getSpelling();
+  if (val) {
+    return std::string_view(val);
+  } else {
+    return std::string_view();
+  }
+  throw std::runtime_error("ArmOutAttr::Spelling can return nullptr!");
+}
+
+// 0: ArmOutAttr::OutArguments
+// 0: ArmOutAttr::
+// 0: ArmOutAttr::
+// 0: ArmOutAttr::
+ArmPreservesAttr::ArmPreservesAttr(
+    std::shared_ptr<ASTImpl> ast_,
+    const ::clang::Attr *attr_)
+    : TypeAttr(std::move(ast_), attr_) {}
+
+PASTA_DEFINE_BASE_OPERATORS(Attr, ArmPreservesAttr)
+PASTA_DEFINE_BASE_OPERATORS(TypeAttr, ArmPreservesAttr)
+// 1: ArmPreservesAttr::Clone
+std::string_view ArmPreservesAttr::Spelling(void) const {
+  auto &self = *const_cast<clang::ArmPreservesAttr *>(u.ArmPreservesAttr);
+  decltype(auto) val = self.getSpelling();
+  if (val) {
+    return std::string_view(val);
+  } else {
+    return std::string_view();
+  }
+  throw std::runtime_error("ArmPreservesAttr::Spelling can return nullptr!");
+}
+
+// 0: ArmPreservesAttr::PreserveArguments
+// 0: ArmPreservesAttr::
+// 0: ArmPreservesAttr::
+// 0: ArmPreservesAttr::
 ArmStreamingAttr::ArmStreamingAttr(
     std::shared_ptr<ASTImpl> ast_,
     const ::clang::Attr *attr_)
@@ -8833,6 +9270,25 @@ std::string_view ArmStreamingAttr::Spelling(void) const {
     return std::string_view();
   }
   throw std::runtime_error("ArmStreamingAttr::Spelling can return nullptr!");
+}
+
+ArmStreamingCompatibleAttr::ArmStreamingCompatibleAttr(
+    std::shared_ptr<ASTImpl> ast_,
+    const ::clang::Attr *attr_)
+    : TypeAttr(std::move(ast_), attr_) {}
+
+PASTA_DEFINE_BASE_OPERATORS(Attr, ArmStreamingCompatibleAttr)
+PASTA_DEFINE_BASE_OPERATORS(TypeAttr, ArmStreamingCompatibleAttr)
+// 1: ArmStreamingCompatibleAttr::Clone
+std::string_view ArmStreamingCompatibleAttr::Spelling(void) const {
+  auto &self = *const_cast<clang::ArmStreamingCompatibleAttr *>(u.ArmStreamingCompatibleAttr);
+  decltype(auto) val = self.getSpelling();
+  if (val) {
+    return std::string_view(val);
+  } else {
+    return std::string_view();
+  }
+  throw std::runtime_error("ArmStreamingCompatibleAttr::Spelling can return nullptr!");
 }
 
 ArtificialAttr::ArtificialAttr(
@@ -9155,6 +9611,25 @@ std::string_view BPFPreserveAccessIndexAttr::Spelling(void) const {
     return std::string_view();
   }
   throw std::runtime_error("BPFPreserveAccessIndexAttr::Spelling can return nullptr!");
+}
+
+BPFPreserveStaticOffsetAttr::BPFPreserveStaticOffsetAttr(
+    std::shared_ptr<ASTImpl> ast_,
+    const ::clang::Attr *attr_)
+    : InheritableAttr(std::move(ast_), attr_) {}
+
+PASTA_DEFINE_BASE_OPERATORS(Attr, BPFPreserveStaticOffsetAttr)
+PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, BPFPreserveStaticOffsetAttr)
+// 1: BPFPreserveStaticOffsetAttr::Clone
+std::string_view BPFPreserveStaticOffsetAttr::Spelling(void) const {
+  auto &self = *const_cast<clang::BPFPreserveStaticOffsetAttr *>(u.BPFPreserveStaticOffsetAttr);
+  decltype(auto) val = self.getSpelling();
+  if (val) {
+    return std::string_view(val);
+  } else {
+    return std::string_view();
+  }
+  throw std::runtime_error("BPFPreserveStaticOffsetAttr::Spelling can return nullptr!");
 }
 
 BTFDeclTagAttr::BTFDeclTagAttr(
@@ -9643,6 +10118,15 @@ CUDALaunchBoundsAttr::CUDALaunchBoundsAttr(
 PASTA_DEFINE_BASE_OPERATORS(Attr, CUDALaunchBoundsAttr)
 PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, CUDALaunchBoundsAttr)
 // 1: CUDALaunchBoundsAttr::Clone
+::pasta::Expr CUDALaunchBoundsAttr::MaxBlocks(void) const {
+  auto &self = *const_cast<clang::CUDALaunchBoundsAttr *>(u.CUDALaunchBoundsAttr);
+  decltype(auto) val = self.getMaxBlocks();
+  if (val) {
+    return StmtBuilder::Create<::pasta::Expr>(ast, val);
+  }
+  throw std::runtime_error("CUDALaunchBoundsAttr::MaxBlocks can return nullptr!");
+}
+
 ::pasta::Expr CUDALaunchBoundsAttr::MaxThreads(void) const {
   auto &self = *const_cast<clang::CUDALaunchBoundsAttr *>(u.CUDALaunchBoundsAttr);
   decltype(auto) val = self.getMaxThreads();
@@ -9914,6 +10398,54 @@ std::string_view CmseNSEntryAttr::Spelling(void) const {
   throw std::runtime_error("CmseNSEntryAttr::Spelling can return nullptr!");
 }
 
+CodeAlignAttr::CodeAlignAttr(
+    std::shared_ptr<ASTImpl> ast_,
+    const ::clang::Attr *attr_)
+    : StmtAttr(std::move(ast_), attr_) {}
+
+PASTA_DEFINE_BASE_OPERATORS(Attr, CodeAlignAttr)
+PASTA_DEFINE_BASE_OPERATORS(StmtAttr, CodeAlignAttr)
+// 1: CodeAlignAttr::Clone
+::pasta::Expr CodeAlignAttr::Alignment(void) const {
+  auto &self = *const_cast<clang::CodeAlignAttr *>(u.CodeAlignAttr);
+  decltype(auto) val = self.getAlignment();
+  if (val) {
+    return StmtBuilder::Create<::pasta::Expr>(ast, val);
+  }
+  throw std::runtime_error("CodeAlignAttr::Alignment can return nullptr!");
+}
+
+std::string_view CodeAlignAttr::Spelling(void) const {
+  auto &self = *const_cast<clang::CodeAlignAttr *>(u.CodeAlignAttr);
+  decltype(auto) val = self.getSpelling();
+  if (val) {
+    return std::string_view(val);
+  } else {
+    return std::string_view();
+  }
+  throw std::runtime_error("CodeAlignAttr::Spelling can return nullptr!");
+}
+
+CodeModelAttr::CodeModelAttr(
+    std::shared_ptr<ASTImpl> ast_,
+    const ::clang::Attr *attr_)
+    : InheritableAttr(std::move(ast_), attr_) {}
+
+PASTA_DEFINE_BASE_OPERATORS(Attr, CodeModelAttr)
+PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, CodeModelAttr)
+// 1: CodeModelAttr::Clone
+// 0: CodeModelAttr::Model
+std::string_view CodeModelAttr::Spelling(void) const {
+  auto &self = *const_cast<clang::CodeModelAttr *>(u.CodeModelAttr);
+  decltype(auto) val = self.getSpelling();
+  if (val) {
+    return std::string_view(val);
+  } else {
+    return std::string_view();
+  }
+  throw std::runtime_error("CodeModelAttr::Spelling can return nullptr!");
+}
+
 CodeSegAttr::CodeSegAttr(
     std::shared_ptr<ASTImpl> ast_,
     const ::clang::Attr *attr_)
@@ -10139,6 +10671,127 @@ std::string_view ConvergentAttr::Spelling(void) const {
   throw std::runtime_error("ConvergentAttr::Spelling can return nullptr!");
 }
 
+CoroDisableLifetimeBoundAttr::CoroDisableLifetimeBoundAttr(
+    std::shared_ptr<ASTImpl> ast_,
+    const ::clang::Attr *attr_)
+    : InheritableAttr(std::move(ast_), attr_) {}
+
+PASTA_DEFINE_BASE_OPERATORS(Attr, CoroDisableLifetimeBoundAttr)
+PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, CoroDisableLifetimeBoundAttr)
+// 1: CoroDisableLifetimeBoundAttr::Clone
+std::string_view CoroDisableLifetimeBoundAttr::Spelling(void) const {
+  auto &self = *const_cast<clang::CoroDisableLifetimeBoundAttr *>(u.CoroDisableLifetimeBoundAttr);
+  decltype(auto) val = self.getSpelling();
+  if (val) {
+    return std::string_view(val);
+  } else {
+    return std::string_view();
+  }
+  throw std::runtime_error("CoroDisableLifetimeBoundAttr::Spelling can return nullptr!");
+}
+
+CoroLifetimeBoundAttr::CoroLifetimeBoundAttr(
+    std::shared_ptr<ASTImpl> ast_,
+    const ::clang::Attr *attr_)
+    : InheritableAttr(std::move(ast_), attr_) {}
+
+PASTA_DEFINE_BASE_OPERATORS(Attr, CoroLifetimeBoundAttr)
+PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, CoroLifetimeBoundAttr)
+// 1: CoroLifetimeBoundAttr::Clone
+std::string_view CoroLifetimeBoundAttr::Spelling(void) const {
+  auto &self = *const_cast<clang::CoroLifetimeBoundAttr *>(u.CoroLifetimeBoundAttr);
+  decltype(auto) val = self.getSpelling();
+  if (val) {
+    return std::string_view(val);
+  } else {
+    return std::string_view();
+  }
+  throw std::runtime_error("CoroLifetimeBoundAttr::Spelling can return nullptr!");
+}
+
+CoroOnlyDestroyWhenCompleteAttr::CoroOnlyDestroyWhenCompleteAttr(
+    std::shared_ptr<ASTImpl> ast_,
+    const ::clang::Attr *attr_)
+    : InheritableAttr(std::move(ast_), attr_) {}
+
+PASTA_DEFINE_BASE_OPERATORS(Attr, CoroOnlyDestroyWhenCompleteAttr)
+PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, CoroOnlyDestroyWhenCompleteAttr)
+// 1: CoroOnlyDestroyWhenCompleteAttr::Clone
+std::string_view CoroOnlyDestroyWhenCompleteAttr::Spelling(void) const {
+  auto &self = *const_cast<clang::CoroOnlyDestroyWhenCompleteAttr *>(u.CoroOnlyDestroyWhenCompleteAttr);
+  decltype(auto) val = self.getSpelling();
+  if (val) {
+    return std::string_view(val);
+  } else {
+    return std::string_view();
+  }
+  throw std::runtime_error("CoroOnlyDestroyWhenCompleteAttr::Spelling can return nullptr!");
+}
+
+CoroReturnTypeAttr::CoroReturnTypeAttr(
+    std::shared_ptr<ASTImpl> ast_,
+    const ::clang::Attr *attr_)
+    : InheritableAttr(std::move(ast_), attr_) {}
+
+PASTA_DEFINE_BASE_OPERATORS(Attr, CoroReturnTypeAttr)
+PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, CoroReturnTypeAttr)
+// 1: CoroReturnTypeAttr::Clone
+std::string_view CoroReturnTypeAttr::Spelling(void) const {
+  auto &self = *const_cast<clang::CoroReturnTypeAttr *>(u.CoroReturnTypeAttr);
+  decltype(auto) val = self.getSpelling();
+  if (val) {
+    return std::string_view(val);
+  } else {
+    return std::string_view();
+  }
+  throw std::runtime_error("CoroReturnTypeAttr::Spelling can return nullptr!");
+}
+
+CoroWrapperAttr::CoroWrapperAttr(
+    std::shared_ptr<ASTImpl> ast_,
+    const ::clang::Attr *attr_)
+    : InheritableAttr(std::move(ast_), attr_) {}
+
+PASTA_DEFINE_BASE_OPERATORS(Attr, CoroWrapperAttr)
+PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, CoroWrapperAttr)
+// 1: CoroWrapperAttr::Clone
+std::string_view CoroWrapperAttr::Spelling(void) const {
+  auto &self = *const_cast<clang::CoroWrapperAttr *>(u.CoroWrapperAttr);
+  decltype(auto) val = self.getSpelling();
+  if (val) {
+    return std::string_view(val);
+  } else {
+    return std::string_view();
+  }
+  throw std::runtime_error("CoroWrapperAttr::Spelling can return nullptr!");
+}
+
+CountedByAttr::CountedByAttr(
+    std::shared_ptr<ASTImpl> ast_,
+    const ::clang::Attr *attr_)
+    : InheritableAttr(std::move(ast_), attr_) {}
+
+PASTA_DEFINE_BASE_OPERATORS(Attr, CountedByAttr)
+PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, CountedByAttr)
+// 1: CountedByAttr::Clone
+// 0: CountedByAttr::CountedByField
+::pasta::TokenRange CountedByAttr::CountedByFieldToken(void) const {
+  auto &self = *const_cast<clang::CountedByAttr *>(u.CountedByAttr);
+  decltype(auto) val = self.getCountedByFieldLoc();
+  return ast->TokenRangeFrom(val);
+}
+
+std::string_view CountedByAttr::Spelling(void) const {
+  auto &self = *const_cast<clang::CountedByAttr *>(u.CountedByAttr);
+  decltype(auto) val = self.getSpelling();
+  if (val) {
+    return std::string_view(val);
+  } else {
+    return std::string_view();
+  }
+  throw std::runtime_error("CountedByAttr::Spelling can return nullptr!");
+}
+
 DLLExportAttr::DLLExportAttr(
     std::shared_ptr<ASTImpl> ast_,
     const ::clang::Attr *attr_)
@@ -10225,6 +10878,7 @@ PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, DeclOrStmtAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(DeclOrStmtAttr, AlwaysInlineAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(DeclOrStmtAttr, NoInlineAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(DeclOrStmtAttr, NoMergeAttr)
+PASTA_DEFINE_DERIVED_OPERATORS(DeclOrStmtAttr, SuppressAttr)
 DeprecatedAttr::DeprecatedAttr(
     std::shared_ptr<ASTImpl> ast_,
     const ::clang::Attr *attr_)
@@ -11087,6 +11741,67 @@ std::string_view HLSLNumThreadsAttr::Spelling(void) const {
 // 0: HLSLNumThreadsAttr::X
 // 0: HLSLNumThreadsAttr::Y
 // 0: HLSLNumThreadsAttr::Z
+HLSLParamModifierAttr::HLSLParamModifierAttr(
+    std::shared_ptr<ASTImpl> ast_,
+    const ::clang::Attr *attr_)
+    : TypeAttr(std::move(ast_), attr_) {}
+
+PASTA_DEFINE_BASE_OPERATORS(Attr, HLSLParamModifierAttr)
+PASTA_DEFINE_BASE_OPERATORS(TypeAttr, HLSLParamModifierAttr)
+// 1: HLSLParamModifierAttr::Clone
+bool HLSLParamModifierAttr::MergedSpelling(void) const {
+  auto &self = *const_cast<clang::HLSLParamModifierAttr *>(u.HLSLParamModifierAttr);
+  decltype(auto) val = self.getMergedSpelling();
+  return val;
+}
+
+enum HLSLParamModifierAttrSpelling HLSLParamModifierAttr::SemanticSpelling(void) const {
+  auto &self = *const_cast<clang::HLSLParamModifierAttr *>(u.HLSLParamModifierAttr);
+  decltype(auto) val = self.getSemanticSpelling();
+  return static_cast<::pasta::HLSLParamModifierAttrSpelling>(val);
+}
+
+std::string_view HLSLParamModifierAttr::Spelling(void) const {
+  auto &self = *const_cast<clang::HLSLParamModifierAttr *>(u.HLSLParamModifierAttr);
+  decltype(auto) val = self.getSpelling();
+  if (val) {
+    return std::string_view(val);
+  } else {
+    return std::string_view();
+  }
+  throw std::runtime_error("HLSLParamModifierAttr::Spelling can return nullptr!");
+}
+
+bool HLSLParamModifierAttr::IsAnyIn(void) const {
+  auto &self = *const_cast<clang::HLSLParamModifierAttr *>(u.HLSLParamModifierAttr);
+  decltype(auto) val = self.isAnyIn();
+  return val;
+}
+
+bool HLSLParamModifierAttr::IsAnyOut(void) const {
+  auto &self = *const_cast<clang::HLSLParamModifierAttr *>(u.HLSLParamModifierAttr);
+  decltype(auto) val = self.isAnyOut();
+  return val;
+}
+
+bool HLSLParamModifierAttr::IsIn(void) const {
+  auto &self = *const_cast<clang::HLSLParamModifierAttr *>(u.HLSLParamModifierAttr);
+  decltype(auto) val = self.isIn();
+  return val;
+}
+
+bool HLSLParamModifierAttr::IsInOut(void) const {
+  auto &self = *const_cast<clang::HLSLParamModifierAttr *>(u.HLSLParamModifierAttr);
+  decltype(auto) val = self.isInOut();
+  return val;
+}
+
+bool HLSLParamModifierAttr::IsOut(void) const {
+  auto &self = *const_cast<clang::HLSLParamModifierAttr *>(u.HLSLParamModifierAttr);
+  decltype(auto) val = self.isOut();
+  return val;
+}
+
 HLSLResourceAttr::HLSLResourceAttr(
     std::shared_ptr<ASTImpl> ast_,
     const ::clang::Attr *attr_)
@@ -11095,18 +11810,14 @@ HLSLResourceAttr::HLSLResourceAttr(
 PASTA_DEFINE_BASE_OPERATORS(Attr, HLSLResourceAttr)
 PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, HLSLResourceAttr)
 // 1: HLSLResourceAttr::Clone
-enum HLSLResourceAttrResourceKind HLSLResourceAttr::ResourceShape(void) const {
+bool HLSLResourceAttr::IsROV(void) const {
   auto &self = *const_cast<clang::HLSLResourceAttr *>(u.HLSLResourceAttr);
-  decltype(auto) val = self.getResourceShape();
-  return static_cast<::pasta::HLSLResourceAttrResourceKind>(val);
+  decltype(auto) val = self.getIsROV();
+  return val;
 }
 
-enum HLSLResourceAttrResourceClass HLSLResourceAttr::ResourceType(void) const {
-  auto &self = *const_cast<clang::HLSLResourceAttr *>(u.HLSLResourceAttr);
-  decltype(auto) val = self.getResourceType();
-  return static_cast<::pasta::HLSLResourceAttrResourceClass>(val);
-}
-
+// 0: HLSLResourceAttr::ResourceClass
+// 0: HLSLResourceAttr::ResourceKind
 std::string_view HLSLResourceAttr::Spelling(void) const {
   auto &self = *const_cast<clang::HLSLResourceAttr *>(u.HLSLResourceAttr);
   decltype(auto) val = self.getSpelling();
@@ -11728,6 +12439,36 @@ std::string_view SPtrAttr::Spelling(void) const {
     return std::string_view();
   }
   throw std::runtime_error("SPtrAttr::Spelling can return nullptr!");
+}
+
+SuppressAttr::SuppressAttr(
+    std::shared_ptr<ASTImpl> ast_,
+    const ::clang::Attr *attr_)
+    : DeclOrStmtAttr(std::move(ast_), attr_) {}
+
+PASTA_DEFINE_BASE_OPERATORS(Attr, SuppressAttr)
+PASTA_DEFINE_BASE_OPERATORS(DeclOrStmtAttr, SuppressAttr)
+PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, SuppressAttr)
+// 1: SuppressAttr::Clone
+// 0: SuppressAttr::DiagnosticIdentifiers
+// 0: SuppressAttr::
+// 0: SuppressAttr::
+// 0: SuppressAttr::
+std::string_view SuppressAttr::Spelling(void) const {
+  auto &self = *const_cast<clang::SuppressAttr *>(u.SuppressAttr);
+  decltype(auto) val = self.getSpelling();
+  if (val) {
+    return std::string_view(val);
+  } else {
+    return std::string_view();
+  }
+  throw std::runtime_error("SuppressAttr::Spelling can return nullptr!");
+}
+
+bool SuppressAttr::IsGSL(void) const {
+  auto &self = *const_cast<clang::SuppressAttr *>(u.SuppressAttr);
+  decltype(auto) val = self.isGSL();
+  return val;
 }
 
 AlwaysInlineAttr::AlwaysInlineAttr(

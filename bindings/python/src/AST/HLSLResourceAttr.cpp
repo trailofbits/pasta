@@ -20,8 +20,7 @@ void RegisterHLSLResourceAttr(nb::module_ &m) {
     .def("__hash__", [](const HLSLResourceAttr &attr) { return reinterpret_cast<intptr_t>(attr.RawAttr()); })
     .def("__eq__", [](const Attr &a, const Attr &b) { return a.RawAttr() == b.RawAttr(); })
     .def("__ne__", [](const Attr &a, const Attr &b) { return a.RawAttr() != b.RawAttr(); })
-    .def_prop_ro("resource_shape", &HLSLResourceAttr::ResourceShape)
-    .def_prop_ro("resource_type", &HLSLResourceAttr::ResourceType)
+    .def_prop_ro("is_rov", &HLSLResourceAttr::IsROV)
     .def_prop_ro("spelling", &HLSLResourceAttr::Spelling);
 }
 } // namespace pasta

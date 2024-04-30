@@ -33,6 +33,7 @@ void RegisterDeclRefExpr(nb::module_ &m) {
     .def_prop_ro("has_qualifier", &DeclRefExpr::HasQualifier)
     .def_prop_ro("has_template_keyword_and_arguments_info", &DeclRefExpr::HasTemplateKeywordAndArgumentsInfo)
     .def_prop_ro("has_template_keyword", &DeclRefExpr::HasTemplateKeyword)
+    .def_prop_ro("is_captured_by_copy_in_lambda_with_explicit_object_parameter", &DeclRefExpr::IsCapturedByCopyInLambdaWithExplicitObjectParameter)
     .def_prop_ro("is_immediate_escalating", &DeclRefExpr::IsImmediateEscalating)
     .def_prop_ro("is_non_odr_use", &DeclRefExpr::IsNonOdrUse)
     .def_prop_ro("refers_to_enclosing_variable_or_capture", &DeclRefExpr::RefersToEnclosingVariableOrCapture);

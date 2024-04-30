@@ -20,7 +20,6 @@ void RegisterNSErrorDomainAttr(nb::module_ &m) {
     .def("__hash__", [](const NSErrorDomainAttr &attr) { return reinterpret_cast<intptr_t>(attr.RawAttr()); })
     .def("__eq__", [](const Attr &a, const Attr &b) { return a.RawAttr() == b.RawAttr(); })
     .def("__ne__", [](const Attr &a, const Attr &b) { return a.RawAttr() != b.RawAttr(); })
-    .def_prop_ro("error_domain", &NSErrorDomainAttr::ErrorDomain)
     .def_prop_ro("spelling", &NSErrorDomainAttr::Spelling);
 }
 } // namespace pasta

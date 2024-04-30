@@ -438,7 +438,7 @@ Result<AST, std::string> CompileJob::Run(void) const {
     return err.str();
   }
 
-  const auto file_entry = fm->getFile("/pasta");
+  auto file_entry = fm->getFileRef("/pasta");
   if (!file_entry) {
     err << "Could not add overlay file entry for file '"
         << main_file_name << "'";

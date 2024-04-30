@@ -307,10 +307,6 @@ void DeclVisitor::VisitCapturedDecl(const CapturedDecl &decl) {
   VisitDecl(decl);
 }
 
-void DeclVisitor::VisitClassScopeFunctionSpecializationDecl(const ClassScopeFunctionSpecializationDecl &decl) {
-  VisitDecl(decl);
-}
-
 void DeclVisitor::VisitConceptDecl(const ConceptDecl &decl) {
   VisitTemplateDecl(decl);
 }
@@ -901,7 +897,6 @@ PASTA_DEFINE_DERIVED_OPERATORS(Decl, CXXDestructorDecl)
 PASTA_DEFINE_DERIVED_OPERATORS(Decl, CXXMethodDecl)
 PASTA_DEFINE_DERIVED_OPERATORS(Decl, CXXRecordDecl)
 PASTA_DEFINE_DERIVED_OPERATORS(Decl, CapturedDecl)
-PASTA_DEFINE_DERIVED_OPERATORS(Decl, ClassScopeFunctionSpecializationDecl)
 PASTA_DEFINE_DERIVED_OPERATORS(Decl, ClassTemplateDecl)
 PASTA_DEFINE_DERIVED_OPERATORS(Decl, ClassTemplatePartialSpecializationDecl)
 PASTA_DEFINE_DERIVED_OPERATORS(Decl, ClassTemplateSpecializationDecl)
@@ -1504,6 +1499,12 @@ std::vector<::pasta::Decl> Decl::Redeclarations(void) const {
 
 // 0: Decl::
 // 0: Decl::
+bool Decl::ShouldSkipCheckingODR(void) const {
+  auto &self = *const_cast<clang::Decl *>(u.Decl);
+  decltype(auto) val = self.shouldSkipCheckingODR();
+  return val;
+}
+
 EmptyDecl::EmptyDecl(
     std::shared_ptr<ASTImpl> ast_,
     const ::clang::Decl *decl_)
@@ -1786,10 +1787,10 @@ PASTA_DEFINE_BASE_OPERATORS(Decl, LinkageSpecDecl)
   return ast->TokenAt(val);
 }
 
-enum LinkageSpecDeclLanguageIDs LinkageSpecDecl::Language(void) const {
+enum LinkageSpecLanguageIDs LinkageSpecDecl::Language(void) const {
   auto &self = *const_cast<clang::LinkageSpecDecl *>(u.LinkageSpecDecl);
   decltype(auto) val = self.getLanguage();
-  return static_cast<::pasta::LinkageSpecDeclLanguageIDs>(val);
+  return static_cast<::pasta::LinkageSpecLanguageIDs>(val);
 }
 
 ::pasta::Token LinkageSpecDecl::RBraceToken(void) const {
@@ -2003,6 +2004,7 @@ bool NamedDecl::IsLinkageValid(void) const {
   return val;
 }
 
+// 1: NamedDecl::IsPlaceholderVariable
 // 1: NamedDecl::IsReserved
 NamespaceAliasDecl::NamespaceAliasDecl(
     std::shared_ptr<ASTImpl> ast_,
@@ -2757,10 +2759,10 @@ bool ObjCMethodDecl::DefinedInNSObject(void) const {
   return ast->TokenAt(val);
 }
 
-enum ObjCMethodDeclImplementationControl ObjCMethodDecl::ImplementationControl(void) const {
+enum ObjCImplementationControl ObjCMethodDecl::ImplementationControl(void) const {
   auto &self = *const_cast<clang::ObjCMethodDecl *>(u.ObjCMethodDecl);
   decltype(auto) val = self.getImplementationControl();
-  return static_cast<::pasta::ObjCMethodDeclImplementationControl>(val);
+  return static_cast<::pasta::ObjCImplementationControl>(val);
 }
 
 enum ObjCMethodFamily ObjCMethodDecl::MethodFamily(void) const {
@@ -4163,28 +4165,6 @@ std::vector<::pasta::ImplicitParamDecl> CapturedDecl::Parameters(void) const {
   return ret;
 }
 
-ClassScopeFunctionSpecializationDecl::ClassScopeFunctionSpecializationDecl(
-    std::shared_ptr<ASTImpl> ast_,
-    const ::clang::Decl *decl_)
-    : Decl(std::move(ast_), decl_) {}
-
-PASTA_DEFINE_BASE_OPERATORS(Decl, ClassScopeFunctionSpecializationDecl)
-::pasta::CXXMethodDecl ClassScopeFunctionSpecializationDecl::Specialization(void) const {
-  auto &self = *const_cast<clang::ClassScopeFunctionSpecializationDecl *>(u.ClassScopeFunctionSpecializationDecl);
-  decltype(auto) val = self.getSpecialization();
-  if (val) {
-    return DeclBuilder::Create<::pasta::CXXMethodDecl>(ast, val);
-  }
-  throw std::runtime_error("ClassScopeFunctionSpecializationDecl::Specialization can return nullptr!");
-}
-
-// 0: ClassScopeFunctionSpecializationDecl::TemplateArgumentsAsWritten
-bool ClassScopeFunctionSpecializationDecl::HasExplicitTemplateArguments(void) const {
-  auto &self = *const_cast<clang::ClassScopeFunctionSpecializationDecl *>(u.ClassScopeFunctionSpecializationDecl);
-  decltype(auto) val = self.hasExplicitTemplateArgs();
-  return val;
-}
-
 ConceptDecl::ConceptDecl(
     std::shared_ptr<ASTImpl> ast_,
     const ::clang::Decl *decl_)
@@ -4739,6 +4719,12 @@ uint32_t FunctionDecl::MinRequiredArguments(void) const {
   return val;
 }
 
+uint32_t FunctionDecl::MinRequiredExplicitArguments(void) const {
+  auto &self = *const_cast<clang::FunctionDecl *>(u.FunctionDecl);
+  decltype(auto) val = self.getMinRequiredExplicitArguments();
+  return val;
+}
+
 enum MultiVersionKind FunctionDecl::MultiVersionKind(void) const {
   auto &self = *const_cast<clang::FunctionDecl *>(u.FunctionDecl);
   decltype(auto) val = self.getMultiVersionKind();
@@ -4746,6 +4732,13 @@ enum MultiVersionKind FunctionDecl::MultiVersionKind(void) const {
 }
 
 // 0: FunctionDecl::NameInfo
+// 1: FunctionDecl::NonObjectParameter
+uint32_t FunctionDecl::NumNonObjectParameters(void) const {
+  auto &self = *const_cast<clang::FunctionDecl *>(u.FunctionDecl);
+  decltype(auto) val = self.getNumNonObjectParams();
+  return val;
+}
+
 uint32_t FunctionDecl::NumParameters(void) const {
   auto &self = *const_cast<clang::FunctionDecl *>(u.FunctionDecl);
   decltype(auto) val = self.getNumParams();
@@ -4831,6 +4824,12 @@ enum FunctionDeclTemplatedKind FunctionDecl::TemplatedKind(void) const {
   auto &self = *const_cast<clang::FunctionDecl *>(u.FunctionDecl);
   decltype(auto) val = self.getTemplatedKind();
   return static_cast<::pasta::FunctionDeclTemplatedKind>(val);
+}
+
+bool FunctionDecl::HasCXXExplicitFunctionObjectParameter(void) const {
+  auto &self = *const_cast<clang::FunctionDecl *>(u.FunctionDecl);
+  decltype(auto) val = self.hasCXXExplicitFunctionObjectParameter();
+  return val;
 }
 
 bool FunctionDecl::HasImplicitReturnZero(void) const {
@@ -5086,9 +5085,9 @@ bool FunctionDecl::IsOverloadedOperator(void) const {
   return val;
 }
 
-bool FunctionDecl::IsPure(void) const {
+bool FunctionDecl::IsPureVirtual(void) const {
   auto &self = *const_cast<clang::FunctionDecl *>(u.FunctionDecl);
-  decltype(auto) val = self.isPure();
+  decltype(auto) val = self.isPureVirtual();
   return val;
 }
 
@@ -5677,10 +5676,10 @@ PASTA_DEFINE_BASE_OPERATORS(ValueDecl, OMPDeclareReductionDecl)
   throw std::runtime_error("OMPDeclareReductionDecl::Initializer can return nullptr!");
 }
 
-enum OMPDeclareReductionDeclInitKind OMPDeclareReductionDecl::InitializerKind(void) const {
+enum OMPDeclareReductionInitKind OMPDeclareReductionDecl::InitializerKind(void) const {
   auto &self = *const_cast<clang::OMPDeclareReductionDecl *>(u.OMPDeclareReductionDecl);
   decltype(auto) val = self.getInitializerKind();
-  return static_cast<::pasta::OMPDeclareReductionDeclInitKind>(val);
+  return static_cast<::pasta::OMPDeclareReductionInitKind>(val);
 }
 
 ::pasta::OMPDeclareReductionDecl OMPDeclareReductionDecl::PrevDeclarationInScope(void) const {
@@ -7275,6 +7274,20 @@ PASTA_DEFINE_DERIVED_OPERATORS(CXXMethodDecl, CXXDestructorDecl)
 // 1: CXXMethodDecl::CorrespondingMethodDeclaredInClass
 // 1: CXXMethodDecl::CorrespondingMethodInClass
 // 2: DevirtualizedMethod
+::pasta::Type CXXMethodDecl::FunctionObjectParameterReferenceType(void) const {
+  auto &self = *const_cast<clang::CXXMethodDecl *>(u.CXXMethodDecl);
+  decltype(auto) val = self.getFunctionObjectParameterReferenceType();
+  assert(!val.isNull());
+  return TypeBuilder::Build(ast, val);
+}
+
+::pasta::Type CXXMethodDecl::FunctionObjectParameterType(void) const {
+  auto &self = *const_cast<clang::CXXMethodDecl *>(u.CXXMethodDecl);
+  decltype(auto) val = self.getFunctionObjectParameterType();
+  assert(!val.isNull());
+  return TypeBuilder::Build(ast, val);
+}
+
 // 0: CXXMethodDecl::MethodQualifiers
 ::pasta::CXXMethodDecl CXXMethodDecl::MostRecentDeclaration(void) const {
   auto &self = *const_cast<clang::CXXMethodDecl *>(u.CXXMethodDecl);
@@ -7283,6 +7296,12 @@ PASTA_DEFINE_DERIVED_OPERATORS(CXXMethodDecl, CXXDestructorDecl)
     return DeclBuilder::Create<::pasta::CXXMethodDecl>(ast, val);
   }
   throw std::runtime_error("CXXMethodDecl::MostRecentDeclaration can return nullptr!");
+}
+
+uint32_t CXXMethodDecl::NumExplicitParameters(void) const {
+  auto &self = *const_cast<clang::CXXMethodDecl *>(u.CXXMethodDecl);
+  decltype(auto) val = self.getNumExplicitParams();
+  return val;
 }
 
 ::pasta::CXXRecordDecl CXXMethodDecl::Parent(void) const {
@@ -7298,18 +7317,6 @@ enum RefQualifierKind CXXMethodDecl::ReferenceQualifier(void) const {
   auto &self = *const_cast<clang::CXXMethodDecl *>(u.CXXMethodDecl);
   decltype(auto) val = self.getRefQualifier();
   return static_cast<::pasta::RefQualifierKind>(val);
-}
-
-std::optional<::pasta::Type> CXXMethodDecl::ThisObjectType(void) const {
-  auto &self = *const_cast<clang::CXXMethodDecl *>(u.CXXMethodDecl);
-  if (!self.isInstance()) {
-    return std::nullopt;
-  }
-  decltype(auto) val = self.getThisObjectType();
-  if (val.isNull()) {
-    return std::nullopt;
-  }
-  return TypeBuilder::Build(ast, val);
 }
 
 std::optional<::pasta::Type> CXXMethodDecl::ThisType(void) const {
@@ -7339,6 +7346,18 @@ bool CXXMethodDecl::IsConst(void) const {
 bool CXXMethodDecl::IsCopyAssignmentOperator(void) const {
   auto &self = *const_cast<clang::CXXMethodDecl *>(u.CXXMethodDecl);
   decltype(auto) val = self.isCopyAssignmentOperator();
+  return val;
+}
+
+bool CXXMethodDecl::IsExplicitObjectMemberFunction(void) const {
+  auto &self = *const_cast<clang::CXXMethodDecl *>(u.CXXMethodDecl);
+  decltype(auto) val = self.isExplicitObjectMemberFunction();
+  return val;
+}
+
+bool CXXMethodDecl::IsImplicitObjectMemberFunction(void) const {
+  auto &self = *const_cast<clang::CXXMethodDecl *>(u.CXXMethodDecl);
+  decltype(auto) val = self.isImplicitObjectMemberFunction();
   return val;
 }
 
@@ -7821,10 +7840,10 @@ PASTA_DEFINE_BASE_OPERATORS(DeclaratorDecl, ImplicitParamDecl)
 PASTA_DEFINE_BASE_OPERATORS(NamedDecl, ImplicitParamDecl)
 PASTA_DEFINE_BASE_OPERATORS(ValueDecl, ImplicitParamDecl)
 PASTA_DEFINE_BASE_OPERATORS(VarDecl, ImplicitParamDecl)
-enum ImplicitParamDeclImplicitParamKind ImplicitParamDecl::ParameterKind(void) const {
+enum ImplicitParamKind ImplicitParamDecl::ParameterKind(void) const {
   auto &self = *const_cast<clang::ImplicitParamDecl *>(u.ImplicitParamDecl);
   decltype(auto) val = self.getParameterKind();
-  return static_cast<::pasta::ImplicitParamDeclImplicitParamKind>(val);
+  return static_cast<::pasta::ImplicitParamKind>(val);
 }
 
 std::vector<::pasta::TemplateParameterList> ImplicitParamDecl::TemplateParameterLists(void) const {
@@ -7894,6 +7913,12 @@ std::optional<::pasta::Expr> ParmVarDecl::DefaultArgument(void) const {
   return ast->TokenRangeFrom(val);
 }
 
+::pasta::Token ParmVarDecl::ExplicitObjectParameterThisToken(void) const {
+  auto &self = *const_cast<clang::ParmVarDecl *>(u.ParmVarDecl);
+  decltype(auto) val = self.getExplicitObjectParamThisLoc();
+  return ast->TokenAt(val);
+}
+
 uint32_t ParmVarDecl::FunctionScopeDepth(void) const {
   auto &self = *const_cast<clang::ParmVarDecl *>(u.ParmVarDecl);
   decltype(auto) val = self.getFunctionScopeDepth();
@@ -7960,6 +7985,12 @@ bool ParmVarDecl::HasUnparsedDefaultArgument(void) const {
 bool ParmVarDecl::IsDestroyedInCallee(void) const {
   auto &self = *const_cast<clang::ParmVarDecl *>(u.ParmVarDecl);
   decltype(auto) val = self.isDestroyedInCallee();
+  return val;
+}
+
+bool ParmVarDecl::IsExplicitObjectParameter(void) const {
+  auto &self = *const_cast<clang::ParmVarDecl *>(u.ParmVarDecl);
+  decltype(auto) val = self.isExplicitObjectParameter();
   return val;
 }
 
@@ -8033,10 +8064,10 @@ std::optional<::pasta::FieldDecl> RecordDecl::FirstNamedDataMember(void) const {
   }
 }
 
-enum RecordDeclArgPassingKind RecordDecl::ArgumentPassingRestrictions(void) const {
+enum RecordArgPassingKind RecordDecl::ArgumentPassingRestrictions(void) const {
   auto &self = *const_cast<clang::RecordDecl *>(u.RecordDecl);
   decltype(auto) val = self.getArgPassingRestrictions();
-  return static_cast<::pasta::RecordDeclArgPassingKind>(val);
+  return static_cast<::pasta::RecordArgPassingKind>(val);
 }
 
 std::optional<::pasta::RecordDecl> RecordDecl::Definition(void) const {
@@ -9446,6 +9477,12 @@ std::optional<bool> CXXRecordDecl::IsCXX11StandardLayout(void) const {
   return val;
 }
 
+bool CXXRecordDecl::IsCapturelessLambda(void) const {
+  auto &self = *const_cast<clang::CXXRecordDecl *>(u.CXXRecordDecl);
+  decltype(auto) val = self.isCapturelessLambda();
+  return val;
+}
+
 // 1: CXXRecordDecl::IsCurrentInstantiation
 bool CXXRecordDecl::IsDependentLambda(void) const {
   auto &self = *const_cast<clang::CXXRecordDecl *>(u.CXXRecordDecl);
@@ -9594,6 +9631,12 @@ std::optional<bool> CXXRecordDecl::IsTrivial(void) const {
     return std::nullopt;
   }
   decltype(auto) val = self.isTrivial();
+  return val;
+}
+
+bool CXXRecordDecl::IsTriviallyCopyConstructible(void) const {
+  auto &self = *const_cast<clang::CXXRecordDecl *>(u.CXXRecordDecl);
+  decltype(auto) val = self.isTriviallyCopyConstructible();
   return val;
 }
 

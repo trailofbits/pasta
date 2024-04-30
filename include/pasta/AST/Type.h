@@ -510,6 +510,7 @@ class Type {
   bool IsSignedIntegerType(void) const;
   bool IsSizelessBuiltinType(void) const;
   bool IsSizelessType(void) const;
+  bool IsSizelessVectorType(void) const;
   // IsSpecificBuiltinType: (bool)
   // IsSpecificPlaceholderType: (bool)
   bool IsSpecifierType(void) const;
@@ -518,6 +519,7 @@ class Type {
   std::optional<bool> IsStructuralType(void) const;
   bool IsStructureOrClassType(void) const;
   bool IsStructureType(void) const;
+  bool IsSveVLSBuiltinType(void) const;
   bool IsTemplateTypeParmType(void) const;
   bool IsTypedefNameType(void) const;
   bool IsUndeducedAutoType(void) const;
@@ -529,7 +531,6 @@ class Type {
   bool IsUnsignedFixedPointType(void) const;
   bool IsUnsignedIntegerOrEnumerationType(void) const;
   bool IsUnsignedIntegerType(void) const;
-  bool IsVLSTBuiltinType(void) const;
   bool IsVariableArrayType(void) const;
   bool IsVariablyModifiedType(void) const;
   bool IsVectorType(void) const;
@@ -642,7 +643,7 @@ class VectorType : public Type {
   ::pasta::Type Desugar(void) const;
   ::pasta::Type ElementType(void) const;
   uint32_t NumElements(void) const;
-  enum VectorTypeVectorKind VectorKind(void) const;
+  enum VectorKind VectorKind(void) const;
   bool IsSugared(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_TYPE_CONSTRUCTOR(VectorType)
@@ -693,7 +694,7 @@ class ArrayType : public Type {
   ::pasta::Type ElementType(void) const;
   uint32_t IndexTypeCVRQualifiers(void) const;
   // IndexTypeQualifiers: (clang::Qualifiers)
-  enum ArrayTypeArraySizeModifier SizeModifier(void) const;
+  enum ArraySizeModifier SizeModifier(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_TYPE_CONSTRUCTOR(ArrayType)
 };
@@ -828,6 +829,7 @@ class ConstantArrayType : public ArrayType {
   PASTA_DECLARE_BASE_OPERATORS(ArrayType, ConstantArrayType)
   PASTA_DECLARE_BASE_OPERATORS(Type, ConstantArrayType)
   ::pasta::Type Desugar(void) const;
+  uint32_t NumAddressingBits(void) const;
   llvm::APInt Size(void) const;
   std::optional<::pasta::Expr> SizeExpression(void) const;
   bool IsSugared(void) const;
@@ -995,7 +997,7 @@ class DependentVectorType : public Type {
   ::pasta::Token AttributeToken(void) const;
   ::pasta::Type ElementType(void) const;
   ::pasta::Expr SizeExpression(void) const;
-  enum VectorTypeVectorKind VectorKind(void) const;
+  enum VectorKind VectorKind(void) const;
   bool IsSugared(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_TYPE_CONSTRUCTOR(DependentVectorType)
@@ -1342,6 +1344,7 @@ class QualifiedType : public Type {
   bool IsReferenceable(void) const;
   bool IsRestrictQualified(void) const;
   bool IsTrivialType(void) const;
+  bool IsTriviallyCopyConstructibleType(void) const;
   bool IsTriviallyCopyableType(void) const;
   bool IsTriviallyEqualityComparableType(void) const;
   bool IsTriviallyRelocatableType(void) const;
@@ -1601,6 +1604,7 @@ class FunctionProtoType : public FunctionType {
   std::optional<enum CanThrowResult> CanThrow(void) const;
   ::pasta::Type Desugar(void) const;
   std::vector<::pasta::Type> Exceptions(void) const;
+  uint32_t AArch64SMEAttributes(void) const;
   ::pasta::Token EllipsisToken(void) const;
   std::optional<::pasta::FunctionDecl> ExceptionSpecDeclaration(void) const;
   // ExceptionSpecInfo: (clang::FunctionProtoType::ExceptionSpecInfo)

@@ -20,6 +20,7 @@ void RegisterCUDALaunchBoundsAttr(nb::module_ &m) {
     .def("__hash__", [](const CUDALaunchBoundsAttr &attr) { return reinterpret_cast<intptr_t>(attr.RawAttr()); })
     .def("__eq__", [](const Attr &a, const Attr &b) { return a.RawAttr() == b.RawAttr(); })
     .def("__ne__", [](const Attr &a, const Attr &b) { return a.RawAttr() != b.RawAttr(); })
+    .def_prop_ro("max_blocks", &CUDALaunchBoundsAttr::MaxBlocks)
     .def_prop_ro("max_threads", &CUDALaunchBoundsAttr::MaxThreads)
     .def_prop_ro("min_blocks", &CUDALaunchBoundsAttr::MinBlocks)
     .def_prop_ro("spelling", &CUDALaunchBoundsAttr::Spelling);

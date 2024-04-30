@@ -1799,6 +1799,12 @@ bool Type::IsSizelessType(void) const {
   return val;
 }
 
+bool Type::IsSizelessVectorType(void) const {
+  auto &self = *const_cast<clang::Type *>(u.Type);
+  decltype(auto) val = self.isSizelessVectorType();
+  return val;
+}
+
 // 1: Type::IsSpecificBuiltinType
 // 1: Type::IsSpecificPlaceholderType
 bool Type::IsSpecifierType(void) const {
@@ -1844,6 +1850,12 @@ bool Type::IsStructureOrClassType(void) const {
 bool Type::IsStructureType(void) const {
   auto &self = *const_cast<clang::Type *>(u.Type);
   decltype(auto) val = self.isStructureType();
+  return val;
+}
+
+bool Type::IsSveVLSBuiltinType(void) const {
+  auto &self = *const_cast<clang::Type *>(u.Type);
+  decltype(auto) val = self.isSveVLSBuiltinType();
   return val;
 }
 
@@ -1910,12 +1922,6 @@ bool Type::IsUnsignedIntegerOrEnumerationType(void) const {
 bool Type::IsUnsignedIntegerType(void) const {
   auto &self = *const_cast<clang::Type *>(u.Type);
   decltype(auto) val = self.isUnsignedIntegerType();
-  return val;
-}
-
-bool Type::IsVLSTBuiltinType(void) const {
-  auto &self = *const_cast<clang::Type *>(u.Type);
-  decltype(auto) val = self.isVLSTBuiltinType();
   return val;
 }
 
@@ -2179,10 +2185,10 @@ uint32_t VectorType::NumElements(void) const {
   return val;
 }
 
-enum VectorTypeVectorKind VectorType::VectorKind(void) const {
+enum VectorKind VectorType::VectorKind(void) const {
   auto &self = *const_cast<clang::VectorType *>(u.VectorType);
   decltype(auto) val = self.getVectorKind();
-  return static_cast<::pasta::VectorTypeVectorKind>(val);
+  return static_cast<::pasta::VectorKind>(val);
 }
 
 bool VectorType::IsSugared(void) const {
@@ -2260,10 +2266,10 @@ uint32_t ArrayType::IndexTypeCVRQualifiers(void) const {
 }
 
 // 0: ArrayType::IndexTypeQualifiers
-enum ArrayTypeArraySizeModifier ArrayType::SizeModifier(void) const {
+enum ArraySizeModifier ArrayType::SizeModifier(void) const {
   auto &self = *const_cast<clang::ArrayType *>(u.ArrayType);
   decltype(auto) val = self.getSizeModifier();
-  return static_cast<::pasta::ArrayTypeArraySizeModifier>(val);
+  return static_cast<::pasta::ArraySizeModifier>(val);
 }
 
 PASTA_DEFINE_BASE_OPERATORS(Type, AtomicType)
@@ -2553,6 +2559,12 @@ PASTA_DEFINE_BASE_OPERATORS(Type, ConstantArrayType)
   decltype(auto) val = self.desugar();
   assert(!val.isNull());
   return TypeBuilder::Build(ast, val);
+}
+
+uint32_t ConstantArrayType::NumAddressingBits(void) const {
+  auto &self = *(u.ConstantArrayType);
+  decltype(auto) val = self.getNumAddressingBits(ast->ci->getASTContext());
+  return val;
 }
 
 llvm::APInt ConstantArrayType::Size(void) const {
@@ -2880,10 +2892,10 @@ PASTA_DEFINE_BASE_OPERATORS(Type, DependentVectorType)
   throw std::runtime_error("DependentVectorType::SizeExpression can return nullptr!");
 }
 
-enum VectorTypeVectorKind DependentVectorType::VectorKind(void) const {
+enum VectorKind DependentVectorType::VectorKind(void) const {
   auto &self = *const_cast<clang::DependentVectorType *>(u.DependentVectorType);
   decltype(auto) val = self.getVectorKind();
-  return static_cast<::pasta::VectorTypeVectorKind>(val);
+  return static_cast<::pasta::VectorKind>(val);
 }
 
 bool DependentVectorType::IsSugared(void) const {
@@ -3884,6 +3896,12 @@ bool QualifiedType::IsTrivialType(void) const {
   return val;
 }
 
+bool QualifiedType::IsTriviallyCopyConstructibleType(void) const {
+  auto self = RawQualType();
+  decltype(auto) val = self.isTriviallyCopyConstructibleType(ast->ci->getASTContext());
+  return val;
+}
+
 bool QualifiedType::IsTriviallyCopyableType(void) const {
   auto self = RawQualType();
   decltype(auto) val = self.isTriviallyCopyableType(ast->ci->getASTContext());
@@ -4436,6 +4454,12 @@ std::vector<::pasta::Type> FunctionProtoType::Exceptions(void) const {
     ret.emplace_back(TypeBuilder::Create<::pasta::Type>(ast, qual_type));
   }
   return ret;
+}
+
+uint32_t FunctionProtoType::AArch64SMEAttributes(void) const {
+  auto &self = *const_cast<clang::FunctionProtoType *>(u.FunctionProtoType);
+  decltype(auto) val = self.getAArch64SMEAttributes();
+  return val;
 }
 
 ::pasta::Token FunctionProtoType::EllipsisToken(void) const {

@@ -520,11 +520,36 @@ std::optional<MacroToken> Token::MacroLocation(void) const {
 // this points to the opening location. Otherwise, it's `std::nullopt`.
 std::optional<Token> Token::BalancedLocation(void) const {
   auto matching_it = storage->ast->matching.find(offset);
-  if (matching_it == storage->ast->matching.end()) {
-    return std::nullopt;
+  DerivedTokenIndex matching_offset = 0u;
+  if (matching_it != storage->ast->matching.end()) {
+    matching_offset = matching_it->second;
+  } else {
+    switch (Kind()) {
+      case pasta::TokenKind::kLParenthesis:
+      case pasta::TokenKind::kLSquare:
+      case pasta::TokenKind::kLAngle:
+      case pasta::TokenKind::kLBrace:
+        matching_offset = storage->ast->MatchingIndex(offset);
+        if (matching_offset <= offset ||
+            matching_offset >= storage->size()) {
+          return std::nullopt;
+        }
+        break;
+      case pasta::TokenKind::kRParenthesis:
+      case pasta::TokenKind::kRSquare:
+      case pasta::TokenKind::kRAngle:
+      case pasta::TokenKind::kRBrace:
+        matching_offset = storage->ast->MatchingIndex(offset);
+        if (matching_offset >= offset) {
+          return std::nullopt;
+        }
+        break;
+      default:
+        return std::nullopt;
+    }
   }
 
-  return Token(storage, matching_it->second);
+  return Token(storage, matching_offset);
 }
 
 // Return the previous and next tokens.

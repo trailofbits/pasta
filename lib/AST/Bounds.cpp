@@ -2177,4 +2177,15 @@ TokenRange ASTImpl::DeclTokenRange(const clang::Decl *decl_) {
   return DeclTokenRange(decl_, std::unique_lock<std::mutex>(bounds_mutex));
 }
 
+DerivedTokenIndex ASTImpl::MatchingIndex(DerivedTokenIndex offset) {
+  DeclBoundsFinder finder(*this);
+  ParsedTokenIterator loc(&parsed_tokens, offset);
+  auto [begin, end] = finder.GetMatching(loc);
+  if (begin.Offset() == offset) {
+    return end.Offset();
+  } else {
+    return begin.Offset();
+  }
+}
+
 }  // namespace pasta

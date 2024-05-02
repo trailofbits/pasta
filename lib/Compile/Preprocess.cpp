@@ -20,7 +20,7 @@
 #include "../AST/AST.h"
 #include "PatchedMacroTracker.h"
 
-#define PASTA_DEBUG_RUN 0
+#define PASTA_DEBUG_RUN 1
 
 #if PASTA_DEBUG_RUN
 # include <fcntl.h>

@@ -876,6 +876,9 @@ static bool IsParsedToken(const pasta::Token &tok) {
     case pasta::TokenRole::kFinalMacroExpansionToken:
       return !tok.Data().empty();
 
+    // case pasta::TokenRole::kMacroDirectiveMarker:
+    //   return true;
+
     default:
       return false;
   }

@@ -710,7 +710,6 @@ void StmtPrinter::VisitOMPCanonicalLoop(clang::OMPCanonicalLoop *Node) {
   PrintStmt(Node->getLoopStmt());
 }
 
-#ifndef PASTA_LLVM_18
 void StmtPrinter::PrintOMPExecutableDirective(clang::OMPExecutableDirective *S,
                                               bool ForceNoStmt) {
   TokenPrinterContext ctx(OS, S, tokens);
@@ -725,7 +724,6 @@ void StmtPrinter::PrintOMPExecutableDirective(clang::OMPExecutableDirective *S,
   if (!ForceNoStmt && S->hasAssociatedStmt())
     PrintStmt(S->getRawStmt());
 }
-#endif
 
 void StmtPrinter::VisitOMPMetaDirective(clang::OMPMetaDirective *Node) {
   TokenPrinterContext ctx(OS, Node, tokens);
@@ -1289,7 +1287,7 @@ void StmtPrinter::VisitUnresolvedLookupExpr(clang::UnresolvedLookupExpr *Node) {
 static bool isImplicitSelf(const clang::Expr *E) {
   if (const auto *DRE = clang::dyn_cast<clang::DeclRefExpr>(E)) {
     if (const auto *PD = clang::dyn_cast<clang::ImplicitParamDecl>(DRE->getDecl())) {
-      if (PD->getParameterKind() == clang::ImplicitParamDecl::ObjCSelf &&
+      if (PD->getParameterKind() == clang::ImplicitParamKind::ObjCSelf &&
           DRE->getBeginLoc().isInvalid())
         return true;
     }
@@ -2654,9 +2652,9 @@ void StmtPrinter::VisitCXXNewExpr(clang::CXXNewExpr *E) {
   if (E->isParenTypeId())
     OS << ")";
 
-  clang::CXXNewExpr::InitializationStyle InitStyle = E->getInitializationStyle();
-  if (InitStyle != clang::CXXNewExpr::NoInit) {
-    bool Bare = InitStyle == clang::CXXNewExpr::CallInit &&
+  clang::CXXNewInitializationStyle InitStyle = E->getInitializationStyle();
+  if (InitStyle != clang::CXXNewInitializationStyle::None) {
+    bool Bare = InitStyle == clang::CXXNewInitializationStyle::Parens &&
                 !clang::isa<clang::ParenListExpr>(E->getInitializer());
     if (Bare) {
       OS << "(";

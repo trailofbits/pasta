@@ -23,8 +23,10 @@ void RegisterRequiresExpr(nb::module_ &m) {
     .def_prop_ro("begin_token", &RequiresExpr::BeginToken)
     .def_prop_ro("body", &RequiresExpr::Body)
     .def_prop_ro("end_token", &RequiresExpr::EndToken)
+    .def_prop_ro("l_paren_token", &RequiresExpr::LParenToken)
     .def_prop_ro("local_parameters", &RequiresExpr::LocalParameters)
     .def_prop_ro("r_brace_token", &RequiresExpr::RBraceToken)
+    .def_prop_ro("r_paren_token", &RequiresExpr::RParenToken)
     .def_prop_ro("requires_keyword_token", &RequiresExpr::RequiresKeywordToken)
     .def_prop_ro("is_satisfied", &RequiresExpr::IsSatisfied);
 }

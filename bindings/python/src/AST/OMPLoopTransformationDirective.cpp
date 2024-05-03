@@ -20,6 +20,7 @@ namespace nb = nanobind;
 void RegisterOMPLoopTransformationDirective(nb::module_ &m) {
   nb::class_<OMPLoopTransformationDirective, OMPLoopBasedDirective>(m, "OMPLoopTransformationDirective")
     .def_prop_ro("num_associated_loops", &OMPLoopTransformationDirective::NumAssociatedLoops)
+    .def_prop_ro("num_generated_loops", &OMPLoopTransformationDirective::NumGeneratedLoops)
     .def_prop_ro("pre_initializers", &OMPLoopTransformationDirective::PreInitializers)
     .def_prop_ro("transformed_statement", &OMPLoopTransformationDirective::TransformedStatement);
 }

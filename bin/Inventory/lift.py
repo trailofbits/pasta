@@ -629,7 +629,7 @@ class SchemaLifter:
       method_schema.is_const = decl.is_const
       method_schema.is_inherited = decl.parent != tag
       method_schema.is_virtual = decl.is_virtual
-      method_schema.is_interface = decl.is_pure
+      method_schema.is_interface = decl.is_pure_virtual
 
       if section is not None:
         section[decl.name] = self._merge_method(

@@ -393,6 +393,10 @@ void StmtVisitor::VisitOMPScanDirective(const OMPScanDirective &stmt) {
   VisitOMPExecutableDirective(stmt);
 }
 
+void StmtVisitor::VisitOMPScopeDirective(const OMPScopeDirective &stmt) {
+  VisitOMPExecutableDirective(stmt);
+}
+
 void StmtVisitor::VisitOMPSectionDirective(const OMPSectionDirective &stmt) {
   VisitOMPExecutableDirective(stmt);
 }
@@ -1234,6 +1238,7 @@ PASTA_DEFINE_DERIVED_OPERATORS(Stmt, OMPParallelMasterTaskLoopDirective)
 PASTA_DEFINE_DERIVED_OPERATORS(Stmt, OMPParallelMasterTaskLoopSimdDirective)
 PASTA_DEFINE_DERIVED_OPERATORS(Stmt, OMPParallelSectionsDirective)
 PASTA_DEFINE_DERIVED_OPERATORS(Stmt, OMPScanDirective)
+PASTA_DEFINE_DERIVED_OPERATORS(Stmt, OMPScopeDirective)
 PASTA_DEFINE_DERIVED_OPERATORS(Stmt, OMPSectionDirective)
 PASTA_DEFINE_DERIVED_OPERATORS(Stmt, OMPSectionsDirective)
 PASTA_DEFINE_DERIVED_OPERATORS(Stmt, OMPSimdDirective)
@@ -6416,6 +6421,7 @@ PASTA_DEFINE_DERIVED_OPERATORS(OMPExecutableDirective, OMPParallelMasterTaskLoop
 PASTA_DEFINE_DERIVED_OPERATORS(OMPExecutableDirective, OMPParallelMasterTaskLoopSimdDirective)
 PASTA_DEFINE_DERIVED_OPERATORS(OMPExecutableDirective, OMPParallelSectionsDirective)
 PASTA_DEFINE_DERIVED_OPERATORS(OMPExecutableDirective, OMPScanDirective)
+PASTA_DEFINE_DERIVED_OPERATORS(OMPExecutableDirective, OMPScopeDirective)
 PASTA_DEFINE_DERIVED_OPERATORS(OMPExecutableDirective, OMPSectionDirective)
 PASTA_DEFINE_DERIVED_OPERATORS(OMPExecutableDirective, OMPSectionsDirective)
 PASTA_DEFINE_DERIVED_OPERATORS(OMPExecutableDirective, OMPSimdDirective)
@@ -6496,6 +6502,7 @@ std::vector<::pasta::Stmt> OMPExecutableDirective::Children(void) const {
   throw std::runtime_error("OMPExecutableDirective::InnermostCapturedStatement can return nullptr!");
 }
 
+// 0: OMPExecutableDirective::MappedDirective
 uint32_t OMPExecutableDirective::NumClauses(void) const {
   auto &self = *const_cast<clang::OMPExecutableDirective *>(u.OMPExecutableDirective);
   decltype(auto) val = self.getNumClauses();
@@ -7085,6 +7092,12 @@ uint32_t OMPLoopTransformationDirective::NumAssociatedLoops(void) const {
   return val;
 }
 
+uint32_t OMPLoopTransformationDirective::NumGeneratedLoops(void) const {
+  auto &self = *const_cast<clang::OMPLoopTransformationDirective *>(u.OMPLoopTransformationDirective);
+  decltype(auto) val = self.getNumGeneratedLoops();
+  return val;
+}
+
 ::pasta::Stmt OMPLoopTransformationDirective::PreInitializers(void) const {
   auto &self = *const_cast<clang::OMPLoopTransformationDirective *>(u.OMPLoopTransformationDirective);
   decltype(auto) val = self.getPreInits();
@@ -7361,6 +7374,13 @@ OMPScanDirective::OMPScanDirective(
 
 PASTA_DEFINE_BASE_OPERATORS(OMPExecutableDirective, OMPScanDirective)
 PASTA_DEFINE_BASE_OPERATORS(Stmt, OMPScanDirective)
+OMPScopeDirective::OMPScopeDirective(
+    std::shared_ptr<ASTImpl> ast_,
+    const ::clang::Stmt *stmt_)
+    : OMPExecutableDirective(std::move(ast_), stmt_) {}
+
+PASTA_DEFINE_BASE_OPERATORS(OMPExecutableDirective, OMPScopeDirective)
+PASTA_DEFINE_BASE_OPERATORS(Stmt, OMPScopeDirective)
 OMPSectionDirective::OMPSectionDirective(
     std::shared_ptr<ASTImpl> ast_,
     const ::clang::Stmt *stmt_)
@@ -9703,10 +9723,10 @@ std::optional<::pasta::StringLiteral> PredefinedExpr::FunctionName(void) const {
   }
 }
 
-enum PredefinedExprIdentKind PredefinedExpr::IdentifierKind(void) const {
+enum PredefinedIdentKind PredefinedExpr::IdentifierKind(void) const {
   auto &self = *const_cast<clang::PredefinedExpr *>(u.PredefinedExpr);
   decltype(auto) val = self.getIdentKind();
-  return static_cast<::pasta::PredefinedExprIdentKind>(val);
+  return static_cast<::pasta::PredefinedIdentKind>(val);
 }
 
 std::string_view PredefinedExpr::IdentifierKindName(void) const {
@@ -9903,6 +9923,12 @@ std::vector<::pasta::Stmt> RequiresExpr::Children(void) const {
   return ast->TokenAt(val);
 }
 
+::pasta::Token RequiresExpr::LParenToken(void) const {
+  auto &self = *const_cast<clang::RequiresExpr *>(u.RequiresExpr);
+  decltype(auto) val = self.getLParenLoc();
+  return ast->TokenAt(val);
+}
+
 std::vector<::pasta::ParmVarDecl> RequiresExpr::LocalParameters(void) const {
   auto &self = *const_cast<clang::RequiresExpr *>(u.RequiresExpr);
   decltype(auto) val = self.getLocalParameters();
@@ -9918,6 +9944,12 @@ std::vector<::pasta::ParmVarDecl> RequiresExpr::LocalParameters(void) const {
 ::pasta::Token RequiresExpr::RBraceToken(void) const {
   auto &self = *const_cast<clang::RequiresExpr *>(u.RequiresExpr);
   decltype(auto) val = self.getRBraceLoc();
+  return ast->TokenAt(val);
+}
+
+::pasta::Token RequiresExpr::RParenToken(void) const {
+  auto &self = *const_cast<clang::RequiresExpr *>(u.RequiresExpr);
+  decltype(auto) val = self.getRParenLoc();
   return ast->TokenAt(val);
 }
 
@@ -10444,10 +10476,10 @@ std::string_view SourceLocExpr::BuiltinString(void) const {
   return ast->TokenAt(val);
 }
 
-enum SourceLocExprIdentKind SourceLocExpr::IdentifierKind(void) const {
+enum SourceLocIdentKind SourceLocExpr::IdentifierKind(void) const {
   auto &self = *const_cast<clang::SourceLocExpr *>(u.SourceLocExpr);
   decltype(auto) val = self.getIdentKind();
-  return static_cast<::pasta::SourceLocExprIdentKind>(val);
+  return static_cast<::pasta::SourceLocIdentKind>(val);
 }
 
 ::pasta::Token SourceLocExpr::Token(void) const {
@@ -10603,10 +10635,10 @@ uint32_t StringLiteral::CharacterByteWidth(void) const {
   return ast->TokenAt(val);
 }
 
-enum StringLiteralStringKind StringLiteral::LiteralKind(void) const {
+enum StringLiteralKind StringLiteral::LiteralKind(void) const {
   auto &self = *const_cast<clang::StringLiteral *>(u.StringLiteral);
   decltype(auto) val = self.getKind();
-  return static_cast<::pasta::StringLiteralStringKind>(val);
+  return static_cast<::pasta::StringLiteralKind>(val);
 }
 
 uint32_t StringLiteral::Length(void) const {
@@ -11785,6 +11817,16 @@ enum AtomicExprAtomicOp AtomicExpr::Operation(void) const {
   return static_cast<::pasta::AtomicExprAtomicOp>(val);
 }
 
+std::string_view AtomicExpr::OperationAsString(void) const {
+  auto &self = *const_cast<clang::AtomicExpr *>(u.AtomicExpr);
+  decltype(auto) val = self.getOpAsString();
+  if (auto size = val.size()) {
+    return std::string_view(val.data(), size);
+  } else {
+    return std::string_view();
+  }
+}
+
 ::pasta::Expr AtomicExpr::Order(void) const {
   auto &self = *const_cast<clang::AtomicExpr *>(u.AtomicExpr);
   decltype(auto) val = self.getOrder();
@@ -12366,10 +12408,10 @@ std::vector<::pasta::Stmt> CXXConstructExpr::Children(void) const {
   return ast->TokenAt(val);
 }
 
-enum CXXConstructExprConstructionKind CXXConstructExpr::ConstructionKind(void) const {
+enum CXXConstructionKind CXXConstructExpr::ConstructionKind(void) const {
   auto &self = *const_cast<clang::CXXConstructExpr *>(u.CXXConstructExpr);
   decltype(auto) val = self.getConstructionKind();
-  return static_cast<::pasta::CXXConstructExprConstructionKind>(val);
+  return static_cast<::pasta::CXXConstructionKind>(val);
 }
 
 ::pasta::CXXConstructorDecl CXXConstructExpr::Constructor(void) const {
@@ -13001,10 +13043,10 @@ bool CXXInheritedCtorInitExpr::ConstructsVirtualBase(void) const {
   return ast->TokenAt(val);
 }
 
-enum CXXConstructExprConstructionKind CXXInheritedCtorInitExpr::ConstructionKind(void) const {
+enum CXXConstructionKind CXXInheritedCtorInitExpr::ConstructionKind(void) const {
   auto &self = *const_cast<clang::CXXInheritedCtorInitExpr *>(u.CXXInheritedCtorInitExpr);
   decltype(auto) val = self.getConstructionKind();
-  return static_cast<::pasta::CXXConstructExprConstructionKind>(val);
+  return static_cast<::pasta::CXXConstructionKind>(val);
 }
 
 ::pasta::CXXConstructorDecl CXXInheritedCtorInitExpr::Constructor(void) const {
@@ -13107,10 +13149,10 @@ std::optional<::pasta::CXXConstructExpr> CXXNewExpr::ConstructExpression(void) c
   return ast->TokenAt(val);
 }
 
-enum CXXNewExprInitializationStyle CXXNewExpr::InitializationStyle(void) const {
+enum CXXNewInitializationStyle CXXNewExpr::InitializationStyle(void) const {
   auto &self = *const_cast<clang::CXXNewExpr *>(u.CXXNewExpr);
   decltype(auto) val = self.getInitializationStyle();
-  return static_cast<::pasta::CXXNewExprInitializationStyle>(val);
+  return static_cast<::pasta::CXXNewInitializationStyle>(val);
 }
 
 std::optional<::pasta::Expr> CXXNewExpr::Initializer(void) const {
@@ -14221,6 +14263,12 @@ PASTA_DEFINE_DERIVED_OPERATORS(CastExpr, CXXStaticCastExpr)
 PASTA_DEFINE_DERIVED_OPERATORS(CastExpr, ExplicitCastExpr)
 PASTA_DEFINE_DERIVED_OPERATORS(CastExpr, ImplicitCastExpr)
 PASTA_DEFINE_DERIVED_OPERATORS(CastExpr, ObjCBridgedCastExpr)
+bool CastExpr::ChangesVolatileQualification(void) const {
+  auto &self = *const_cast<clang::CastExpr *>(u.CastExpr);
+  decltype(auto) val = self.changesVolatileQualification();
+  return val;
+}
+
 std::vector<::pasta::Stmt> CastExpr::Children(void) const {
   auto &self = *const_cast<clang::CastExpr *>(u.CastExpr);
   decltype(auto) val = self.children();
@@ -14339,10 +14387,10 @@ std::vector<::pasta::Stmt> CharacterLiteral::Children(void) const {
   return ast->TokenAt(val);
 }
 
-enum CharacterLiteralCharacterKind CharacterLiteral::LiteralKind(void) const {
+enum CharacterLiteralKind CharacterLiteral::LiteralKind(void) const {
   auto &self = *const_cast<clang::CharacterLiteral *>(u.CharacterLiteral);
   decltype(auto) val = self.getKind();
-  return static_cast<::pasta::CharacterLiteralCharacterKind>(val);
+  return static_cast<::pasta::CharacterLiteralKind>(val);
 }
 
 ::pasta::Token CharacterLiteral::Token(void) const {
@@ -14552,12 +14600,45 @@ std::vector<::pasta::Stmt> ConceptSpecializationExpr::Children(void) const {
   return ast->TokenAt(val);
 }
 
+// 0: ConceptSpecializationExpr::ConceptNameInfo
+::pasta::Token ConceptSpecializationExpr::ConceptNameToken(void) const {
+  auto &self = *const_cast<clang::ConceptSpecializationExpr *>(u.ConceptSpecializationExpr);
+  decltype(auto) val = self.getConceptNameLoc();
+  return ast->TokenAt(val);
+}
+
+// 0: ConceptSpecializationExpr::ConceptReference
 ::pasta::Token ConceptSpecializationExpr::EndToken(void) const {
   auto &self = *const_cast<clang::ConceptSpecializationExpr *>(u.ConceptSpecializationExpr);
   decltype(auto) val = self.getEndLoc();
   return ast->TokenAt(val);
 }
 
+::pasta::Token ConceptSpecializationExpr::ExpressionToken(void) const {
+  auto &self = *const_cast<clang::ConceptSpecializationExpr *>(u.ConceptSpecializationExpr);
+  decltype(auto) val = self.getExprLoc();
+  return ast->TokenAt(val);
+}
+
+::pasta::NamedDecl ConceptSpecializationExpr::FoundDeclaration(void) const {
+  auto &self = *const_cast<clang::ConceptSpecializationExpr *>(u.ConceptSpecializationExpr);
+  decltype(auto) val = self.getFoundDecl();
+  if (val) {
+    return DeclBuilder::Create<::pasta::NamedDecl>(ast, val);
+  }
+  throw std::runtime_error("ConceptSpecializationExpr::FoundDeclaration can return nullptr!");
+}
+
+::pasta::ConceptDecl ConceptSpecializationExpr::NamedConcept(void) const {
+  auto &self = *const_cast<clang::ConceptSpecializationExpr *>(u.ConceptSpecializationExpr);
+  decltype(auto) val = self.getNamedConcept();
+  if (val) {
+    return DeclBuilder::Create<::pasta::ConceptDecl>(ast, val);
+  }
+  throw std::runtime_error("ConceptSpecializationExpr::NamedConcept can return nullptr!");
+}
+
+// 0: ConceptSpecializationExpr::NestedNameSpecifierToken
 // 0: ConceptSpecializationExpr::Satisfaction
 ::pasta::ImplicitConceptSpecializationDecl ConceptSpecializationExpr::SpecializationDeclaration(void) const {
   auto &self = *const_cast<clang::ConceptSpecializationExpr *>(u.ConceptSpecializationExpr);
@@ -14568,6 +14649,7 @@ std::vector<::pasta::Stmt> ConceptSpecializationExpr::Children(void) const {
   throw std::runtime_error("ConceptSpecializationExpr::SpecializationDeclaration can return nullptr!");
 }
 
+// 0: ConceptSpecializationExpr::TemplateArgumentsAsWritten
 std::vector<::pasta::TemplateArgument> ConceptSpecializationExpr::TemplateArguments(void) const {
   auto &self = *const_cast<clang::ConceptSpecializationExpr *>(u.ConceptSpecializationExpr);
   decltype(auto) val = self.getTemplateArguments();
@@ -14576,6 +14658,18 @@ std::vector<::pasta::TemplateArgument> ConceptSpecializationExpr::TemplateArgume
     ret.emplace_back(ast, arg);
   }
   return ret;
+}
+
+::pasta::Token ConceptSpecializationExpr::TemplateKeywordToken(void) const {
+  auto &self = *const_cast<clang::ConceptSpecializationExpr *>(u.ConceptSpecializationExpr);
+  decltype(auto) val = self.getTemplateKWLoc();
+  return ast->TokenAt(val);
+}
+
+bool ConceptSpecializationExpr::HasExplicitTemplateArguments(void) const {
+  auto &self = *const_cast<clang::ConceptSpecializationExpr *>(u.ConceptSpecializationExpr);
+  decltype(auto) val = self.hasExplicitTemplateArgs();
+  return val;
 }
 
 bool ConceptSpecializationExpr::IsSatisfied(void) const {
@@ -14703,11 +14797,10 @@ llvm::APSInt ConstantExpr::ResultAsAPSInt(void) const {
   return val;
 }
 
-// 0: ConstantExpr::ResultAsAPValue
-enum ConstantExprResultStorageKind ConstantExpr::ResultStorageKind(void) const {
+enum ConstantResultStorageKind ConstantExpr::ResultStorageKind(void) const {
   auto &self = *const_cast<clang::ConstantExpr *>(u.ConstantExpr);
   decltype(auto) val = self.getResultStorageKind();
-  return static_cast<::pasta::ConstantExprResultStorageKind>(val);
+  return static_cast<::pasta::ConstantResultStorageKind>(val);
 }
 
 bool ConstantExpr::HasAPValueResult(void) const {
@@ -14984,6 +15077,12 @@ bool DeclRefExpr::HasTemplateKeywordAndArgumentsInfo(void) const {
 bool DeclRefExpr::HasTemplateKeyword(void) const {
   auto &self = *const_cast<clang::DeclRefExpr *>(u.DeclRefExpr);
   decltype(auto) val = self.hasTemplateKeyword();
+  return val;
+}
+
+bool DeclRefExpr::IsCapturedByCopyInLambdaWithExplicitObjectParameter(void) const {
+  auto &self = *const_cast<clang::DeclRefExpr *>(u.DeclRefExpr);
+  decltype(auto) val = self.isCapturedByCopyInLambdaWithExplicitObjectParameter();
   return val;
 }
 

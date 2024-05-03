@@ -57,15 +57,15 @@ static ::pasta::DeclCategory ClassifyDecl(const clang::Decl *decl) {
 
       if (auto record_decl = clang::dyn_cast<clang::RecordDecl>(decl)) {
         switch (record_decl->getTagKind()) {
-          case clang::TTK_Struct:
+          case clang::TagTypeKind::Struct:
             return ::pasta::DeclCategory::kStructure;
-          case clang::TTK_Interface:
+          case clang::TagTypeKind::Interface:
             return ::pasta::DeclCategory::kInterface;
-          case clang::TTK_Union:
+          case clang::TagTypeKind::Union:
             return ::pasta::DeclCategory::kUnion;
-          case clang::TTK_Class:
+          case clang::TagTypeKind::Class:
             return ::pasta::DeclCategory::kClass;
-          case clang::TTK_Enum:
+          case clang::TagTypeKind::Enum:
             return ::pasta::DeclCategory::kEnumeration;
         }
       }
@@ -166,8 +166,8 @@ static ::pasta::DeclCategory ClassifyDecl(const clang::Decl *decl) {
 
       if (auto iparam = clang::dyn_cast<clang::ImplicitParamDecl>(decl)) {
         switch (iparam->getParameterKind()) {
-          case clang::ImplicitParamDecl::ObjCSelf:
-          case clang::ImplicitParamDecl::CXXThis:
+          case clang::ImplicitParamKind::ObjCSelf:
+          case clang::ImplicitParamKind::CXXThis:
             return ::pasta::DeclCategory::kThis;
           default:
             return ::pasta::DeclCategory::kParameterVariable;

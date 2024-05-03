@@ -82,20 +82,21 @@ static void printIntegral(Printer &printer, const clang::TemplateArgument &Templ
       else if (T->isSpecificBuiltinType(clang::BuiltinType::UChar))
         Out << "(unsigned char)";
     }
-    clang::CharacterLiteral::print(Val.getZExtValue(), clang::CharacterLiteral::Ascii, Out);
+    clang::CharacterLiteral::print(static_cast<unsigned>(Val.getZExtValue()),
+                                  clang::CharacterLiteralKind::Ascii, Out);
   } else if (T->isAnyCharacterType() && !Policy.MSVCFormatting) {
-    clang::CharacterLiteral::CharacterKind Kind;
+    clang::CharacterLiteralKind Kind;
     if (T->isWideCharType())
-      Kind = clang::CharacterLiteral::Wide;
+      Kind = clang::CharacterLiteralKind::Wide;
     else if (T->isChar8Type())
-      Kind = clang::CharacterLiteral::UTF8;
+      Kind = clang::CharacterLiteralKind::UTF8;
     else if (T->isChar16Type())
-      Kind = clang::CharacterLiteral::UTF16;
+      Kind = clang::CharacterLiteralKind::UTF16;
     else if (T->isChar32Type())
-      Kind = clang::CharacterLiteral::UTF32;
+      Kind = clang::CharacterLiteralKind::UTF32;
     else
-      Kind = clang::CharacterLiteral::Ascii;
-    clang::CharacterLiteral::print(Val.getExtValue(), Kind, Out);
+      Kind = clang::CharacterLiteralKind::Ascii;
+    clang::CharacterLiteral::print(static_cast<unsigned>(Val.getExtValue()), Kind, Out);
   } else if (IncludeType) {
     if (const auto *BT = T->getAs<clang::BuiltinType>()) {
       switch (BT->getKind()) {
@@ -244,6 +245,8 @@ void printArgument(Printer &printer, const clang::TemplateArgument &A,
       }
       break;
     }
+    case clang::TemplateArgument::StructuralValue:
+      break;
   }
 }
 
@@ -274,7 +277,7 @@ static const clang::TemplateArgument &getArgument(
   return A.getArgument();
 }
 
-static bool IsDefaulted(clang::ASTContext &Ctx,
+static bool __attribute__((unused)) IsDefaulted(clang::ASTContext &Ctx,
                         const clang::TemplateArgument &A,
                         const clang::NamedDecl *P,
                         llvm::ArrayRef<clang::TemplateArgument> OrigArgs,
@@ -754,7 +757,7 @@ void TypePrinter::printConstantArray(const clang::ConstantArrayType *T,
       OS << ' ';
     }
 
-    if (T->getSizeModifier() == clang::ArrayType::Static)
+    if (T->getSizeModifier() == clang::ArraySizeModifier::Static)
       OS << "static ";
 
     if (const clang::Expr *Expr = T->getSizeExpr();
@@ -807,9 +810,9 @@ void TypePrinter::printVariableArray(const clang::VariableArrayType *T,
       OS << ' ';
     }
 
-    if (T->getSizeModifier() == clang::ArrayType::Static)
+    if (T->getSizeModifier() == clang::ArraySizeModifier::Static)
       OS << "static ";
-    else if (T->getSizeModifier() == clang::VariableArrayType::Star)
+    else if (T->getSizeModifier() == clang::ArraySizeModifier::Star)
       OS << '*';
 
     if (const clang::Expr *Expr = T->getSizeExpr()) {
@@ -929,24 +932,24 @@ void TypePrinter::printVector(
   TokenPrinterContext ctx(OS, T, tokens);
 
   switch (T->getVectorKind()) {
-    case clang::VectorType::AltiVecPixel:
+    case clang::VectorKind::AltiVecPixel:
       OS << "__vector __pixel ";
       break;
-    case clang::VectorType::AltiVecBool:
+    case clang::VectorKind::AltiVecBool:
       OS << "__vector __bool ";
       break;
-    case clang::VectorType::AltiVecVector:
+    case clang::VectorKind::AltiVecVector:
       OS << "__vector ";
       break;
-    case clang::VectorType::NeonVector:
+    case clang::VectorKind::Neon:
       OS << "__attribute__((neon_vector_type("
          << T->getNumElements() << "))) ";
       break;
-    case clang::VectorType::NeonPolyVector:
+    case clang::VectorKind::NeonPoly:
       OS << "__attribute__((neon_polyvector_type(" <<
             T->getNumElements() << "))) ";
       break;
-    case clang::VectorType::GenericVector: {
+    case clang::VectorKind::Generic: {
       // FIXME: We prefer to print the size directly here, but have no way
       // to get the size of the type.
       OS << "__attribute__((__vector_size__("
@@ -956,13 +959,13 @@ void TypePrinter::printVector(
       OS << ")))) ";
       break;
     }
-    case clang::VectorType::SveFixedLengthDataVector:
-    case clang::VectorType::SveFixedLengthPredicateVector:
+    case clang::VectorKind::SveFixedLengthData:
+    case clang::VectorKind::SveFixedLengthPredicate:
       // FIXME: We prefer to print the size directly here, but have no way
       // to get the size of the type.
       OS << "__attribute__((__arm_sve_vector_bits__(";
 
-      if (T->getVectorKind() == clang::VectorType::SveFixedLengthPredicateVector)
+      if (T->getVectorKind() == clang::VectorKind::SveFixedLengthPredicate)
         // Predicates take a bit per byte of the vector size, multiply by 8 to
         // get the number of bits passed to the attribute.
         OS << T->getNumElements() * 8;
@@ -975,7 +978,7 @@ void TypePrinter::printVector(
       OS << ") * 8))) ";
       break;
 
-    case clang::VectorType::RVVFixedLengthDataVector:
+    case clang::VectorKind::RVVFixedLengthData:
       // FIXME: We prefer to print the size directly here, but have no way
       // to get the size of the type.
       OS << "__attribute__((__riscv_rvv_vector_bits__(";
@@ -987,10 +990,12 @@ void TypePrinter::printVector(
       // Multiply by 8 for the number of bits.
       OS << ") * 8))) ";
       break;
+    case clang::VectorKind::RVVFixedLengthMask:
+      break;
   }
 
   // TODO(pag): Why are altivecpixel types different?
-  if (T->getVectorKind() != clang::VectorType::AltiVecPixel) {
+  if (T->getVectorKind() != clang::VectorKind::AltiVecPixel) {
     printBeforeAfter(T->getElementType(), OS, std::move(IdentFn));
   } else {
     IdentFn();
@@ -1012,26 +1017,26 @@ void TypePrinter::printDependentVector(
   };
 
   switch (T->getVectorKind()) {
-    case clang::VectorType::AltiVecPixel:
+    case clang::VectorKind::AltiVecPixel:
       OS << "__vector __pixel ";
       break;
-    case clang::VectorType::AltiVecBool:
+    case clang::VectorKind::AltiVecBool:
       OS << "__vector __bool ";
       break;
-    case clang::VectorType::AltiVecVector:
+    case clang::VectorKind::AltiVecVector:
       OS << "__vector ";
       break;
-    case clang::VectorType::NeonVector:
+    case clang::VectorKind::Neon:
       OS << "__attribute__((neon_vector_type(";
       SizeFn();
       OS << "))) ";
       break;
-    case clang::VectorType::NeonPolyVector:
+    case clang::VectorKind::NeonPoly:
       OS << "__attribute__((neon_polyvector_type(";
       SizeFn();
       OS << "))) ";
       break;
-    case clang::VectorType::GenericVector: {
+    case clang::VectorKind::Generic: {
       // FIXME: We prefer to print the size directly here, but have no way
       // to get the size of the type.
       OS << "__attribute__((__vector_size__(";
@@ -1041,14 +1046,14 @@ void TypePrinter::printDependentVector(
       OS << ")))) ";
       break;
     }
-    case clang::VectorType::SveFixedLengthDataVector:
-    case clang::VectorType::SveFixedLengthPredicateVector:
+    case clang::VectorKind::SveFixedLengthData:
+    case clang::VectorKind::SveFixedLengthPredicate:
       // FIXME: We prefer to print the size directly here, but have no way
       // to get the size of the type.
       OS << "__attribute__((__arm_sve_vector_bits__(";
       SizeFn();
 
-      if (T->getVectorKind() == clang::VectorType::SveFixedLengthPredicateVector)
+      if (T->getVectorKind() == clang::VectorKind::SveFixedLengthPredicate)
         // Predicates take a bit per byte of the vector size, multiply by 8 to
         // get the number of bits passed to the attribute.
         OS << " * 8";
@@ -1058,7 +1063,7 @@ void TypePrinter::printDependentVector(
       // Multiply by 8 for the number of bits.
       OS << ") * 8))) ";
       break;
-    case clang::VectorType::RVVFixedLengthDataVector:
+    case clang::VectorKind::RVVFixedLengthData:
       // FIXME: We prefer to print the size directly here, but have no way
       // to get the size of the type.
       OS << "__attribute__((__riscv_rvv_vector_bits__(";
@@ -1071,10 +1076,13 @@ void TypePrinter::printDependentVector(
       }
       OS << "))) ";
       break;
+
+    case clang::VectorKind::RVVFixedLengthMask:
+      break;
   }
 
   // TODO(pag): Why are altivecpixel types different?
-  if (T->getVectorKind() != clang::VectorType::AltiVecPixel) {
+  if (T->getVectorKind() != clang::VectorKind::AltiVecPixel) {
     printBeforeAfter(T->getElementType(), OS, std::move(IdentFn));
   } else {
     IdentFn();
@@ -1388,6 +1396,9 @@ void TypePrinter::printFunctionAfter(const clang::FunctionType::ExtInfo &Info,
       break;
     case clang::CC_PreserveAll:
       OS << " __attribute__((preserve_all))";
+      break;
+    case clang::CC_M68kRTD:
+      // Do nothing
       break;
     }
   }
@@ -2007,7 +2018,7 @@ void TypePrinter::printElaborated(const clang::ElaboratedType *T,
 
     // The tag definition will take care of these.
     OS << clang::TypeWithKeyword::getKeywordName(T->getKeyword());
-    if (T->getKeyword() != clang::ETK_None)
+    if (T->getKeyword() != clang::ElaboratedTypeKeyword::None)
       OS << " ";
 
     if (clang::NestedNameSpecifier *Qualifier = T->getQualifier())
@@ -2041,7 +2052,7 @@ void TypePrinter::printDependentName(const clang::DependentNameType *T,
                                      std::function<void(void)> IdentFn) {
   TokenPrinterContext ctx(OS, T, tokens);
   OS << clang::TypeWithKeyword::getKeywordName(T->getKeyword());
-  if (T->getKeyword() != clang::ETK_None)
+  if (T->getKeyword() != clang::ElaboratedTypeKeyword::None)
     OS << " ";
 
   TagDefinitionPolicyRAII disable_tags(Policy);
@@ -2061,7 +2072,7 @@ void TypePrinter::printDependentTemplateSpecialization(
   TagDefinitionPolicyRAII tag_raii(Policy);
 
   OS << clang::TypeWithKeyword::getKeywordName(T->getKeyword());
-  if (T->getKeyword() != clang::ETK_None)
+  if (T->getKeyword() != clang::ElaboratedTypeKeyword::None)
     OS << " ";
 
   TagDefinitionPolicyRAII disable_tags(Policy);
@@ -2180,14 +2191,29 @@ void TypePrinter::printAttributed(const clang::AttributedType *T,
       OS << "__arm_streaming_compatible";
       return;
 
-    case clang::attr::ArmSharedZA:
+    case clang::attr::ArmNew:
       printBeforeAfter(T->getModifiedType(), OS, std::move(IdentFn));
-      OS << "__arm_shared_za";
+      OS << "__arm_new";
       return;
 
-    case clang::attr::ArmPreservesZA:
+    case clang::attr::ArmIn:
       printBeforeAfter(T->getModifiedType(), OS, std::move(IdentFn));
-      OS << "__arm_preserves_za";
+      OS << "__arm_in";
+      return;
+
+    case clang::attr::ArmOut:
+      printBeforeAfter(T->getModifiedType(), OS, std::move(IdentFn));
+      OS << "__arm_out";
+      return;
+
+    case clang::attr::ArmInOut:
+      printBeforeAfter(T->getModifiedType(), OS, std::move(IdentFn));
+      OS << "__arm_inout";
+      return;
+
+    case clang::attr::ArmPreserves:
+      printBeforeAfter(T->getModifiedType(), OS, std::move(IdentFn));
+      OS << "__arm_preserves";
       return;
 #endif
 
@@ -2255,8 +2281,12 @@ void TypePrinter::printAttributed(const clang::AttributedType *T,
         case clang::attr::ArmStreaming:
 #ifdef PASTA_LLVM_18
         case clang::attr::ArmStreamingCompatible:
-        case clang::attr::ArmSharedZA:
-        case clang::attr::ArmPreservesZA:
+        case clang::attr::ArmIn:
+        case clang::attr::ArmOut:
+        case clang::attr::ArmInOut:
+        case clang::attr::ArmPreserves:
+        case clang::attr::HLSLParamModifier:
+        case clang::attr::M68kRTD:
 #endif
           llvm_unreachable("This attribute should have been handled already");
 

@@ -267,7 +267,7 @@ class DeclBoundsFinder : public clang::DeclVisitor<DeclBoundsFinder>,
       return invalid;
     }
 
-    bool expect_braces = false;
+    bool expect_braces __attribute__((unused)) = false;
     auto ret = invalid;
     for (tok.Next(); tok; tok.Next()) {
       switch (tok.Kind()) {
@@ -946,7 +946,7 @@ class DeclBoundsFinder : public clang::DeclVisitor<DeclBoundsFinder>,
       Expand(body->getSourceRange());
 
     } else if (decl->isExplicitlyDefaulted() || decl->isDeletedAsWritten() ||
-               decl->isPure() || decl->hasDefiningAttr()) {
+               decl->isPureVirtual() || decl->hasDefiningAttr()) {
       ExpandToTrailingToken(tok, TokenKind::kSemi);
 
     // In-class declaration of an out-of-line-defined method.
@@ -1564,15 +1564,15 @@ class DeclBoundsFinder : public clang::DeclVisitor<DeclBoundsFinder>,
 
   inline static TokenKind IntroducerTokenKind(clang::TagDecl::TagKind tk) {
     switch (tk) {
-      case clang::TTK_Struct:
+      case clang::TagTypeKind::Struct:
         return TokenKind::kKeywordStruct;
-      case clang::TTK_Interface:
+      case clang::TagTypeKind::Interface:
         return TokenKind::kKeyword__Interface;
-      case clang::TTK_Union:
+      case clang::TagTypeKind::Union:
         return TokenKind::kKeywordUnion;
-      case clang::TTK_Class:
+      case clang::TagTypeKind::Class:
         return TokenKind::kKeywordClass;
-      case clang::TTK_Enum:
+      case clang::TagTypeKind::Enum:
         return TokenKind::kKeywordEnum;
       default:
         return {};
@@ -1625,22 +1625,6 @@ class DeclBoundsFinder : public clang::DeclVisitor<DeclBoundsFinder>,
         clang::isa<clang::ClassTemplateDecl>(decl)) {
       ExpandToTrailingToken(decl->getLocation(), TokenKind::kSemi);
     }
-  }
-
-  void VisitClassScopeFunctionSpecializationDecl(
-      clang::ClassScopeFunctionSpecializationDecl *decl) {
-    Expand(decl->getSourceRange(), decl->getLocation());
-
-    if (auto args = decl->getTemplateArgsAsWritten()) {
-      ExpandToLeadingToken(args->getLAngleLoc(), TokenKind::kKeywordTemplate);
-
-    } else if (auto params = decl->getDescribedTemplateParams()) {
-      Expand(params->getTemplateLoc());
-
-    } else {
-      ExpandToLeadingToken(decl->getLocation(), TokenKind::kKeywordTemplate);
-    }
-    ExpandToTrailingToken(decl->getLocation(), TokenKind::kSemi);
   }
 
   void VisitClassTemplateSpecializationDecl(

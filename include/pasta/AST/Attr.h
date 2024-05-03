@@ -64,9 +64,11 @@ class AttrVisitor {
   virtual void VisitLocksExcludedAttr(const LocksExcludedAttr &);
   virtual void VisitLoopHintAttr(const LoopHintAttr &);
   virtual void VisitM68kInterruptAttr(const M68kInterruptAttr &);
+  virtual void VisitM68kRTDAttr(const M68kRTDAttr &);
   virtual void VisitMIGServerRoutineAttr(const MIGServerRoutineAttr &);
   virtual void VisitMSABIAttr(const MSABIAttr &);
   virtual void VisitMSAllocatorAttr(const MSAllocatorAttr &);
+  virtual void VisitMSConstexprAttr(const MSConstexprAttr &);
   virtual void VisitMSInheritanceAttr(const MSInheritanceAttr &);
   virtual void VisitMSNoVTableAttr(const MSNoVTableAttr &);
   virtual void VisitMSP430InterruptAttr(const MSP430InterruptAttr &);
@@ -175,6 +177,7 @@ class AttrVisitor {
   virtual void VisitPragmaClangRodataSectionAttr(const PragmaClangRodataSectionAttr &);
   virtual void VisitPragmaClangTextSectionAttr(const PragmaClangTextSectionAttr &);
   virtual void VisitPreferredNameAttr(const PreferredNameAttr &);
+  virtual void VisitPreferredTypeAttr(const PreferredTypeAttr &);
   virtual void VisitPreserveAllAttr(const PreserveAllAttr &);
   virtual void VisitPreserveMostAttr(const PreserveMostAttr &);
   virtual void VisitPtGuardedByAttr(const PtGuardedByAttr &);
@@ -209,7 +212,6 @@ class AttrVisitor {
   virtual void VisitStmtAttr(const StmtAttr &);
   virtual void VisitStrictFPAttr(const StrictFPAttr &);
   virtual void VisitStrictGuardStackCheckAttr(const StrictGuardStackCheckAttr &);
-  virtual void VisitSuppressAttr(const SuppressAttr &);
   virtual void VisitSwiftAsyncAttr(const SwiftAsyncAttr &);
   virtual void VisitSwiftAsyncCallAttr(const SwiftAsyncCallAttr &);
   virtual void VisitSwiftAsyncContextAttr(const SwiftAsyncContextAttr &);
@@ -222,11 +224,15 @@ class AttrVisitor {
   virtual void VisitSwiftContextAttr(const SwiftContextAttr &);
   virtual void VisitSwiftErrorAttr(const SwiftErrorAttr &);
   virtual void VisitSwiftErrorResultAttr(const SwiftErrorResultAttr &);
+  virtual void VisitSwiftImportAsNonGenericAttr(const SwiftImportAsNonGenericAttr &);
+  virtual void VisitSwiftImportPropertyAsAccessorsAttr(const SwiftImportPropertyAsAccessorsAttr &);
   virtual void VisitSwiftIndirectResultAttr(const SwiftIndirectResultAttr &);
   virtual void VisitSwiftNameAttr(const SwiftNameAttr &);
   virtual void VisitSwiftNewTypeAttr(const SwiftNewTypeAttr &);
   virtual void VisitSwiftObjCMembersAttr(const SwiftObjCMembersAttr &);
   virtual void VisitSwiftPrivateAttr(const SwiftPrivateAttr &);
+  virtual void VisitSwiftVersionedAdditionAttr(const SwiftVersionedAdditionAttr &);
+  virtual void VisitSwiftVersionedRemovalAttr(const SwiftVersionedRemovalAttr &);
   virtual void VisitSysVABIAttr(const SysVABIAttr &);
   virtual void VisitTLSModelAttr(const TLSModelAttr &);
   virtual void VisitTargetAttr(const TargetAttr &);
@@ -306,8 +312,15 @@ class AttrVisitor {
   virtual void VisitArcWeakrefUnavailableAttr(const ArcWeakrefUnavailableAttr &);
   virtual void VisitArgumentWithTypeTagAttr(const ArgumentWithTypeTagAttr &);
   virtual void VisitArmBuiltinAliasAttr(const ArmBuiltinAliasAttr &);
+  virtual void VisitArmInAttr(const ArmInAttr &);
+  virtual void VisitArmInOutAttr(const ArmInOutAttr &);
+  virtual void VisitArmLocallyStreamingAttr(const ArmLocallyStreamingAttr &);
   virtual void VisitArmMveStrictPolymorphismAttr(const ArmMveStrictPolymorphismAttr &);
+  virtual void VisitArmNewAttr(const ArmNewAttr &);
+  virtual void VisitArmOutAttr(const ArmOutAttr &);
+  virtual void VisitArmPreservesAttr(const ArmPreservesAttr &);
   virtual void VisitArmStreamingAttr(const ArmStreamingAttr &);
+  virtual void VisitArmStreamingCompatibleAttr(const ArmStreamingCompatibleAttr &);
   virtual void VisitArtificialAttr(const ArtificialAttr &);
   virtual void VisitAsmLabelAttr(const AsmLabelAttr &);
   virtual void VisitAssertCapabilityAttr(const AssertCapabilityAttr &);
@@ -318,6 +331,7 @@ class AttrVisitor {
   virtual void VisitAvailabilityAttr(const AvailabilityAttr &);
   virtual void VisitAvailableOnlyInDefaultEvalMethodAttr(const AvailableOnlyInDefaultEvalMethodAttr &);
   virtual void VisitBPFPreserveAccessIndexAttr(const BPFPreserveAccessIndexAttr &);
+  virtual void VisitBPFPreserveStaticOffsetAttr(const BPFPreserveStaticOffsetAttr &);
   virtual void VisitBTFDeclTagAttr(const BTFDeclTagAttr &);
   virtual void VisitBTFTypeTagAttr(const BTFTypeTagAttr &);
   virtual void VisitBlocksAttr(const BlocksAttr &);
@@ -351,6 +365,8 @@ class AttrVisitor {
   virtual void VisitCleanupAttr(const CleanupAttr &);
   virtual void VisitCmseNSCallAttr(const CmseNSCallAttr &);
   virtual void VisitCmseNSEntryAttr(const CmseNSEntryAttr &);
+  virtual void VisitCodeAlignAttr(const CodeAlignAttr &);
+  virtual void VisitCodeModelAttr(const CodeModelAttr &);
   virtual void VisitCodeSegAttr(const CodeSegAttr &);
   virtual void VisitColdAttr(const ColdAttr &);
   virtual void VisitCommonAttr(const CommonAttr &);
@@ -361,6 +377,12 @@ class AttrVisitor {
   virtual void VisitConsumableAutoCastAttr(const ConsumableAutoCastAttr &);
   virtual void VisitConsumableSetOnReadAttr(const ConsumableSetOnReadAttr &);
   virtual void VisitConvergentAttr(const ConvergentAttr &);
+  virtual void VisitCoroDisableLifetimeBoundAttr(const CoroDisableLifetimeBoundAttr &);
+  virtual void VisitCoroLifetimeBoundAttr(const CoroLifetimeBoundAttr &);
+  virtual void VisitCoroOnlyDestroyWhenCompleteAttr(const CoroOnlyDestroyWhenCompleteAttr &);
+  virtual void VisitCoroReturnTypeAttr(const CoroReturnTypeAttr &);
+  virtual void VisitCoroWrapperAttr(const CoroWrapperAttr &);
+  virtual void VisitCountedByAttr(const CountedByAttr &);
   virtual void VisitDLLExportAttr(const DLLExportAttr &);
   virtual void VisitDLLExportStaticLocalAttr(const DLLExportStaticLocalAttr &);
   virtual void VisitDLLImportAttr(const DLLImportAttr &);
@@ -396,6 +418,7 @@ class AttrVisitor {
   virtual void VisitHLSLAnnotationAttr(const HLSLAnnotationAttr &);
   virtual void VisitHLSLGroupSharedAddressSpaceAttr(const HLSLGroupSharedAddressSpaceAttr &);
   virtual void VisitHLSLNumThreadsAttr(const HLSLNumThreadsAttr &);
+  virtual void VisitHLSLParamModifierAttr(const HLSLParamModifierAttr &);
   virtual void VisitHLSLResourceAttr(const HLSLResourceAttr &);
   virtual void VisitHLSLResourceBindingAttr(const HLSLResourceBindingAttr &);
   virtual void VisitHLSLSV_DispatchThreadIDAttr(const HLSLSV_DispatchThreadIDAttr &);
@@ -424,6 +447,7 @@ class AttrVisitor {
   virtual void VisitPtr32Attr(const Ptr32Attr &);
   virtual void VisitPtr64Attr(const Ptr64Attr &);
   virtual void VisitSPtrAttr(const SPtrAttr &);
+  virtual void VisitSuppressAttr(const SuppressAttr &);
   virtual void VisitAlwaysInlineAttr(const AlwaysInlineAttr &);
 };
 
@@ -465,8 +489,15 @@ class Attr {
   PASTA_DECLARE_DERIVED_OPERATORS(Attr, ArcWeakrefUnavailableAttr)
   PASTA_DECLARE_DERIVED_OPERATORS(Attr, ArgumentWithTypeTagAttr)
   PASTA_DECLARE_DERIVED_OPERATORS(Attr, ArmBuiltinAliasAttr)
+  PASTA_DECLARE_DERIVED_OPERATORS(Attr, ArmInAttr)
+  PASTA_DECLARE_DERIVED_OPERATORS(Attr, ArmInOutAttr)
+  PASTA_DECLARE_DERIVED_OPERATORS(Attr, ArmLocallyStreamingAttr)
   PASTA_DECLARE_DERIVED_OPERATORS(Attr, ArmMveStrictPolymorphismAttr)
+  PASTA_DECLARE_DERIVED_OPERATORS(Attr, ArmNewAttr)
+  PASTA_DECLARE_DERIVED_OPERATORS(Attr, ArmOutAttr)
+  PASTA_DECLARE_DERIVED_OPERATORS(Attr, ArmPreservesAttr)
   PASTA_DECLARE_DERIVED_OPERATORS(Attr, ArmStreamingAttr)
+  PASTA_DECLARE_DERIVED_OPERATORS(Attr, ArmStreamingCompatibleAttr)
   PASTA_DECLARE_DERIVED_OPERATORS(Attr, ArtificialAttr)
   PASTA_DECLARE_DERIVED_OPERATORS(Attr, AsmLabelAttr)
   PASTA_DECLARE_DERIVED_OPERATORS(Attr, AssertCapabilityAttr)
@@ -477,6 +508,7 @@ class Attr {
   PASTA_DECLARE_DERIVED_OPERATORS(Attr, AvailabilityAttr)
   PASTA_DECLARE_DERIVED_OPERATORS(Attr, AvailableOnlyInDefaultEvalMethodAttr)
   PASTA_DECLARE_DERIVED_OPERATORS(Attr, BPFPreserveAccessIndexAttr)
+  PASTA_DECLARE_DERIVED_OPERATORS(Attr, BPFPreserveStaticOffsetAttr)
   PASTA_DECLARE_DERIVED_OPERATORS(Attr, BTFDeclTagAttr)
   PASTA_DECLARE_DERIVED_OPERATORS(Attr, BTFTypeTagAttr)
   PASTA_DECLARE_DERIVED_OPERATORS(Attr, BlocksAttr)
@@ -512,6 +544,8 @@ class Attr {
   PASTA_DECLARE_DERIVED_OPERATORS(Attr, CleanupAttr)
   PASTA_DECLARE_DERIVED_OPERATORS(Attr, CmseNSCallAttr)
   PASTA_DECLARE_DERIVED_OPERATORS(Attr, CmseNSEntryAttr)
+  PASTA_DECLARE_DERIVED_OPERATORS(Attr, CodeAlignAttr)
+  PASTA_DECLARE_DERIVED_OPERATORS(Attr, CodeModelAttr)
   PASTA_DECLARE_DERIVED_OPERATORS(Attr, CodeSegAttr)
   PASTA_DECLARE_DERIVED_OPERATORS(Attr, ColdAttr)
   PASTA_DECLARE_DERIVED_OPERATORS(Attr, CommonAttr)
@@ -522,6 +556,12 @@ class Attr {
   PASTA_DECLARE_DERIVED_OPERATORS(Attr, ConsumableAutoCastAttr)
   PASTA_DECLARE_DERIVED_OPERATORS(Attr, ConsumableSetOnReadAttr)
   PASTA_DECLARE_DERIVED_OPERATORS(Attr, ConvergentAttr)
+  PASTA_DECLARE_DERIVED_OPERATORS(Attr, CoroDisableLifetimeBoundAttr)
+  PASTA_DECLARE_DERIVED_OPERATORS(Attr, CoroLifetimeBoundAttr)
+  PASTA_DECLARE_DERIVED_OPERATORS(Attr, CoroOnlyDestroyWhenCompleteAttr)
+  PASTA_DECLARE_DERIVED_OPERATORS(Attr, CoroReturnTypeAttr)
+  PASTA_DECLARE_DERIVED_OPERATORS(Attr, CoroWrapperAttr)
+  PASTA_DECLARE_DERIVED_OPERATORS(Attr, CountedByAttr)
   PASTA_DECLARE_DERIVED_OPERATORS(Attr, DLLExportAttr)
   PASTA_DECLARE_DERIVED_OPERATORS(Attr, DLLExportStaticLocalAttr)
   PASTA_DECLARE_DERIVED_OPERATORS(Attr, DLLImportAttr)
@@ -557,6 +597,7 @@ class Attr {
   PASTA_DECLARE_DERIVED_OPERATORS(Attr, HLSLAnnotationAttr)
   PASTA_DECLARE_DERIVED_OPERATORS(Attr, HLSLGroupSharedAddressSpaceAttr)
   PASTA_DECLARE_DERIVED_OPERATORS(Attr, HLSLNumThreadsAttr)
+  PASTA_DECLARE_DERIVED_OPERATORS(Attr, HLSLParamModifierAttr)
   PASTA_DECLARE_DERIVED_OPERATORS(Attr, HLSLResourceAttr)
   PASTA_DECLARE_DERIVED_OPERATORS(Attr, HLSLResourceBindingAttr)
   PASTA_DECLARE_DERIVED_OPERATORS(Attr, HLSLSV_DispatchThreadIDAttr)
@@ -583,9 +624,11 @@ class Attr {
   PASTA_DECLARE_DERIVED_OPERATORS(Attr, LocksExcludedAttr)
   PASTA_DECLARE_DERIVED_OPERATORS(Attr, LoopHintAttr)
   PASTA_DECLARE_DERIVED_OPERATORS(Attr, M68kInterruptAttr)
+  PASTA_DECLARE_DERIVED_OPERATORS(Attr, M68kRTDAttr)
   PASTA_DECLARE_DERIVED_OPERATORS(Attr, MIGServerRoutineAttr)
   PASTA_DECLARE_DERIVED_OPERATORS(Attr, MSABIAttr)
   PASTA_DECLARE_DERIVED_OPERATORS(Attr, MSAllocatorAttr)
+  PASTA_DECLARE_DERIVED_OPERATORS(Attr, MSConstexprAttr)
   PASTA_DECLARE_DERIVED_OPERATORS(Attr, MSInheritanceAttr)
   PASTA_DECLARE_DERIVED_OPERATORS(Attr, MSNoVTableAttr)
   PASTA_DECLARE_DERIVED_OPERATORS(Attr, MSP430InterruptAttr)
@@ -709,6 +752,7 @@ class Attr {
   PASTA_DECLARE_DERIVED_OPERATORS(Attr, PragmaClangRodataSectionAttr)
   PASTA_DECLARE_DERIVED_OPERATORS(Attr, PragmaClangTextSectionAttr)
   PASTA_DECLARE_DERIVED_OPERATORS(Attr, PreferredNameAttr)
+  PASTA_DECLARE_DERIVED_OPERATORS(Attr, PreferredTypeAttr)
   PASTA_DECLARE_DERIVED_OPERATORS(Attr, PreserveAllAttr)
   PASTA_DECLARE_DERIVED_OPERATORS(Attr, PreserveMostAttr)
   PASTA_DECLARE_DERIVED_OPERATORS(Attr, PtGuardedByAttr)
@@ -759,11 +803,15 @@ class Attr {
   PASTA_DECLARE_DERIVED_OPERATORS(Attr, SwiftContextAttr)
   PASTA_DECLARE_DERIVED_OPERATORS(Attr, SwiftErrorAttr)
   PASTA_DECLARE_DERIVED_OPERATORS(Attr, SwiftErrorResultAttr)
+  PASTA_DECLARE_DERIVED_OPERATORS(Attr, SwiftImportAsNonGenericAttr)
+  PASTA_DECLARE_DERIVED_OPERATORS(Attr, SwiftImportPropertyAsAccessorsAttr)
   PASTA_DECLARE_DERIVED_OPERATORS(Attr, SwiftIndirectResultAttr)
   PASTA_DECLARE_DERIVED_OPERATORS(Attr, SwiftNameAttr)
   PASTA_DECLARE_DERIVED_OPERATORS(Attr, SwiftNewTypeAttr)
   PASTA_DECLARE_DERIVED_OPERATORS(Attr, SwiftObjCMembersAttr)
   PASTA_DECLARE_DERIVED_OPERATORS(Attr, SwiftPrivateAttr)
+  PASTA_DECLARE_DERIVED_OPERATORS(Attr, SwiftVersionedAdditionAttr)
+  PASTA_DECLARE_DERIVED_OPERATORS(Attr, SwiftVersionedRemovalAttr)
   PASTA_DECLARE_DERIVED_OPERATORS(Attr, SysVABIAttr)
   PASTA_DECLARE_DERIVED_OPERATORS(Attr, TLSModelAttr)
   PASTA_DECLARE_DERIVED_OPERATORS(Attr, TargetAttr)
@@ -869,8 +917,15 @@ class Attr {
     const ::clang::ArcWeakrefUnavailableAttr *ArcWeakrefUnavailableAttr;
     const ::clang::ArgumentWithTypeTagAttr *ArgumentWithTypeTagAttr;
     const ::clang::ArmBuiltinAliasAttr *ArmBuiltinAliasAttr;
+    const ::clang::ArmInAttr *ArmInAttr;
+    const ::clang::ArmInOutAttr *ArmInOutAttr;
+    const ::clang::ArmLocallyStreamingAttr *ArmLocallyStreamingAttr;
     const ::clang::ArmMveStrictPolymorphismAttr *ArmMveStrictPolymorphismAttr;
+    const ::clang::ArmNewAttr *ArmNewAttr;
+    const ::clang::ArmOutAttr *ArmOutAttr;
+    const ::clang::ArmPreservesAttr *ArmPreservesAttr;
     const ::clang::ArmStreamingAttr *ArmStreamingAttr;
+    const ::clang::ArmStreamingCompatibleAttr *ArmStreamingCompatibleAttr;
     const ::clang::ArtificialAttr *ArtificialAttr;
     const ::clang::AsmLabelAttr *AsmLabelAttr;
     const ::clang::AssertCapabilityAttr *AssertCapabilityAttr;
@@ -882,6 +937,7 @@ class Attr {
     const ::clang::AvailabilityAttr *AvailabilityAttr;
     const ::clang::AvailableOnlyInDefaultEvalMethodAttr *AvailableOnlyInDefaultEvalMethodAttr;
     const ::clang::BPFPreserveAccessIndexAttr *BPFPreserveAccessIndexAttr;
+    const ::clang::BPFPreserveStaticOffsetAttr *BPFPreserveStaticOffsetAttr;
     const ::clang::BTFDeclTagAttr *BTFDeclTagAttr;
     const ::clang::BTFTypeTagAttr *BTFTypeTagAttr;
     const ::clang::BlocksAttr *BlocksAttr;
@@ -917,6 +973,8 @@ class Attr {
     const ::clang::CleanupAttr *CleanupAttr;
     const ::clang::CmseNSCallAttr *CmseNSCallAttr;
     const ::clang::CmseNSEntryAttr *CmseNSEntryAttr;
+    const ::clang::CodeAlignAttr *CodeAlignAttr;
+    const ::clang::CodeModelAttr *CodeModelAttr;
     const ::clang::CodeSegAttr *CodeSegAttr;
     const ::clang::ColdAttr *ColdAttr;
     const ::clang::CommonAttr *CommonAttr;
@@ -927,6 +985,12 @@ class Attr {
     const ::clang::ConsumableAutoCastAttr *ConsumableAutoCastAttr;
     const ::clang::ConsumableSetOnReadAttr *ConsumableSetOnReadAttr;
     const ::clang::ConvergentAttr *ConvergentAttr;
+    const ::clang::CoroDisableLifetimeBoundAttr *CoroDisableLifetimeBoundAttr;
+    const ::clang::CoroLifetimeBoundAttr *CoroLifetimeBoundAttr;
+    const ::clang::CoroOnlyDestroyWhenCompleteAttr *CoroOnlyDestroyWhenCompleteAttr;
+    const ::clang::CoroReturnTypeAttr *CoroReturnTypeAttr;
+    const ::clang::CoroWrapperAttr *CoroWrapperAttr;
+    const ::clang::CountedByAttr *CountedByAttr;
     const ::clang::DLLExportAttr *DLLExportAttr;
     const ::clang::DLLExportStaticLocalAttr *DLLExportStaticLocalAttr;
     const ::clang::DLLImportAttr *DLLImportAttr;
@@ -962,6 +1026,7 @@ class Attr {
     const ::clang::HLSLAnnotationAttr *HLSLAnnotationAttr;
     const ::clang::HLSLGroupSharedAddressSpaceAttr *HLSLGroupSharedAddressSpaceAttr;
     const ::clang::HLSLNumThreadsAttr *HLSLNumThreadsAttr;
+    const ::clang::HLSLParamModifierAttr *HLSLParamModifierAttr;
     const ::clang::HLSLResourceAttr *HLSLResourceAttr;
     const ::clang::HLSLResourceBindingAttr *HLSLResourceBindingAttr;
     const ::clang::HLSLSV_DispatchThreadIDAttr *HLSLSV_DispatchThreadIDAttr;
@@ -988,9 +1053,11 @@ class Attr {
     const ::clang::LocksExcludedAttr *LocksExcludedAttr;
     const ::clang::LoopHintAttr *LoopHintAttr;
     const ::clang::M68kInterruptAttr *M68kInterruptAttr;
+    const ::clang::M68kRTDAttr *M68kRTDAttr;
     const ::clang::MIGServerRoutineAttr *MIGServerRoutineAttr;
     const ::clang::MSABIAttr *MSABIAttr;
     const ::clang::MSAllocatorAttr *MSAllocatorAttr;
+    const ::clang::MSConstexprAttr *MSConstexprAttr;
     const ::clang::MSInheritanceAttr *MSInheritanceAttr;
     const ::clang::MSNoVTableAttr *MSNoVTableAttr;
     const ::clang::MSP430InterruptAttr *MSP430InterruptAttr;
@@ -1114,6 +1181,7 @@ class Attr {
     const ::clang::PragmaClangRodataSectionAttr *PragmaClangRodataSectionAttr;
     const ::clang::PragmaClangTextSectionAttr *PragmaClangTextSectionAttr;
     const ::clang::PreferredNameAttr *PreferredNameAttr;
+    const ::clang::PreferredTypeAttr *PreferredTypeAttr;
     const ::clang::PreserveAllAttr *PreserveAllAttr;
     const ::clang::PreserveMostAttr *PreserveMostAttr;
     const ::clang::PtGuardedByAttr *PtGuardedByAttr;
@@ -1164,11 +1232,15 @@ class Attr {
     const ::clang::SwiftContextAttr *SwiftContextAttr;
     const ::clang::SwiftErrorAttr *SwiftErrorAttr;
     const ::clang::SwiftErrorResultAttr *SwiftErrorResultAttr;
+    const ::clang::SwiftImportAsNonGenericAttr *SwiftImportAsNonGenericAttr;
+    const ::clang::SwiftImportPropertyAsAccessorsAttr *SwiftImportPropertyAsAccessorsAttr;
     const ::clang::SwiftIndirectResultAttr *SwiftIndirectResultAttr;
     const ::clang::SwiftNameAttr *SwiftNameAttr;
     const ::clang::SwiftNewTypeAttr *SwiftNewTypeAttr;
     const ::clang::SwiftObjCMembersAttr *SwiftObjCMembersAttr;
     const ::clang::SwiftPrivateAttr *SwiftPrivateAttr;
+    const ::clang::SwiftVersionedAdditionAttr *SwiftVersionedAdditionAttr;
+    const ::clang::SwiftVersionedRemovalAttr *SwiftVersionedRemovalAttr;
     const ::clang::SysVABIAttr *SysVABIAttr;
     const ::clang::TLSModelAttr *TLSModelAttr;
     const ::clang::TargetAttr *TargetAttr;
@@ -1309,6 +1381,8 @@ class InheritableAttr : public Attr {
   PASTA_DECLARE_DERIVED_OPERATORS(InheritableAttr, ArcWeakrefUnavailableAttr)
   PASTA_DECLARE_DERIVED_OPERATORS(InheritableAttr, ArgumentWithTypeTagAttr)
   PASTA_DECLARE_DERIVED_OPERATORS(InheritableAttr, ArmBuiltinAliasAttr)
+  PASTA_DECLARE_DERIVED_OPERATORS(InheritableAttr, ArmLocallyStreamingAttr)
+  PASTA_DECLARE_DERIVED_OPERATORS(InheritableAttr, ArmNewAttr)
   PASTA_DECLARE_DERIVED_OPERATORS(InheritableAttr, ArtificialAttr)
   PASTA_DECLARE_DERIVED_OPERATORS(InheritableAttr, AsmLabelAttr)
   PASTA_DECLARE_DERIVED_OPERATORS(InheritableAttr, AssertCapabilityAttr)
@@ -1319,6 +1393,7 @@ class InheritableAttr : public Attr {
   PASTA_DECLARE_DERIVED_OPERATORS(InheritableAttr, AvailabilityAttr)
   PASTA_DECLARE_DERIVED_OPERATORS(InheritableAttr, AvailableOnlyInDefaultEvalMethodAttr)
   PASTA_DECLARE_DERIVED_OPERATORS(InheritableAttr, BPFPreserveAccessIndexAttr)
+  PASTA_DECLARE_DERIVED_OPERATORS(InheritableAttr, BPFPreserveStaticOffsetAttr)
   PASTA_DECLARE_DERIVED_OPERATORS(InheritableAttr, BTFDeclTagAttr)
   PASTA_DECLARE_DERIVED_OPERATORS(InheritableAttr, BlocksAttr)
   PASTA_DECLARE_DERIVED_OPERATORS(InheritableAttr, BuiltinAttr)
@@ -1350,6 +1425,7 @@ class InheritableAttr : public Attr {
   PASTA_DECLARE_DERIVED_OPERATORS(InheritableAttr, CarriesDependencyAttr)
   PASTA_DECLARE_DERIVED_OPERATORS(InheritableAttr, CleanupAttr)
   PASTA_DECLARE_DERIVED_OPERATORS(InheritableAttr, CmseNSEntryAttr)
+  PASTA_DECLARE_DERIVED_OPERATORS(InheritableAttr, CodeModelAttr)
   PASTA_DECLARE_DERIVED_OPERATORS(InheritableAttr, CodeSegAttr)
   PASTA_DECLARE_DERIVED_OPERATORS(InheritableAttr, ColdAttr)
   PASTA_DECLARE_DERIVED_OPERATORS(InheritableAttr, CommonAttr)
@@ -1360,6 +1436,12 @@ class InheritableAttr : public Attr {
   PASTA_DECLARE_DERIVED_OPERATORS(InheritableAttr, ConsumableAutoCastAttr)
   PASTA_DECLARE_DERIVED_OPERATORS(InheritableAttr, ConsumableSetOnReadAttr)
   PASTA_DECLARE_DERIVED_OPERATORS(InheritableAttr, ConvergentAttr)
+  PASTA_DECLARE_DERIVED_OPERATORS(InheritableAttr, CoroDisableLifetimeBoundAttr)
+  PASTA_DECLARE_DERIVED_OPERATORS(InheritableAttr, CoroLifetimeBoundAttr)
+  PASTA_DECLARE_DERIVED_OPERATORS(InheritableAttr, CoroOnlyDestroyWhenCompleteAttr)
+  PASTA_DECLARE_DERIVED_OPERATORS(InheritableAttr, CoroReturnTypeAttr)
+  PASTA_DECLARE_DERIVED_OPERATORS(InheritableAttr, CoroWrapperAttr)
+  PASTA_DECLARE_DERIVED_OPERATORS(InheritableAttr, CountedByAttr)
   PASTA_DECLARE_DERIVED_OPERATORS(InheritableAttr, DLLExportAttr)
   PASTA_DECLARE_DERIVED_OPERATORS(InheritableAttr, DLLExportStaticLocalAttr)
   PASTA_DECLARE_DERIVED_OPERATORS(InheritableAttr, DLLImportAttr)
@@ -1413,9 +1495,11 @@ class InheritableAttr : public Attr {
   PASTA_DECLARE_DERIVED_OPERATORS(InheritableAttr, LockReturnedAttr)
   PASTA_DECLARE_DERIVED_OPERATORS(InheritableAttr, LocksExcludedAttr)
   PASTA_DECLARE_DERIVED_OPERATORS(InheritableAttr, M68kInterruptAttr)
+  PASTA_DECLARE_DERIVED_OPERATORS(InheritableAttr, M68kRTDAttr)
   PASTA_DECLARE_DERIVED_OPERATORS(InheritableAttr, MIGServerRoutineAttr)
   PASTA_DECLARE_DERIVED_OPERATORS(InheritableAttr, MSABIAttr)
   PASTA_DECLARE_DERIVED_OPERATORS(InheritableAttr, MSAllocatorAttr)
+  PASTA_DECLARE_DERIVED_OPERATORS(InheritableAttr, MSConstexprAttr)
   PASTA_DECLARE_DERIVED_OPERATORS(InheritableAttr, MSInheritanceAttr)
   PASTA_DECLARE_DERIVED_OPERATORS(InheritableAttr, MSNoVTableAttr)
   PASTA_DECLARE_DERIVED_OPERATORS(InheritableAttr, MSP430InterruptAttr)
@@ -1509,6 +1593,7 @@ class InheritableAttr : public Attr {
   PASTA_DECLARE_DERIVED_OPERATORS(InheritableAttr, PragmaClangRodataSectionAttr)
   PASTA_DECLARE_DERIVED_OPERATORS(InheritableAttr, PragmaClangTextSectionAttr)
   PASTA_DECLARE_DERIVED_OPERATORS(InheritableAttr, PreferredNameAttr)
+  PASTA_DECLARE_DERIVED_OPERATORS(InheritableAttr, PreferredTypeAttr)
   PASTA_DECLARE_DERIVED_OPERATORS(InheritableAttr, PreserveAllAttr)
   PASTA_DECLARE_DERIVED_OPERATORS(InheritableAttr, PreserveMostAttr)
   PASTA_DECLARE_DERIVED_OPERATORS(InheritableAttr, PtGuardedByAttr)
@@ -1541,6 +1626,7 @@ class InheritableAttr : public Attr {
   PASTA_DECLARE_DERIVED_OPERATORS(InheritableAttr, StdCallAttr)
   PASTA_DECLARE_DERIVED_OPERATORS(InheritableAttr, StrictFPAttr)
   PASTA_DECLARE_DERIVED_OPERATORS(InheritableAttr, StrictGuardStackCheckAttr)
+  PASTA_DECLARE_DERIVED_OPERATORS(InheritableAttr, SuppressAttr)
   PASTA_DECLARE_DERIVED_OPERATORS(InheritableAttr, SwiftAsyncAttr)
   PASTA_DECLARE_DERIVED_OPERATORS(InheritableAttr, SwiftAsyncCallAttr)
   PASTA_DECLARE_DERIVED_OPERATORS(InheritableAttr, SwiftAsyncContextAttr)
@@ -1553,6 +1639,8 @@ class InheritableAttr : public Attr {
   PASTA_DECLARE_DERIVED_OPERATORS(InheritableAttr, SwiftContextAttr)
   PASTA_DECLARE_DERIVED_OPERATORS(InheritableAttr, SwiftErrorAttr)
   PASTA_DECLARE_DERIVED_OPERATORS(InheritableAttr, SwiftErrorResultAttr)
+  PASTA_DECLARE_DERIVED_OPERATORS(InheritableAttr, SwiftImportAsNonGenericAttr)
+  PASTA_DECLARE_DERIVED_OPERATORS(InheritableAttr, SwiftImportPropertyAsAccessorsAttr)
   PASTA_DECLARE_DERIVED_OPERATORS(InheritableAttr, SwiftIndirectResultAttr)
   PASTA_DECLARE_DERIVED_OPERATORS(InheritableAttr, SwiftNameAttr)
   PASTA_DECLARE_DERIVED_OPERATORS(InheritableAttr, SwiftNewTypeAttr)
@@ -1820,6 +1908,20 @@ class M68kInterruptAttr : public InheritableAttr {
 
 static_assert(sizeof(Attr) == sizeof(M68kInterruptAttr));
 
+class M68kRTDAttr : public InheritableAttr {
+ private:
+  using InheritableAttr::From;
+ public:
+  PASTA_DECLARE_DEFAULT_CONSTRUCTORS(M68kRTDAttr)
+  PASTA_DECLARE_BASE_OPERATORS(Attr, M68kRTDAttr)
+  PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, M68kRTDAttr)
+  std::string_view Spelling(void) const;
+ protected:
+  PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(M68kRTDAttr)
+};
+
+static_assert(sizeof(Attr) == sizeof(M68kRTDAttr));
+
 class MIGServerRoutineAttr : public InheritableAttr {
  private:
   using InheritableAttr::From;
@@ -1861,6 +1963,20 @@ class MSAllocatorAttr : public InheritableAttr {
 };
 
 static_assert(sizeof(Attr) == sizeof(MSAllocatorAttr));
+
+class MSConstexprAttr : public InheritableAttr {
+ private:
+  using InheritableAttr::From;
+ public:
+  PASTA_DECLARE_DEFAULT_CONSTRUCTORS(MSConstexprAttr)
+  PASTA_DECLARE_BASE_OPERATORS(Attr, MSConstexprAttr)
+  PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, MSConstexprAttr)
+  std::string_view Spelling(void) const;
+ protected:
+  PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(MSConstexprAttr)
+};
+
+static_assert(sizeof(Attr) == sizeof(MSConstexprAttr));
 
 class MSInheritanceAttr : public InheritableAttr {
  private:
@@ -2133,7 +2249,7 @@ class NSErrorDomainAttr : public InheritableAttr {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(NSErrorDomainAttr)
   PASTA_DECLARE_BASE_OPERATORS(Attr, NSErrorDomainAttr)
   PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, NSErrorDomainAttr)
-  ::pasta::VarDecl ErrorDomain(void) const;
+  // ErrorDomain: (clang::IdentifierInfo *)
   std::string_view Spelling(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(NSErrorDomainAttr)
@@ -3454,6 +3570,22 @@ class PreferredNameAttr : public InheritableAttr {
 
 static_assert(sizeof(Attr) == sizeof(PreferredNameAttr));
 
+class PreferredTypeAttr : public InheritableAttr {
+ private:
+  using InheritableAttr::From;
+ public:
+  PASTA_DECLARE_DEFAULT_CONSTRUCTORS(PreferredTypeAttr)
+  PASTA_DECLARE_BASE_OPERATORS(Attr, PreferredTypeAttr)
+  PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, PreferredTypeAttr)
+  std::string_view Spelling(void) const;
+  ::pasta::Type Type(void) const;
+  ::pasta::Type TypeToken(void) const;
+ protected:
+  PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(PreferredTypeAttr)
+};
+
+static_assert(sizeof(Attr) == sizeof(PreferredTypeAttr));
+
 class PreserveAllAttr : public InheritableAttr {
  private:
   using InheritableAttr::From;
@@ -3918,11 +4050,11 @@ class StmtAttr : public Attr {
  public:
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(StmtAttr)
   PASTA_DECLARE_BASE_OPERATORS(Attr, StmtAttr)
+  PASTA_DECLARE_DERIVED_OPERATORS(StmtAttr, CodeAlignAttr)
   PASTA_DECLARE_DERIVED_OPERATORS(StmtAttr, FallThroughAttr)
   PASTA_DECLARE_DERIVED_OPERATORS(StmtAttr, LikelyAttr)
   PASTA_DECLARE_DERIVED_OPERATORS(StmtAttr, MustTailAttr)
   PASTA_DECLARE_DERIVED_OPERATORS(StmtAttr, OpenCLUnrollHintAttr)
-  PASTA_DECLARE_DERIVED_OPERATORS(StmtAttr, SuppressAttr)
   PASTA_DECLARE_DERIVED_OPERATORS(StmtAttr, UnlikelyAttr)
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(StmtAttr)
@@ -3957,21 +4089,6 @@ class StrictGuardStackCheckAttr : public InheritableAttr {
 };
 
 static_assert(sizeof(Attr) == sizeof(StrictGuardStackCheckAttr));
-
-class SuppressAttr : public StmtAttr {
- private:
-  using StmtAttr::From;
- public:
-  PASTA_DECLARE_DEFAULT_CONSTRUCTORS(SuppressAttr)
-  PASTA_DECLARE_BASE_OPERATORS(Attr, SuppressAttr)
-  PASTA_DECLARE_BASE_OPERATORS(StmtAttr, SuppressAttr)
-  // DiagnosticIdentifiers: (llvm::iterator_range<llvm::StringRef *>)
-  std::string_view Spelling(void) const;
- protected:
-  PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(SuppressAttr)
-};
-
-static_assert(sizeof(Attr) == sizeof(SuppressAttr));
 
 class SwiftAsyncAttr : public InheritableAttr {
  private:
@@ -4158,6 +4275,34 @@ class SwiftErrorResultAttr : public ParameterABIAttr {
 
 static_assert(sizeof(Attr) == sizeof(SwiftErrorResultAttr));
 
+class SwiftImportAsNonGenericAttr : public InheritableAttr {
+ private:
+  using InheritableAttr::From;
+ public:
+  PASTA_DECLARE_DEFAULT_CONSTRUCTORS(SwiftImportAsNonGenericAttr)
+  PASTA_DECLARE_BASE_OPERATORS(Attr, SwiftImportAsNonGenericAttr)
+  PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, SwiftImportAsNonGenericAttr)
+  std::string_view Spelling(void) const;
+ protected:
+  PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(SwiftImportAsNonGenericAttr)
+};
+
+static_assert(sizeof(Attr) == sizeof(SwiftImportAsNonGenericAttr));
+
+class SwiftImportPropertyAsAccessorsAttr : public InheritableAttr {
+ private:
+  using InheritableAttr::From;
+ public:
+  PASTA_DECLARE_DEFAULT_CONSTRUCTORS(SwiftImportPropertyAsAccessorsAttr)
+  PASTA_DECLARE_BASE_OPERATORS(Attr, SwiftImportPropertyAsAccessorsAttr)
+  PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, SwiftImportPropertyAsAccessorsAttr)
+  std::string_view Spelling(void) const;
+ protected:
+  PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(SwiftImportPropertyAsAccessorsAttr)
+};
+
+static_assert(sizeof(Attr) == sizeof(SwiftImportPropertyAsAccessorsAttr));
+
 class SwiftIndirectResultAttr : public ParameterABIAttr {
  private:
   using ParameterABIAttr::From;
@@ -4232,6 +4377,39 @@ class SwiftPrivateAttr : public InheritableAttr {
 };
 
 static_assert(sizeof(Attr) == sizeof(SwiftPrivateAttr));
+
+class SwiftVersionedAdditionAttr : public Attr {
+ private:
+  using Attr::From;
+ public:
+  PASTA_DECLARE_DEFAULT_CONSTRUCTORS(SwiftVersionedAdditionAttr)
+  PASTA_DECLARE_BASE_OPERATORS(Attr, SwiftVersionedAdditionAttr)
+  ::pasta::Attr AdditionalAttribute(void) const;
+  bool IsReplacedByActive(void) const;
+  std::string_view Spelling(void) const;
+  // Version: (llvm::VersionTuple)
+ protected:
+  PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(SwiftVersionedAdditionAttr)
+};
+
+static_assert(sizeof(Attr) == sizeof(SwiftVersionedAdditionAttr));
+
+class SwiftVersionedRemovalAttr : public Attr {
+ private:
+  using Attr::From;
+ public:
+  PASTA_DECLARE_DEFAULT_CONSTRUCTORS(SwiftVersionedRemovalAttr)
+  PASTA_DECLARE_BASE_OPERATORS(Attr, SwiftVersionedRemovalAttr)
+  enum ::pasta::AttrKind AttributeKindToRemove(void) const;
+  bool IsReplacedByActive(void) const;
+  uint32_t RawKind(void) const;
+  std::string_view Spelling(void) const;
+  // Version: (llvm::VersionTuple)
+ protected:
+  PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(SwiftVersionedRemovalAttr)
+};
+
+static_assert(sizeof(Attr) == sizeof(SwiftVersionedRemovalAttr));
 
 class SysVABIAttr : public InheritableAttr {
  private:
@@ -4413,11 +4591,17 @@ class TypeAttr : public Attr {
   PASTA_DECLARE_BASE_OPERATORS(Attr, TypeAttr)
   PASTA_DECLARE_DERIVED_OPERATORS(TypeAttr, AddressSpaceAttr)
   PASTA_DECLARE_DERIVED_OPERATORS(TypeAttr, AnnotateTypeAttr)
+  PASTA_DECLARE_DERIVED_OPERATORS(TypeAttr, ArmInAttr)
+  PASTA_DECLARE_DERIVED_OPERATORS(TypeAttr, ArmInOutAttr)
   PASTA_DECLARE_DERIVED_OPERATORS(TypeAttr, ArmMveStrictPolymorphismAttr)
+  PASTA_DECLARE_DERIVED_OPERATORS(TypeAttr, ArmOutAttr)
+  PASTA_DECLARE_DERIVED_OPERATORS(TypeAttr, ArmPreservesAttr)
   PASTA_DECLARE_DERIVED_OPERATORS(TypeAttr, ArmStreamingAttr)
+  PASTA_DECLARE_DERIVED_OPERATORS(TypeAttr, ArmStreamingCompatibleAttr)
   PASTA_DECLARE_DERIVED_OPERATORS(TypeAttr, BTFTypeTagAttr)
   PASTA_DECLARE_DERIVED_OPERATORS(TypeAttr, CmseNSCallAttr)
   PASTA_DECLARE_DERIVED_OPERATORS(TypeAttr, HLSLGroupSharedAddressSpaceAttr)
+  PASTA_DECLARE_DERIVED_OPERATORS(TypeAttr, HLSLParamModifierAttr)
   PASTA_DECLARE_DERIVED_OPERATORS(TypeAttr, NoDerefAttr)
   PASTA_DECLARE_DERIVED_OPERATORS(TypeAttr, ObjCGCAttr)
   PASTA_DECLARE_DERIVED_OPERATORS(TypeAttr, ObjCInertUnsafeUnretainedAttr)
@@ -5467,6 +5651,50 @@ class ArmBuiltinAliasAttr : public InheritableAttr {
 
 static_assert(sizeof(Attr) == sizeof(ArmBuiltinAliasAttr));
 
+class ArmInAttr : public TypeAttr {
+ private:
+  using TypeAttr::From;
+ public:
+  PASTA_DECLARE_DEFAULT_CONSTRUCTORS(ArmInAttr)
+  PASTA_DECLARE_BASE_OPERATORS(Attr, ArmInAttr)
+  PASTA_DECLARE_BASE_OPERATORS(TypeAttr, ArmInAttr)
+  std::string_view Spelling(void) const;
+  // InArguments: (llvm::iterator_range<llvm::StringRef *>)
+ protected:
+  PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(ArmInAttr)
+};
+
+static_assert(sizeof(Attr) == sizeof(ArmInAttr));
+
+class ArmInOutAttr : public TypeAttr {
+ private:
+  using TypeAttr::From;
+ public:
+  PASTA_DECLARE_DEFAULT_CONSTRUCTORS(ArmInOutAttr)
+  PASTA_DECLARE_BASE_OPERATORS(Attr, ArmInOutAttr)
+  PASTA_DECLARE_BASE_OPERATORS(TypeAttr, ArmInOutAttr)
+  std::string_view Spelling(void) const;
+  // InOutArguments: (llvm::iterator_range<llvm::StringRef *>)
+ protected:
+  PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(ArmInOutAttr)
+};
+
+static_assert(sizeof(Attr) == sizeof(ArmInOutAttr));
+
+class ArmLocallyStreamingAttr : public InheritableAttr {
+ private:
+  using InheritableAttr::From;
+ public:
+  PASTA_DECLARE_DEFAULT_CONSTRUCTORS(ArmLocallyStreamingAttr)
+  PASTA_DECLARE_BASE_OPERATORS(Attr, ArmLocallyStreamingAttr)
+  PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, ArmLocallyStreamingAttr)
+  std::string_view Spelling(void) const;
+ protected:
+  PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(ArmLocallyStreamingAttr)
+};
+
+static_assert(sizeof(Attr) == sizeof(ArmLocallyStreamingAttr));
+
 class ArmMveStrictPolymorphismAttr : public TypeAttr {
  private:
   using TypeAttr::From;
@@ -5481,6 +5709,53 @@ class ArmMveStrictPolymorphismAttr : public TypeAttr {
 
 static_assert(sizeof(Attr) == sizeof(ArmMveStrictPolymorphismAttr));
 
+class ArmNewAttr : public InheritableAttr {
+ private:
+  using InheritableAttr::From;
+ public:
+  PASTA_DECLARE_DEFAULT_CONSTRUCTORS(ArmNewAttr)
+  PASTA_DECLARE_BASE_OPERATORS(Attr, ArmNewAttr)
+  PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, ArmNewAttr)
+  std::string_view Spelling(void) const;
+  bool IsNewZA(void) const;
+  bool IsNewZT0(void) const;
+  // NewArguments: (llvm::iterator_range<llvm::StringRef *>)
+ protected:
+  PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(ArmNewAttr)
+};
+
+static_assert(sizeof(Attr) == sizeof(ArmNewAttr));
+
+class ArmOutAttr : public TypeAttr {
+ private:
+  using TypeAttr::From;
+ public:
+  PASTA_DECLARE_DEFAULT_CONSTRUCTORS(ArmOutAttr)
+  PASTA_DECLARE_BASE_OPERATORS(Attr, ArmOutAttr)
+  PASTA_DECLARE_BASE_OPERATORS(TypeAttr, ArmOutAttr)
+  std::string_view Spelling(void) const;
+  // OutArguments: (llvm::iterator_range<llvm::StringRef *>)
+ protected:
+  PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(ArmOutAttr)
+};
+
+static_assert(sizeof(Attr) == sizeof(ArmOutAttr));
+
+class ArmPreservesAttr : public TypeAttr {
+ private:
+  using TypeAttr::From;
+ public:
+  PASTA_DECLARE_DEFAULT_CONSTRUCTORS(ArmPreservesAttr)
+  PASTA_DECLARE_BASE_OPERATORS(Attr, ArmPreservesAttr)
+  PASTA_DECLARE_BASE_OPERATORS(TypeAttr, ArmPreservesAttr)
+  std::string_view Spelling(void) const;
+  // PreserveArguments: (llvm::iterator_range<llvm::StringRef *>)
+ protected:
+  PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(ArmPreservesAttr)
+};
+
+static_assert(sizeof(Attr) == sizeof(ArmPreservesAttr));
+
 class ArmStreamingAttr : public TypeAttr {
  private:
   using TypeAttr::From;
@@ -5494,6 +5769,20 @@ class ArmStreamingAttr : public TypeAttr {
 };
 
 static_assert(sizeof(Attr) == sizeof(ArmStreamingAttr));
+
+class ArmStreamingCompatibleAttr : public TypeAttr {
+ private:
+  using TypeAttr::From;
+ public:
+  PASTA_DECLARE_DEFAULT_CONSTRUCTORS(ArmStreamingCompatibleAttr)
+  PASTA_DECLARE_BASE_OPERATORS(Attr, ArmStreamingCompatibleAttr)
+  PASTA_DECLARE_BASE_OPERATORS(TypeAttr, ArmStreamingCompatibleAttr)
+  std::string_view Spelling(void) const;
+ protected:
+  PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(ArmStreamingCompatibleAttr)
+};
+
+static_assert(sizeof(Attr) == sizeof(ArmStreamingCompatibleAttr));
 
 class ArtificialAttr : public InheritableAttr {
  private:
@@ -5658,6 +5947,20 @@ class BPFPreserveAccessIndexAttr : public InheritableAttr {
 };
 
 static_assert(sizeof(Attr) == sizeof(BPFPreserveAccessIndexAttr));
+
+class BPFPreserveStaticOffsetAttr : public InheritableAttr {
+ private:
+  using InheritableAttr::From;
+ public:
+  PASTA_DECLARE_DEFAULT_CONSTRUCTORS(BPFPreserveStaticOffsetAttr)
+  PASTA_DECLARE_BASE_OPERATORS(Attr, BPFPreserveStaticOffsetAttr)
+  PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, BPFPreserveStaticOffsetAttr)
+  std::string_view Spelling(void) const;
+ protected:
+  PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(BPFPreserveStaticOffsetAttr)
+};
+
+static_assert(sizeof(Attr) == sizeof(BPFPreserveStaticOffsetAttr));
 
 class BTFDeclTagAttr : public InheritableAttr {
  private:
@@ -5985,6 +6288,7 @@ class CUDALaunchBoundsAttr : public InheritableAttr {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(CUDALaunchBoundsAttr)
   PASTA_DECLARE_BASE_OPERATORS(Attr, CUDALaunchBoundsAttr)
   PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, CUDALaunchBoundsAttr)
+  ::pasta::Expr MaxBlocks(void) const;
   ::pasta::Expr MaxThreads(void) const;
   ::pasta::Expr MinBlocks(void) const;
   std::string_view Spelling(void) const;
@@ -6143,6 +6447,36 @@ class CmseNSEntryAttr : public InheritableAttr {
 
 static_assert(sizeof(Attr) == sizeof(CmseNSEntryAttr));
 
+class CodeAlignAttr : public StmtAttr {
+ private:
+  using StmtAttr::From;
+ public:
+  PASTA_DECLARE_DEFAULT_CONSTRUCTORS(CodeAlignAttr)
+  PASTA_DECLARE_BASE_OPERATORS(Attr, CodeAlignAttr)
+  PASTA_DECLARE_BASE_OPERATORS(StmtAttr, CodeAlignAttr)
+  ::pasta::Expr Alignment(void) const;
+  std::string_view Spelling(void) const;
+ protected:
+  PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(CodeAlignAttr)
+};
+
+static_assert(sizeof(Attr) == sizeof(CodeAlignAttr));
+
+class CodeModelAttr : public InheritableAttr {
+ private:
+  using InheritableAttr::From;
+ public:
+  PASTA_DECLARE_DEFAULT_CONSTRUCTORS(CodeModelAttr)
+  PASTA_DECLARE_BASE_OPERATORS(Attr, CodeModelAttr)
+  PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, CodeModelAttr)
+  // Model: (llvm::CodeModel::Model)
+  std::string_view Spelling(void) const;
+ protected:
+  PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(CodeModelAttr)
+};
+
+static_assert(sizeof(Attr) == sizeof(CodeModelAttr));
+
 class CodeSegAttr : public InheritableAttr {
  private:
   using InheritableAttr::From;
@@ -6289,6 +6623,92 @@ class ConvergentAttr : public InheritableAttr {
 
 static_assert(sizeof(Attr) == sizeof(ConvergentAttr));
 
+class CoroDisableLifetimeBoundAttr : public InheritableAttr {
+ private:
+  using InheritableAttr::From;
+ public:
+  PASTA_DECLARE_DEFAULT_CONSTRUCTORS(CoroDisableLifetimeBoundAttr)
+  PASTA_DECLARE_BASE_OPERATORS(Attr, CoroDisableLifetimeBoundAttr)
+  PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, CoroDisableLifetimeBoundAttr)
+  std::string_view Spelling(void) const;
+ protected:
+  PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(CoroDisableLifetimeBoundAttr)
+};
+
+static_assert(sizeof(Attr) == sizeof(CoroDisableLifetimeBoundAttr));
+
+class CoroLifetimeBoundAttr : public InheritableAttr {
+ private:
+  using InheritableAttr::From;
+ public:
+  PASTA_DECLARE_DEFAULT_CONSTRUCTORS(CoroLifetimeBoundAttr)
+  PASTA_DECLARE_BASE_OPERATORS(Attr, CoroLifetimeBoundAttr)
+  PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, CoroLifetimeBoundAttr)
+  std::string_view Spelling(void) const;
+ protected:
+  PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(CoroLifetimeBoundAttr)
+};
+
+static_assert(sizeof(Attr) == sizeof(CoroLifetimeBoundAttr));
+
+class CoroOnlyDestroyWhenCompleteAttr : public InheritableAttr {
+ private:
+  using InheritableAttr::From;
+ public:
+  PASTA_DECLARE_DEFAULT_CONSTRUCTORS(CoroOnlyDestroyWhenCompleteAttr)
+  PASTA_DECLARE_BASE_OPERATORS(Attr, CoroOnlyDestroyWhenCompleteAttr)
+  PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, CoroOnlyDestroyWhenCompleteAttr)
+  std::string_view Spelling(void) const;
+ protected:
+  PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(CoroOnlyDestroyWhenCompleteAttr)
+};
+
+static_assert(sizeof(Attr) == sizeof(CoroOnlyDestroyWhenCompleteAttr));
+
+class CoroReturnTypeAttr : public InheritableAttr {
+ private:
+  using InheritableAttr::From;
+ public:
+  PASTA_DECLARE_DEFAULT_CONSTRUCTORS(CoroReturnTypeAttr)
+  PASTA_DECLARE_BASE_OPERATORS(Attr, CoroReturnTypeAttr)
+  PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, CoroReturnTypeAttr)
+  std::string_view Spelling(void) const;
+ protected:
+  PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(CoroReturnTypeAttr)
+};
+
+static_assert(sizeof(Attr) == sizeof(CoroReturnTypeAttr));
+
+class CoroWrapperAttr : public InheritableAttr {
+ private:
+  using InheritableAttr::From;
+ public:
+  PASTA_DECLARE_DEFAULT_CONSTRUCTORS(CoroWrapperAttr)
+  PASTA_DECLARE_BASE_OPERATORS(Attr, CoroWrapperAttr)
+  PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, CoroWrapperAttr)
+  std::string_view Spelling(void) const;
+ protected:
+  PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(CoroWrapperAttr)
+};
+
+static_assert(sizeof(Attr) == sizeof(CoroWrapperAttr));
+
+class CountedByAttr : public InheritableAttr {
+ private:
+  using InheritableAttr::From;
+ public:
+  PASTA_DECLARE_DEFAULT_CONSTRUCTORS(CountedByAttr)
+  PASTA_DECLARE_BASE_OPERATORS(Attr, CountedByAttr)
+  PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, CountedByAttr)
+  // CountedByField: (clang::IdentifierInfo *)
+  ::pasta::TokenRange CountedByFieldToken(void) const;
+  std::string_view Spelling(void) const;
+ protected:
+  PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(CountedByAttr)
+};
+
+static_assert(sizeof(Attr) == sizeof(CountedByAttr));
+
 class DLLExportAttr : public InheritableAttr {
  private:
   using InheritableAttr::From;
@@ -6355,6 +6775,7 @@ class DeclOrStmtAttr : public InheritableAttr {
   PASTA_DECLARE_DERIVED_OPERATORS(DeclOrStmtAttr, AlwaysInlineAttr)
   PASTA_DECLARE_DERIVED_OPERATORS(DeclOrStmtAttr, NoInlineAttr)
   PASTA_DECLARE_DERIVED_OPERATORS(DeclOrStmtAttr, NoMergeAttr)
+  PASTA_DECLARE_DERIVED_OPERATORS(DeclOrStmtAttr, SuppressAttr)
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(DeclOrStmtAttr)
 };
@@ -6830,6 +7251,27 @@ class HLSLNumThreadsAttr : public InheritableAttr {
 
 static_assert(sizeof(Attr) == sizeof(HLSLNumThreadsAttr));
 
+class HLSLParamModifierAttr : public TypeAttr {
+ private:
+  using TypeAttr::From;
+ public:
+  PASTA_DECLARE_DEFAULT_CONSTRUCTORS(HLSLParamModifierAttr)
+  PASTA_DECLARE_BASE_OPERATORS(Attr, HLSLParamModifierAttr)
+  PASTA_DECLARE_BASE_OPERATORS(TypeAttr, HLSLParamModifierAttr)
+  bool MergedSpelling(void) const;
+  enum HLSLParamModifierAttrSpelling SemanticSpelling(void) const;
+  std::string_view Spelling(void) const;
+  bool IsAnyIn(void) const;
+  bool IsAnyOut(void) const;
+  bool IsIn(void) const;
+  bool IsInOut(void) const;
+  bool IsOut(void) const;
+ protected:
+  PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(HLSLParamModifierAttr)
+};
+
+static_assert(sizeof(Attr) == sizeof(HLSLParamModifierAttr));
+
 class HLSLResourceAttr : public InheritableAttr {
  private:
   using InheritableAttr::From;
@@ -6837,8 +7279,9 @@ class HLSLResourceAttr : public InheritableAttr {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(HLSLResourceAttr)
   PASTA_DECLARE_BASE_OPERATORS(Attr, HLSLResourceAttr)
   PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, HLSLResourceAttr)
-  enum HLSLResourceAttrResourceKind ResourceShape(void) const;
-  enum HLSLResourceAttrResourceClass ResourceType(void) const;
+  bool IsROV(void) const;
+  // ResourceClass: (llvm::hlsl::ResourceClass)
+  // ResourceKind: (llvm::hlsl::ResourceKind)
   std::string_view Spelling(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(HLSLResourceAttr)
@@ -7242,6 +7685,23 @@ class SPtrAttr : public TypeAttr {
 };
 
 static_assert(sizeof(Attr) == sizeof(SPtrAttr));
+
+class SuppressAttr : public DeclOrStmtAttr {
+ private:
+  using DeclOrStmtAttr::From;
+ public:
+  PASTA_DECLARE_DEFAULT_CONSTRUCTORS(SuppressAttr)
+  PASTA_DECLARE_BASE_OPERATORS(Attr, SuppressAttr)
+  PASTA_DECLARE_BASE_OPERATORS(DeclOrStmtAttr, SuppressAttr)
+  PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, SuppressAttr)
+  // DiagnosticIdentifiers: (llvm::iterator_range<llvm::StringRef *>)
+  std::string_view Spelling(void) const;
+  bool IsGSL(void) const;
+ protected:
+  PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(SuppressAttr)
+};
+
+static_assert(sizeof(Attr) == sizeof(SuppressAttr));
 
 class AlwaysInlineAttr : public DeclOrStmtAttr {
  private:

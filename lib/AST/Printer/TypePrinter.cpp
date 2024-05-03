@@ -97,9 +97,9 @@ static void printIntegral(Printer &printer, const clang::TemplateArgument &Templ
       Kind = clang::CharacterLiteralKind::UTF32;
     else
       Kind = clang::CharacterLiteralKind::Ascii;
+
     clang::CharacterLiteral::print(static_cast<unsigned>(Val.getExtValue()),
                                    Kind, Out);
-
   } else if (IncludeType) {
     if (const auto *BT = T->getAs<clang::BuiltinType>()) {
       switch (BT->getKind()) {

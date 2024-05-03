@@ -1316,8 +1316,7 @@ void DeclPrinter::VisitFunctionDecl(clang::FunctionDecl *D) {
           Out << ";\n";
         }
         Indentation -= Policy.Indentation;
-      } else
-        Out << ' ';
+      }
 
       auto B = D->getBody();
       if (B && Descend) {

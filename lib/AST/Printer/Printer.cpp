@@ -487,6 +487,26 @@ static clang::tok::TokenKind RewriteTokenKind(llvm::StringRef data) {
   return clang::tok::identifier;
 }
 
+void TokenPrinterContext::TokenizeAs(pasta::TokenKind kind) {
+  std::string &token_data = out.str();
+  if (token_data.empty()) {
+    assert(false);
+    return;
+  }
+
+  auto data_offset = static_cast<TokenDataOffset>(tokens.data.size());
+  tokens.data.append(token_data);
+
+  tokens.tokens.emplace_back(
+      data_offset,
+      static_cast<uint32_t>(token_data.size()),
+      context_index,
+      kind);
+
+  // Clear out so future streaming just re-fills.
+  token_data.clear();
+}
+
 void TokenPrinterContext::Tokenize(void) {
   const clang::LangOptions &lo = tokens.ast_context.getLangOpts();
 

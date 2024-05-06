@@ -305,6 +305,7 @@ add_library(pasta_compiler STATIC
     "lib/Compile/Diagnostic.cpp"
     "lib/Compile/FileSystem.cpp"
     "lib/Compile/Job.cpp"
+    "lib/Compile/ParsedFileTracker.cpp"
     "lib/Compile/PatchedMacroTracker.cpp"
     "lib/Compile/Preprocess.cpp"
     "lib/Compile/Run.cpp"

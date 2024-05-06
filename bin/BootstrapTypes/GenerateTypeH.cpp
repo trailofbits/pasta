@@ -129,8 +129,8 @@ void GenerateTypeH(void) {
     if (class_name == type || class_name == qual_type) {
       const auto meth_name = CxxName(method_name_);
       llvm::StringRef method_name(meth_name);
-      if (method_name.endswith("Decl") || method_name.endswith("Unsafe") ||
-          method_name.startswith("As")) {
+      if (method_name.ends_with("Decl") || method_name.ends_with("Unsafe") ||
+          method_name.starts_with("As")) {
         kCanReturnNullptr.emplace(class_name, meth_name);
       }
     }

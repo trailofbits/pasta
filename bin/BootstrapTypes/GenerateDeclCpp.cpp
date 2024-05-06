@@ -308,7 +308,7 @@ void Register)" << name << "(nb::module_ &m) {\n"
     }
 
     // Constructors from derived class -> base class.
-    if (name_ref.endswith("Decl")) {
+    if (name_ref.ends_with("Decl")) {
 
       if (derived_from_decl_context.count(name)) {
         os << "PASTA_DEFINE_BASE_OPERATORS(DeclContext, "

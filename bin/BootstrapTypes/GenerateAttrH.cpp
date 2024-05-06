@@ -135,7 +135,7 @@ void GenerateAttrH(void) {
     // Make sure all of the `::From` methods inherited from the parent class
     // are private, so that this class "overrides" them with more derived
     // versions.
-    if (name_ref.endswith("Attr")) {
+    if (name_ref.ends_with("Attr")) {
       os
           << " private:\n";
       for (const auto &parent_class : gBaseClasses[name]) {
@@ -147,7 +147,7 @@ void GenerateAttrH(void) {
         << "  PASTA_DECLARE_DEFAULT_CONSTRUCTORS(" << name << ")\n";
 
     // Constructors from derived class -> base class.
-    if (name_ref.endswith("Attr")) {
+    if (name_ref.ends_with("Attr")) {
       for (const auto &base_class : gTransitiveBaseClasses[name]) {
         os << "  PASTA_DECLARE_BASE_OPERATORS(" << base_class << ", "
            << name << ")\n";
@@ -168,7 +168,7 @@ void GenerateAttrH(void) {
 
     // Requiring that all derivations have the same size as the base class
     // will let us do fun sketchy things.
-    if (name != "Attr" && name_ref.endswith("Attr")) {
+    if (name != "Attr" && name_ref.ends_with("Attr")) {
       os << "static_assert(sizeof(Attr) == sizeof(" << name << "));\n\n";
     }
   }

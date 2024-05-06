@@ -70,7 +70,7 @@ void GenerateForwardH(std::ostream &os_py) {
       os << sep << "    a(" << name_ << ")";
 
     } else {
-      assert(name.endswith("Decl"));
+      assert(name.ends_with("Decl"));
       os << sep << "    m(" << name.substr(0, name.size() - kDeclLen).str() << ")";
     }
     sep = " \\\n";
@@ -135,7 +135,7 @@ void GenerateForwardH(std::ostream &os_py) {
       os << sep << "    a(" << name_ << ")";
 
     } else {
-      assert(name.endswith("Attr"));
+      assert(name.ends_with("Attr"));
       os << sep << "    m(" << name.substr(0, name.size() - kAttrLen).str() << ")";
     }
     sep = " \\\n";

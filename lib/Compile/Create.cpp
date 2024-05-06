@@ -175,42 +175,42 @@ static void ParseOutputInto(FileSystemView &fs, std::stringstream &ss,
 
     ParseClangResourceDir(fs, info, line);
 
-    if (line.startswith("Target: ")) {
+    if (line.starts_with("Target: ")) {
       info.triple = llvm::Triple::normalize(line.substr(8));
 
-    } else if (line.startswith("InstalledDir: ")) {
+    } else if (line.starts_with("InstalledDir: ")) {
       auto maybe_status = fs.Stat(fs.ParsePath(line.substr(14).str()));
       if (maybe_status.Succeeded() && maybe_status->IsDirectory()) {
         info.install_dir = std::move(maybe_status->real_path);
       }
 
-    } else if (line.startswith("Configured with: ")) {
+    } else if (line.starts_with("Configured with: ")) {
       find_sysroots(line);
       ParseGCCInstalledDir(fs, info, line);
       ParseGCCSysRootDir(fs, info, line);
 
     // Probably the path to the clang binary, followed by the `-cc1` options.
-    } else if (line.startswith(" \"") && line.contains("-cc1")) {
+    } else if (line.starts_with(" \"") && line.contains("-cc1")) {
       find_sysroots(line);
       ParseClangCompilerExe(fs, info, line);
 
-    } else if (line.startswith("ignoring ")) {
+    } else if (line.starts_with("ignoring ")) {
       // Something didn't work.
 
-    } else if (line.startswith("#include \"...\"")) {
+    } else if (line.starts_with("#include \"...\"")) {
       state = kInUserIncludeList;
 
-    } else if (line.startswith("#include <...>")) {
+    } else if (line.starts_with("#include <...>")) {
       state = kInSystemIncludeList;
 
     // TODO(pag): Handle absolute paths on Windows.
-    } else if (line.startswith(" ")) {
+    } else if (line.starts_with(" ")) {
       if (kUnknown == state) {
         continue;
       }
 
       bool is_framework = false;
-      if (line.endswith(" (framework directory)")) {
+      if (line.ends_with(" (framework directory)")) {
         line = line.substr(0, line.size() - 22);
         is_framework = true;
       }
@@ -238,7 +238,7 @@ static void ParseOutputInto(FileSystemView &fs, std::stringstream &ss,
                                           IncludePathLocation::kAbsolute);
       }
 
-    } else if (line.startswith("End of search list")) {
+    } else if (line.starts_with("End of search list")) {
       state = kUnknown;
     }
   }

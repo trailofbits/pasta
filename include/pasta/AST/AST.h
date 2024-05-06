@@ -32,6 +32,7 @@ class Attr;
 class CompileJob;
 class Compiler;
 class Decl;
+class DeclContext;
 class Macro;
 class PrintedTokenRange;
 class Stmt;

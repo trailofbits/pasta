@@ -1056,7 +1056,7 @@ void DeclPrinter::VisitFunctionDecl(clang::FunctionDecl *D) {
     //
     // TODO(pag): Could go searching for a `(`, or `)`.
     if (looks_like_var) {
-      if (D->isPure() || D->isDeletedAsWritten() || D->isExplicitlyDefaulted() ||
+      if (D->isPureVirtual() || D->isDeletedAsWritten() || D->isExplicitlyDefaulted() ||
           D->doesThisDeclarationHaveABody()) {
         looks_like_var = false;
 

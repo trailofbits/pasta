@@ -117,46 +117,46 @@ static std::string CxxNameImpl(llvm::StringRef name) {
 
   // Disable these.
   if (name == "asOpaquePtr" ||
-      name.endswith("_back") ||
-      name.endswith("_front") ||
-      name.endswith("_begin") ||
-      name.endswith("_end") ||
-      name.endswith("_rbegin") ||
-      name.endswith("_rend") ||
-      name.startswith("begin") ||
-      name.startswith("end") ||
-      name.startswith("rbegin") ||
-      name.startswith("rend")) {
+      name.ends_with("_back") ||
+      name.ends_with("_front") ||
+      name.ends_with("_begin") ||
+      name.ends_with("_end") ||
+      name.ends_with("_rbegin") ||
+      name.ends_with("_rend") ||
+      name.starts_with("begin") ||
+      name.starts_with("end") ||
+      name.starts_with("rbegin") ||
+      name.starts_with("rend")) {
     return "";
 
-  } else if (name.startswith("get") && !name.startswith("gets")) {
+  } else if (name.starts_with("get") && !name.starts_with("gets")) {
     return CxxNameImpl(name.substr(3));
 
-  } else if (name.startswith("has") && !name.startswith("hash")) {
+  } else if (name.starts_with("has") && !name.starts_with("hash")) {
     return "Has" + CxxNameImpl(name.substr(3));
 
-  } else if (name.startswith("is")) {
+  } else if (name.starts_with("is")) {
     return "Is" + CxxNameImpl(name.substr(2));
 
   // Begin/end iterators.
-  } else if (name.endswith("_begin") || name.endswith("_end") ||
-             name.endswith("_size") || name.endswith("_empty") ||
-             name.endswith("_rbegin") || name.endswith("_rend") ||
-             name.startswith("begin_") || name.startswith("end_") ||
-             name.startswith("rbegin_") || name.startswith("rend_")) {
+  } else if (name.ends_with("_begin") || name.ends_with("_end") ||
+             name.ends_with("_size") || name.ends_with("_empty") ||
+             name.ends_with("_rbegin") || name.ends_with("_rend") ||
+             name.starts_with("begin_") || name.starts_with("end_") ||
+             name.starts_with("rbegin_") || name.starts_with("rend_")) {
     return "";
 
   // Setters, ignore them.
-  } else if (name.startswith("set") && !name.startswith("sets")) {
+  } else if (name.starts_with("set") && !name.starts_with("sets")) {
     return "";
 
-  } else if (name.endswith(kDec)) {
+  } else if (name.ends_with(kDec)) {
     return CxxNameImpl(name.substr(0, name.size() - kDec.size()).str()) + "Decrement";
 
-  } else if (name.endswith(kLoc)) {
+  } else if (name.ends_with(kLoc)) {
     return CxxNameImpl(name.substr(0, name.size() - kLoc.size()).str()) + "Token";
 
-  } else if (name.endswith(kSourceRange) && kSourceRange.size() < name.size()) {
+  } else if (name.ends_with(kSourceRange) && kSourceRange.size() < name.size()) {
     return CxxNameImpl(name.substr(0, name.size() - kSourceRange.size()).str()) + "Tokens";
 
   } else if (auto name_it = kCxxMethodRenames.find(name.str());
@@ -169,7 +169,7 @@ static std::string CxxNameImpl(llvm::StringRef name) {
   } else if (name[0] == '_') {
     return "_" + CxxNameImpl(name.substr(1));
 
-  } else if (name.endswith("_")) {
+  } else if (name.ends_with("_")) {
     return CxxNameImpl(name.substr(0, name.size() - 1u)) + "_";
 
   } else if (std::islower(name.front())) {
@@ -217,7 +217,7 @@ static std::string CxxNameImpl(llvm::StringRef name) {
       return name_ss.str();
 
     } else {
-      if (1u < name.size() && name.endswith("s")) {
+      if (1u < name.size() && name.ends_with("s")) {
         return CxxNameImpl(name.substr(0u, name.size() - 1u)) + "s";
       } else {
         return name.str();

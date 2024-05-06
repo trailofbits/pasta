@@ -15,7 +15,7 @@ static llvm::StringRef enumerator_name;
 static std::string RenameEnum(llvm::StringRef name) {
   if (name == "AttrKind") {
     return name.str();
-  } else if (name.endswith("_t")) {
+  } else if (name.ends_with("_t")) {
     return RenameEnum(name.substr(0, name.size() - 2));
   } else if (name == "Nonce_ObjCInterface") {
     return "NonceObjCInterface";
@@ -34,11 +34,11 @@ static std::string RenameEnum(llvm::StringRef name) {
 
 static bool AcceptEnumerator(const std::string &name) {
   return !enumerator_name.empty() &&
-         !enumerator_name.startswith("first") &&
-         !enumerator_name.startswith("last") &&
-         !enumerator_name.startswith("First") &&
-         !enumerator_name.startswith("Last") &&
-         !enumerator_name.endswith("Last") &&
+         !enumerator_name.starts_with("first") &&
+         !enumerator_name.starts_with("last") &&
+         !enumerator_name.starts_with("First") &&
+         !enumerator_name.starts_with("Last") &&
+         !enumerator_name.ends_with("Last") &&
          enumerator_name != "NoStmtClass" &&
          enumerator_name != "NUM_TOKENS" &&
          enumerator_name != "NUM_PP_KEYWORDS" &&
@@ -59,99 +59,99 @@ static std::string RenameEnumeratorInternal(const std::string &name) {
   } else if (enumerator_name == "C23_Noreturn") {
     return "C23_Noreturn";
 
-  } else if (enumerator_name.endswith("less")) {
+  } else if (enumerator_name.ends_with("less")) {
     enumerator_name = enumerator_name.substr(0, enumerator_name.size() - 4);
     return RenameEnumeratorInternal(name) + "Less";
 
-  } else if (enumerator_name.endswith("greater")) {
+  } else if (enumerator_name.ends_with("greater")) {
     enumerator_name = enumerator_name.substr(0, enumerator_name.size() - 7);
     return RenameEnumeratorInternal(name) + "Greater";
 
-  } else if (enumerator_name.endswith("equal")) {
+  } else if (enumerator_name.ends_with("equal")) {
     enumerator_name = enumerator_name.substr(0, enumerator_name.size() - 5);
     return RenameEnumeratorInternal(name) + "Equal";
 
-  } else if (enumerator_name.endswith("pipe")) {
+  } else if (enumerator_name.ends_with("pipe")) {
     enumerator_name = enumerator_name.substr(0, enumerator_name.size() - 4);
     return RenameEnumeratorInternal(name) + "Pipe";
 
-  } else if (enumerator_name.endswith("colon")) {
+  } else if (enumerator_name.ends_with("colon")) {
     enumerator_name = enumerator_name.substr(0, enumerator_name.size() - 5);
     return RenameEnumeratorInternal(name)+ "Colon";
 
-  } else if (enumerator_name.endswith("plus")) {
+  } else if (enumerator_name.ends_with("plus")) {
     enumerator_name = enumerator_name.substr(0, enumerator_name.size() - 4);
     return RenameEnumeratorInternal(name) + "Plus";
 
-  } else if (enumerator_name.endswith("minus")) {
+  } else if (enumerator_name.ends_with("minus")) {
     enumerator_name = enumerator_name.substr(0, enumerator_name.size() - 5);
     return RenameEnumeratorInternal(name) + "Minus";
 
-  } else if (enumerator_name.endswith("hash")) {
+  } else if (enumerator_name.ends_with("hash")) {
     enumerator_name = enumerator_name.substr(0, enumerator_name.size() - 4);
     return RenameEnumeratorInternal(name) + "Hash";
 
-  } else if (enumerator_name.endswith("amp")) {
+  } else if (enumerator_name.ends_with("amp")) {
     enumerator_name = enumerator_name.substr(0, enumerator_name.size() - 3);
     return RenameEnumeratorInternal(name) + "Amp";
 
-  } else if (enumerator_name.endswith("star")) {
+  } else if (enumerator_name.ends_with("star")) {
     enumerator_name = enumerator_name.substr(0, enumerator_name.size() - 4);
     return RenameEnumeratorInternal(name) + "Star";
 
-  } else if (enumerator_name.endswith("_begin")) {
+  } else if (enumerator_name.ends_with("_begin")) {
     enumerator_name = enumerator_name.substr(0, enumerator_name.size() - 6);
     return RenameEnumeratorInternal(name) + "Begin";
 
-  } else if (enumerator_name.endswith("_end")) {
+  } else if (enumerator_name.ends_with("_end")) {
     enumerator_name = enumerator_name.substr(0, enumerator_name.size() - 4);
     return RenameEnumeratorInternal(name) + "End";
 
-  } else if (enumerator_name.endswith("_size")) {
+  } else if (enumerator_name.ends_with("_size")) {
     enumerator_name = enumerator_name.substr(0, enumerator_name.size() - 5);
     return RenameEnumeratorInternal(name) + "Size";
 
-  } else if (enumerator_name.endswith("_alloc")) {
+  } else if (enumerator_name.ends_with("_alloc")) {
     enumerator_name = enumerator_name.substr(0, enumerator_name.size() - 6);
     return RenameEnumeratorInternal(name) + "Alloc";
 
-  } else if (enumerator_name.endswith("_Alignas")) {
+  } else if (enumerator_name.ends_with("_Alignas")) {
     enumerator_name = enumerator_name.substr(0, enumerator_name.size() - 8);
     return RenameEnumeratorInternal(name) + "_Alignas";
 
-  } else if (enumerator_name.startswith("kw_")) {
+  } else if (enumerator_name.starts_with("kw_")) {
     enumerator_name = enumerator_name.substr(3);
     return "Keyword" + RenameEnumeratorInternal(name);
 
-  } else if (enumerator_name.startswith("pp_") && name == "PPKeywordKind") {
+  } else if (enumerator_name.starts_with("pp_") && name == "PPKeywordKind") {
     enumerator_name = enumerator_name.substr(3);
     return RenameEnumeratorInternal(name);
 
-  } else if (enumerator_name.startswith("objc_") && name == "ObjCKeywordKind") {
+  } else if (enumerator_name.starts_with("objc_") && name == "ObjCKeywordKind") {
     enumerator_name = enumerator_name.substr(5);
     return RenameEnumeratorInternal(name);
 
-  } else if (enumerator_name.startswith("is_")) {
+  } else if (enumerator_name.starts_with("is_")) {
     enumerator_name = enumerator_name.substr(3);
     return "Is" + RenameEnumeratorInternal(name);
 
-  } else if (enumerator_name.startswith("has_")) {
+  } else if (enumerator_name.starts_with("has_")) {
     enumerator_name = enumerator_name.substr(4);
     return "Has" + RenameEnumeratorInternal(name);
 
-  } else if (enumerator_name.startswith("_is_")) {
+  } else if (enumerator_name.starts_with("_is_")) {
     enumerator_name = enumerator_name.substr(4);
     return "_Is" + RenameEnumeratorInternal(name);
 
-  } else if (enumerator_name.startswith("_has_")) {
+  } else if (enumerator_name.starts_with("_has_")) {
     enumerator_name = enumerator_name.substr(5);
     return "_Has" + RenameEnumeratorInternal(name);
 
-  } else if (enumerator_name.startswith("__is_")) {
+  } else if (enumerator_name.starts_with("__is_")) {
     enumerator_name = enumerator_name.substr(5);
     return "__Is" + RenameEnumeratorInternal(name);
 
-  } else if (enumerator_name.startswith("__has_")) {
+  } else if (enumerator_name.starts_with("__has_")) {
     enumerator_name = enumerator_name.substr(6);
     return "__Has" + RenameEnumeratorInternal(name);
 
@@ -163,7 +163,7 @@ static std::string RenameEnumeratorInternal(const std::string &name) {
     return "Empty";
   }
 
-  if (name == "StmtKind" && enumerator_name.endswith("Class")) {
+  if (name == "StmtKind" && enumerator_name.ends_with("Class")) {
     return Capitalize(enumerator_name.substr(
         0, enumerator_name.size() - 5));
 
@@ -222,7 +222,7 @@ static std::string RenameEnumerator(const std::string &name) {
 #define PASTA_NAMED_ENUMERATOR(enumerator_name_, underlying_type, val) \
       enumerator_name = #enumerator_name_; \
       for (auto prefix : kEnumPrefixesToStrip) { \
-        if (enumerator_name.startswith(prefix)) { \
+        if (enumerator_name.starts_with(prefix)) { \
           enumerator_name = enumerator_name.substr(prefix.size()); \
           break; \
         } \

@@ -3098,7 +3098,7 @@ class CXXRecordDecl : public RecordDecl {
   std::optional<bool> IsStandardLayout(void) const;
   std::optional<bool> IsStructural(void) const;
   std::optional<bool> IsTrivial(void) const;
-  bool IsTriviallyCopyConstructible(void) const;
+  std::optional<bool> IsTriviallyCopyConstructible(void) const;
   std::optional<bool> IsTriviallyCopyable(void) const;
   // IsVirtuallyDerivedFrom: (bool)
   std::optional<bool> LambdaIsDefaultConstructibleAndAssignable(void) const;

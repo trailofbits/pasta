@@ -9634,8 +9634,11 @@ std::optional<bool> CXXRecordDecl::IsTrivial(void) const {
   return val;
 }
 
-bool CXXRecordDecl::IsTriviallyCopyConstructible(void) const {
+std::optional<bool> CXXRecordDecl::IsTriviallyCopyConstructible(void) const {
   auto &self = *const_cast<clang::CXXRecordDecl *>(u.CXXRecordDecl);
+  if (!self.hasDefinition()) {
+    return std::nullopt;
+  }
   decltype(auto) val = self.isTriviallyCopyConstructible();
   return val;
 }

@@ -1990,6 +1990,10 @@ std::map<std::pair<std::string, std::string>, std::string> kConditionalNullptr{
    "  if (!self.isTypeOperand()) {\n"
    "    return std::nullopt;\n"
    "  }\n"},
+  {{"CXXRecordDecl", "IsTriviallyCopyConstructible"},
+   "  if (!self.hasDefinition()) {\n"
+   "    return std::nullopt;\n"
+   "  }\n"},
 };
 
 std::unordered_map<std::string, uint32_t> gClassIDs;

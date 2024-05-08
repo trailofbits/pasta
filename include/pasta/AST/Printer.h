@@ -331,6 +331,11 @@ class PrintingPolicy {
 
   virtual bool ShouldPrintSpecialization(
       const VarTemplateDecl &, const VarTemplateSpecializationDecl &) const;
+
+  // Should we print `auto` types, or the underlying types of them? If no type
+  // was deduced, or hasn't yet been deduced, then the normal printing, e.g.
+  // `auto`, is printed. The default return value is `false`.
+  virtual bool ShouldPrintDeducedTypes(void) const;
 };
 
 class ProxyPrintingPolicy : public PrintingPolicy {

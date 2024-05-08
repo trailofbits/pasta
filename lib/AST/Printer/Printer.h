@@ -245,6 +245,8 @@ class PrintingPolicyAdaptor final {
   
   bool ShouldPrintSpecialization(clang::FunctionTemplateDecl *,
                                  clang::FunctionDecl *) const;
+
+  bool ShouldPrintDeducedTypes(void) const;
 };
 
 /// A utility class that uses RAII to save and restore the value of a variable.

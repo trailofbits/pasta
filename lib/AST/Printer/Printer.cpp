@@ -979,50 +979,45 @@ static bool IsPunctuation(TokenKind prev) {
 }
 
 static char AddWhitespaceBetween(TokenKind prev, TokenKind next) {
-  if (prev == TokenKind::kUnknown || prev == TokenKind::kComment) {
-    return false;
+    switch (prev) {
+    case TokenKind::kColon:
+    case TokenKind::kComma:
+    case TokenKind::kSemi:
+      return true;
+    case TokenKind::kUnknown:
+    case TokenKind::kComment:
+    case TokenKind::kColonColon:
+    case TokenKind::kLAngle:
+    case TokenKind::kLParenthesis:
+    case TokenKind::kLSquare:
+      return false;
+    default:
+      break;
   }
 
-  if (next == TokenKind::kUnknown || next == TokenKind::kComment) {
-    return false;
+  switch (next) {
+    case TokenKind::kUnknown:
+    case TokenKind::kComment:
+    case TokenKind::kColonColon:
+    case TokenKind::kLAngle:
+    case TokenKind::kLParenthesis:
+    case TokenKind::kLSquare:
+    case TokenKind::kRAngle:
+    case TokenKind::kRParenthesis:
+    case TokenKind::kRSquare:
+    case TokenKind::kColon:
+    case TokenKind::kComma:
+    case TokenKind::kSemi:
+    case TokenKind::kArrow:
+    case TokenKind::kArrowStar:
+    case TokenKind::kPeriod:
+    case TokenKind::kPeriodStar:
+      return false;
+    default:
+      break;
   }
 
-  if (prev == TokenKind::kColon ||
-      prev == TokenKind::kComma ||
-      prev == TokenKind::kSemi) {
-    return true;
-  }
-
-  auto prev_is_ident = IsIdentifierLike(prev);
-  auto next_is_ident = IsIdentifierLike(next);
-
-  if (prev_is_ident && next_is_ident) {
-    return true;
-  }
-
-  auto prev_is_punc = IsPunctuation(prev);
-  if (prev_is_punc && next_is_ident) {
-    return prev != TokenKind::kColonColon &&
-           prev != TokenKind::kLAngle &&
-           prev != TokenKind::kLParenthesis &&
-           prev != TokenKind::kLSquare;
-  }
-
-  auto next_is_punc = IsPunctuation(next);
-  if (prev_is_ident && next_is_punc) {
-    return next != TokenKind::kColonColon &&
-           next != TokenKind::kLAngle &&
-           next != TokenKind::kRAngle &&
-           next != TokenKind::kLParenthesis &&
-           next != TokenKind::kRParenthesis &&
-           next != TokenKind::kLSquare &&
-           next != TokenKind::kRSquare &&
-           next != TokenKind::kSemi &&
-           next != TokenKind::kColon &&
-           next != TokenKind::kComma;
-  }
-
-  return prev_is_punc && next == TokenKind::kLBrace;
+  return true;
 }
 
 }  // namespace
@@ -1297,6 +1292,7 @@ static constexpr bool kShouldPrintOriginalTypeOfAdjustedType = true;
 static constexpr bool kShouldPrintOriginalTypeOfDecayedType = true;
 static constexpr bool kShouldPrintTemplate = true;
 static constexpr bool kShouldPrintSpecialization = false;
+static constexpr bool kShouldPrintDeducedTypes = false;
 
 bool PrintingPolicy::ShouldPrintInheritedAttributes(void) const {
   return kShouldPrintInheritedAttributes;
@@ -1345,6 +1341,10 @@ bool PrintingPolicy::ShouldPrintSpecialization(const FunctionTemplateDecl &,
 bool PrintingPolicy::ShouldPrintSpecialization(
     const VarTemplateDecl &, const VarTemplateSpecializationDecl &) const {
   return kShouldPrintSpecialization;
+}
+
+bool PrintingPolicy::ShouldPrintDeducedTypes(void) const {
+  return kShouldPrintDeducedTypes;
 }
 
 ProxyPrintingPolicy::~ProxyPrintingPolicy(void) {}
@@ -1421,6 +1421,10 @@ bool PrintingPolicyAdaptor::ShouldPrintOriginalTypeOfAdjustedType(void) const {
 
 bool PrintingPolicyAdaptor::ShouldPrintOriginalTypeOfDecayedType(void) const {
   return pp ? pp->ShouldPrintOriginalTypeOfDecayedType() : kShouldPrintOriginalTypeOfDecayedType;
+}
+
+bool PrintingPolicyAdaptor::ShouldPrintDeducedTypes(void) const {
+  return pp ? pp->ShouldPrintDeducedTypes() : kShouldPrintDeducedTypes;
 }
 
 bool PrintingPolicyAdaptor::ShouldPrintTemplate(

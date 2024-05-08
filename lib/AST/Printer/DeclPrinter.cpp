@@ -448,7 +448,7 @@ void DeclPrinter::printDeclType(clang::QualType T, std::function<void(void)> Nam
   }, Indentation);
 }
 
-void DeclPrinter::ProcessDeclGroup(clang::SmallVectorImpl<clang::Decl*>& Decls) {
+void DeclPrinter::ProcessDeclGroup(clang::SmallVectorImpl<clang::Decl*> &Decls) {
   this->Indent();
   Decl_printGroup(Decls.data(), static_cast<unsigned>(Decls.size()), Out,
                   Policy, Indentation, tokens);
@@ -667,6 +667,8 @@ void DeclPrinter::VisitDeclContext(clang::DeclContext *DC, bool Indent) {
       if (FD->isExplicitlyDefaulted() || FD->isDeletedAsWritten() || FD->isPureVirtual())
         Terminator = ";";
       else if (FD->isThisDeclarationADefinition())
+        Terminator = nullptr;
+      else if (tokens.LastTokenIsOneOf(TokenKind::kRBrace))
         Terminator = nullptr;
       else
         Terminator = ";";

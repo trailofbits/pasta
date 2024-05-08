@@ -1588,15 +1588,15 @@ void TypePrinter::printUnaryTransform(const clang::UnaryTransformType *T,
 
 void TypePrinter::printAuto(const clang::AutoType *T, raw_string_ostream &OS,
                             std::function<void(void)> IdentFn) {
-  TokenPrinterContext ctx(OS, T, tokens);
 
-//  // If the type has been deduced, do not print 'auto'.
-//  if (!T->getDeducedType().isNull()) {
-//    IdentFn = [=, &OS, &ctx, IdentFn = std::move(IdentFn)] (void) {
-//
-//    };
-//    printBefore(T->getDeducedType(), OS);
-//  } else {
+  // If the type has been deduced, do not print 'auto'.
+  auto DT = T->getDeducedType();
+  if (!DT.isNull() && tokens.ppa->ShouldPrintDeducedTypes()) {
+    printBeforeAfter(DT.getCanonicalType(), OS, std::move(IdentFn));
+    return;
+  }
+
+  TokenPrinterContext ctx(OS, T, tokens);
 
   if (T->isConstrained()) {
     TagDefinitionPolicyRAII tag_raii(Policy);
@@ -1614,9 +1614,9 @@ void TypePrinter::printAuto(const clang::AutoType *T, raw_string_ostream &OS,
   }
 
   switch (T->getKeyword()) {
-  case clang::AutoTypeKeyword::Auto: OS << "auto"; break;
-  case clang::AutoTypeKeyword::DecltypeAuto: OS << "decltype(auto)"; break;
-  case clang::AutoTypeKeyword::GNUAutoType: OS << "__auto_type"; break;
+    case clang::AutoTypeKeyword::Auto: OS << "auto"; break;
+    case clang::AutoTypeKeyword::DecltypeAuto: OS << "decltype(auto)"; break;
+    case clang::AutoTypeKeyword::GNUAutoType: OS << "__auto_type"; break;
   }
   spaceBeforePlaceHolder(OS);
 
@@ -1626,11 +1626,15 @@ void TypePrinter::printAuto(const clang::AutoType *T, raw_string_ostream &OS,
 void TypePrinter::printDeducedTemplateSpecialization(
     const clang::DeducedTemplateSpecializationType *T, raw_string_ostream &OS,
     std::function<void(void)> IdentFn) {
+
+  // If the type has been deduced, do not print 'auto'.
+  auto DT = T->getDeducedType();
+  if (!DT.isNull() && tokens.ppa->ShouldPrintDeducedTypes()) {
+    printBeforeAfter(DT.getCanonicalType(), OS, std::move(IdentFn));
+    return;
+  }
+
   TokenPrinterContext ctx(OS, T, tokens);
-//  // If the type has been deduced, print the deduced type.
-//  if (!T->getDeducedType().isNull()) {
-//    printBefore(T->getDeducedType(), OS);
-//  } else {
   IncludeStrongLifetimeRAII Strong(Policy);
   T->getTemplateName().print(OS, Policy);
   spaceBeforePlaceHolder(OS);

@@ -35,6 +35,7 @@
 namespace pasta {
 namespace {
 
+// NOTE(pag): There are definitely missing cases in here.
 static const TokenKind kLeadingKeywords[] = {
   TokenKind::kKeywordFriend,
   TokenKind::kKeywordConcept,
@@ -67,6 +68,8 @@ static const TokenKind kLeadingKeywords[] = {
   TokenKind::kKeywordInline,
   TokenKind::kKeywordConst,
   TokenKind::kKeywordConstexpr,
+  TokenKind::kKeywordConsteval,
+  TokenKind::kKeywordConstinit,
   TokenKind::kKeyword_Noreturn,
   TokenKind::kKeyword__Cdecl,
   TokenKind::kKeyword__Stdcall,
@@ -80,7 +83,34 @@ static const TokenKind kLeadingKeywords[] = {
   TokenKind::kKeyword__PrivateExtern__,
   TokenKind::kKeyword__ModulePrivate__,
   TokenKind::kKeyword__Extension__,
+  TokenKind::kKeyword__Alignof,
+  TokenKind::kKeyword__Null,
   TokenKind::kKeywordRequires,
+  TokenKind::kKeywordOperator,
+  TokenKind::kKeywordCharacter,
+  TokenKind::kKeywordInt,
+  TokenKind::kKeywordRegister,
+  TokenKind::kKeywordFloat,
+  TokenKind::kKeywordDouble,
+  TokenKind::kKeyword_Boolean,
+  TokenKind::kKeyword_Alignas,
+  TokenKind::kKeyword_Alignof,
+  TokenKind::kKeyword_Atomic,
+  TokenKind::kKeywordAssembly,
+  TokenKind::kKeywordMutable,
+  TokenKind::kKeywordTypename,
+  TokenKind::kKeywordWcharT,
+  TokenKind::kKeywordRestrict,
+  TokenKind::kKeywordDecltype,
+  TokenKind::kKeywordTypeof,
+  TokenKind::kKeywordTypeofUnqualified,
+  TokenKind::kKeyword_Decimal32,
+  TokenKind::kKeyword_Decimal64,
+  TokenKind::kKeyword_Decimal128,
+  TokenKind::kKeyword__Float128,
+  TokenKind::kKeyword__Ibm128,
+  TokenKind::kKeyword__Int128,
+  TokenKind::kKeyword__Real,
 };
 
 // The decl bounds finder exists to find the beginning and ending of
@@ -1235,18 +1265,32 @@ class DeclBoundsFinder : public clang::DeclVisitor<DeclBoundsFinder>,
         break;
       }
 
-      // If the previous token is a `]` or a `)`, then go find the matching one.
-      // This helps us expand past leading attributes when we fail to find them.
-      auto prev_tok_kind = prev_tok.Kind();
-      if (prev_tok_kind == TokenKind::kRParenthesis ||
-          prev_tok_kind == TokenKind::kRSquare) {
+      switch (prev_tok.Kind()) {
 
-        // NOTE(pag): This may fail if `prev_tok` is a macro token, e.g. the
-        //            `)` of a macro function call.
-        if (auto matching_tok = GetMatching(prev_tok).first) {
-          lower_bound = matching_tok;
-          changed = true;
-        }
+        // If the previous token is a `]` or a `)`, then go find the matching one.
+        // This helps us expand past leading attributes when we fail to find them.
+        case TokenKind::kRParenthesis:
+        case TokenKind::kRSquare:
+          // NOTE(pag): This may fail if `prev_tok` is a macro token, e.g. the
+          //            `)` of a macro function call.
+          if (auto matching_tok = GetMatching(prev_tok).first) {
+            lower_bound = matching_tok;
+            changed = true;
+          }
+          break;
+
+        // Expand into the declarator/specifier.
+        case TokenKind::kLParenthesis:  // Function type.
+        case TokenKind::kStar:  // Pointer type.
+        case TokenKind::kAmp:  // Reference type.
+        case TokenKind::kAmpAmp:  // R-value reference type.
+        case TokenKind::kIdentifier:  // Normal type.
+          lower_bound = prev_tok;
+          changed = true; 
+          continue;
+
+        default:
+          break;
       }
     }
   }

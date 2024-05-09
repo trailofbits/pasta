@@ -1020,6 +1020,7 @@ void DeclPrinter::VisitFunctionDecl(clang::FunctionDecl *D) {
         ProtoFn();
         DeclPrinter TArgPrinter(Out, SubPolicy, Context, tokens, Indentation);
 
+        const auto *TArgAsWritten = D->getTemplateSpecializationArgsAsWritten();
         const clang::TemplateParameterList *TPL = nullptr;
         if (auto *SpecInfo = D->getTemplateSpecializationInfo()) {
           TPL = SpecInfo->getTemplate()->getTemplateParameters();

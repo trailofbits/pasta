@@ -2500,6 +2500,7 @@ PrintedTokenRange PrintedTokenRange::Create(clang::ASTContext &context,
   std::string data;
   raw_string_ostream out(data, 0);
   auto tokens = std::make_shared<PrintedTokenRangeImpl>(context);
+  tokens->inject_whitespace = true;
 
   if (!type.isNull()) {
     PrintingPolicyAdaptor ppa;
@@ -2523,6 +2524,7 @@ PrintedTokenRange PrintedTokenRange::Create(const std::shared_ptr<ASTImpl> &ast,
   // Top-level context should be the AST.
   tokens->ast = ast;
   tokens->contexts.emplace_back(*ast);
+  tokens->inject_whitespace = true;
 
   if (!type.isNull()) {
     PrintingPolicyAdaptor ppa(ast, high_pp);

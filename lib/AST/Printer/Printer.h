@@ -149,6 +149,9 @@ class PrintedTokenRangeImpl {
   // specializations/instantiations.
   PrintingPolicyAdaptor *ppa{nullptr};
 
+  // Should whitespace be injected?
+  bool inject_whitespace{false};
+
   inline PrintedTokenRangeImpl(clang::ASTContext &ast_context_)
       : ast_context(ast_context_) {}
 

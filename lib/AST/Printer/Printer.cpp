@@ -43,6 +43,70 @@ extern "C" void CheckNotOnStack(const void *higher, const void *lower) {
 }
 #endif
 
+namespace {
+
+// static bool IsIdentifierLike(TokenKind prev) {
+//   if (prev == TokenKind::kIdentifier) {
+//     return true;
+//   } else if (prev == TokenKind::kLAngle || prev == TokenKind::kRAngle) {
+//     return false;
+//   } else {
+//     return !!clang::tok::getKeywordSpelling(
+//         static_cast<clang::tok::TokenKind>(prev));
+//   }
+// }
+
+// static bool IsPunctuation(TokenKind prev) {
+//   if (prev == TokenKind::kLAngle || prev == TokenKind::kRAngle) {
+//     return true;
+//   } else {
+//     return !!clang::tok::getPunctuatorSpelling(
+//         static_cast<clang::tok::TokenKind>(prev));
+//   }
+// }
+
+static char AddWhitespaceBetween(TokenKind prev, TokenKind next) {
+    switch (prev) {
+    case TokenKind::kColon:
+    case TokenKind::kComma:
+    case TokenKind::kSemi:
+      return true;
+    case TokenKind::kUnknown:
+    case TokenKind::kComment:
+    case TokenKind::kColonColon:
+    case TokenKind::kLAngle:
+    case TokenKind::kLParenthesis:
+    case TokenKind::kLSquare:
+      return false;
+    default:
+      break;
+  }
+
+  switch (next) {
+    case TokenKind::kUnknown:
+    case TokenKind::kComment:
+    case TokenKind::kColonColon:
+    case TokenKind::kLAngle:
+    case TokenKind::kLParenthesis:
+    case TokenKind::kLSquare:
+    case TokenKind::kRAngle:
+    case TokenKind::kRParenthesis:
+    case TokenKind::kRSquare:
+    case TokenKind::kColon:
+    case TokenKind::kComma:
+    case TokenKind::kSemi:
+    case TokenKind::kArrow:
+    case TokenKind::kArrowStar:
+    case TokenKind::kPeriod:
+    case TokenKind::kPeriodStar:
+      return false;
+    default:
+      break;
+  }
+
+  return true;
+}
+
 static void TryLocateAttribute(const clang::Attr *A,
                                PrintedTokenRangeImpl &tokens,
                                size_t old_num_toks) {
@@ -179,6 +243,8 @@ static void TryLocateAttribute(const clang::Attr *A,
     }
   }
 }
+
+}  // namespace
 
 PrintHelper::~PrintHelper(void) {}
 
@@ -573,10 +639,20 @@ void TokenPrinterContext::Tokenize(void) {
       }
     }
 
-    const auto data_offset = static_cast<TokenDataIndex>(tokens.data.size());
+    auto data_offset = static_cast<TokenDataIndex>(tokens.data.size());
     const auto tok_len = tok.getLength();
+    const auto tok_kind = static_cast<TokenKind>(tok.getKind());
     tokens.data.reserve(data_offset + tok_len);
     bool seen_data = false;
+
+    if (tokens.inject_whitespace && !tokens.tokens.empty() && tok_len &&
+        AddWhitespaceBetween(tokens.tokens.back().kind, tok_kind)) {
+      tokens.data.push_back(' ');
+      tokens.tokens.emplace_back(
+        static_cast<TokenDataOffset>(data_offset),
+        1u, kInvalidTokenContextIndex, TokenKind::kUnknown);
+      data_offset += 1u;
+    }
 
     for (auto j = 0u; i < size && j < tok_len; ++i) {
       
@@ -607,7 +683,6 @@ void TokenPrinterContext::Tokenize(void) {
     const auto data_len = tokens.data.size() - data_offset;
     assert(0u < data_len);
     assert(data_len <= tok.getLength());
-    tokens.data.push_back(' ');
 
     // Migrate all kinds to `identifier` now that we've got the data.
     if (tok.is(clang::tok::raw_identifier)) {
@@ -626,8 +701,7 @@ void TokenPrinterContext::Tokenize(void) {
     // Add the token in.
     tokens.tokens.emplace_back(
         static_cast<TokenDataOffset>(data_offset),
-        static_cast<uint32_t>(data_len), context_index,
-        static_cast<TokenKind>(tok.getKind()));
+        static_cast<uint32_t>(data_len), context_index, tok_kind);
 
     if (at_end) {
       break;
@@ -956,68 +1030,6 @@ static std::optional<DerivedTokenIndex> TrailingWhitespaceTokenOffset(
   }
 
   return min_found;
-}
-
-static bool IsIdentifierLike(TokenKind prev) {
-  if (prev == TokenKind::kIdentifier) {
-    return true;
-  } else if (prev == TokenKind::kLAngle || prev == TokenKind::kRAngle) {
-    return false;
-  } else {
-    return !!clang::tok::getKeywordSpelling(
-        static_cast<clang::tok::TokenKind>(prev));
-  }
-}
-
-static bool IsPunctuation(TokenKind prev) {
-  if (prev == TokenKind::kLAngle || prev == TokenKind::kRAngle) {
-    return true;
-  } else {
-    return !!clang::tok::getPunctuatorSpelling(
-        static_cast<clang::tok::TokenKind>(prev));
-  }
-}
-
-static char AddWhitespaceBetween(TokenKind prev, TokenKind next) {
-    switch (prev) {
-    case TokenKind::kColon:
-    case TokenKind::kComma:
-    case TokenKind::kSemi:
-      return true;
-    case TokenKind::kUnknown:
-    case TokenKind::kComment:
-    case TokenKind::kColonColon:
-    case TokenKind::kLAngle:
-    case TokenKind::kLParenthesis:
-    case TokenKind::kLSquare:
-      return false;
-    default:
-      break;
-  }
-
-  switch (next) {
-    case TokenKind::kUnknown:
-    case TokenKind::kComment:
-    case TokenKind::kColonColon:
-    case TokenKind::kLAngle:
-    case TokenKind::kLParenthesis:
-    case TokenKind::kLSquare:
-    case TokenKind::kRAngle:
-    case TokenKind::kRParenthesis:
-    case TokenKind::kRSquare:
-    case TokenKind::kColon:
-    case TokenKind::kComma:
-    case TokenKind::kSemi:
-    case TokenKind::kArrow:
-    case TokenKind::kArrowStar:
-    case TokenKind::kPeriod:
-    case TokenKind::kPeriodStar:
-      return false;
-    default:
-      break;
-  }
-
-  return true;
 }
 
 }  // namespace

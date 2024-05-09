@@ -1020,10 +1020,16 @@ void DeclPrinter::VisitFunctionDecl(clang::FunctionDecl *D) {
         ProtoFn();
         DeclPrinter TArgPrinter(Out, SubPolicy, Context, tokens, Indentation);
 
-        const auto *TArgAsWritten = D->getTemplateSpecializationArgsAsWritten();
-        const clang::TemplateParameterList *TPL = D->getTemplateSpecializationInfo()
-                                                  ->getTemplate()
-                                                  ->getTemplateParameters();
+        const clang::TemplateParameterList *TPL = nullptr;
+        if (auto *SpecInfo = D->getTemplateSpecializationInfo()) {
+          TPL = SpecInfo->getTemplate()->getTemplateParameters();
+        } else if (auto *DependentSpecInfo = D->getDependentSpecializationInfo()){
+          auto Candidates = DependentSpecInfo->getCandidates();
+          // Get the TemplateParamList from the first candidate.
+          if (Candidates.size() > 1u) {
+            TPL = Candidates[0]->getTemplateParameters();
+          }
+        }
 
         TokenPrinterContext ctx(Out, TPL, this->tokens);
         if (const clang::TemplateArgumentList *TArgs =

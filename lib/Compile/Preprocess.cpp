@@ -20,7 +20,7 @@
 #include "../AST/AST.h"
 #include "PatchedMacroTracker.h"
 
-#define PASTA_DEBUG_RUN 1
+#define PASTA_DEBUG_RUN 0
 
 #if PASTA_DEBUG_RUN
 # include <fcntl.h>
@@ -87,7 +87,8 @@ void PreprocessCode(ASTImpl &impl, clang::CompilerInstance &ci,
 
 #if PASTA_DEBUG_RUN
   std::stringstream path_ss;
-  path_ss << "/tmp/source." << std::this_thread::get_id() << ".cpp";
+  path_ss << "/tmp/source."
+          << std::hash<std::thread::id>{}(std::this_thread::get_id()) << ".cpp";
   std::string path = path_ss.str();
 
   // NOTE(pag): If there's a compiler error that "shouldn't happen," then

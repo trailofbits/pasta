@@ -2653,20 +2653,22 @@ void DeclPrinter::VisitHLSLBufferDecl(clang::HLSLBufferDecl *D) {
 static const char *OptionalTrailingSemiColon(
     const std::shared_ptr<PrintedTokenRangeImpl> &tokens, clang::Decl *decl) {
   if (auto fd = clang::dyn_cast<clang::FunctionDecl>(decl)) {
-    if (fd->isExplicitlyDefaulted() || fd->isDeletedAsWritten() ||
-        fd->isPureVirtual()) {
-      return ";";
-    } else if (!fd->isThisDeclarationADefinition()) {
-      return ";";
-    }
-
-    if (!tokens->tokens.empty() &&
-        tokens->tokens.back().kind == TokenKind::kSemi) {
+    if (tokens->LastTokenIsOneOf(TokenKind::kSemi, TokenKind::kRBrace)) {
       return "";
     }
 
-  } else if (tokens->tokens.empty() ||
-             tokens->tokens.back().kind != TokenKind::kSemi) {
+    auto pattern = fd->getInstantiatedFromMemberFunction();
+    if (fd->isExplicitlyDefaulted() || fd->isDeletedAsWritten() ||
+        fd->isPureVirtual()) {
+      return ";";
+    } else if (!fd->isThisDeclarationADefinition() &&
+               (!pattern || !pattern->isThisDeclarationADefinition())) {
+      return ";";
+    }
+
+    return "";
+
+  } else if (!tokens->LastTokenIsOneOf(TokenKind::kSemi)) {
     switch (decl->getKind()) {
       case clang::Decl::ObjCTypeParam:
       case clang::Decl::TemplateParamObject:

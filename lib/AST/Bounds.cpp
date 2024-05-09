@@ -905,6 +905,17 @@ class DeclBoundsFinder : public clang::DeclVisitor<DeclBoundsFinder>,
     return meth->getParent()->isLambda();
   }
 
+  static bool IsImplicitMethodInLambda(clang::FunctionDecl *decl) {
+    auto meth = clang::dyn_cast<clang::CXXMethodDecl>(decl);
+    if (!meth) {
+      return false;
+    }
+    auto lambdaClass = clang::dyn_cast<clang::CXXRecordDecl>(
+        clang::Decl::castFromDeclContext(meth->getDeclContext()));
+    return lambdaClass && lambdaClass->isLambda() &&
+          decl->isImplicit();
+  }
+
   // NOTE(pag): In the case of lamdas, the `->getLocation()` can be
   //            the capture clause, but the source range is more closely
   //            related to the body.
@@ -917,6 +928,11 @@ class DeclBoundsFinder : public clang::DeclVisitor<DeclBoundsFinder>,
   }
 
   void VisitFunctionDecl(clang::FunctionDecl *decl) {
+    // If method is lambda classes are implicit, don't visit
+    // them to get the bounds, return early.
+    if (IsImplicitMethodInLambda(decl)) {
+      return;
+    }
     VisitCommonFunction(decl);
 
     // If this is a lambda, then don't actually include the capture clause.

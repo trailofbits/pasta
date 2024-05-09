@@ -2690,7 +2690,10 @@ PrintedTokenRange PrintedTokenRange::Create(clang::ASTContext &context,
   std::string data;
   raw_string_ostream out(data, 0);
   auto tokens = std::make_shared<PrintedTokenRangeImpl>(context);
-  
+  if (decl->isImplicit()) {
+    tokens->inject_whitespace = true;
+  }
+
   if (decl) {
     PrintingPolicyAdaptor ppa(decl);
     PrintingPolicyAdaptorRAII ppa_set_reset(tokens, ppa);
@@ -2717,6 +2720,9 @@ PrintedTokenRange PrintedTokenRange::Create(const std::shared_ptr<ASTImpl> &ast,
   raw_string_ostream out(data, 0);
   auto &context = ast->tu->getASTContext();
   auto tokens = std::make_shared<PrintedTokenRangeImpl>(context);
+  if (decl->isImplicit()) {
+    tokens->inject_whitespace = true;
+  }
 
   // Top-level context should be the AST.
   tokens->ast = ast;

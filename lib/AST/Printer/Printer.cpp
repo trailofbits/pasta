@@ -75,6 +75,7 @@ static char AddWhitespaceBetween(TokenKind prev, TokenKind next) {
     case TokenKind::kComment:
     case TokenKind::kColonColon:
     case TokenKind::kLAngle:
+    case TokenKind::kLess:
     case TokenKind::kLParenthesis:
     case TokenKind::kLSquare:
       return false;
@@ -90,6 +91,7 @@ static char AddWhitespaceBetween(TokenKind prev, TokenKind next) {
     case TokenKind::kLParenthesis:
     case TokenKind::kLSquare:
     case TokenKind::kRAngle:
+    case TokenKind::kGreater:
     case TokenKind::kRParenthesis:
     case TokenKind::kRSquare:
     case TokenKind::kColon:

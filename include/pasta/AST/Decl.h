@@ -1868,6 +1868,7 @@ class FunctionDecl : public DeclaratorDecl {
   std::vector<::pasta::TemplateParameterList> TemplateParameterLists(void) const;
   std::vector<::pasta::ParmVarDecl> ParameterDeclarations(void) const;
   std::optional<::pasta::Stmt> Body(void) const noexcept;
+  std::vector<::pasta::TemplateArgument> TemplateArguments(void) const noexcept;
  protected:
   PASTA_DEFINE_DEFAULT_DECL_CONSTRUCTOR(FunctionDecl)
 };

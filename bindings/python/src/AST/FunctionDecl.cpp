@@ -110,6 +110,7 @@ void RegisterFunctionDecl(nb::module_ &m) {
     .def_prop_ro("parameters", &FunctionDecl::Parameters)
     .def_prop_ro("uses_seh_try", &FunctionDecl::UsesSEHTry)
     .def_prop_ro("will_have_body", &FunctionDecl::WillHaveBody)
-    .def_prop_ro("body", &FunctionDecl::Body);
+    .def_prop_ro("body", &FunctionDecl::Body)
+    .def_prop_ro("template_arguments", &FunctionDecl::TemplateArguments);
 }
 } // namespace pasta

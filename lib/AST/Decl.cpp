@@ -5251,6 +5251,17 @@ std::optional<::pasta::Stmt> FunctionDecl::Body(void) const noexcept {
   }
 }
 
+std::vector<::pasta::TemplateArgument> FunctionDecl::TemplateArguments(void) const noexcept {
+  const clang::FunctionDecl *decl = u.FunctionDecl;
+  std::vector<::pasta::TemplateArgument> ret;
+  if (auto args = decl->getTemplateSpecializationArgs()) {
+    for (auto &arg : args->asArray()) {
+      ret.emplace_back(ast, &arg);
+    }
+  }
+  return ret;
+}
+
 HLSLBufferDecl::HLSLBufferDecl(
     std::shared_ptr<ASTImpl> ast_,
     const ::clang::Decl *decl_)

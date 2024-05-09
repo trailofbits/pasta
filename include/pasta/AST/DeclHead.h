@@ -9,6 +9,9 @@
 
 #include "Forward.h"
 
+namespace llvm {
+class APSInt;
+}  // namespace llvm
 namespace clang {
 class CXXBaseSpecifier;
 class CXXCtorInitializer;
@@ -201,10 +204,16 @@ class TemplateArgument {
 
   std::optional<::pasta::Type> NullPointerType(void) const noexcept;
 
-  // If this argument is an argument pack, then return the inner arguments.
-  std::optional<std::vector<TemplateArgument>> PackElements(void) const noexcept;
+  // Retrieve the expression for an expression template argument.
+  std::optional<::pasta::Expr> Expression(void) const noexcept;
 
-  // TODO(pag): Others methods.
+  // Retrieve the number value for an integral template argument if it fits in
+  // 64 bits.
+  std::optional<llvm::APSInt> Integral(void) const noexcept;
+
+  // Return the template arguments in this pack, or an empty vector if this
+  // isn't a pack.
+  std::vector<TemplateArgument> PackArguments(void) const noexcept;
 #endif
 };
 

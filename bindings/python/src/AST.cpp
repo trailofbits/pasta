@@ -84,7 +84,8 @@ void RegisterAST(nb::module_ &m) {
     .def_prop_ro("type", &TemplateArgument::Type)
     .def_prop_ro("parameter_type_for_declaration", &TemplateArgument::ParameterTypeForDeclaration)
     .def_prop_ro("null_pointer_type", &TemplateArgument::NullPointerType)
-    .def_prop_ro("pack_elements", &TemplateArgument::PackElements);
+    .def_prop_ro("pack_arguments", &TemplateArgument::PackArguments)
+    .def_prop_ro("expression", &TemplateArgument::Expression);
 }
 
 }  // namespace pasta

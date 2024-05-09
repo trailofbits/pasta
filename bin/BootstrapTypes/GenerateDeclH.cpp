@@ -206,7 +206,8 @@ void GenerateDeclH(void) {
     // We need to manually inject our own `Body` method.
     } else if (name == "FunctionDecl") {
       os
-          << "  std::optional<::pasta::Stmt> Body(void) const noexcept;\n";
+          << "  std::optional<::pasta::Stmt> Body(void) const noexcept;\n"
+          << "  std::vector<::pasta::TemplateArgument> TemplateArguments(void) const noexcept;\n";
     
     // Manually inject a bit offset.
     } else if (name == "FieldDecl") {

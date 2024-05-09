@@ -1787,6 +1787,8 @@ void MacroTokenStorage::FixupTokenProvenance(
                          depth + 1, sm.getImmediateSpellingLoc(loc));
   }
 
+  (void) has_derived;
+
   if (can_be_derived) {
     auto next_loc = CreateMacroLocation(tok_index);
     if (has_tok_for_loc) {

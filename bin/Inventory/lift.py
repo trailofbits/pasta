@@ -179,7 +179,7 @@ def _generate_args(arg: TemplateArgument) -> Iterable[TemplateArgument]:
   if arg.is_empty:
     return
   if arg.kind == TemplateArgumentKind.PACK:
-    for sub_arg in arg.pack_elements:
+    for sub_arg in arg.pack_arguments:
       yield from _generate_args(sub_arg)
   else:
     yield arg

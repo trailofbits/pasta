@@ -902,7 +902,12 @@ class DeclBoundsFinder : public clang::DeclVisitor<DeclBoundsFinder>,
       return false;
     }
 
-    return meth->getParent()->isLambda();
+    auto parent = meth->getParent();
+    return parent && parent->isLambda();
+  }
+
+  static bool IsImplicitMethodInLambda(clang::FunctionDecl *decl) {
+    return IsMethodInLambda(decl) && decl->isImplicit();
   }
 
   // NOTE(pag): In the case of lamdas, the `->getLocation()` can be
@@ -917,6 +922,11 @@ class DeclBoundsFinder : public clang::DeclVisitor<DeclBoundsFinder>,
   }
 
   void VisitFunctionDecl(clang::FunctionDecl *decl) {
+    // If method is lambda classes are implicit, don't visit
+    // them to get the bounds, return early.
+    if (IsImplicitMethodInLambda(decl)) {
+      return;
+    }
     VisitCommonFunction(decl);
 
     // If this is a lambda, then don't actually include the capture clause.

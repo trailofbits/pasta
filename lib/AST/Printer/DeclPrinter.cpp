@@ -2702,11 +2702,9 @@ PrintedTokenRange PrintedTokenRange::Create(clang::ASTContext &context,
     printer.Visit(decl);
 
     // Add a trailing semicolon.
-    auto semi = OptionalTrailingSemiColon(tokens, decl);
-    if (semi[0]) {
-      TokenPrinterContext ctx(out, decl, *tokens);
-      out << semi[0];
-    }
+
+    TokenPrinterContext ctx(out, decl, *tokens);
+    out << OptionalTrailingSemiColon(tokens, decl);
   }
 
   tokens->AddTrailingEOF();

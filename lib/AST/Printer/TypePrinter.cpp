@@ -1894,8 +1894,13 @@ void TypePrinter::printTemplateTypeParm(const clang::TemplateTypeParmType *T,
                                         std::function<void(void)> IdentFn) {
   TokenPrinterContext ctx(OS, T, tokens);
   clang::TemplateTypeParmDecl *D = T->getDecl();
+
+  std::optional<TokenPrinterContext> ctx2;
+  if (D) {
+    ctx2.emplace(OS, D, tokens);
+  }
+
   if (D && D->isImplicit()) {
-    TokenPrinterContext ctx2(OS, D, tokens);
     if (auto *TC = D->getTypeConstraint()) {
       TagDefinitionPolicyRAII disable_tags(Policy);
       TokenPrinterContext ctx3(OS, TC, tokens);

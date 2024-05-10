@@ -483,6 +483,7 @@ bool PrintedTokenRangeImpl::LastTokenIsOneOf(Kinds... kinds) {
     if ((false || ... || (kind == kinds))) {
       return true;
     }
+    break;
   }
   return false;
 }

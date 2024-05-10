@@ -1330,7 +1330,13 @@ class DeclBoundsFinder : public clang::DeclVisitor<DeclBoundsFinder>,
     // are only known in the `TypeLoc`.
     if (clang::TypeSourceInfo *tsi = decl->getTypeSourceInfo()) {
       if (auto tl = tsi->getTypeLoc()) {
-        Expand(tl.getSourceRange());
+        // If the variable is an argument pack with syntax set as prefix,
+        // the source range may point to the start of the pack. In such case
+        // expand from the pack sytax to the source location of variable.
+        auto [begin, end] = tl.getBeginLoc() > tl.getEndLoc() ?
+                            std::make_tuple(tl.getEndLoc(), tl.getBeginLoc()) :
+                            std::make_tuple(tl.getBeginLoc(), tl.getEndLoc());
+        Expand(begin, end);
       }
     }
 

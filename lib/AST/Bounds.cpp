@@ -902,18 +902,12 @@ class DeclBoundsFinder : public clang::DeclVisitor<DeclBoundsFinder>,
       return false;
     }
 
-    return meth->getParent()->isLambda();
+    auto parent = meth->getParent();
+    return parent && parent->isLambda();
   }
 
   static bool IsImplicitMethodInLambda(clang::FunctionDecl *decl) {
-    auto meth = clang::dyn_cast<clang::CXXMethodDecl>(decl);
-    if (!meth) {
-      return false;
-    }
-    auto lambdaClass = clang::dyn_cast<clang::CXXRecordDecl>(
-        clang::Decl::castFromDeclContext(meth->getDeclContext()));
-    return lambdaClass && lambdaClass->isLambda() &&
-          decl->isImplicit();
+    return IsMethodInLambda(decl) && decl->isImplicit();
   }
 
   // NOTE(pag): In the case of lamdas, the `->getLocation()` can be

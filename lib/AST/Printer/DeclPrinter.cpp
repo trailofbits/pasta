@@ -1016,11 +1016,11 @@ void DeclPrinter::VisitFunctionDecl(clang::FunctionDecl *D) {
       };
     }
     if (D->isFunctionTemplateSpecialization()) {
-      ProtoFn = [=, ProtoFn = std::move(ProtoFn), this] (void) {
+      ProtoFn = [&, ProtoFn = std::move(ProtoFn), this] (void) {
         ProtoFn();
+        TokenPrinterContext jump_up_stack(ctx);
         DeclPrinter TArgPrinter(Out, SubPolicy, Context, tokens, Indentation);
 
-        const auto *TArgAsWritten = D->getTemplateSpecializationArgsAsWritten();
         const clang::TemplateParameterList *TPL = nullptr;
         if (auto *SpecInfo = D->getTemplateSpecializationInfo()) {
           TPL = SpecInfo->getTemplate()->getTemplateParameters();
@@ -1032,11 +1032,15 @@ void DeclPrinter::VisitFunctionDecl(clang::FunctionDecl *D) {
           }
         }
 
-        TokenPrinterContext ctx(Out, TPL, this->tokens);
+        std::optional<TokenPrinterContext> tpl_context;
+        if (TPL) {
+          tpl_context.emplace(Out, TPL, this->tokens);
+        }
         if (const clang::TemplateArgumentList *TArgs =
                 D->getTemplateSpecializationArgs())
           TArgPrinter.printTemplateArguments(TArgs->asArray(), TPL, true);
-        else if (TArgAsWritten)
+
+        else if (const auto *TArgAsWritten = D->getTemplateSpecializationArgsAsWritten())
           TArgPrinter.printTemplateArguments(TArgAsWritten->arguments(), TPL, true);
       };
     }

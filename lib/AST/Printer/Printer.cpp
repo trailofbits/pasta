@@ -66,7 +66,7 @@ namespace {
 // }
 
 static char AddWhitespaceBetween(TokenKind prev, TokenKind next) {
-    switch (prev) {
+  switch (prev) {
     case TokenKind::kColon:
     case TokenKind::kComma:
     case TokenKind::kSemi:
@@ -88,6 +88,7 @@ static char AddWhitespaceBetween(TokenKind prev, TokenKind next) {
     case TokenKind::kComment:
     case TokenKind::kColonColon:
     case TokenKind::kLAngle:
+    case TokenKind::kLess:
     case TokenKind::kLParenthesis:
     case TokenKind::kLSquare:
     case TokenKind::kRAngle:

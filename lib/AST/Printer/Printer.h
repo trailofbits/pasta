@@ -405,20 +405,42 @@ const TokenContextIndex PrintedTokenRangeImpl::CreateContext(
     return kInvalidTokenContextIndex;
   }
 
-  auto dedup = !std::is_same_v<T, char> && !std::is_base_of_v<clang::Type, T>;
-  if (dedup) {
-    data = Canonicalize(data);
-    if (auto it = data_to_index.find(data); it != data_to_index.end()) {
-      return it->second;
-    }
-  }
-
+  // Reuse the prior context.
   if (tokenizer->prev_printer_context) {
     TokenPrinterContext *prev_printer = tokenizer->prev_printer_context;
     TokenContextIndex prev_index = prev_printer->context_index;
     TokenContextImpl &prev_context = contexts[prev_index];
     if (prev_context.data == data) {
       return prev_index;
+    }
+  }
+
+  auto dedup = !std::is_same_v<T, char> && !std::is_base_of_v<clang::Type, T>;
+  
+  // If our parent context is a type, or points to a type, or isn't itself
+  // subject to deduplication, then don't deduplicate this one. See
+  // Issue #54 (https://github.com/trailofbits/pasta/issues/54).
+  if (dedup && tokenizer->prev_printer_context) {
+    auto parent_index = tokenizer->prev_printer_context->context_index;
+    switch (contexts[parent_index].kind) {
+      case TokenContextKind::kString:
+      case TokenContextKind::kType:
+      case TokenContextKind::kTemplateArgument:
+      case TokenContextKind::kTemplateParameterList:
+        dedup = false;
+        break;
+      default:
+        if (!data_to_index.count(contexts[parent_index].data)) {
+          dedup = false;
+        }
+        break;
+    }
+  }
+
+  if (dedup) {
+    data = Canonicalize(data);
+    if (auto it = data_to_index.find(data); it != data_to_index.end()) {
+      return it->second;
     }
   }
 
@@ -434,21 +456,6 @@ const TokenContextIndex PrintedTokenRangeImpl::CreateContext(
         parent_index,
         parent_depth,
         data);
-
-    // If our parent context is a type, or points to a type, or isn't itself
-    // subject to deduplication, then don't deduplicate this one. See
-    // Issue #54 (https://github.com/trailofbits/pasta/issues/54).
-    switch (contexts[parent_index].kind) {
-      case TokenContextKind::kString:
-      case TokenContextKind::kType:
-        dedup = false;
-        break;
-      default:
-        if (!data_to_index.count(contexts[parent_index].data)) {
-          dedup = false;
-        }
-        break;
-    }
   } else {
     contexts.emplace_back(
         kInvalidTokenContextIndex,

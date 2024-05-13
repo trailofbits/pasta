@@ -949,6 +949,10 @@ class DeclBoundsFinder : public clang::DeclVisitor<DeclBoundsFinder>,
     }
   }
 
+  static bool IsTemplateSpecializationExplicit(clang::FunctionDecl *decl) {
+    return decl && decl->getTemplateSpecializationKind() == clang::TSK_ExplicitSpecialization;
+  }
+
   void VisitCommonFunction(clang::FunctionDecl *decl) {
 
     if (clang::FunctionTypeLoc ftl = decl->getFunctionTypeLoc()) {
@@ -964,12 +968,26 @@ class DeclBoundsFinder : public clang::DeclVisitor<DeclBoundsFinder>,
     ParsedTokenIterator tok = ast.RawTokenAt(decl->getLocation());
 
     auto missing_body = false;
-    if (decl->isTemplateInstantiation()) {
-      auto pattern_decl = decl->getTemplateInstantiationPattern();
-      if (pattern_decl->getLocation() == decl->getLocation()) {
+
+    // Template specilization can be explcit or implicit. Check if the FunctionDecl
+    // is one of them, match the pattern location with the decl source location
+    // and expand the bounds to source range accordingly or set flag if body is
+    // missing.
+    if (decl->isTemplateInstantiation() || IsTemplateSpecializationExplicit(decl)) {
+      clang::FunctionDecl *pattern = nullptr;
+      if (decl->isTemplateInstantiation()) {
+        pattern = decl->getTemplateInstantiationPattern(true);
+      } else if (IsTemplateSpecializationExplicit(decl)) {
+        // explict instantiation will return nullptr if ForDefinition is set true
+        // also assert if pattern is nullptr.
+        pattern = decl->getTemplateInstantiationPattern(false);
+        assert(pattern != nullptr);
+      }
+
+      if (pattern && pattern->getLocation() == decl->getLocation()) {
 
         if (decl->doesThisDeclarationHaveABody()) {
-          if (auto pattern_def = pattern_decl->getDefinition()) {
+          if (auto pattern_def = pattern->getDefinition()) {
             if (auto pattern_tpl = pattern_def->getDescribedFunctionTemplate()) {
               assert(pattern_tpl->getTemplatedDecl() == pattern_def);
               Expand(pattern_tpl->getSourceRange(), CheckLocation(pattern_def));
@@ -981,27 +999,27 @@ class DeclBoundsFinder : public clang::DeclVisitor<DeclBoundsFinder>,
           }
 
         // Clang might not instantiate the body of unreferenced templates.
-        } else if (pattern_decl->doesThisDeclarationHaveABody()) {
+        } else if (pattern->doesThisDeclarationHaveABody()) {
           // assert(!decl->isReferenced());
           missing_body = true;
 
-          if (auto pattern_tpl = pattern_decl->getDescribedFunctionTemplate()) {
-            assert(pattern_tpl->getTemplatedDecl() == pattern_decl);
-            Expand(pattern_tpl->getSourceRange(), CheckLocation(pattern_decl));
+          if (auto pattern_tpl = pattern->getDescribedFunctionTemplate()) {
+            assert(pattern_tpl->getTemplatedDecl() == pattern);
+            Expand(pattern_tpl->getSourceRange(), CheckLocation(pattern));
           } else {
-            Expand(pattern_decl->getSourceRange(), CheckLocation(pattern_decl));
+            Expand(pattern->getSourceRange(), CheckLocation(pattern));
           }
 
           // The template pattern may have skipped body during partial instantiation
           // and body is not set. In that case get the end of the Function token and
           // expand till the `end_tok`.
-        } else if (pattern_decl->hasSkippedBody()) {
+        } else if (pattern->hasSkippedBody()) {
           if (auto end_tok = FindEndOfFunction(decl, tok);
               end_tok > upper_bound) {
             Expand(end_tok);
           }
         } else {
-          Expand(pattern_decl->getSourceRange(), CheckLocation(pattern_decl));
+          Expand(pattern->getSourceRange(), CheckLocation(pattern));
           ExpandToTrailingToken(tok, TokenKind::kSemi);
         }
 
@@ -1014,7 +1032,8 @@ class DeclBoundsFinder : public clang::DeclVisitor<DeclBoundsFinder>,
       } else {
         auto tsk = decl->getTemplateSpecializationKind();
         assert(clang::TSK_ImplicitInstantiation == tsk ||
-               clang::TSK_ExplicitInstantiationDeclaration == tsk);
+               clang::TSK_ExplicitInstantiationDeclaration == tsk ||
+               clang::TSK_ExplicitSpecialization == tsk);
         (void) tsk;
       }
     }

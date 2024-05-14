@@ -56,7 +56,7 @@ void ParsedFileTracker::FileChanged(clang::SourceLocation loc,
     file_id = sm.getFileID(loc);
   }
 
-  const clang::FileEntry *fe = sm.getFileEntryForID(file_id);
+  auto fe = sm.getFileEntryRefForID(file_id);
   if (!fe) {
     return;
   }

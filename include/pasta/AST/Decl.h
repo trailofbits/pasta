@@ -244,6 +244,10 @@ class DeclContext {
     assert(ast.get() != nullptr);
     u.DeclContext = context_;
   }
+ public:
+  inline bool operator==(const DeclContext &that) const noexcept {
+    return u.opaque == that.u.opaque;
+  }
 };
 
 class Decl {

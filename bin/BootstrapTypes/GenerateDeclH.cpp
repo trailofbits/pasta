@@ -97,6 +97,10 @@ void GenerateDeclH(void) {
      << "    assert(ast.get() != nullptr);\n"
      << "    u.DeclContext = context_;\n"
      << "  }\n"
+     << " public:\n"
+     << "  inline bool operator==(const DeclContext &that) const noexcept {\n"
+     << "    return u.opaque == that.u.opaque;\n"
+     << "  }\n"
      << "};\n\n";
 
   // Define them all.

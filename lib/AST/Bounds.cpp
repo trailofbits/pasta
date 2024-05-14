@@ -822,11 +822,31 @@ class DeclBoundsFinder : public clang::DeclVisitor<DeclBoundsFinder>,
     Expand(decl->getSourceRange(), decl->getLocation());
   }
 
-  void VisitDecl(clang::Decl *decl) {
-    VisitBaseDecl(decl);
-    if (!clang::isa<clang::FunctionDecl>(decl)) {
+  void MaybeExpandToTrailingSemi(clang::Decl *decl) {
+    if (!clang::isa<clang::FunctionDecl, clang::FunctionTemplateDecl>(decl)) {
       ExpandToTrailingToken(decl->getLocation(), TokenKind::kSemi);
     }
+  }
+
+  void VisitFriendDecl(clang::FriendDecl *decl) {
+    VisitBaseDecl(decl);
+    if (auto friended_decl = decl->getFriendDecl()) {
+      Visit(friended_decl);
+      MaybeExpandToTrailingSemi(friended_decl);
+    }
+  }
+
+  void VisitFriendTemplateDecl(clang::FriendTemplateDecl *decl) {
+    VisitBaseDecl(decl);
+    if (auto friended_decl = decl->getFriendDecl()) {
+      Visit(friended_decl);
+      MaybeExpandToTrailingSemi(friended_decl);
+    }
+  }
+
+  void VisitDecl(clang::Decl *decl) {
+    VisitBaseDecl(decl);
+    MaybeExpandToTrailingSemi(decl);
   }
 
   void VisitExpr(clang::Expr *expr) {

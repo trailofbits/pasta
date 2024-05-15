@@ -2655,9 +2655,9 @@ void DeclPrinter::VisitHLSLBufferDecl(clang::HLSLBufferDecl *D) {
 }
 
 static const char *OptionalTrailingSemiColon(
-    const std::shared_ptr<PrintedTokenRangeImpl> &tokens, clang::Decl *decl) {
+    PrintedTokenRangeImpl &tokens, clang::Decl *decl) {
   if (auto fd = clang::dyn_cast<clang::FunctionDecl>(decl)) {
-    if (tokens->LastTokenIsOneOf(TokenKind::kSemi, TokenKind::kRBrace)) {
+    if (tokens.LastTokenIsOneOf(TokenKind::kSemi, TokenKind::kRBrace)) {
       return "";
     }
 
@@ -2672,7 +2672,7 @@ static const char *OptionalTrailingSemiColon(
 
     return "";
 
-  } else if (!tokens->LastTokenIsOneOf(TokenKind::kSemi)) {
+  } else if (!tokens.LastTokenIsOneOf(TokenKind::kSemi)) {
     switch (decl->getKind()) {
       case clang::Decl::ObjCTypeParam:
       case clang::Decl::TemplateParamObject:
@@ -2700,7 +2700,7 @@ PrintedTokenRange PrintedTokenRange::Create(clang::ASTContext &context,
 
   if (decl) {
     PrintingPolicyAdaptor ppa(decl);
-    PrintingPolicyAdaptorRAII ppa_set_reset(tokens, ppa);
+    PrintingPolicyAdaptorRAII ppa_set_reset(*tokens, ppa);
 
     DeclPrinter printer(out, policy, context, *tokens);
     printer.Visit(decl);
@@ -2708,9 +2708,101 @@ PrintedTokenRange PrintedTokenRange::Create(clang::ASTContext &context,
     // Add a trailing semicolon.
 
     TokenPrinterContext ctx(out, decl, *tokens);
-    out << OptionalTrailingSemiColon(tokens, decl);
+    out << OptionalTrailingSemiColon(*tokens, decl);
   }
 
+  tokens->AddTrailingEOF();
+  return PrintedTokenRangeImpl::ToPrintedTokenRange(std::move(tokens));
+}
+
+void PrintedTokenRangeImpl::Append(clang::Decl *decl,
+                                   raw_string_ostream &out,
+                                   const PrintingPolicy &high_pp) {
+  if (!decl) {
+    return;
+  }
+
+  curr_printer_context = nullptr;
+
+  std::vector<clang::Decl *> parent_decls;
+  auto dc = decl->getLexicalDeclContext();
+  while (dc) {
+    auto parent_decl = clang::Decl::castFromDeclContext(dc);
+    if (!parent_decl ||
+        parent_decl->getKind() == clang::Decl::TranslationUnit) {
+      break;
+    }
+
+    parent_decls.emplace_back(parent_decl);
+    dc = parent_decl->getLexicalDeclContext();
+  }
+
+  // Add the parentage to this decl.
+  std::vector<std::unique_ptr<TokenPrinterContext>> parent_contexts;
+  while (!parent_decls.empty()) {
+    parent_contexts.emplace_back(
+        new TokenPrinterContext(out, parent_decls.back(), *this));
+    parent_decls.pop_back();
+  }
+
+  PrintingPolicyAdaptor ppa(ast, high_pp, decl);
+  PrintingPolicyAdaptorRAII ppa_set_reset(*this, ppa);
+
+  clang::PrintingPolicy pp = *(ast->printing_policy);
+  pp.SuppressTemplateArgsInCXXConstructors = true;
+  pp.FullyQualifiedName = false;
+  pp.TerseOutput = false;
+  pp.SuppressDefaultTemplateArgs = false;
+  pp.ConstantsAsWritten = true;
+  pp.IncludeTagDefinition = high_pp.ShouldPrintTagBodies();
+
+  DeclPrinter printer(out, pp, decl->getASTContext(), *this);
+  TokenPrinterContext ctx(out, decl, *this);
+  inject_whitespace = decl->isImplicit();
+  printer.Visit(decl);
+
+  // Add a trailing semicolon.
+  out << OptionalTrailingSemiColon(*this, decl);
+
+  ctx.Tokenize();
+
+  // Mark the location of the trailing semicolon, if any.
+  auto [begin_tok, end_tok] = ast->DeclBounds(decl);
+  if (begin_tok < end_tok && ast->TokenKind(end_tok) == TokenKind::kSemi &&
+      tokens.back().kind == TokenKind::kSemi) {
+    ctx.MarkLocation(end_tok);
+  }
+
+  // Close it out in the right order.
+  while (!parent_contexts.empty()) {
+    parent_contexts.pop_back();
+  }
+}
+
+// More typical APIs when we've got PASTA ASTs.
+PrintedTokenRange PrintedTokenRange::Create(
+    const AST &ast, const std::vector<Decl> &decls,
+    const PrintingPolicy &high_pp) {
+
+  if (decls.empty()) {
+    return CreateEmpty(ast);
+  }
+
+  std::string data;
+  raw_string_ostream out(data, 0);
+  auto &context = ast.impl->tu->getASTContext();
+  auto tokens = std::make_shared<PrintedTokenRangeImpl>(context);
+
+  // Top-level context should be the AST.
+  tokens->ast = ast.impl;
+  tokens->contexts.emplace_back(*ast.impl);
+
+  for (const auto &high_decl : decls) {
+    assert(high_decl.ast == ast.impl);
+    tokens->Append(const_cast<clang::Decl *>(high_decl.u.Decl), out, high_pp);
+  }
+
+  tokens->FixupInvalidTokenContexts(kASTTokenContextIndex);
   tokens->AddTrailingEOF();
   return PrintedTokenRangeImpl::ToPrintedTokenRange(std::move(tokens));
 }
@@ -2722,69 +2814,11 @@ PrintedTokenRange PrintedTokenRange::Create(const std::shared_ptr<ASTImpl> &ast,
   raw_string_ostream out(data, 0);
   auto &context = ast->tu->getASTContext();
   auto tokens = std::make_shared<PrintedTokenRangeImpl>(context);
-  if (decl->isImplicit()) {
-    tokens->inject_whitespace = true;
-  }
 
   // Top-level context should be the AST.
   tokens->ast = ast;
   tokens->contexts.emplace_back(*ast);
-
-  if (decl) {
-    std::vector<clang::Decl *> parent_decls;
-    auto dc = decl->getLexicalDeclContext();
-    while (dc) {
-      auto parent_decl = clang::Decl::castFromDeclContext(dc);
-      if (!parent_decl ||
-          parent_decl->getKind() == clang::Decl::TranslationUnit) {
-        break;
-      }
-
-      parent_decls.emplace_back(parent_decl);
-      dc = parent_decl->getLexicalDeclContext();
-    }
-
-    // Add the parentage to this decl.
-    std::vector<std::unique_ptr<TokenPrinterContext>> parent_contexts;
-    while (!parent_decls.empty()) {
-      parent_contexts.emplace_back(
-          new TokenPrinterContext(out, parent_decls.back(), *tokens));
-      parent_decls.pop_back();
-    }
-
-    PrintingPolicyAdaptor ppa(ast, high_pp, decl);
-    PrintingPolicyAdaptorRAII ppa_set_reset(tokens, ppa);
-
-    clang::PrintingPolicy pp = *(ast->printing_policy);
-    pp.SuppressTemplateArgsInCXXConstructors = true;
-    pp.FullyQualifiedName = false;
-    pp.TerseOutput = false;
-    pp.SuppressDefaultTemplateArgs = false;
-    pp.ConstantsAsWritten = true;
-    pp.IncludeTagDefinition = high_pp.ShouldPrintTagBodies();
-
-    DeclPrinter printer(out, pp, context, *tokens);
-    printer.Visit(decl);
-
-    // Add a trailing semicolon.
-    TokenPrinterContext ctx(out, decl, *tokens);
-    out << OptionalTrailingSemiColon(tokens, decl);
-
-    ctx.Tokenize();
-
-    // Mark the location of the trailing semicolon, if any.
-    auto [begin_tok, end_tok] = ast->DeclBounds(decl);
-    if (begin_tok < end_tok && ast->TokenKind(end_tok) == TokenKind::kSemi &&
-        tokens->tokens.back().kind == TokenKind::kSemi) {
-      ctx.MarkLocation(end_tok);
-    }
-
-    // Close it out in the right order.
-    while (!parent_contexts.empty()) {
-      parent_contexts.pop_back();
-    }
-  }
-
+  tokens->Append(decl, out, high_pp);
   tokens->FixupInvalidTokenContexts(kASTTokenContextIndex);
   tokens->AddTrailingEOF();
   return PrintedTokenRangeImpl::ToPrintedTokenRange(std::move(tokens));

@@ -2509,7 +2509,7 @@ PrintedTokenRange PrintedTokenRange::Create(clang::ASTContext &context,
 
   if (!type.isNull()) {
     PrintingPolicyAdaptor ppa;
-    PrintingPolicyAdaptorRAII ppa_set_reset(tokens, ppa);
+    PrintingPolicyAdaptorRAII ppa_set_reset(*tokens, ppa);
     TypePrinter printer(out, policy, *tokens);
     printer.print(type, "", nullptr);
   }
@@ -2533,7 +2533,7 @@ PrintedTokenRange PrintedTokenRange::Create(const std::shared_ptr<ASTImpl> &ast,
 
   if (!type.isNull()) {
     PrintingPolicyAdaptor ppa(ast, high_pp);
-    PrintingPolicyAdaptorRAII ppa_set_reset(tokens, ppa);
+    PrintingPolicyAdaptorRAII ppa_set_reset(*tokens, ppa);
 
     clang::PrintingPolicy pp = *(ast->printing_policy);
     pp.IncludeTagDefinition = high_pp.ShouldPrintTagBodies();

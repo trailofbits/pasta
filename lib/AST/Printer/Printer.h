@@ -192,6 +192,10 @@ class PrintedTokenRangeImpl {
 
   void AddTrailingEOF(void);
 
+  // Append a decl into the range.
+  void Append(clang::Decl *decl, raw_string_ostream &out,
+              const PrintingPolicy &high_pp);
+
   inline static PrintedTokenRange ToPrintedTokenRange(
       std::shared_ptr<PrintedTokenRangeImpl> self) {
     PrintedTokenImpl *first_tok = self->tokens.data();
@@ -282,10 +286,9 @@ class PrintingPolicyAdaptorRAII {
 
  public:
 
-  inline PrintingPolicyAdaptorRAII(
-      const std::shared_ptr<PrintedTokenRangeImpl> &range,
-      PrintingPolicyAdaptor &ppa)
-      : ppa_ptr(range->ppa) {
+  inline PrintingPolicyAdaptorRAII(PrintedTokenRangeImpl &range,
+                                   PrintingPolicyAdaptor &ppa)
+      : ppa_ptr(range.ppa) {
     ppa_ptr = &ppa;
   }
 

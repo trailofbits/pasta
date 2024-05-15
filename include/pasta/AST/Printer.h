@@ -406,6 +406,10 @@ class PrintedTokenRange {
   static PrintedTokenRange Create(
       const Decl &decl_, const PrintingPolicy &pp_=PrintingPolicy());
 
+
+  static PrintedTokenRange Create(const AST &ast_, const std::vector<Decl> &decls_,
+                                  const PrintingPolicy &pp_=PrintingPolicy());
+
   static PrintedTokenRange Create(
       const Stmt &stmt_, const PrintingPolicy &pp_=PrintingPolicy());
 

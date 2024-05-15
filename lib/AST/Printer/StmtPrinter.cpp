@@ -3271,7 +3271,7 @@ PrintedTokenRange PrintedTokenRange::Create(clang::ASTContext &context,
 
   if (stmt) {
     PrintingPolicyAdaptor ppa;
-    PrintingPolicyAdaptorRAII ppa_set_reset(tokens, ppa);
+    PrintingPolicyAdaptorRAII ppa_set_reset(*tokens, ppa);
     StmtPrinter printer(out, nullptr, *tokens, policy);
     printer.Visit(stmt);
   }
@@ -3294,7 +3294,7 @@ PrintedTokenRange PrintedTokenRange::Create(const std::shared_ptr<ASTImpl> &ast,
 
   if (stmt) {
     PrintingPolicyAdaptor ppa(ast, high_pp);
-    PrintingPolicyAdaptorRAII ppa_set_reset(tokens, ppa);
+    PrintingPolicyAdaptorRAII ppa_set_reset(*tokens, ppa);
 
     clang::PrintingPolicy pp = *(ast->printing_policy);
     pp.SuppressTemplateArgsInCXXConstructors = true;

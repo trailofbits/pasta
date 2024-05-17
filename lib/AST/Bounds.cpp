@@ -1482,8 +1482,10 @@ class DeclBoundsFinder : public clang::DeclVisitor<DeclBoundsFinder>,
       }
 
       unsigned param_index = decl->getFunctionScopeIndex();
-      assert(param_index < proto->params.size() &&
-             !func->isFunctionTemplateSpecialization());
+      if (param_index >= proto->params.size()) {
+        assert(func->isFunctionTemplateSpecialization());
+        return;
+      }
 
       // This just ends up re-reading the bounds back out of the AST.
       const ASTImpl::BoundingTokens *param_proto = proto->params[param_index];

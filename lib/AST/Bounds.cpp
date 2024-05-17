@@ -997,9 +997,9 @@ class DeclBoundsFinder : public clang::DeclVisitor<DeclBoundsFinder>,
 
   void VisitCommonFunction(clang::FunctionDecl *decl) {
 
-    if (clang::FunctionTypeLoc ftl = decl->getFunctionTypeLoc()) {
-      this->TypeLocVisitor::Visit(ftl);
-    }
+    // if (clang::FunctionTypeLoc ftl = decl->getFunctionTypeLoc()) {
+    //   this->TypeLocVisitor::Visit(ftl);
+    // }
 
     // } else if (clang::TypeSourceInfo *tsi = decl->getTypeSourceInfo()) {
     //   if (auto tl = tsi->getTypeLoc()) {
@@ -2011,31 +2011,31 @@ class DeclBoundsFinder : public clang::DeclVisitor<DeclBoundsFinder>,
     return VisitTagTypeLoc(loc);
   }
 
-  void VisitFunctionTypeLoc(clang::FunctionTypeLoc loc) {
-    Expand(loc.getLocalSourceRange());
-    Expand(loc.getParensRange());
-    Expand(loc.getExceptionSpecRange());
-    if (auto rl = loc.getReturnLoc()) {
-      this->TypeLocVisitor::Visit(rl);
-    }
-    // for (auto param : loc.getParams()) {
-    //   if (param) {
-    //     if (auto param_info = param->getTypeSourceInfo()) {
-    //       if (auto pl = param_info->getTypeLoc()) {
-    //         this->TypeLocVisitor::Visit(pl);
-    //       }
-    //     }
-    //   }
-    // }
-  }
+  // void VisitFunctionTypeLoc(clang::FunctionTypeLoc loc) {
+  //   Expand(loc.getLocalSourceRange());
+  //   Expand(loc.getParensRange());
+  //   Expand(loc.getExceptionSpecRange());
+  //   if (auto rl = loc.getReturnLoc()) {
+  //     this->TypeLocVisitor::Visit(rl);
+  //   }
+  //   // for (auto param : loc.getParams()) {
+  //   //   if (param) {
+  //   //     if (auto param_info = param->getTypeSourceInfo()) {
+  //   //       if (auto pl = param_info->getTypeLoc()) {
+  //   //         this->TypeLocVisitor::Visit(pl);
+  //   //       }
+  //   //     }
+  //   //   }
+  //   // }
+  // }
 
-  void VisitFunctionProtoTypeLoc(clang::FunctionProtoTypeLoc loc) {
-    VisitFunctionTypeLoc(loc);
-  }
+  // void VisitFunctionProtoTypeLoc(clang::FunctionProtoTypeLoc loc) {
+  //   VisitFunctionTypeLoc(loc);
+  // }
 
-  void VisitFunctionNoProtoTypeLoc(clang::FunctionNoProtoTypeLoc loc) {
-    VisitFunctionTypeLoc(loc);
-  }
+  // void VisitFunctionNoProtoTypeLoc(clang::FunctionNoProtoTypeLoc loc) {
+  //   VisitFunctionTypeLoc(loc);
+  // }
 
   void VisitPointerTypeLoc(clang::PointerTypeLoc loc) {
     Expand(loc.getStarLoc());

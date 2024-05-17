@@ -134,6 +134,8 @@ class DeclPrinter final : public clang::DeclVisitor<DeclPrinter>,
   const clang::ASTContext &Context;
   unsigned Indentation;
 
+  bool force_function_semicolon_instead_of_body{false};
+
   raw_string_ostream& Indent() { return Indent(static_cast<int>(Indentation)); }
   raw_string_ostream& Indent(int Indentation);
   void ProcessDeclGroup(clang::SmallVectorImpl<clang::Decl*>& Decls);

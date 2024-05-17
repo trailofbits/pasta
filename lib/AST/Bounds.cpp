@@ -829,18 +829,36 @@ class DeclBoundsFinder : public clang::DeclVisitor<DeclBoundsFinder>,
   }
 
   void VisitFriendDecl(clang::FriendDecl *decl) {
-    VisitBaseDecl(decl);
+    Expand(decl->getFriendLoc());
+
     if (auto friended_decl = decl->getFriendDecl()) {
-      Visit(friended_decl);
-      MaybeExpandToTrailingSemi(friended_decl);
+      if (!clang::isa<clang::CXXMethodDecl>(friended_decl)) {
+        Visit(friended_decl);
+        MaybeExpandToTrailingSemi(friended_decl);
+
+      // Friend methods cannot be friend definitions.
+      } else {
+        ExpandToTrailingToken(decl->getFriendLoc(), TokenKind::kSemi);
+      }
     }
   }
 
   void VisitFriendTemplateDecl(clang::FriendTemplateDecl *decl) {
-    VisitBaseDecl(decl);
+    Expand(decl->getFriendLoc());
+    
+    if (auto TPL = decl->getTemplateParameterList(0u)) {
+      Expand(TPL->getTemplateLoc());
+    }
+
     if (auto friended_decl = decl->getFriendDecl()) {
-      Visit(friended_decl);
-      MaybeExpandToTrailingSemi(friended_decl);
+      if (!clang::isa<clang::CXXMethodDecl>(friended_decl)) {
+        Visit(friended_decl);
+        MaybeExpandToTrailingSemi(friended_decl);
+
+      // Friend methods cannot be friend definitions.
+      } else {
+        ExpandToTrailingToken(decl->getFriendLoc(), TokenKind::kSemi);
+      }
     }
   }
 
@@ -902,8 +920,12 @@ class DeclBoundsFinder : public clang::DeclVisitor<DeclBoundsFinder>,
   void VisitFunctionTemplateDecl(clang::FunctionTemplateDecl *decl) {
     Expand(decl->getSourceRange(), decl->getLocation());
     if (auto tdl = decl->getTemplatedDecl()) {
-      VisitFunctionDecl(tdl);
+      Visit(tdl);
     }
+  }
+
+  void VisitCXXDeductionGuideDecl(clang::CXXDeductionGuideDecl *) {
+    // TODO(pag): Do something?
   }
 
   static bool IsLambdaMethod(clang::FunctionDecl *decl) {

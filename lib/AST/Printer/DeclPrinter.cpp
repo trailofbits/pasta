@@ -1308,6 +1308,12 @@ void DeclPrinter::VisitFunctionDecl(clang::FunctionDecl *D) {
     prettyPrintAttributes(D);
   }
 
+  if (force_function_semicolon_instead_of_body) {
+    force_function_semicolon_instead_of_body = false;
+    OS << ';';
+    return;
+  }
+
   std::function<void(clang::FunctionDecl *, bool)> PrintBody;
   PrintBody = [&] (clang::FunctionDecl *D, bool Descend) {
     if (D->isPureVirtual())
@@ -1356,6 +1362,8 @@ void DeclPrinter::VisitFunctionDecl(clang::FunctionDecl *D) {
 
 void DeclPrinter::VisitFriendDecl(clang::FriendDecl *D) {
   TokenPrinterContext ctx(Out, D, tokens);
+  auto FriendedDecl = D->getFriendDecl();
+
   if (clang::TypeSourceInfo *TSI = D->getFriendType()) {
     unsigned NumTPLists = D->getFriendTypeNumTemplateParameterLists();
     for (unsigned i = 0; i < NumTPLists; ++i)
@@ -1364,18 +1372,24 @@ void DeclPrinter::VisitFriendDecl(clang::FriendDecl *D) {
     Out << " ";
     printQualType(TSI->getType(), Out, Policy);
   }
+  else if (clang::CXXMethodDecl *FM =
+      clang::dyn_cast<clang::CXXMethodDecl>(FriendedDecl)) {
+    Out << "friend ";
+    force_function_semicolon_instead_of_body = true;
+    VisitFunctionDecl(FM);
+  }
   else if (clang::FunctionDecl *FD =
-      clang::dyn_cast<clang::FunctionDecl>(D->getFriendDecl())) {
+      clang::dyn_cast<clang::FunctionDecl>(FriendedDecl)) {
     Out << "friend ";
     VisitFunctionDecl(FD);
   }
   else if (clang::FunctionTemplateDecl *FTD =
-           clang::dyn_cast<clang::FunctionTemplateDecl>(D->getFriendDecl())) {
+           clang::dyn_cast<clang::FunctionTemplateDecl>(FriendedDecl)) {
     Out << "friend ";
     VisitFunctionTemplateDecl(FTD);
   }
   else if (clang::ClassTemplateDecl *CTD =
-           clang::dyn_cast<clang::ClassTemplateDecl>(D->getFriendDecl())) {
+           clang::dyn_cast<clang::ClassTemplateDecl>(FriendedDecl)) {
     Out << "friend ";
     VisitRedeclarableTemplateDecl(CTD);
   }

@@ -793,7 +793,9 @@ class DeclBoundsFinder : public clang::DeclVisitor<DeclBoundsFinder>,
 
   clang::Decl *curr_decl{nullptr};
 
-  void Visit(clang::Decl *decl) {
+  void Visit(clang::Decl *orig_decl) {
+    auto decl = orig_decl->RemappedDecl;
+
     if (!seen_decls.emplace(decl).second) {
       return;
     }
@@ -1166,9 +1168,9 @@ class DeclBoundsFinder : public clang::DeclVisitor<DeclBoundsFinder>,
     } else {
       assert(lower_bound.Offset() < proto->l_paren);
     }
-
-    assert(proto->r_paren <= upper_bound.Offset());
 #endif
+
+    Expand(ast.RawTokenAt(proto->r_paren));
   }
 
   void VisitAttribute(const clang::Attr *attr) {

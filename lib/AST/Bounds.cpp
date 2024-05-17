@@ -732,6 +732,8 @@ class DeclBoundsFinder : public clang::DeclVisitor<DeclBoundsFinder>,
         upper_bound = tok;
       }
     }
+
+    assert((upper_bound.Offset() - lower_bound.Offset()) < 2119156);
   }
 
   inline void Expand(clang::SourceLocation loc) {
@@ -1358,6 +1360,7 @@ class DeclBoundsFinder : public clang::DeclVisitor<DeclBoundsFinder>,
         case TokenKind::kAmp:  // Reference type.
         case TokenKind::kAmpAmp:  // R-value reference type.
         case TokenKind::kIdentifier:  // Normal type.
+        case TokenKind::kColonColon:  // Qualfied name / namespace specifier.
           lower_bound = prev_tok;
           changed = true; 
           continue;

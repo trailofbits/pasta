@@ -111,6 +111,8 @@ static const TokenKind kLeadingKeywords[] = {
   TokenKind::kKeyword__Ibm128,
   TokenKind::kKeyword__Int128,
   TokenKind::kKeyword__Real,
+  TokenKind::kKeywordBoolean,
+  TokenKind::kKeywordVoid,
 };
 
 // The decl bounds finder exists to find the beginning and ending of
@@ -1160,6 +1162,7 @@ class DeclBoundsFinder : public clang::DeclVisitor<DeclBoundsFinder>,
         // This helps us expand past leading attributes when we fail to find them.
         case TokenKind::kRParenthesis:
         case TokenKind::kRSquare:
+        case TokenKind::kRAngle:
           // NOTE(pag): This may fail if `prev_tok` is a macro token, e.g. the
           //            `)` of a macro function call.
           if (auto matching_tok = GetMatching(prev_tok).first) {
@@ -1175,6 +1178,7 @@ class DeclBoundsFinder : public clang::DeclVisitor<DeclBoundsFinder>,
         case TokenKind::kAmpAmp:  // R-value reference type.
         case TokenKind::kIdentifier:  // Normal type.
         case TokenKind::kColonColon:  // Qualfied name / namespace specifier.
+        case TokenKind::kTilde:  // Destructor name.
           lower_bound = prev_tok;
           changed = true; 
           continue;

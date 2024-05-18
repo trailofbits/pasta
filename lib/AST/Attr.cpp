@@ -5543,7 +5543,10 @@ std::string_view PreferredNameAttr::Spelling(void) const {
 ::pasta::Type PreferredNameAttr::TypedefType(void) const {
   auto &self = *const_cast<clang::PreferredNameAttr *>(u.PreferredNameAttr);
   decltype(auto) val = self.getTypedefType();
-  assert(!val.isNull());
+  if (val.isNull()) {
+    assert(false);
+    val = ast->ci->getASTContext().UnresolvedTy;
+  }
   return TypeBuilder::Build(ast, val);
 }
 
@@ -5576,7 +5579,10 @@ std::string_view PreferredTypeAttr::Spelling(void) const {
 ::pasta::Type PreferredTypeAttr::Type(void) const {
   auto &self = *const_cast<clang::PreferredTypeAttr *>(u.PreferredTypeAttr);
   decltype(auto) val = self.getType();
-  assert(!val.isNull());
+  if (val.isNull()) {
+    assert(false);
+    val = ast->ci->getASTContext().UnresolvedTy;
+  }
   return TypeBuilder::Build(ast, val);
 }
 
@@ -7367,7 +7373,10 @@ bool TypeTagForDatatypeAttr::LayoutCompatible(void) const {
 ::pasta::Type TypeTagForDatatypeAttr::MatchingCType(void) const {
   auto &self = *const_cast<clang::TypeTagForDatatypeAttr *>(u.TypeTagForDatatypeAttr);
   decltype(auto) val = self.getMatchingCType();
-  assert(!val.isNull());
+  if (val.isNull()) {
+    assert(false);
+    val = ast->ci->getASTContext().UnresolvedTy;
+  }
   return TypeBuilder::Build(ast, val);
 }
 
@@ -7721,7 +7730,10 @@ std::string_view VecTypeHintAttr::Spelling(void) const {
 ::pasta::Type VecTypeHintAttr::TypeHint(void) const {
   auto &self = *const_cast<clang::VecTypeHintAttr *>(u.VecTypeHintAttr);
   decltype(auto) val = self.getTypeHint();
-  assert(!val.isNull());
+  if (val.isNull()) {
+    assert(false);
+    val = ast->ci->getASTContext().UnresolvedTy;
+  }
   return TypeBuilder::Build(ast, val);
 }
 
@@ -12013,7 +12025,10 @@ PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, IBOutletCollectionAttr)
 ::pasta::Type IBOutletCollectionAttr::Interface(void) const {
   auto &self = *const_cast<clang::IBOutletCollectionAttr *>(u.IBOutletCollectionAttr);
   decltype(auto) val = self.getInterface();
-  assert(!val.isNull());
+  if (val.isNull()) {
+    assert(false);
+    val = ast->ci->getASTContext().UnresolvedTy;
+  }
   return TypeBuilder::Build(ast, val);
 }
 

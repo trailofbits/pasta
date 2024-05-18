@@ -5267,7 +5267,7 @@ class CXXPseudoDestructorExpr : public Expr {
   ::pasta::Expr Base(void) const;
   ::pasta::Token BeginToken(void) const;
   ::pasta::Token ColonColonToken(void) const;
-  ::pasta::Type DestroyedType(void) const;
+  std::optional<::pasta::Type> DestroyedType(void) const;
   // DestroyedTypeIdentifier: (clang::IdentifierInfo *)
   ::pasta::Token DestroyedTypeToken(void) const;
   ::pasta::Token EndToken(void) const;

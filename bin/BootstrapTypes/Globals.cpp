@@ -1994,6 +1994,10 @@ std::map<std::pair<std::string, std::string>, std::string> kConditionalNullptr{
    "  if (!self.hasDefinition()) {\n"
    "    return std::nullopt;\n"
    "  }\n"},
+  {{"CXXPseudoDestructorExpr", "DestroyedType"},
+   "  if (self.getDestroyedType().isNull()) {\n"
+   "    return std::nullopt;\n"
+   "  }\n"},
 };
 
 std::unordered_map<std::string, uint32_t> gClassIDs;

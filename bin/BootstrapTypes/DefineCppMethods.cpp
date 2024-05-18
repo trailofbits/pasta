@@ -132,7 +132,10 @@ static void DefineCppMethod0(std::ostream &os, const std::string &class_name,
           << rt_val;
     } else {
       os
-          << "  assert(!val.isNull());\n"
+          << "  if (val.isNull()) {\n"
+          << "    assert(false);\n"
+          << "    val = ast->ci->getASTContext().UnresolvedTy;\n"
+          << "  }\n"
           << rt_val;
     }
   } else if (rt_ref.ends_with(" *)")) {

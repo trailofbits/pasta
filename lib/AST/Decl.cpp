@@ -2787,7 +2787,10 @@ enum DeclObjCDeclQualifier ObjCMethodDecl::ObjCDeclQualifier(void) const {
 ::pasta::Type ObjCMethodDecl::ReturnType(void) const {
   auto &self = *const_cast<clang::ObjCMethodDecl *>(u.ObjCMethodDecl);
   decltype(auto) val = self.getReturnType();
-  assert(!val.isNull());
+  if (val.isNull()) {
+    assert(false);
+    val = ast->ci->getASTContext().UnresolvedTy;
+  }
   return TypeBuilder::Build(ast, val);
 }
 
@@ -3033,7 +3036,10 @@ enum ObjCPropertyDeclSetterKind ObjCPropertyDecl::SetterKind(void) const {
 ::pasta::Type ObjCPropertyDecl::Type(void) const {
   auto &self = *const_cast<clang::ObjCPropertyDecl *>(u.ObjCPropertyDecl);
   decltype(auto) val = self.getType();
-  assert(!val.isNull());
+  if (val.isNull()) {
+    assert(false);
+    val = ast->ci->getASTContext().UnresolvedTy;
+  }
   return TypeBuilder::Build(ast, val);
 }
 
@@ -3557,7 +3563,10 @@ std::optional<::pasta::TagDecl> TypedefNameDecl::AnonymousDeclarationWithTypedef
 ::pasta::Type TypedefNameDecl::UnderlyingType(void) const {
   auto &self = *const_cast<clang::TypedefNameDecl *>(u.TypedefNameDecl);
   decltype(auto) val = self.getUnderlyingType();
-  assert(!val.isNull());
+  if (val.isNull()) {
+    assert(false);
+    val = ast->ci->getASTContext().UnresolvedTy;
+  }
   return TypeBuilder::Build(ast, val);
 }
 
@@ -3815,7 +3824,10 @@ std::optional<::pasta::VarDecl> ValueDecl::PotentiallyDecomposedVariableDeclarat
 ::pasta::Type ValueDecl::Type(void) const {
   auto &self = *const_cast<clang::ValueDecl *>(u.ValueDecl);
   decltype(auto) val = self.getType();
-  assert(!val.isNull());
+  if (val.isNull()) {
+    assert(false);
+    val = ast->ci->getASTContext().UnresolvedTy;
+  }
   return TypeBuilder::Build(ast, val);
 }
 
@@ -4608,7 +4620,10 @@ uint32_t FunctionDecl::BuiltinID(void) const {
 ::pasta::Type FunctionDecl::CallResultType(void) const {
   auto &self = *const_cast<clang::FunctionDecl *>(u.FunctionDecl);
   decltype(auto) val = self.getCallResultType();
-  assert(!val.isNull());
+  if (val.isNull()) {
+    assert(false);
+    val = ast->ci->getASTContext().UnresolvedTy;
+  }
   return TypeBuilder::Build(ast, val);
 }
 
@@ -4630,7 +4645,10 @@ enum ConstexprSpecKind FunctionDecl::ConstexprKind(void) const {
 ::pasta::Type FunctionDecl::DeclaredReturnType(void) const {
   auto &self = *const_cast<clang::FunctionDecl *>(u.FunctionDecl);
   decltype(auto) val = self.getDeclaredReturnType();
-  assert(!val.isNull());
+  if (val.isNull()) {
+    assert(false);
+    val = ast->ci->getASTContext().UnresolvedTy;
+  }
   return TypeBuilder::Build(ast, val);
 }
 
@@ -4784,7 +4802,10 @@ std::optional<::pasta::FunctionTemplateDecl> FunctionDecl::PrimaryTemplate(void)
 ::pasta::Type FunctionDecl::ReturnType(void) const {
   auto &self = *const_cast<clang::FunctionDecl *>(u.FunctionDecl);
   decltype(auto) val = self.getReturnType();
-  assert(!val.isNull());
+  if (val.isNull()) {
+    assert(false);
+    val = ast->ci->getASTContext().UnresolvedTy;
+  }
   return TypeBuilder::Build(ast, val);
 }
 
@@ -7288,14 +7309,20 @@ PASTA_DEFINE_DERIVED_OPERATORS(CXXMethodDecl, CXXDestructorDecl)
 ::pasta::Type CXXMethodDecl::FunctionObjectParameterReferenceType(void) const {
   auto &self = *const_cast<clang::CXXMethodDecl *>(u.CXXMethodDecl);
   decltype(auto) val = self.getFunctionObjectParameterReferenceType();
-  assert(!val.isNull());
+  if (val.isNull()) {
+    assert(false);
+    val = ast->ci->getASTContext().UnresolvedTy;
+  }
   return TypeBuilder::Build(ast, val);
 }
 
 ::pasta::Type CXXMethodDecl::FunctionObjectParameterType(void) const {
   auto &self = *const_cast<clang::CXXMethodDecl *>(u.CXXMethodDecl);
   decltype(auto) val = self.getFunctionObjectParameterType();
-  assert(!val.isNull());
+  if (val.isNull()) {
+    assert(false);
+    val = ast->ci->getASTContext().UnresolvedTy;
+  }
   return TypeBuilder::Build(ast, val);
 }
 
@@ -7951,7 +7978,10 @@ enum DeclObjCDeclQualifier ParmVarDecl::ObjCDeclQualifier(void) const {
 ::pasta::Type ParmVarDecl::OriginalType(void) const {
   auto &self = *const_cast<clang::ParmVarDecl *>(u.ParmVarDecl);
   decltype(auto) val = self.getOriginalType();
-  assert(!val.isNull());
+  if (val.isNull()) {
+    assert(false);
+    val = ast->ci->getASTContext().UnresolvedTy;
+  }
   return TypeBuilder::Build(ast, val);
 }
 
@@ -8425,7 +8455,10 @@ PASTA_DEFINE_BASE_OPERATORS(ValueDecl, CXXConversionDecl)
 ::pasta::Type CXXConversionDecl::ConversionType(void) const {
   auto &self = *const_cast<clang::CXXConversionDecl *>(u.CXXConversionDecl);
   decltype(auto) val = self.getConversionType();
-  assert(!val.isNull());
+  if (val.isNull()) {
+    assert(false);
+    val = ast->ci->getASTContext().UnresolvedTy;
+  }
   return TypeBuilder::Build(ast, val);
 }
 
@@ -10017,7 +10050,10 @@ PASTA_DEFINE_BASE_OPERATORS(TypeDecl, ClassTemplatePartialSpecializationDecl)
 ::pasta::Type ClassTemplatePartialSpecializationDecl::InjectedSpecializationType(void) const {
   auto &self = *const_cast<clang::ClassTemplatePartialSpecializationDecl *>(u.ClassTemplatePartialSpecializationDecl);
   decltype(auto) val = self.getInjectedSpecializationType();
-  assert(!val.isNull());
+  if (val.isNull()) {
+    assert(false);
+    val = ast->ci->getASTContext().UnresolvedTy;
+  }
   return TypeBuilder::Build(ast, val);
 }
 

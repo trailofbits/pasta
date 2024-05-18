@@ -1486,8 +1486,11 @@ class DeclBoundsFinder : public clang::DeclVisitor<DeclBoundsFinder>,
       }
 
       unsigned param_index = decl->getFunctionScopeIndex();
+
+      // This can happen with things like function template specializations,
+      // or dependent functions inside of class template specializations, where
+      // the argument list uses a parameter pack.
       if (param_index >= proto->params.size()) {
-        assert(func->isFunctionTemplateSpecialization());
         return;
       }
 

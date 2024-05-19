@@ -179,7 +179,7 @@ def _generate_args(arg: TemplateArgument) -> Iterable[TemplateArgument]:
   if arg.is_empty:
     return
   if arg.kind == TemplateArgumentKind.PACK:
-    for sub_arg in arg.pack_elements:
+    for sub_arg in arg.pack_arguments:
       yield from _generate_args(sub_arg)
   else:
     yield arg
@@ -363,8 +363,8 @@ class SchemaLifter:
 
   def _lift_template_argument(self, tag: TagDecl, arg: TemplateArgument) -> Schema:
     """Lift the `n`th template argument to a schema."""
-    decl: Optional[Decl] = arg.as_declaration
-    tp: Optional[Type] = arg.as_type
+    decl: Optional[Decl] = arg.declaration
+    tp: Optional[Type] = arg.type
     schema: Schema = self.unknown_schema
 
     if decl:

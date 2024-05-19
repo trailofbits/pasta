@@ -17,7 +17,7 @@ static void DefineCppMethod0(std::ostream &os, const std::string &class_name,
                              llvm::StringRef meth_name_ref,
                              llvm::StringRef rt_ref, std::ostream &os_py) {
 
-  if (meth_name_ref.endswith("Unsafe")) {
+  if (meth_name_ref.ends_with("Unsafe")) {
     return;
   }
 
@@ -123,7 +123,7 @@ static void DefineCppMethod0(std::ostream &os, const std::string &class_name,
     handled_null_ret = true;
   }
   os << "  decltype(auto) val = self." << meth_name_ref.str() << "();\n";
-  if (rt_ref.endswith("QualType)")) {
+  if (rt_ref.ends_with("QualType)")) {
     if (can_ret_null) {
       os
           << "  if (val.isNull()) {\n"
@@ -132,10 +132,13 @@ static void DefineCppMethod0(std::ostream &os, const std::string &class_name,
           << rt_val;
     } else {
       os
-          << "  assert(!val.isNull());\n"
+          << "  if (val.isNull()) {\n"
+          << "    assert(false);\n"
+          << "    val = ast->ci->getASTContext().UnresolvedTy;\n"
+          << "  }\n"
           << rt_val;
     }
-  } else if (rt_ref.endswith(" *)")) {
+  } else if (rt_ref.ends_with(" *)")) {
     if (can_ret_null) {
       os
           << "  if (!val) {\n"
@@ -202,7 +205,7 @@ static void DefineCppMethod1(std::ostream &os, const std::string &class_name,
       handled_null_ret = true;
     }
     os << "  decltype(auto) val = self." << meth_name_ref.str() << "(ast->ci->getASTContext());\n";
-    if (rt_ref.endswith("QualType)")) {
+    if (rt_ref.ends_with("QualType)")) {
       if (can_ret_null) {
         os
             << "  if (val.isNull()) {\n"
@@ -213,7 +216,7 @@ static void DefineCppMethod1(std::ostream &os, const std::string &class_name,
         os << "  assert(!val.isNull());\n"
            << rt_val;
       }
-    } else if (rt_ref.endswith(" *)")) {
+    } else if (rt_ref.ends_with(" *)")) {
       if (can_ret_null) {
         os
             << "  if (!val) {\n"
@@ -248,7 +251,7 @@ static void DefineCppMethod1(std::ostream &os, const std::string &class_name,
       os << "  auto &self = *(u." << class_name << ");\n";
     }
     os << "  decltype(auto) val = self." << meth_name_ref.str() << "(b);\n";
-    if (rt_ref.endswith("QualType)")) {
+    if (rt_ref.ends_with("QualType)")) {
       if (can_ret_null) {
         os
             << "  if (val.isNull()) {\n"
@@ -259,7 +262,7 @@ static void DefineCppMethod1(std::ostream &os, const std::string &class_name,
         os << "  assert(!val.isNull());\n"
            << rt_val;
       }
-    } else if (rt_ref.endswith(" *)")) {
+    } else if (rt_ref.ends_with(" *)")) {
       if (can_ret_null) {
         os
             << "  if (!val) {\n"

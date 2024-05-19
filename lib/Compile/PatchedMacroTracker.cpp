@@ -34,12 +34,13 @@ static void ReparentNode(Node &node, MacroNodeImpl *new_parent) {
   }
 }
 
-static void ReparentNodes(NodeList nodes, MacroNodeImpl *new_parent) {
+static void ReparentNodes(NodeList nodes, MacroNodeImpl *new_parent,
+                          NodeList &new_parent_nodes) {
   for (Node &node : nodes) {
     ReparentNode(node, new_parent);
   }
 
-  new_parent->nodes.insert(new_parent->nodes.end(), nodes.begin(), nodes.end());
+  new_parent_nodes.insert(new_parent_nodes.end(), nodes.begin(), nodes.end());
   nodes.clear();
 }
 
@@ -95,6 +96,33 @@ void PatchedMacroTracker::Clear(void) {
 
 PatchedMacroTracker::~PatchedMacroTracker(void) {}
 
+void PatchedMacroTracker::FlushPopped(void) {
+  auto size = ast->parsed_tokens.size();
+  for (auto popped_node : popped_nodes) {
+    popped_node->parsed_right_corner = size;
+
+    if (auto exp = dynamic_cast<MacroExpansionImpl *>(popped_node)) {
+      if (exp->parent_for_prearg) {
+        exp->parent_for_prearg->parsed_right_corner = size;
+      }
+    }
+  }
+  popped_nodes.clear();
+}
+
+void PatchedMacroTracker::SetupNode(MacroNodeImpl *node) {
+  node->parsed_left_corner = ast->parsed_tokens.size();
+  node->parsed_begin_index 
+      = ast->parsed_tokens.last_expansion_begin_offset.value();
+}
+
+void PatchedMacroTracker::PopNode(void) {
+  auto node = nodes.back();
+  node->parsed_right_corner = ast->parsed_tokens.size();  // Good guess.
+  nodes.pop_back();
+  popped_nodes.push_back(node);
+}
+
 void PatchedMacroTracker::Push(const clang::Token &tok) {
   if (!depth) {
     assert(tok.getLocation().isValid() && tok.getLocation().isFileID());
@@ -148,8 +176,6 @@ bool PatchedMacroTracker::TryExtractHeaderName(const clang::Token &tok) {
   D( sub->line_added = __LINE__; )
   MacroNodeImpl *parent_node = nodes.back();
   sub->parent = parent_node;
-  sub->parsed_begin_index 
-      = ast->parsed_tokens.last_expansion_begin_offset.value();
   AddToParentNode(sub);  // Adds to `parent_node`.
   nodes.push_back(sub);
 
@@ -194,6 +220,7 @@ MacroExpansionImpl *PatchedMacroTracker::DoPreExpansionSetup(
       &(ast->root_macro_node.expansions.emplace_back());
   D( new_exp->line_added = __LINE__; )
   new_exp->defined_macro = exp->defined_macro;
+  new_exp->parsed_left_corner = ast->parsed_tokens.size();
   new_exp->parsed_begin_index 
       = ast->parsed_tokens.last_expansion_begin_offset.value();
 
@@ -208,12 +235,13 @@ MacroExpansionImpl *PatchedMacroTracker::DoPreExpansionSetup(
   assert(exp->ident->token_offset < new_ident->token_offset);
   assert(exp->l_paren->token_offset < new_l_paren->token_offset);
   new_exp->nodes.push_back(new_ident);
+  new_exp->l_paren_index = static_cast<unsigned>(new_exp->nodes.size());
   new_exp->nodes.push_back(new_l_paren);
   new_exp->ident = new_ident;
   new_exp->name = new_ident;
   new_exp->l_paren = new_l_paren;
 
-  ReparentNodes(std::move(exp->nodes), new_exp);
+  ReparentNodes(std::move(exp->nodes), new_exp, new_exp->nodes);
 
   exp->nodes.push_back(new_exp);
   new_exp->is_prearg_expansion = true;
@@ -285,6 +313,7 @@ static void InjectArgument(ASTImpl &ast, std::vector<MacroNodeImpl *> &nodes,
 
   assert(HasArgumentSeparator(pre_exp));
 
+  missing_arg->parsed_left_corner = ast.parsed_tokens.size();
   missing_arg->parsed_begin_index = pre_exp->parsed_begin_index;
   missing_arg->parent = pre_exp;
   missing_arg->is_prearg_expansion = pre_exp->is_prearg_expansion;
@@ -702,7 +731,7 @@ void PatchedMacroTracker::DoToken(const clang::Token &tok_, uintptr_t data) {
 
   // Close the substitution.
   if (substituted_header_name) {
-    nodes.pop_back();
+    PopNode();
   }
 
   // Go try and find the macro identifier and opening parenthesis for this node.
@@ -717,8 +746,11 @@ void PatchedMacroTracker::DoToken(const clang::Token &tok_, uintptr_t data) {
         tok_.getIdentifierInfo()->hasMacroDefinition()) {
       exp->ident = tok_node;
       exp->name = exp->ident;
+      exp->l_paren_index = static_cast<unsigned>(exp->nodes.size());
+
     } else if (tok_node->kind == TokenKind::kLParenthesis &&
                exp->ident && !exp->l_paren) {
+      exp->l_paren_index = static_cast<unsigned>(exp->nodes.size() - 1u);
       exp->l_paren = tok_node;
     }
   }
@@ -1015,6 +1047,7 @@ void PatchedMacroTracker::DoBeginDirective(
   nodes.push_back(directive);
   directives.push_back(directive);
   DoToken(tok, data);
+  SetupNode(directive);
 
   ast->marker_offset_to_macro.emplace(
       ast->parsed_tokens.last_expansion_begin_offset.value(), directive);
@@ -1076,7 +1109,7 @@ void PatchedMacroTracker::DoEndNonDirective(const clang::Token &tok,
   assert(!directives.empty());
   assert(nodes.back() == directives.back());
   last_directive = directives.back();
-  nodes.pop_back();
+  PopNode();
   directives.pop_back();
 
   MacroNodeImpl *parent_node = nodes.back();
@@ -1086,7 +1119,8 @@ void PatchedMacroTracker::DoEndNonDirective(const clang::Token &tok,
   assert(std::get<MacroNodeImpl *>(parent_node->nodes.back()) ==
          last_directive);
   parent_node->nodes.pop_back();
-  ReparentNodes(std::move(last_directive->nodes), parent_node);
+  ReparentNodes(std::move(last_directive->nodes), parent_node,
+                parent_node->nodes);
   Pop(tok);
   last_directive = nullptr;
   last_token.startToken();
@@ -1245,7 +1279,7 @@ void PatchedMacroTracker::DoEndDirective(
   }
 
 done:
-  nodes.pop_back();
+  PopNode();
   directives.pop_back();
   last_token.startToken();
 
@@ -1296,12 +1330,10 @@ void PatchedMacroTracker::DoBeginMacroExpansion(
 
   auto tok_index = ast->macro_tokens.size();
   DoToken(tok, data);
+  SetupNode(expansion);
 
   ast->marker_offset_to_macro.emplace(
       ast->parsed_tokens.last_expansion_begin_offset.value(), expansion);
-
-  expansion->parsed_begin_index 
-      = ast->parsed_tokens.last_expansion_begin_offset.value();
 
   assert(expansion->ident != nullptr);
 
@@ -1353,8 +1385,6 @@ void PatchedMacroTracker::DoBeginMacroCallArgument(
       &(ast->root_macro_node.arguments.emplace_back());
   D( argument->line_added = __LINE__; )
 
-  argument->parsed_begin_index 
-      = ast->parsed_tokens.last_expansion_begin_offset.value();
   argument->index = static_cast<unsigned>(expansion->arguments.size());
   argument->offset = static_cast<unsigned>(expansion->nodes.size());
   argument->parent = expansion;  // Checked by `AddToParent`.
@@ -1365,6 +1395,7 @@ void PatchedMacroTracker::DoBeginMacroCallArgument(
   argument->parent = nodes.back();
   expansion->arguments.emplace_back(argument);
   nodes.push_back(argument);
+  SetupNode(expansion);
   arguments.push_back(argument);
   assert(expansion->arguments.size() == (argument->index + 1u));
 }
@@ -1399,7 +1430,7 @@ void PatchedMacroTracker::DoEndMacroCallArgument(
   }
 
   arguments.pop_back();
-  nodes.pop_back();
+  PopNode();
   assert(nodes.back() == expansions.back());
   assert(std::holds_alternative<MacroNodeImpl *>(argument->parent));
   assert(nodes.back() == std::get<MacroNodeImpl *>(argument->parent));
@@ -1529,8 +1560,8 @@ void PatchedMacroTracker::DoEndPreArgumentExpansion(
         assert(!LastIsNotArgument(expansion));
         assert(HasArgumentSeparator(expansion));
 
-        missing_arg->parsed_begin_index 
-            = ast->parsed_tokens.last_expansion_begin_offset.value();
+        missing_arg->parsed_left_corner = ast->parsed_tokens.size();
+        missing_arg->parsed_begin_index = parent_exp->parsed_begin_index;
         missing_arg->parent = expansion;
         missing_arg->is_prearg_expansion = true;
         missing_arg->index = static_cast<unsigned>(expansion->arguments.size());
@@ -1614,6 +1645,79 @@ void PatchedMacroTracker::DoSwitchToExpansion(
   }
 
   expansion->nodes.swap(expansion->use_nodes);
+
+  // TODO(pag): The idea with the below code was to handle the `dprintk`-type
+  //            case with "deferral with other tokens" case, i.e. where the
+  //            expansion of one macro ends with a function-like macro name,
+  //            where the argument list is at a higher level. This caused some
+  //            downstream issues with recognizing parsed tokens were located.
+  //
+  //            The idea with this code was to clone the argument lists that are
+  //            only observable later up into the higher level uses.  
+
+  // if (auto first_parent = expansion->clone_deferred_arguments_from) {
+  //   D( std::cerr << indent << "~~~ clone arguments from deferred parent\n"; )
+
+  //   std::vector<MacroExpansionImpl *> next_parents;
+  //   next_parents.push_back(first_parent);
+    
+  //   // Find the topmost use.
+  //   while (auto next_parent = first_parent->clone_deferred_arguments_from) {
+  //     next_parents.push_back(next_parent);
+  //     first_parent = next_parent;
+  //   }
+
+  //   next_parents.pop_back();  // Topmost, i.e. `first_parent`.
+  //   std::reverse(next_parents.begin(), next_parents.end());
+
+  //   assert(first_parent != expansion);
+
+  //   // Move the use nodes into the topmost use.
+  //   NodeList cloned_nodes;
+  //   NodeList orig_nodes;
+
+  //   // We "steal" the nodes from `expansion`, placing them into `first_parent`,
+  //   // so that the eventual provenance code connect the source locations in
+  //   // a reasonable way. This does result in a lot of ugly/repetitive code,
+  //   // though.
+  //   auto size = expansion->use_nodes.size();
+  //   for (auto i = expansion->l_paren_index; i < size; ++i) {
+  //     D( std::cerr << "~~~ Moving argument node to original parent\n"; )
+  //     auto &node = expansion->use_nodes[i];
+  //     orig_nodes.emplace_back(node);
+
+  //     if (std::holds_alternative<MacroNodeImpl *>(node)) {
+  //       if (auto arg = dynamic_cast<MacroArgumentImpl *>(
+  //               std::get<MacroNodeImpl *>(node))) {
+          
+  //         NodeList arg_list_nodes = arg->nodes;
+  //         cloned_nodes.insert(cloned_nodes.end(), arg_list_nodes.begin(),
+  //                             arg_list_nodes.end());
+  //         ReparentNodes(std::move(arg_list_nodes), first_parent,
+  //                       first_parent->use_nodes);
+  //         continue;
+  //       }
+  //     }
+
+  //     cloned_nodes.emplace_back(node);
+  //     ReparentNode(node, first_parent);
+  //     first_parent->use_nodes.emplace_back(std::move(node));
+  //   }
+
+  //   // Delete the nodes.
+  //   expansion->use_nodes.resize(expansion->l_paren_index);
+
+  //   // Clone them into all intermediate uses.
+  //   for (auto next_parent : next_parents) {
+  //     assert(next_parent != first_parent);
+  //     SimpleCloneNodeList(*ast, cloned_nodes, next_parent,
+  //                         next_parent->use_nodes);
+  //   }
+
+  //   // Put them back in to where they lived originally.
+  //   SimpleCloneNodeList(*ast, orig_nodes, expansion,
+  //                       expansion->use_nodes);
+  // }
 
   // If there are no arguments, then there will not be any closing paren.
   if (!expansion->defined_macro->isFunctionLike()) {
@@ -1724,7 +1828,7 @@ void PatchedMacroTracker::DoEndMacroExpansion(
     }
 
     expansions.pop_back();
-    nodes.pop_back();
+    PopNode();
 
 #ifndef NDEBUG
     deferred_expansion->defferal_status = MacroExpansionImpl::kDeferredParent;
@@ -1738,7 +1842,7 @@ void PatchedMacroTracker::DoEndMacroExpansion(
 
   Pop(tok);
   assert(nodes.back() == expansion);
-  nodes.pop_back();
+  PopNode();
   expansions.pop_back();
 
   // Go get the parent. In the case of pre-argument expansions, and in the
@@ -1751,7 +1855,8 @@ void PatchedMacroTracker::DoEndMacroExpansion(
   if (expansion->is_cancelled) {
     assert(expansion->use_nodes.empty());
     parent_node->nodes.pop_back();
-    ReparentNodes(std::move(expansion->nodes), parent_node);
+    ReparentNodes(std::move(expansion->nodes), parent_node,
+                  parent_node->nodes);
   }
 
   if (!deferred_expansion) {
@@ -1842,7 +1947,8 @@ void PatchedMacroTracker::DoEndMacroExpansion(
     deferred_expansion->parent = grand_parent_node;
     parent_node->parent = deferred_expansion;
 
-    ReparentNodes(std::move(deferred_expansion->nodes), expansion);
+    ReparentNodes(std::move(deferred_expansion->nodes), expansion,
+                  expansion->nodes);
 
     deferred_expansion->nodes.push_back(parent_node);
 
@@ -1859,11 +1965,9 @@ void PatchedMacroTracker::DoEndMacroExpansion(
   // * NOTE: the `E` will be swapped into `use_nodes` later.
   } else {
 
-#if D(1 + ) 0
     if (expansion->nodes.size() == 1) {
-
-      std::cerr << indent << "Normal deferral\n";
-
+      D( std::cerr << indent << "Normal deferral\n"; )
+    
     // We have a `dprintk`-like situation. We have come across a macro close
     // for `dprintk`, but the expansion of `printk` has already begun, so we
     // want to leave the expansion of `printk`, which is `deffered_expansion`
@@ -1873,9 +1977,13 @@ void PatchedMacroTracker::DoEndMacroExpansion(
     //      #define printk(fmt, ...) /* something */
     //      #define dprintk if (debug) printk
     } else {
-      std::cerr << indent << "!! Deferral with other nodes!\n";
+      D( std::cerr << indent << "!! Deferral with other nodes!\n"; )
+    
+    // deferred_expansion->clone_deferred_arguments_from = expansion;
+    // if (expansion->parent_for_prearg) {
+    //   expansion->clone_deferred_arguments_from = expansion->parent_for_prearg;
+    // }
     }
-#endif
 
     parent_node->nodes.pop_back();  // Remove `E`
     parent_node->nodes.push_back(deferred_expansion);  // Add `DE`.
@@ -1883,11 +1991,13 @@ void PatchedMacroTracker::DoEndMacroExpansion(
     expansion->parent = deferred_expansion;
 
     expansion->nodes.pop_back();
-    ReparentNodes(std::move(deferred_expansion->nodes), expansion);
+    ReparentNodes(std::move(deferred_expansion->nodes), expansion,
+                  expansion->nodes);
     deferred_expansion->nodes.push_back(expansion);
   }
 
   nodes.push_back(deferred_expansion);
+  SetupNode(deferred_expansion);
   expansions.push_back(deferred_expansion);
 }
 
@@ -1898,12 +2008,11 @@ void PatchedMacroTracker::DoBeginSubstitution(
       &(ast->root_macro_node.substitutions.emplace_back());
   D( expansion->line_added = __LINE__; )
   AddToParentNode(expansion);
-  expansion->parsed_begin_index 
-      = ast->parsed_tokens.last_expansion_begin_offset.value();
   expansion->parent = nodes.back();
   nodes.push_back(expansion);
   substitutions.push_back(expansion);
   DoToken(tok, data);
+  SetupNode(expansion);
 
   ast->marker_offset_to_macro.emplace(
       ast->parsed_tokens.last_expansion_begin_offset.value(), expansion);
@@ -1922,8 +2031,6 @@ void PatchedMacroTracker::DoBeginDelayedSubstitution(
 
   MacroNodeImpl * const parent_node = nodes.back();
 
-  expansion->parsed_begin_index 
-      = ast->parsed_tokens.last_expansion_begin_offset.value();
   expansion->parent = parent_node;
 
   if (last_token_was_added) {
@@ -1934,7 +2041,6 @@ void PatchedMacroTracker::DoBeginDelayedSubstitution(
   }
 
   AddToParentNode(expansion);  // Adds to `parent_node`.
-
   nodes.push_back(expansion);
   substitutions.push_back(expansion);
 
@@ -1954,6 +2060,7 @@ void PatchedMacroTracker::DoBeginDelayedSubstitution(
 
   assert(std::holds_alternative<MacroTokenImpl *>(expansion->name));
 
+  SetupNode(expansion);
   ast->marker_offset_to_macro.emplace(
       ast->parsed_tokens.last_expansion_begin_offset.value(), expansion);
 }
@@ -1972,7 +2079,7 @@ void PatchedMacroTracker::DoEndSubstitution(
   assert(!substitutions.empty());
   assert(nodes.back() == substitutions.back());
   Pop(tok);
-  nodes.pop_back();
+  PopNode();
   substitutions.pop_back();
 }
 
@@ -1991,13 +2098,12 @@ void PatchedMacroTracker::DoBeginConcatenation(
       &(ast->root_macro_node.substitutions.emplace_back());
   D( concat->line_added = __LINE__; )
 
-  concat->parsed_begin_index 
-      = ast->parsed_tokens.last_expansion_begin_offset.value();
   concat->kind = MacroKind::kConcatenate;
   concat->parent = nodes.back();
   nodes.push_back(concat);
   substitutions.push_back(concat);
   DoToken(tok, data);
+  SetupNode(concat);
 
   // NOTE(pag): We *DO NOT* call `AddToParentNode` so that we can re-parent
   //            this sub-tree whenever we read the next token. The order of
@@ -2041,7 +2147,7 @@ void PatchedMacroTracker::DoEndConcatenation(
   last_concatenation->name = *(last_concatenation->nodes.begin() + 1);
   last_concatenation->nodes.swap(last_concatenation->use_nodes);
   Pop(tok);
-  nodes.pop_back();
+  PopNode();
   substitutions.pop_back();
 }
 
@@ -2124,8 +2230,6 @@ void PatchedMacroTracker::DoBeforeMacroParameterUse(
   expansion->CopyFromBody(*ast, parent, ident_loc.getRawEncoding());
 
   // Then put our new node in.
-  param->parsed_begin_index 
-      = ast->parsed_tokens.last_expansion_begin_offset.value();
   param->parent = parent;
 
   if (parent == expansion) {
@@ -2154,6 +2258,7 @@ void PatchedMacroTracker::DoBeforeMacroParameterUse(
   params.push_back(param);
 
   DoToken(ident, 0);
+  SetupNode(param);
 
   assert(!param->nodes.empty());
   assert(param->use_nodes.empty());
@@ -2225,8 +2330,7 @@ void PatchedMacroTracker::DoAfterMacroParameterUse(
   }
 
   params.pop_back();
-  nodes.pop_back();
-
+  PopNode();
   D( std::cerr << indent << "* parameter is replaced with "
                << param->nodes.size() << " tokens\n"; )
 }
@@ -2256,8 +2360,6 @@ void PatchedMacroTracker::DoBeforeVAOpt(
       *ast, parent, tok[num_tokens - 2u].getLocation().getRawEncoding());
 
   // Now add our new node in.
-  vaopt->parsed_begin_index 
-      = ast->parsed_tokens.last_expansion_begin_offset.value();
   vaopt->parent = parent;
 
   if (parent == expansion) {
@@ -2274,19 +2376,19 @@ void PatchedMacroTracker::DoBeforeVAOpt(
   }
 
   nodes.push_back(vaopt);
-
   DoToken(tok[num_tokens - 2u], 0);
   DoToken(tok[num_tokens - 1u], 0);
+  SetupNode(vaopt);
 
   // Add the VAOpt argument in.
   vaopt_arg =
       &(ast->root_macro_node.vaopt_arguments.emplace_back());
 
-  vaopt_arg->parsed_begin_index = vaopt->parsed_begin_index;
   vaopt_arg->parent = vaopt;
   vaopt->nodes.push_back(vaopt_arg);
 
   nodes.push_back(vaopt_arg);
+  SetupNode(vaopt_arg);
 }
 
 void PatchedMacroTracker::DoAfterVAOpt(
@@ -2309,7 +2411,7 @@ void PatchedMacroTracker::DoAfterVAOpt(
       *ast, vaopt_arg, tok[num_tokens - 1u].getLocation().getRawEncoding());
 
   // Pop off the `vaopt_arg`.
-  nodes.pop_back();
+  PopNode();
   vaopt_arg = nullptr;
 
   assert(!nodes.empty());
@@ -2317,7 +2419,7 @@ void PatchedMacroTracker::DoAfterVAOpt(
 
   DoToken(tok[num_tokens - 1u], 0);
 
-  nodes.pop_back();
+  PopNode();
   vaopt = nullptr;
 }
 
@@ -2333,8 +2435,6 @@ void PatchedMacroTracker::DoBeforeStringify(
   MacroSubstitutionImpl *str =
       &(ast->root_macro_node.substitutions.emplace_back());
 
-  str->parsed_begin_index 
-      = ast->parsed_tokens.last_expansion_begin_offset.value();
   str->kind = MacroKind::kStringify;
 
   expansion->has_interesting_body = true;
@@ -2360,6 +2460,7 @@ void PatchedMacroTracker::DoBeforeStringify(
   stringifies.push_back(str);
 
   DoToken(tok[num_tokens - 1u], 0);  // Put the `#` into `expansion`.
+  SetupNode(str);
 }
 
 void PatchedMacroTracker::DoAfterStringify(
@@ -2393,7 +2494,7 @@ void PatchedMacroTracker::DoAfterStringify(
   }
 
   stringifies.pop_back();
-  nodes.pop_back();
+  PopNode();
 }
 
 namespace detail {
@@ -3130,8 +3231,9 @@ void PatchedMacroTracker::MacroDefined(const clang::Token &name_tok,
             last_param->nodes.push_back(node);
           } else {
             last_param = &(ast->root_macro_node.parameters.emplace_back());
-            last_param->parsed_begin_index 
-                = ast->parsed_tokens.last_expansion_begin_offset.value();
+            last_param->parsed_left_corner = last_directive->parsed_left_corner;
+            last_param->parsed_right_corner = last_directive->parsed_right_corner;
+            last_param->parsed_begin_index = last_directive->parsed_begin_index;
             last_param->parent = last_directive;
             last_param->is_variadic = true;
             last_param->index = static_cast<unsigned>(
@@ -3149,8 +3251,9 @@ void PatchedMacroTracker::MacroDefined(const clang::Token &name_tok,
           assert(!last_param);
           new_nodes.pop_back();
           last_param = &(ast->root_macro_node.parameters.emplace_back());
-          last_param->parsed_begin_index 
-              = ast->parsed_tokens.last_expansion_begin_offset.value();
+          last_param->parsed_left_corner = last_directive->parsed_left_corner;
+          last_param->parsed_right_corner = last_directive->parsed_right_corner;
+          last_param->parsed_begin_index = last_directive->parsed_begin_index;
           last_param->parent = last_directive;
           last_param->has_name = true;
           last_param->index = static_cast<unsigned>(

@@ -227,6 +227,7 @@ class DeclContext {
   bool ShouldUseQualifiedLookup(void) const;
   // UsingDirectives: (llvm::iterator_range<clang::DeclContext::udir_iterator>)
  private:
+  friend class AST;
   friend class Decl;
   friend class DeclVisitor;
   friend class UsingDirectiveDecl;
@@ -242,6 +243,10 @@ class DeclContext {
       : ast(std::move(ast_)) {
     assert(ast.get() != nullptr);
     u.DeclContext = context_;
+  }
+ public:
+  inline bool operator==(const DeclContext &that) const noexcept {
+    return u.opaque == that.u.opaque;
   }
 };
 
@@ -1867,6 +1872,7 @@ class FunctionDecl : public DeclaratorDecl {
   std::vector<::pasta::TemplateParameterList> TemplateParameterLists(void) const;
   std::vector<::pasta::ParmVarDecl> ParameterDeclarations(void) const;
   std::optional<::pasta::Stmt> Body(void) const noexcept;
+  std::vector<::pasta::TemplateArgument> TemplateArguments(void) const noexcept;
  protected:
   PASTA_DEFINE_DEFAULT_DECL_CONSTRUCTOR(FunctionDecl)
 };
@@ -3097,7 +3103,7 @@ class CXXRecordDecl : public RecordDecl {
   std::optional<bool> IsStandardLayout(void) const;
   std::optional<bool> IsStructural(void) const;
   std::optional<bool> IsTrivial(void) const;
-  bool IsTriviallyCopyConstructible(void) const;
+  std::optional<bool> IsTriviallyCopyConstructible(void) const;
   std::optional<bool> IsTriviallyCopyable(void) const;
   // IsVirtuallyDerivedFrom: (bool)
   std::optional<bool> LambdaIsDefaultConstructibleAndAssignable(void) const;

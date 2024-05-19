@@ -23,6 +23,11 @@ class ASTImpl;
 enum class DeclKind : unsigned;
 class TokenContext;
 
+class DeclContext {
+ public:
+  std::shared_ptr<ASTImpl> ast;
+};
+
 class Decl {
  public:
   std::shared_ptr<ASTImpl> ast;

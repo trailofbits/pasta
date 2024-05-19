@@ -13,7 +13,17 @@
 
 #include "DeclStmtPrinter.h"
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wbitfield-enum-conversion"
+#pragma GCC diagnostic ignored "-Wimplicit-int-conversion"
+#pragma GCC diagnostic ignored "-Wsign-conversion"
+#pragma GCC diagnostic ignored "-Wshorten-64-to-32"
+#pragma GCC diagnostic ignored "-Wold-style-cast"
+#pragma GCC diagnostic ignored "-Wunused-parameter"
+#pragma GCC diagnostic ignored "-Wshadow"
+#pragma GCC diagnostic ignored "-Wcast-align"
 #include <llvm/ADT/StringExtras.h>
+#pragma GCC diagnostic pop
 
 //===----------------------------------------------------------------------===//
 //  Stmt printing methods.
@@ -1750,17 +1760,22 @@ static bool isImplicitThis(const clang::Expr *E) {
 
 void StmtPrinter::VisitMemberExpr(clang::MemberExpr *Node) {
   TokenPrinterContext ctx(OS, Node, tokens);
-  if (!Policy.SuppressImplicitBase || !isImplicitThis(Node->getBase())) {
-    PrintExpr(Node->getBase());
+  auto LHS = Node->getBase();
+  if (!isImplicitThis(LHS)) {
+    PrintExpr(LHS);
 
-    auto *ParentMember = clang::dyn_cast<clang::MemberExpr>(Node->getBase());
-    clang::FieldDecl *ParentDecl =
-        ParentMember ? clang::dyn_cast<clang::FieldDecl>(ParentMember->getMemberDecl())
-                     : nullptr;
-
-    if (!ParentDecl || !ParentDecl->isAnonymousStructOrUnion()) {
-      OS << (Node->isArrow() ? "->" : ".");
-      ctx.MarkLocation(Node->getOperatorLoc());
+    // NOTE(pag): The left-hand side might be a call to an `operator->`, and so
+    //            we don't want to re-print the `->`.
+    if (Node->isArrow()) {
+      if (!tokens.LastTokenIsOneOf(TokenKind::kArrow)) {
+        OS << "->";
+        ctx.MarkLocation(Node->getOperatorLoc());
+      }
+    } else {
+      if (!tokens.LastTokenIsOneOf(TokenKind::kPeriod)) {
+        OS << '.';
+        ctx.MarkLocation(Node->getOperatorLoc());
+      }
     }
   }
 
@@ -2157,16 +2172,19 @@ void StmtPrinter::VisitCXXOperatorCallExpr(clang::CXXOperatorCallExpr *Node) {
   clang::OverloadedOperatorKind Kind = Node->getOperator();
   if (Kind == clang::OO_PlusPlus || Kind == clang::OO_MinusMinus) {
     if (Node->getNumArgs() == 1) {
-      OS << getOperatorSpelling(Kind) << ' ';
+      OS << getOperatorSpelling(Kind);
       ctx.MarkLocation(Node->getOperatorLoc());
       PrintExpr(Node->getArg(0));
     } else {
       PrintExpr(Node->getArg(0));
-      OS << ' ' << getOperatorSpelling(Kind);
+      OS << getOperatorSpelling(Kind);
       ctx.MarkLocation(Node->getOperatorLoc());
     }
   } else if (Kind == clang::OO_Arrow) {
     PrintExpr(Node->getArg(0));
+    OS << getOperatorSpelling(Kind);
+    ctx.MarkLocation(Node->getOperatorLoc());
+
   } else if (Kind == clang::OO_Call || Kind == clang::OO_Subscript) {
     PrintExpr(Node->getArg(0));
     OS << (Kind == clang::OO_Call ? '(' : '[');
@@ -2177,12 +2195,17 @@ void StmtPrinter::VisitCXXOperatorCallExpr(clang::CXXOperatorCallExpr *Node) {
         PrintExpr(Node->getArg(ArgIdx));
     }
     OS << (Kind == clang::OO_Call ? ')' : ']');
+
   } else if (Node->getNumArgs() == 1) {
-    OS << getOperatorSpelling(Kind) << ' ';
+    OS << getOperatorSpelling(Kind);
+    ctx.MarkLocation(Node->getOperatorLoc());
     PrintExpr(Node->getArg(0));
+
   } else if (Node->getNumArgs() == 2) {
     PrintExpr(Node->getArg(0));
-    OS << ' ' << getOperatorSpelling(Kind) << ' ';
+    OS << ' ' << getOperatorSpelling(Kind);
+    ctx.MarkLocation(Node->getOperatorLoc());
+    OS << ' ';
     PrintExpr(Node->getArg(1));
   } else {
     llvm_unreachable("unknown overloaded operator");
@@ -2554,6 +2577,10 @@ void StmtPrinter::VisitLambdaExpr(clang::LambdaExpr *Node) {
   OS << ']';
   ctx.MarkLocation(Node->getIntroducerRange().getEnd());
 
+  clang::CXXMethodDecl *Method = Node->getCallOperator();
+  TokenPrinterContext ctx2(OS, Method->getParent(), tokens);
+  TokenPrinterContext ctx3(OS, Method, tokens);
+
   if (!Node->getExplicitTemplateParameters().empty()) {
     Node->getTemplateParameterList()->print(
         OS, Node->getLambdaClass()->getASTContext(),
@@ -2562,7 +2589,6 @@ void StmtPrinter::VisitLambdaExpr(clang::LambdaExpr *Node) {
 
   if (Node->hasExplicitParameters()) {
     OS << '(';
-    clang::CXXMethodDecl *Method = Node->getCallOperator();
     NeedComma = false;
     for (const auto *P : Method->parameters()) {
       if (NeedComma) {
@@ -2601,10 +2627,7 @@ void StmtPrinter::VisitLambdaExpr(clang::LambdaExpr *Node) {
 
   // Print the body.
   OS << ' ';
-  if (Policy.TerseOutput)
-    OS << "{}";
-  else
-    PrintRawCompoundStmt(Node->getCompoundStmtBody());
+  PrintRawCompoundStmt(Node->getCompoundStmtBody());
 }
 
 void StmtPrinter::VisitCXXScalarValueInitExpr(clang::CXXScalarValueInitExpr *Node) {
@@ -3248,7 +3271,7 @@ PrintedTokenRange PrintedTokenRange::Create(clang::ASTContext &context,
 
   if (stmt) {
     PrintingPolicyAdaptor ppa;
-    PrintingPolicyAdaptorRAII ppa_set_reset(tokens, ppa);
+    PrintingPolicyAdaptorRAII ppa_set_reset(*tokens, ppa);
     StmtPrinter printer(out, nullptr, *tokens, policy);
     printer.Visit(stmt);
   }
@@ -3271,9 +3294,14 @@ PrintedTokenRange PrintedTokenRange::Create(const std::shared_ptr<ASTImpl> &ast,
 
   if (stmt) {
     PrintingPolicyAdaptor ppa(ast, high_pp);
-    PrintingPolicyAdaptorRAII ppa_set_reset(tokens, ppa);
+    PrintingPolicyAdaptorRAII ppa_set_reset(*tokens, ppa);
 
     clang::PrintingPolicy pp = *(ast->printing_policy);
+    pp.SuppressTemplateArgsInCXXConstructors = true;
+    pp.FullyQualifiedName = false;
+    pp.TerseOutput = false;
+    pp.SuppressDefaultTemplateArgs = false;
+    pp.ConstantsAsWritten = true;
     pp.IncludeTagDefinition = high_pp.ShouldPrintTagBodies();
 
     StmtPrinter printer(out, nullptr, *tokens, pp);

@@ -155,6 +155,9 @@ class Macro {
   std::optional<MacroToken> BeginToken(void) const noexcept;
   std::optional<MacroToken> EndToken(void) const noexcept;
 
+  // Return the parsed token range bounded by the expansion range for `macro`.
+  static TokenRange ExpansionRange(const Macro &macro);
+
   // Return the parsed token range bounded by marker tokens of the complete
   // expansion range for `macro`.
   static TokenRange CompleteExpansionRange(const Macro &macro);
@@ -219,6 +222,10 @@ class MacroToken final : public Macro {
   // actually ends up being concatenated with `not_`, becoming a different
   // macro, `not_FOO`, which expands to nothing.
   std::optional<DefineMacroDirective> AssociatedMacro(void) const;
+
+  // Index of this token in the macro token area. Useful for uniquely
+  // identifying them.
+  unsigned Index(void) const noexcept;
 };
 
 static_assert(sizeof(MacroToken) == sizeof(Macro));

@@ -58,7 +58,7 @@ using Node = std::variant<std::monostate, MacroNodeImpl *, MacroTokenImpl *>;
 using NodeList = std::vector<Node>;
 
 inline static const clang::Decl *Canonicalize(const clang::Decl *decl) {
-  return decl->getCanonicalDecl();
+  return decl->RemappedDecl;
 }
 
 template <typename T>

@@ -43,6 +43,73 @@ extern "C" void CheckNotOnStack(const void *higher, const void *lower) {
 }
 #endif
 
+namespace {
+
+// static bool IsIdentifierLike(TokenKind prev) {
+//   if (prev == TokenKind::kIdentifier) {
+//     return true;
+//   } else if (prev == TokenKind::kLAngle || prev == TokenKind::kRAngle) {
+//     return false;
+//   } else {
+//     return !!clang::tok::getKeywordSpelling(
+//         static_cast<clang::tok::TokenKind>(prev));
+//   }
+// }
+
+// static bool IsPunctuation(TokenKind prev) {
+//   if (prev == TokenKind::kLAngle || prev == TokenKind::kRAngle) {
+//     return true;
+//   } else {
+//     return !!clang::tok::getPunctuatorSpelling(
+//         static_cast<clang::tok::TokenKind>(prev));
+//   }
+// }
+
+static char AddWhitespaceBetween(TokenKind prev, TokenKind next) {
+  switch (prev) {
+    case TokenKind::kColon:
+    case TokenKind::kComma:
+    case TokenKind::kSemi:
+      return true;
+    case TokenKind::kUnknown:
+    case TokenKind::kComment:
+    case TokenKind::kColonColon:
+    case TokenKind::kLAngle:
+    case TokenKind::kLess:
+    case TokenKind::kLParenthesis:
+    case TokenKind::kLSquare:
+      return false;
+    default:
+      break;
+  }
+
+  switch (next) {
+    case TokenKind::kUnknown:
+    case TokenKind::kComment:
+    case TokenKind::kColonColon:
+    case TokenKind::kLAngle:
+    case TokenKind::kLess:
+    case TokenKind::kLParenthesis:
+    case TokenKind::kLSquare:
+    case TokenKind::kRAngle:
+    case TokenKind::kGreater:
+    case TokenKind::kRParenthesis:
+    case TokenKind::kRSquare:
+    case TokenKind::kColon:
+    case TokenKind::kComma:
+    case TokenKind::kSemi:
+    case TokenKind::kArrow:
+    case TokenKind::kArrowStar:
+    case TokenKind::kPeriod:
+    case TokenKind::kPeriodStar:
+      return false;
+    default:
+      break;
+  }
+
+  return true;
+}
+
 static void TryLocateAttribute(const clang::Attr *A,
                                PrintedTokenRangeImpl &tokens,
                                size_t old_num_toks) {
@@ -179,6 +246,8 @@ static void TryLocateAttribute(const clang::Attr *A,
     }
   }
 }
+
+}  // namespace
 
 PrintHelper::~PrintHelper(void) {}
 
@@ -368,19 +437,39 @@ PrintedTokenRangeImpl::~PrintedTokenRangeImpl(void) {}
 // If any token context index is invalid, then set it to `index`.
 void PrintedTokenRangeImpl::FixupInvalidTokenContexts(TokenContextIndex index) {
 
-  const auto num_contexts = contexts.size();
-  for (TokenContextIndex i = 0u; i < num_contexts; ++i) {
-    if (i != index) {
-      TokenContextImpl &context = contexts[i];
-      if (context.parent_index == kInvalidTokenContextIndex) {
-        context.parent_index = index;
+  if (index != kInvalidTokenContextIndex) {
+    const auto num_contexts = contexts.size();
+    for (TokenContextIndex i = 0u; i < num_contexts; ++i) {
+      if (i != index) {
+        TokenContextImpl &context = contexts[i];
+        if (context.parent_index == kInvalidTokenContextIndex) {
+          context.parent_index = index;
+        }
       }
     }
   }
 
-  for (PrintedTokenImpl &tok : tokens) {
-    if (tok.context_index == kInvalidTokenContextIndex) {
-      tok.context_index = index;
+  std::vector<TokenContextIndex> indexes;
+  indexes.push_back(index);
+  for (auto &tok : tokens) {
+    switch (tok.kind) {
+      case TokenKind::kLParenthesis:
+      case TokenKind::kLSquare:
+      case TokenKind::kLBrace:
+      case TokenKind::kLAngle:
+        indexes.push_back(tok.context_index);
+        continue;
+      case TokenKind::kRParenthesis:
+      case TokenKind::kRSquare:
+      case TokenKind::kRBrace:
+      case TokenKind::kRAngle:
+        indexes.pop_back();
+        continue;
+      default:
+        if (tok.context_index == kInvalidTokenContextIndex) {
+          tok.context_index = indexes.back();
+        }
+        continue;
     }
   }
 }
@@ -487,6 +576,26 @@ static clang::tok::TokenKind RewriteTokenKind(llvm::StringRef data) {
   return clang::tok::identifier;
 }
 
+void TokenPrinterContext::TokenizeAs(pasta::TokenKind kind) {
+  std::string &token_data = out.str();
+  if (token_data.empty()) {
+    assert(false);
+    return;
+  }
+
+  auto data_offset = static_cast<TokenDataOffset>(tokens.data.size());
+  tokens.data.append(token_data);
+
+  tokens.tokens.emplace_back(
+      data_offset,
+      static_cast<uint32_t>(token_data.size()),
+      context_index,
+      kind);
+
+  // Clear out so future streaming just re-fills.
+  token_data.clear();
+}
+
 void TokenPrinterContext::Tokenize(void) {
   const clang::LangOptions &lo = tokens.ast_context.getLangOpts();
 
@@ -533,10 +642,20 @@ void TokenPrinterContext::Tokenize(void) {
       }
     }
 
-    const auto data_offset = static_cast<TokenDataIndex>(tokens.data.size());
+    auto data_offset = static_cast<TokenDataIndex>(tokens.data.size());
     const auto tok_len = tok.getLength();
+    const auto tok_kind = static_cast<TokenKind>(tok.getKind());
     tokens.data.reserve(data_offset + tok_len);
     bool seen_data = false;
+
+    if (tokens.inject_whitespace && !tokens.tokens.empty() && tok_len &&
+        AddWhitespaceBetween(tokens.tokens.back().kind, tok_kind)) {
+      tokens.data.push_back(' ');
+      tokens.tokens.emplace_back(
+        static_cast<TokenDataOffset>(data_offset),
+        1u, kInvalidTokenContextIndex, TokenKind::kUnknown);
+      data_offset += 1u;
+    }
 
     for (auto j = 0u; i < size && j < tok_len; ++i) {
       
@@ -567,7 +686,6 @@ void TokenPrinterContext::Tokenize(void) {
     const auto data_len = tokens.data.size() - data_offset;
     assert(0u < data_len);
     assert(data_len <= tok.getLength());
-    tokens.data.push_back(' ');
 
     // Migrate all kinds to `identifier` now that we've got the data.
     if (tok.is(clang::tok::raw_identifier)) {
@@ -586,8 +704,7 @@ void TokenPrinterContext::Tokenize(void) {
     // Add the token in.
     tokens.tokens.emplace_back(
         static_cast<TokenDataOffset>(data_offset),
-        static_cast<uint32_t>(data_len), context_index,
-        static_cast<TokenKind>(tok.getKind()));
+        static_cast<uint32_t>(data_len), context_index, tok_kind);
 
     if (at_end) {
       break;
@@ -611,6 +728,26 @@ void PrintedTokenRangeImpl::TryChangeLastKind(TokenKind old, TokenKind new_) {
   }
   
   assert(false);
+}
+
+void PrintedTokenRangeImpl::TryRemoveTrailingComma(void) {
+  curr_printer_context->Tokenize();
+
+  if (!data.ends_with(',') && !data.ends_with(", ")) {
+    return;
+  }
+
+  // Remove trailing whitespace.
+  if (tokens.back().kind == TokenKind::kUnknown) {
+    data.resize(tokens.back().data_offset);
+    tokens.pop_back();
+  }
+
+  // Remove trailing comma.
+  if (tokens.back().kind == TokenKind::kComma) {
+    data.resize(tokens.back().data_offset);
+    tokens.pop_back();
+  }
 }
 
 void PrintedTokenRangeImpl::MarkLocation(PrintedTokenImpl &printed,
@@ -706,8 +843,8 @@ PrintedTokenRange PrintedTokenRange::Create(
 }
 
 // Number of tokens in this range.
-size_t PrintedTokenRange::Size(void) const noexcept {
-  return first < after_last ? static_cast<size_t>(after_last - first) : 0;
+unsigned PrintedTokenRange::Size(void) const noexcept {
+  return first < after_last ? static_cast<unsigned>(after_last - first) : 0u;
 }
 
 std::string_view PrintedTokenRange::Data(void) const noexcept {
@@ -816,6 +953,9 @@ static bool IsParsedToken(const pasta::Token &tok) {
     case pasta::TokenRole::kFinalMacroExpansionToken:
       return !tok.Data().empty();
 
+    // case pasta::TokenRole::kMacroDirectiveMarker:
+    //   return true;
+
     default:
       return false;
   }
@@ -893,73 +1033,6 @@ static std::optional<DerivedTokenIndex> TrailingWhitespaceTokenOffset(
   }
 
   return min_found;
-}
-
-static bool IsIdentifierLike(TokenKind prev) {
-  if (prev == TokenKind::kIdentifier) {
-    return true;
-  } else if (prev == TokenKind::kLAngle || prev == TokenKind::kRAngle) {
-    return false;
-  } else {
-    return !!clang::tok::getKeywordSpelling(
-        static_cast<clang::tok::TokenKind>(prev));
-  }
-}
-
-static bool IsPunctuation(TokenKind prev) {
-  if (prev == TokenKind::kLAngle || prev == TokenKind::kRAngle) {
-    return true;
-  } else {
-    return !!clang::tok::getPunctuatorSpelling(
-        static_cast<clang::tok::TokenKind>(prev));
-  }
-}
-
-static char AddWhitespaceBetween(TokenKind prev, TokenKind next) {
-  if (prev == TokenKind::kUnknown || prev == TokenKind::kComment) {
-    return false;
-  }
-
-  if (next == TokenKind::kUnknown || next == TokenKind::kComment) {
-    return false;
-  }
-
-  if (prev == TokenKind::kColon ||
-      prev == TokenKind::kComma ||
-      prev == TokenKind::kSemi) {
-    return true;
-  }
-
-  auto prev_is_ident = IsIdentifierLike(prev);
-  auto next_is_ident = IsIdentifierLike(next);
-
-  if (prev_is_ident && next_is_ident) {
-    return true;
-  }
-
-  auto prev_is_punc = IsPunctuation(prev);
-  if (prev_is_punc && next_is_ident) {
-    return prev != TokenKind::kColonColon &&
-           prev != TokenKind::kLAngle &&
-           prev != TokenKind::kLParenthesis &&
-           prev != TokenKind::kLSquare;
-  }
-
-  auto next_is_punc = IsPunctuation(next);
-  if (prev_is_ident && next_is_punc) {
-    return next != TokenKind::kColonColon &&
-           next != TokenKind::kLAngle &&
-           next != TokenKind::kRAngle &&
-           next != TokenKind::kLParenthesis &&
-           next != TokenKind::kRParenthesis &&
-           next != TokenKind::kLSquare &&
-           next != TokenKind::kRSquare &&
-           next != TokenKind::kSemi &&
-           next != TokenKind::kColon &&
-           next != TokenKind::kComma;
-  }
-
-  return prev_is_punc && next == TokenKind::kLBrace;
 }
 
 }  // namespace
@@ -1063,7 +1136,7 @@ PrintedTokenRange PrintedTokenRange::AdoptWhitespace(
     new_impl->data.insert(new_impl->data.end(), data.begin(), data.end());
   }
 
-  auto add_ws_tok = [&] (auto new_context_index, auto ws_offset) {
+  auto add_ws_tok = [&] (auto ws_offset) {
     switch (parsed_tokens.Role(ws_offset)) {
       case TokenRole::kFileToken:
       case TokenRole::kFinalMacroExpansionToken:
@@ -1072,17 +1145,11 @@ PrintedTokenRange PrintedTokenRange::AdoptWhitespace(
         return;
     }
 
-    // TODO(pag): Double check what the last non-whitespace token kind was,
-    //            e.g. a `,` or `;` or a `)` or a `}` means we should look
-    //            at the context parent.
-    auto ci = new_impl->tokens.empty() ? new_context_index :
-              new_impl->tokens.back().context_index;
-
     auto data = parsed_tokens.Data(ws_offset);
     auto &new_tok = new_impl->tokens.emplace_back(
         static_cast<uint32_t>(new_impl->data.size()),
         static_cast<uint32_t>(data.size()),
-        ci, parsed_tokens.Kind(ws_offset));
+        kInvalidTokenContextIndex, parsed_tokens.Kind(ws_offset));
     new_tok.derived_index = ws_offset;
     new_impl->data.insert(new_impl->data.end(), data.begin(), data.end());
   };
@@ -1117,17 +1184,13 @@ PrintedTokenRange PrintedTokenRange::AdoptWhitespace(
       continue;
     }
 
-    auto new_context_index = MigrateContexts(
-        wants_ws_tok.context_index, wants_ws.impl->contexts,
-        new_impl->contexts, data_to_context, context_map);
-
     // Add in the leading whitespace/comments.
     auto it = leading_ws.find(wants_ws_tok.derived_index);
     if (it != leading_ws.end()) {
       
       for (auto ws_offset = it->second; ws_offset < wants_ws_tok.derived_index;
            ++ws_offset) {
-        add_ws_tok(new_context_index, ws_offset);
+        add_ws_tok(ws_offset);
       }
     
     } else if (new_impl->tokens.empty()) {
@@ -1146,20 +1209,29 @@ PrintedTokenRange PrintedTokenRange::AdoptWhitespace(
         
         for (auto ws_offset = new_impl->tokens.back().derived_index + 1u;
              ws_offset <= it->second; ++ws_offset) {
-          add_ws_tok(new_context_index, ws_offset);
+          add_ws_tok(ws_offset);
         }
       }
     }
 
     // Try to inject fake whitespace.
-    auto last_kind = new_impl->tokens.empty() ? TokenKind::kUnknown :
+    auto no_tokens_yet = new_impl->tokens.empty();
+    auto last_kind = no_tokens_yet ? TokenKind::kUnknown :
                      new_impl->tokens.back().kind;
-    if (AddWhitespaceBetween(last_kind, wants_ws_tok.kind)) {
+    auto last_index = no_tokens_yet ? kInvalidDerivedTokenIndex :
+                      new_impl->tokens.back().derived_index;
+    if (AddWhitespaceBetween(last_kind, wants_ws_tok.kind) &&
+        (last_index + 1u) != wants_ws_tok.derived_index) {
       new_impl->tokens.emplace_back(
-          static_cast<uint32_t>(new_impl->data.size()), 1u, new_context_index,
-          TokenKind::kUnknown);
+          static_cast<uint32_t>(new_impl->data.size()), 1u,
+          kInvalidTokenContextIndex, TokenKind::kUnknown);
       new_impl->data.push_back(' ');
     }
+
+    // Migrate the token context.
+    auto new_context_index = MigrateContexts(
+        wants_ws_tok.context_index, wants_ws.impl->contexts,
+        new_impl->contexts, data_to_context, context_map);
 
     // Add in the original token.
     auto data = wants_ws_tok.Data(*(wants_ws.impl));
@@ -1171,6 +1243,7 @@ PrintedTokenRange PrintedTokenRange::AdoptWhitespace(
     new_impl->data.insert(new_impl->data.end(), data.begin(), data.end());
   }
 
+  new_impl->FixupInvalidTokenContexts(kASTTokenContextIndex);
   new_impl->AddTrailingEOF();
   return PrintedTokenRangeImpl::ToPrintedTokenRange(std::move(new_impl));
 }
@@ -1234,6 +1307,7 @@ static constexpr bool kShouldPrintOriginalTypeOfAdjustedType = true;
 static constexpr bool kShouldPrintOriginalTypeOfDecayedType = true;
 static constexpr bool kShouldPrintTemplate = true;
 static constexpr bool kShouldPrintSpecialization = false;
+static constexpr bool kShouldPrintDeducedTypes = false;
 
 bool PrintingPolicy::ShouldPrintInheritedAttributes(void) const {
   return kShouldPrintInheritedAttributes;
@@ -1282,6 +1356,10 @@ bool PrintingPolicy::ShouldPrintSpecialization(const FunctionTemplateDecl &,
 bool PrintingPolicy::ShouldPrintSpecialization(
     const VarTemplateDecl &, const VarTemplateSpecializationDecl &) const {
   return kShouldPrintSpecialization;
+}
+
+bool PrintingPolicy::ShouldPrintDeducedTypes(void) const {
+  return kShouldPrintDeducedTypes;
 }
 
 ProxyPrintingPolicy::~ProxyPrintingPolicy(void) {}
@@ -1358,6 +1436,10 @@ bool PrintingPolicyAdaptor::ShouldPrintOriginalTypeOfAdjustedType(void) const {
 
 bool PrintingPolicyAdaptor::ShouldPrintOriginalTypeOfDecayedType(void) const {
   return pp ? pp->ShouldPrintOriginalTypeOfDecayedType() : kShouldPrintOriginalTypeOfDecayedType;
+}
+
+bool PrintingPolicyAdaptor::ShouldPrintDeducedTypes(void) const {
+  return pp ? pp->ShouldPrintDeducedTypes() : kShouldPrintDeducedTypes;
 }
 
 bool PrintingPolicyAdaptor::ShouldPrintTemplate(

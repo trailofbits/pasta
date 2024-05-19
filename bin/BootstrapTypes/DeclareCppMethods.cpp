@@ -32,13 +32,13 @@ static std::unordered_multimap<std::string, std::tuple<llvm::StringRef, llvm::St
 
 static void CollectGetNumMethod(const std::string &class_name,
                                 llvm::StringRef rt) {
-  if (meth_name_ref.startswith("get") && meth_name_ref.contains("Num") &&
+  if (meth_name_ref.starts_with("get") && meth_name_ref.contains("Num") &&
       rt == "(unsigned int)") {
     std::tuple<llvm::StringRef, llvm::StringRef> t{meth_name_ref, rt};
     class_methods0.emplace(class_name, std::move(t));
 
-    if (meth_name_ref.startswith("getNum")) {
-      if (meth_name_ref.endswith("s")) {
+    if (meth_name_ref.starts_with("getNum")) {
+      if (meth_name_ref.ends_with("s")) {
         get_num_method.emplace(
             meth_name_ref.substr(6, meth_name_ref.size() - 7).str(),
             meth_name_ref);
@@ -54,7 +54,7 @@ static void CollectGetNumMethod(const std::string &class_name,
         ss << meth_name_ref[i];
       }
       auto len = meth_name_ref.size();
-      if (meth_name_ref.endswith("s")) {
+      if (meth_name_ref.ends_with("s")) {
         len -= 1;
       }
       for (auto i = max_i + 3; i < len; ++i) {
@@ -65,9 +65,9 @@ static void CollectGetNumMethod(const std::string &class_name,
     }
 
   // List form, returns an array of pointers.
-  } else if (rt.endswith(" *const *)") &&
-             meth_name_ref.startswith("get") &&
-             meth_name_ref.endswith("s")) {
+  } else if (rt.ends_with(" *const *)") &&
+             meth_name_ref.starts_with("get") &&
+             meth_name_ref.ends_with("s")) {
 
     std::tuple<llvm::StringRef, llvm::StringRef> t{meth_name_ref, rt};
     class_methods0.emplace(class_name, std::move(t));
@@ -85,7 +85,7 @@ static void CollectGetNumMethod(const std::string &class_name,
 
 static void CollectGetNthMethod(const std::string &class_name,
                                 llvm::StringRef p0, llvm::StringRef rt) {
-  if (p0 == "(unsigned int)" && meth_name_ref.startswith("get")) {
+  if (p0 == "(unsigned int)" && meth_name_ref.starts_with("get")) {
     std::tuple<llvm::StringRef, llvm::StringRef, llvm::StringRef> t{meth_name_ref, p0, rt};
     class_methods1.emplace(class_name, std::move(t));
 
@@ -105,7 +105,7 @@ static void CollectGetNthMethod(const std::string &class_name,
 static void DeclareCppMethod0(std::ostream &os, const std::string &class_name,
                               const char *meth, const char *rt) {
   meth_name_ref = meth;
-  if (meth_name_ref.endswith("Unsafe")) {
+  if (meth_name_ref.ends_with("Unsafe")) {
     return;
   }
   // `NamedDecl::getName` has an assertion in it where `getNameAsString` does

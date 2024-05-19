@@ -197,6 +197,11 @@ static bool MergeToken(PrintedTokenImpl *parsed, PrintedTokenImpl *printed,
     return false;
   }
 
+  auto locs_match = TokenLocationsMatch(parsed, printed);
+  if (locs_match) {
+    force = true;
+  }
+
   if (parsed->context_index == kInvalidTokenContextIndex) {
     parsed->context_index = printed->context_index;
     changed = true;
@@ -207,11 +212,6 @@ static bool MergeToken(PrintedTokenImpl *parsed, PrintedTokenImpl *printed,
       parsed->derived_index != kInvalidDerivedTokenIndex) {
     printed->derived_index = parsed->derived_index;
     changed = true;
-    force = true;
-  }
-
-  auto locs_match = TokenLocationsMatch(parsed, printed);
-  if (locs_match) {
     force = true;
   }
 
@@ -1523,10 +1523,18 @@ void Matcher::FixStatementRegionContexts(
   auto common_context_index = IndexOfContext(parsed_range, common_context);  
 
   // Assign the top context on the stack to any token lacking the context.
+  auto first = true;
   for (auto tok = stmt->begin; tok <= stmt->end; ++tok) {
+    if (first) {
+      if (tok->kind == TokenKind::kUnknown ||
+          tok->kind == TokenKind::kComment) {
+        continue;
+      }
+    }
     if (!TokenHasLocationAndContext(tok)) {
       tok->context_index = common_context_index;
     }
+    first = false;
   }
 }
 
@@ -1697,6 +1705,13 @@ std::optional<std::string> PrintedTokenRangeImpl::AlignTokens(
   std::vector<std::unique_ptr<Region>> parsed_regions;
   std::vector<std::unique_ptr<Region>> printed_regions;
 
+  // Clear out token contexts on the root.
+  for (auto &tok : tokens) {
+    if (tok.context_index == root_context_id) {
+      tok.context_index = kInvalidTokenContextIndex;
+    }
+  }
+
   Matcher matcher(*ast, *this, printed_range);
   
   matcher.InitParsedLocationsMap();    
@@ -1844,6 +1859,8 @@ std::optional<std::string> PrintedTokenRangeImpl::AlignTokens(
   matcher.MergeSameSizedHoles();
   matcher.HashBasedMatch(parsed_bounds, printed_bounds, changed);
   matcher.FixContexts(parsed_tree, root_context);
+
+  FixupInvalidTokenContexts(root_context_id);
 
 #if PASTA_DEBUG_ALIGN
 

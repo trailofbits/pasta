@@ -5,6 +5,7 @@
 #include "AST.h"
 
 #include <pasta/AST/Decl.h>
+#include <pasta/AST/DeclHead.h>
 
 #include <cassert>
 #include <limits>
@@ -41,6 +42,11 @@ AST AST::From(const Token &token) {
   return AST(std::shared_ptr<ASTImpl>(token.storage, token.storage->ast));
 }
 
+// Return the AST containing a declaration.
+AST AST::From(const DeclContext &decl) {
+  return AST(decl.ast);
+}
+
 AST AST::From(const Decl &decl) {
   return AST(decl.ast);
 }
@@ -55,6 +61,11 @@ AST AST::From(const Macro &macro) {
 
 AST AST::From(const Type &type) {
   return AST(type.ast);
+}
+
+// Return the AST containing a template argument.
+AST AST::From(const TemplateArgument &arg) {
+  return AST(arg.ast);
 }
 
 AST::~AST(void) {}
@@ -189,6 +200,10 @@ TokenRange ASTImpl::TokenRangeFrom(clang::SourceRange range) {
   auto end = TokenAt(range.getEnd());
   
   if (begin && end) {
+    if (range.getBegin().getRawEncoding() > range.getEnd().getRawEncoding()) {
+      std::swap(begin, end);
+    }
+
     if (auto range = TokenRange::From(std::move(begin), std::move(end))) {
       return range.value();
     }
@@ -242,6 +257,10 @@ Attr AST::Adopt(const clang::Attr *attr) const {
 
 Decl AST::Adopt(const clang::Decl *decl) const {
   return Decl(impl, decl->RemappedDecl);
+}
+
+Decl AST::AdoptWithoutRemap(const clang::Decl *decl) const {
+  return Decl(impl, decl);
 }
 
 Stmt AST::Adopt(const clang::Stmt *stmt) const {

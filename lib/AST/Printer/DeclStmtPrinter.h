@@ -17,6 +17,10 @@
 #pragma GCC diagnostic ignored "-Wimplicit-int-conversion"
 #pragma GCC diagnostic ignored "-Wsign-conversion"
 #pragma GCC diagnostic ignored "-Wshorten-64-to-32"
+#pragma GCC diagnostic ignored "-Wold-style-cast"
+#pragma GCC diagnostic ignored "-Wunused-parameter"
+#pragma GCC diagnostic ignored "-Wshadow"
+#pragma GCC diagnostic ignored "-Wcast-align"
 #include <clang/AST/ASTContext.h>
 #include <clang/AST/Attr.h>
 #include <clang/AST/Decl.h>
@@ -130,6 +134,8 @@ class DeclPrinter final : public clang::DeclVisitor<DeclPrinter>,
   const clang::ASTContext &Context;
   unsigned Indentation;
 
+  bool force_function_semicolon_instead_of_body{false};
+
   raw_string_ostream& Indent() { return Indent(static_cast<int>(Indentation)); }
   raw_string_ostream& Indent(int Indentation);
   void ProcessDeclGroup(clang::SmallVectorImpl<clang::Decl*>& Decls);
@@ -166,6 +172,9 @@ class DeclPrinter final : public clang::DeclVisitor<DeclPrinter>,
   void VisitFunctionDecl(clang::FunctionDecl *D);
   void VisitFriendDecl(clang::FriendDecl *D);
   void VisitFieldDecl(clang::FieldDecl *D);
+  clang::QualType VisitVarDeclSpecifiers(clang::VarDecl *D);
+  void VisitVarDeclInitializer(clang::VarDecl *D);
+  void VisitDecompositionDecl(clang::DecompositionDecl *D);
   void VisitVarDecl(clang::VarDecl *D);
   void VisitLabelDecl(clang::LabelDecl *D);
   void VisitParmVarDecl(clang::ParmVarDecl *D);

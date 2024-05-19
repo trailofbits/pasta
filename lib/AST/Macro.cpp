@@ -148,6 +148,7 @@ MacroNodeImpl *MacroDirectiveImpl::Clone(
     ASTImpl &ast, MacroNodeImpl *new_parent) const {
 
   MacroDirectiveImpl *clone = &(ast.root_macro_node.directives.emplace_back());
+  clone->parsed_left_corner = ast.parsed_tokens.size();
   clone->cloned_from = this;
   clone->defined_macro = defined_macro;
   clone->included_file = included_file;
@@ -156,7 +157,7 @@ MacroNodeImpl *MacroDirectiveImpl::Clone(
   clone->parent = new_parent;
 
   CloneNodeList(
-      ast, this, nodes, clone, clone->nodes,
+      ast, nodes, clone, clone->nodes,
       [=] (unsigned i, MacroTokenImpl *tok, MacroTokenImpl *cloned_tok) {
         if (std::holds_alternative<MacroTokenImpl *>(directive_name) &&
             std::get<MacroTokenImpl *>(directive_name) == tok) {
@@ -170,6 +171,8 @@ MacroNodeImpl *MacroDirectiveImpl::Clone(
       },
       NoOnNodeCB);
 
+  clone->parsed_right_corner = ast.parsed_tokens.size();
+
   return clone;
 }
 
@@ -180,6 +183,7 @@ MacroNodeImpl *MacroArgumentImpl::Clone(
   has_been_cloned = true;
 
   MacroArgumentImpl *clone = &(ast.root_macro_node.arguments.emplace_back());
+  clone->parsed_left_corner = ast.parsed_tokens.size();
   clone->cloned_from = this;
   if (auto expansion = dynamic_cast<MacroExpansionImpl *>(new_parent)) {
     clone->index = static_cast<unsigned>(expansion->arguments.size());
@@ -194,9 +198,9 @@ MacroNodeImpl *MacroArgumentImpl::Clone(
   }
   clone->parent = new_parent;
 
-  CloneNodeList(ast, this, nodes, clone, clone->nodes, NoOnTokenCB,
-                NoOnNodeCB);
+  SimpleCloneNodeList(ast, nodes, clone, clone->nodes);
 
+  clone->parsed_right_corner = ast.parsed_tokens.size();
   return clone;
 }
 
@@ -205,18 +209,28 @@ MacroNodeImpl *MacroParameterImpl::Clone(ASTImpl &, MacroNodeImpl *) const {
   return nullptr;
 }
 
+void SimpleCloneNodeList(ASTImpl &ast,
+                         const NodeList &old_nodes,
+                         MacroNodeImpl *new_parent,
+                         NodeList &new_nodes) {
+  CloneNodeList(ast, old_nodes, new_parent, new_nodes,
+                NoOnTokenCB, NoOnNodeCB);
+}
+
 MacroNodeImpl *MacroSubstitutionImpl::Clone(
     ASTImpl &ast, MacroNodeImpl *new_parent) const {
 
   MacroSubstitutionImpl *clone =
       &(ast.root_macro_node.substitutions.emplace_back());
+  clone->parsed_left_corner = ast.parsed_tokens.size();
+
   clone->cloned_from = this;
   clone->parent = new_parent;
 
-  CloneNodeList(ast, this, nodes, clone, clone->nodes, NoOnTokenCB, NoOnNodeCB);
-  CloneNodeList(ast, this, use_nodes, clone, clone->use_nodes, NoOnTokenCB,
-                NoOnNodeCB);
+  SimpleCloneNodeList(ast, nodes, clone, clone->nodes);
+  SimpleCloneNodeList(ast, use_nodes, clone, clone->use_nodes);
 
+  clone->parsed_right_corner = ast.parsed_tokens.size();
   return clone;
 }
 
@@ -297,7 +311,7 @@ void MacroExpansionImpl::CopyFromBody(
     const Node *last_def_node = LastTokenImpl(node);
     if (!last_def_node) {
       DD( std::cerr << "Injecting 1: (unknown)\n"; )
-      CloneNode(ast, definition_impl, node, 0u, curr,
+      CloneNode(ast, node, 0u, curr,
                 curr_nodes, NoOnTokenCB, NoOnNodeCB);
       has_interesting_body = true;
       continue;
@@ -314,8 +328,7 @@ void MacroExpansionImpl::CopyFromBody(
     if (last_def_loc != end_loc) {
       DD( std::cerr << "Injecting 2: " << amt.Data(last_def_tok->token_offset)
                    << '\n'; )
-
-      CloneNode(ast, definition_impl, node, 0u, curr,
+      CloneNode(ast, node, 0u, curr,
                 curr_nodes, NoOnTokenCB, NoOnNodeCB);
       has_interesting_body = true;
       continue;
@@ -337,6 +350,7 @@ MacroNodeImpl *MacroExpansionImpl::Clone(
 
   MacroExpansionImpl *clone =
       &(ast.root_macro_node.expansions.emplace_back());
+  clone->parsed_left_corner = ast.parsed_tokens.size();
   clone->cloned_from = this;
   clone->parent = new_parent;
   clone->definition = definition;
@@ -353,23 +367,22 @@ MacroNodeImpl *MacroExpansionImpl::Clone(
   clone->is_cancelled = is_cancelled;
   clone->is_prearg_expansion = is_prearg_expansion;
 
-  CloneNodeList(ast, this, body, clone, clone->body, NoOnTokenCB,
-                NoOnNodeCB);
-
-  CloneNodeList(ast, this, nodes, clone, clone->nodes, NoOnTokenCB,
-                NoOnNodeCB);
+  SimpleCloneNodeList(ast, body, clone, clone->body);
+  SimpleCloneNodeList(ast, nodes, clone, clone->nodes);
 
   unsigned arg_num = 0u;
 
   CloneNodeList(
-      ast, this, use_nodes, clone, clone->use_nodes,
+      ast, use_nodes, clone, clone->use_nodes,
       [=, &arg_num] (unsigned i, MacroTokenImpl *tok,
                      MacroTokenImpl *cloned_tok) {
         if (ident == tok) {
           clone->ident = cloned_tok;
+          clone->l_paren_index = i + 1u;
         }
 
         if (l_paren == tok) {
+          clone->l_paren_index = i;
           clone->l_paren = cloned_tok;
         }
 
@@ -390,10 +403,12 @@ MacroNodeImpl *MacroExpansionImpl::Clone(
 
         if (ident == node->FirstExpansionToken()) {
           clone->ident = cloned_node->FirstExpansionToken();
+          clone->l_paren_index = i + 1u;
         }
 
         if (l_paren == node->FirstExpansionToken()) {
           clone->l_paren = cloned_node->FirstExpansionToken();
+          clone->l_paren_index = i;
         }
 
         if (r_paren == node->FirstExpansionToken()) {
@@ -409,6 +424,7 @@ MacroNodeImpl *MacroExpansionImpl::Clone(
         }
       });
 
+  clone->parsed_right_corner = ast.parsed_tokens.size();
   return clone;
 }
 
@@ -485,6 +501,46 @@ TokenRange Macro::CompleteExpansionRange(const Macro &macro) {
       std::shared_ptr<ParsedTokenStorage>(
           macro.ast, &(macro.ast->parsed_tokens)),
       begin_offset, end_offset_it->second + 1u);
+}
+
+// Return the parsed token range bounded by marker tokens of the complete
+// expansion range for `macro`.
+TokenRange Macro::ExpansionRange(const Macro &macro) {
+  Node node = *reinterpret_cast<const Node *>(macro.impl);
+  if (std::holds_alternative<MacroTokenImpl *>(node)) {
+    auto tok = std::get<MacroTokenImpl *>(node);
+    
+    // Doesn't map to a specific parsed token.
+    if (macro.ast->macro_tokens.Role(tok->token_offset) !=
+        TokenRole::kFinalMacroExpansionToken) {
+      return TokenRange(macro.ast);
+    }
+
+    for (auto parsed_tok : Macro::ExpansionRange(macro.Parent().value())) {
+      if (auto mtok = parsed_tok.MacroLocation()) {
+        if (mtok->Index() == tok->token_offset) {
+          return parsed_tok;
+        }
+      }
+    }
+
+    assert(false);
+    return TokenRange(macro.ast);
+  }
+
+  auto begin_offset = std::get<MacroNodeImpl *>(node)->parsed_left_corner;
+  auto end_offset = std::get<MacroNodeImpl *>(node)->parsed_right_corner;
+
+  if (begin_offset == kInvalidDerivedTokenIndex ||
+      end_offset == kInvalidDerivedTokenIndex) {
+    assert(false);
+    return TokenRange(macro.ast);
+  }
+
+  return TokenRange(
+      std::shared_ptr<ParsedTokenStorage>(
+          macro.ast, &(macro.ast->parsed_tokens)),
+      begin_offset, end_offset + 1u);
 }
 
 MacroKind Macro::Kind(void) const noexcept {
@@ -643,6 +699,12 @@ enum TokenKind MacroToken::TokenKind(void) const noexcept {
 
 enum TokenRole MacroToken::TokenRole(void) const noexcept {
   return ast->macro_tokens.Role(MacroTokenOffset(impl));
+}
+
+// Index of this token in the macro token area. Useful for uniquely
+// identifying them.
+unsigned MacroToken::Index(void) const noexcept {
+  return static_cast<unsigned>(MacroTokenOffset(impl));
 }
 
 std::string_view MacroToken::TokenKindName(void) const noexcept {

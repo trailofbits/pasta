@@ -24,7 +24,7 @@ if(NOT EXISTS "${src_dir}/llvm/CMakeLists.txt")
     WORKING_DIRECTORY "${PROJECT_SOURCE_DIR}")
 
   execute_process(
-    COMMAND "${GIT_EXECUTABLE}" submodule set-branch --branch pasta-llvmorg-17.0.4 vendor/llvm-project/src
+    COMMAND "${GIT_EXECUTABLE}" submodule set-branch --branch pasta-llvmorg-18.1.4 vendor/llvm-project/src
     WORKING_DIRECTORY "${PROJECT_SOURCE_DIR}")
 endif()
 
@@ -35,6 +35,12 @@ endif()
 #            of `__is_constructible`.
 
 execute_process(COMMAND ${CMAKE_COMMAND} -E make_directory "${build_dir}")
+
+if (CMAKE_BUILD_TYPE STREQUAL "Debug")
+  set(LLVM_ENABLE_ASSERTIONS ON)
+else()
+  set(LLVM_ENABLE_ASSERTIONS OFF)
+endif()
 
 # (b) Nested CMake run. May need more -D... options than shown here.
 execute_process(COMMAND ${CMAKE_COMMAND}
@@ -64,7 +70,7 @@ execute_process(COMMAND ${CMAKE_COMMAND}
                         -DLLVM_ENABLE_DIA_SDK:BOOL=OFF
                         -DLLVM_ENABLE_EH:BOOL=ON
                         -DLLVM_ENABLE_RTTI:BOOL=ON
-                        -DLLVM_ENABLE_ASSERTIONS:BOOL=ON
+                        "-DLLVM_ENABLE_ASSERTIONS:BOOL=${LLVM_ENABLE_ASSERTIONS}"
                         -DLLVM_ENABLE_EXPENSIVE_CHECKS:BOOL=OFF
                         -DLLVM_ENABLE_FFI:BOOL=OFF
                         -DLLVM_ENABLE_WARNINGS:BOOL=ON

@@ -149,6 +149,9 @@ class PrintedTokenRangeImpl {
   // specializations/instantiations.
   PrintingPolicyAdaptor *ppa{nullptr};
 
+  // Should whitespace be injected?
+  bool inject_whitespace{false};
+
   inline PrintedTokenRangeImpl(clang::ASTContext &ast_context_)
       : ast_context(ast_context_) {}
 
@@ -172,6 +175,7 @@ class PrintedTokenRangeImpl {
   bool LastTokenIsOneOf(Kinds... kinds);
 
   void TryChangeLastKind(TokenKind old, TokenKind new_);
+  void TryRemoveTrailingComma(void);
 
   void MarkLocation(PrintedTokenImpl &, DerivedTokenIndex tok_index);
   void MarkLocation(size_t tok_index, DerivedTokenIndex tok);
@@ -187,6 +191,10 @@ class PrintedTokenRangeImpl {
   void FixupInvalidTokenContexts(TokenContextIndex index);
 
   void AddTrailingEOF(void);
+
+  // Append a decl into the range.
+  void Append(clang::Decl *decl, raw_string_ostream &out,
+              const PrintingPolicy &high_pp);
 
   inline static PrintedTokenRange ToPrintedTokenRange(
       std::shared_ptr<PrintedTokenRangeImpl> self) {
@@ -244,6 +252,8 @@ class PrintingPolicyAdaptor final {
   
   bool ShouldPrintSpecialization(clang::FunctionTemplateDecl *,
                                  clang::FunctionDecl *) const;
+
+  bool ShouldPrintDeducedTypes(void) const;
 };
 
 /// A utility class that uses RAII to save and restore the value of a variable.
@@ -276,10 +286,9 @@ class PrintingPolicyAdaptorRAII {
 
  public:
 
-  inline PrintingPolicyAdaptorRAII(
-      const std::shared_ptr<PrintedTokenRangeImpl> &range,
-      PrintingPolicyAdaptor &ppa)
-      : ppa_ptr(range->ppa) {
+  inline PrintingPolicyAdaptorRAII(PrintedTokenRangeImpl &range,
+                                   PrintingPolicyAdaptor &ppa)
+      : ppa_ptr(range.ppa) {
     ppa_ptr = &ppa;
   }
 
@@ -329,6 +338,7 @@ class TokenPrinterContext {
   TokenPrinterContext(const TokenPrinterContext &that_);
 
   void Tokenize(void);
+  void TokenizeAs(pasta::TokenKind kind);
 
   // Mark the last printed token as having location `loc`. This helps to
   // correlate things in the actual parsed tokens with printed tokens.
@@ -398,20 +408,42 @@ const TokenContextIndex PrintedTokenRangeImpl::CreateContext(
     return kInvalidTokenContextIndex;
   }
 
-  auto dedup = !std::is_same_v<T, char> && !std::is_base_of_v<clang::Type, T>;
-  if (dedup) {
-    data = Canonicalize(data);
-    if (auto it = data_to_index.find(data); it != data_to_index.end()) {
-      return it->second;
-    }
-  }
-
+  // Reuse the prior context.
   if (tokenizer->prev_printer_context) {
     TokenPrinterContext *prev_printer = tokenizer->prev_printer_context;
     TokenContextIndex prev_index = prev_printer->context_index;
     TokenContextImpl &prev_context = contexts[prev_index];
     if (prev_context.data == data) {
       return prev_index;
+    }
+  }
+
+  auto dedup = !std::is_same_v<T, char> && !std::is_base_of_v<clang::Type, T>;
+  
+  // If our parent context is a type, or points to a type, or isn't itself
+  // subject to deduplication, then don't deduplicate this one. See
+  // Issue #54 (https://github.com/trailofbits/pasta/issues/54).
+  if (dedup && tokenizer->prev_printer_context) {
+    auto parent_index = tokenizer->prev_printer_context->context_index;
+    switch (contexts[parent_index].kind) {
+      case TokenContextKind::kString:
+      case TokenContextKind::kType:
+      case TokenContextKind::kTemplateArgument:
+      case TokenContextKind::kTemplateParameterList:
+        dedup = false;
+        break;
+      default:
+        if (!data_to_index.count(contexts[parent_index].data)) {
+          dedup = false;
+        }
+        break;
+    }
+  }
+
+  if (dedup) {
+    data = Canonicalize(data);
+    if (auto it = data_to_index.find(data); it != data_to_index.end()) {
+      return it->second;
     }
   }
 
@@ -427,21 +459,6 @@ const TokenContextIndex PrintedTokenRangeImpl::CreateContext(
         parent_index,
         parent_depth,
         data);
-
-    // If our parent context is a type, or points to a type, or isn't itself
-    // subject to deduplication, then don't deduplicate this one. See
-    // Issue #54 (https://github.com/trailofbits/pasta/issues/54).
-    switch (contexts[parent_index].kind) {
-      case TokenContextKind::kString:
-      case TokenContextKind::kType:
-        dedup = false;
-        break;
-      default:
-        if (!data_to_index.count(contexts[parent_index].data)) {
-          dedup = false;
-        }
-        break;
-    }
   } else {
     contexts.emplace_back(
         kInvalidTokenContextIndex,
@@ -476,6 +493,7 @@ bool PrintedTokenRangeImpl::LastTokenIsOneOf(Kinds... kinds) {
     if ((false || ... || (kind == kinds))) {
       return true;
     }
+    break;
   }
   return false;
 }

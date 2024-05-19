@@ -45,6 +45,8 @@ static ::pasta::DeclCategory ClassifyDecl(const clang::Decl *decl) {
   if (auto tpl_decl = clang::dyn_cast<clang::TemplateDecl>(decl)) {
     if (clang::isa<clang::TemplateTemplateParmDecl>(decl)) {
       return ::pasta::DeclCategory::kTemplateTypeParameter;
+    } else if (clang::isa<clang::BuiltinTemplateDecl>(decl)) {
+      return ::pasta::DeclCategory::kUnknown;
     }
     return ClassifyDecl(tpl_decl->getTemplatedDecl());
   }
@@ -369,7 +371,7 @@ bool TemplateArgument::IsPackExpansion(void) const noexcept {
 }
 
 // Retrieve the declaration for a declaration non-type template argument.
-std::optional<ValueDecl> TemplateArgument::AsDeclaration(void) const noexcept {
+std::optional<ValueDecl> TemplateArgument::Declaration(void) const noexcept {
   if (Kind() == TemplateArgumentKind::kDeclaration) {
     return DeclBuilder::Create<pasta::ValueDecl>(ast, arg->getAsDecl());
   }
@@ -377,14 +379,14 @@ std::optional<ValueDecl> TemplateArgument::AsDeclaration(void) const noexcept {
 }
 
 // Retrieve the type for a type template argument.
-std::optional<Type> TemplateArgument::AsType(void) const noexcept {
+std::optional<::pasta::Type> TemplateArgument::Type(void) const noexcept {
   if (Kind() == TemplateArgumentKind::kType) {
     return TypeBuilder::Build(ast, arg->getAsType());
   }
   return std::nullopt;
 }
 
-std::optional<Type>
+std::optional<::pasta::Type>
 TemplateArgument::ParameterTypeForDeclaration(void) const noexcept {
   if (Kind() == TemplateArgumentKind::kDeclaration) {
     return TypeBuilder::Build(ast, arg->getParamTypeForDecl());
@@ -392,26 +394,52 @@ TemplateArgument::ParameterTypeForDeclaration(void) const noexcept {
   return std::nullopt;
 }
 
-std::optional<Type> TemplateArgument::NullPointerType(void) const noexcept {
+std::optional<::pasta::Type>
+TemplateArgument::NullPointerType(void) const noexcept {
   if (Kind() == TemplateArgumentKind::kNullPointer) {
     return TypeBuilder::Build(ast, arg->getNullPtrType());
   }
   return std::nullopt;
 }
 
-// If this argument is an argument pack, then return the inner arguments.
-std::optional<std::vector<TemplateArgument>>
-TemplateArgument::PackElements(void) const noexcept {
-  if (Kind() != TemplateArgumentKind::kPack) {
+// Retrieve the expression for an expression template argument.
+std::optional<::pasta::Expr> TemplateArgument::Expression(void) const noexcept {
+  if (Kind() != TemplateArgumentKind::kExpression) {
     return std::nullopt;
   }
 
-  std::vector<TemplateArgument> nested_args;
-  for (const auto &nested_arg : arg->pack_elements()) {
-    nested_args.emplace_back(ast, &nested_arg); 
+  auto expr = arg->getAsExpr();
+  if (!expr) {
+    return std::nullopt;
   }
 
-  return nested_args;
+  return StmtBuilder::Create<pasta::Expr>(ast, expr);
+}
+
+// Retrieve the number value for an integral template argument if it fits in
+// 64 bits.
+std::optional<llvm::APSInt> TemplateArgument::Integral(void) const noexcept {
+  if (Kind() != TemplateArgumentKind::kIntegral) {
+    return std::nullopt;
+  }
+
+  return arg->getAsIntegral();
+}
+
+// Return the template arguments in this pack, or an empty vector if this
+// isn't a pack.
+std::vector<TemplateArgument>
+TemplateArgument::PackArguments(void) const noexcept {
+  std::vector<TemplateArgument> args;
+  if (Kind() != TemplateArgumentKind::kPack || !arg->pack_size()) {
+    return args;
+  }
+
+  for (const clang::TemplateArgument &pack_arg : arg->pack_elements()) {
+    args.emplace_back(ast, &pack_arg);
+  }
+
+  return args;
 }
 
 // Total number of parameters.

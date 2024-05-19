@@ -9,6 +9,9 @@
 
 #include "Forward.h"
 
+namespace llvm {
+class APSInt;
+}  // namespace llvm
 namespace clang {
 class CXXBaseSpecifier;
 class CXXCtorInitializer;
@@ -142,6 +145,8 @@ class CXXBaseSpecifier {
 
 class TemplateArgument {
  private:
+  friend class AST;
+
   std::shared_ptr<ASTImpl> ast;
   const clang::TemplateArgument *arg;
 
@@ -190,19 +195,25 @@ class TemplateArgument {
   bool IsPackExpansion(void) const noexcept;
 
   // Retrieve the declaration for a declaration non-type template argument.
-  std::optional<ValueDecl> AsDeclaration(void) const noexcept;
+  std::optional<ValueDecl> Declaration(void) const noexcept;
 
   // Retrieve the type for a type template argument.
-  std::optional<Type> AsType(void) const noexcept;
+  std::optional<::pasta::Type> Type(void) const noexcept;
 
-  std::optional<Type> ParameterTypeForDeclaration(void) const noexcept;
+  std::optional<::pasta::Type> ParameterTypeForDeclaration(void) const noexcept;
 
-  std::optional<Type> NullPointerType(void) const noexcept;
+  std::optional<::pasta::Type> NullPointerType(void) const noexcept;
 
-  // If this argument is an argument pack, then return the inner arguments.
-  std::optional<std::vector<TemplateArgument>> PackElements(void) const noexcept;
+  // Retrieve the expression for an expression template argument.
+  std::optional<::pasta::Expr> Expression(void) const noexcept;
 
-  // TODO(pag): Others methods.
+  // Retrieve the number value for an integral template argument if it fits in
+  // 64 bits.
+  std::optional<llvm::APSInt> Integral(void) const noexcept;
+
+  // Return the template arguments in this pack, or an empty vector if this
+  // isn't a pack.
+  std::vector<TemplateArgument> PackArguments(void) const noexcept;
 #endif
 };
 

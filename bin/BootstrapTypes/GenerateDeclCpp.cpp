@@ -308,7 +308,7 @@ void Register)" << name << "(nb::module_ &m) {\n"
     }
 
     // Constructors from derived class -> base class.
-    if (name_ref.endswith("Decl")) {
+    if (name_ref.ends_with("Decl")) {
 
       if (derived_from_decl_context.count(name)) {
         os << "PASTA_DEFINE_BASE_OPERATORS(DeclContext, "
@@ -412,9 +412,21 @@ void Register)" << name << "(nb::module_ &m) {\n"
         << "  } else {\n"
         << "    return std::nullopt;\n"
         << "  }\n"
+        << "}\n\n"
+        << "std::vector<::pasta::TemplateArgument> FunctionDecl::TemplateArguments(void) const noexcept {\n"
+        << "  const clang::FunctionDecl *decl = u.FunctionDecl;\n"
+        << "  std::vector<::pasta::TemplateArgument> ret;\n"
+        << "  if (auto args = decl->getTemplateSpecializationArgs()) {\n"
+        << "    for (auto &arg : args->asArray()) {\n"
+        << "      ret.emplace_back(ast, &arg);\n"
+        << "    }\n"
+        << "  }\n"
+        << "  return ret;\n"
         << "}\n\n";
 
-      os_py << "\n    .def_prop_ro(\"body\", &" << name << "::Body)";
+      os_py
+        << "\n    .def_prop_ro(\"body\", &" << name << "::Body)"
+        << "\n    .def_prop_ro(\"template_arguments\", &" << name << "::TemplateArguments)";
     }
     os_py << ";\n"
           << "}\n"

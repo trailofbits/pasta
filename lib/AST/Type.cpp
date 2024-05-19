@@ -566,7 +566,10 @@ std::optional<::pasta::RecordType> Type::AsUnionType(void) const {
 ::pasta::Type Type::CanonicalTypeInternal(void) const {
   auto &self = *const_cast<clang::Type *>(u.Type);
   decltype(auto) val = self.getCanonicalTypeInternal();
-  assert(!val.isNull());
+  if (val.isNull()) {
+    assert(false);
+    val = ast->ci->getASTContext().UnresolvedTy;
+  }
   return TypeBuilder::Build(ast, val);
 }
 
@@ -604,7 +607,10 @@ enum Linkage Type::Linkage(void) const {
 ::pasta::Type Type::LocallyUnqualifiedSingleStepDesugaredType(void) const {
   auto &self = *const_cast<clang::Type *>(u.Type);
   decltype(auto) val = self.getLocallyUnqualifiedSingleStepDesugaredType();
-  assert(!val.isNull());
+  if (val.isNull()) {
+    assert(false);
+    val = ast->ci->getASTContext().UnresolvedTy;
+  }
   return TypeBuilder::Build(ast, val);
 }
 
@@ -1983,7 +1989,10 @@ PASTA_DEFINE_BASE_OPERATORS(Type, TypeOfExprType)
 ::pasta::Type TypeOfExprType::Desugar(void) const {
   auto &self = *const_cast<clang::TypeOfExprType *>(u.TypeOfExprType);
   decltype(auto) val = self.desugar();
-  assert(!val.isNull());
+  if (val.isNull()) {
+    assert(false);
+    val = ast->ci->getASTContext().UnresolvedTy;
+  }
   return TypeBuilder::Build(ast, val);
 }
 
@@ -2012,7 +2021,10 @@ PASTA_DEFINE_BASE_OPERATORS(Type, TypeOfType)
 ::pasta::Type TypeOfType::Desugar(void) const {
   auto &self = *const_cast<clang::TypeOfType *>(u.TypeOfType);
   decltype(auto) val = self.desugar();
-  assert(!val.isNull());
+  if (val.isNull()) {
+    assert(false);
+    val = ast->ci->getASTContext().UnresolvedTy;
+  }
   return TypeBuilder::Build(ast, val);
 }
 
@@ -2025,7 +2037,10 @@ enum TypeOfKind TypeOfType::TypeKind(void) const {
 ::pasta::Type TypeOfType::UnmodifiedType(void) const {
   auto &self = *const_cast<clang::TypeOfType *>(u.TypeOfType);
   decltype(auto) val = self.getUnmodifiedType();
-  assert(!val.isNull());
+  if (val.isNull()) {
+    assert(false);
+    val = ast->ci->getASTContext().UnresolvedTy;
+  }
   return TypeBuilder::Build(ast, val);
 }
 
@@ -2039,7 +2054,10 @@ PASTA_DEFINE_BASE_OPERATORS(Type, TypedefType)
 ::pasta::Type TypedefType::Desugar(void) const {
   auto &self = *const_cast<clang::TypedefType *>(u.TypedefType);
   decltype(auto) val = self.desugar();
-  assert(!val.isNull());
+  if (val.isNull()) {
+    assert(false);
+    val = ast->ci->getASTContext().UnresolvedTy;
+  }
   return TypeBuilder::Build(ast, val);
 }
 
@@ -2108,7 +2126,10 @@ PASTA_DEFINE_BASE_OPERATORS(Type, UnresolvedUsingType)
 ::pasta::Type UnresolvedUsingType::Desugar(void) const {
   auto &self = *const_cast<clang::UnresolvedUsingType *>(u.UnresolvedUsingType);
   decltype(auto) val = self.desugar();
-  assert(!val.isNull());
+  if (val.isNull()) {
+    assert(false);
+    val = ast->ci->getASTContext().UnresolvedTy;
+  }
   return TypeBuilder::Build(ast, val);
 }
 
@@ -2131,7 +2152,10 @@ PASTA_DEFINE_BASE_OPERATORS(Type, UsingType)
 ::pasta::Type UsingType::Desugar(void) const {
   auto &self = *const_cast<clang::UsingType *>(u.UsingType);
   decltype(auto) val = self.desugar();
-  assert(!val.isNull());
+  if (val.isNull()) {
+    assert(false);
+    val = ast->ci->getASTContext().UnresolvedTy;
+  }
   return TypeBuilder::Build(ast, val);
 }
 
@@ -2147,7 +2171,10 @@ PASTA_DEFINE_BASE_OPERATORS(Type, UsingType)
 ::pasta::Type UsingType::UnderlyingType(void) const {
   auto &self = *const_cast<clang::UsingType *>(u.UsingType);
   decltype(auto) val = self.getUnderlyingType();
-  assert(!val.isNull());
+  if (val.isNull()) {
+    assert(false);
+    val = ast->ci->getASTContext().UnresolvedTy;
+  }
   return TypeBuilder::Build(ast, val);
 }
 
@@ -2168,14 +2195,20 @@ PASTA_DEFINE_DERIVED_OPERATORS(VectorType, ExtVectorType)
 ::pasta::Type VectorType::Desugar(void) const {
   auto &self = *const_cast<clang::VectorType *>(u.VectorType);
   decltype(auto) val = self.desugar();
-  assert(!val.isNull());
+  if (val.isNull()) {
+    assert(false);
+    val = ast->ci->getASTContext().UnresolvedTy;
+  }
   return TypeBuilder::Build(ast, val);
 }
 
 ::pasta::Type VectorType::ElementType(void) const {
   auto &self = *const_cast<clang::VectorType *>(u.VectorType);
   decltype(auto) val = self.getElementType();
-  assert(!val.isNull());
+  if (val.isNull()) {
+    assert(false);
+    val = ast->ci->getASTContext().UnresolvedTy;
+  }
   return TypeBuilder::Build(ast, val);
 }
 
@@ -2223,21 +2256,30 @@ PASTA_DEFINE_DERIVED_OPERATORS(AdjustedType, DecayedType)
 ::pasta::Type AdjustedType::Desugar(void) const {
   auto &self = *const_cast<clang::AdjustedType *>(u.AdjustedType);
   decltype(auto) val = self.desugar();
-  assert(!val.isNull());
+  if (val.isNull()) {
+    assert(false);
+    val = ast->ci->getASTContext().UnresolvedTy;
+  }
   return TypeBuilder::Build(ast, val);
 }
 
 ::pasta::Type AdjustedType::ResolvedType(void) const {
   auto &self = *const_cast<clang::AdjustedType *>(u.AdjustedType);
   decltype(auto) val = self.getAdjustedType();
-  assert(!val.isNull());
+  if (val.isNull()) {
+    assert(false);
+    val = ast->ci->getASTContext().UnresolvedTy;
+  }
   return TypeBuilder::Build(ast, val);
 }
 
 ::pasta::Type AdjustedType::OriginalType(void) const {
   auto &self = *const_cast<clang::AdjustedType *>(u.AdjustedType);
   decltype(auto) val = self.getOriginalType();
-  assert(!val.isNull());
+  if (val.isNull()) {
+    assert(false);
+    val = ast->ci->getASTContext().UnresolvedTy;
+  }
   return TypeBuilder::Build(ast, val);
 }
 
@@ -2255,7 +2297,10 @@ PASTA_DEFINE_DERIVED_OPERATORS(ArrayType, VariableArrayType)
 ::pasta::Type ArrayType::ElementType(void) const {
   auto &self = *const_cast<clang::ArrayType *>(u.ArrayType);
   decltype(auto) val = self.getElementType();
-  assert(!val.isNull());
+  if (val.isNull()) {
+    assert(false);
+    val = ast->ci->getASTContext().UnresolvedTy;
+  }
   return TypeBuilder::Build(ast, val);
 }
 
@@ -2276,14 +2321,20 @@ PASTA_DEFINE_BASE_OPERATORS(Type, AtomicType)
 ::pasta::Type AtomicType::Desugar(void) const {
   auto &self = *const_cast<clang::AtomicType *>(u.AtomicType);
   decltype(auto) val = self.desugar();
-  assert(!val.isNull());
+  if (val.isNull()) {
+    assert(false);
+    val = ast->ci->getASTContext().UnresolvedTy;
+  }
   return TypeBuilder::Build(ast, val);
 }
 
 ::pasta::Type AtomicType::ValueType(void) const {
   auto &self = *const_cast<clang::AtomicType *>(u.AtomicType);
   decltype(auto) val = self.getValueType();
-  assert(!val.isNull());
+  if (val.isNull()) {
+    assert(false);
+    val = ast->ci->getASTContext().UnresolvedTy;
+  }
   return TypeBuilder::Build(ast, val);
 }
 
@@ -2297,7 +2348,10 @@ PASTA_DEFINE_BASE_OPERATORS(Type, AttributedType)
 ::pasta::Type AttributedType::Desugar(void) const {
   auto &self = *const_cast<clang::AttributedType *>(u.AttributedType);
   decltype(auto) val = self.desugar();
-  assert(!val.isNull());
+  if (val.isNull()) {
+    assert(false);
+    val = ast->ci->getASTContext().UnresolvedTy;
+  }
   return TypeBuilder::Build(ast, val);
 }
 
@@ -2321,7 +2375,10 @@ enum ::pasta::AttrKind AttributedType::AttributeKind(void) const {
 ::pasta::Type AttributedType::EquivalentType(void) const {
   auto &self = *const_cast<clang::AttributedType *>(u.AttributedType);
   decltype(auto) val = self.getEquivalentType();
-  assert(!val.isNull());
+  if (val.isNull()) {
+    assert(false);
+    val = ast->ci->getASTContext().UnresolvedTy;
+  }
   return TypeBuilder::Build(ast, val);
 }
 
@@ -2338,7 +2395,10 @@ std::optional<::pasta::NullabilityKind> AttributedType::ImmediateNullability(voi
 ::pasta::Type AttributedType::ModifiedType(void) const {
   auto &self = *const_cast<clang::AttributedType *>(u.AttributedType);
   decltype(auto) val = self.getModifiedType();
-  assert(!val.isNull());
+  if (val.isNull()) {
+    assert(false);
+    val = ast->ci->getASTContext().UnresolvedTy;
+  }
   return TypeBuilder::Build(ast, val);
 }
 
@@ -2382,7 +2442,10 @@ PASTA_DEFINE_BASE_OPERATORS(Type, BTFTagAttributedType)
 ::pasta::Type BTFTagAttributedType::Desugar(void) const {
   auto &self = *const_cast<clang::BTFTagAttributedType *>(u.BTFTagAttributedType);
   decltype(auto) val = self.desugar();
-  assert(!val.isNull());
+  if (val.isNull()) {
+    assert(false);
+    val = ast->ci->getASTContext().UnresolvedTy;
+  }
   return TypeBuilder::Build(ast, val);
 }
 
@@ -2398,7 +2461,10 @@ PASTA_DEFINE_BASE_OPERATORS(Type, BTFTagAttributedType)
 ::pasta::Type BTFTagAttributedType::WrappedType(void) const {
   auto &self = *const_cast<clang::BTFTagAttributedType *>(u.BTFTagAttributedType);
   decltype(auto) val = self.getWrappedType();
-  assert(!val.isNull());
+  if (val.isNull()) {
+    assert(false);
+    val = ast->ci->getASTContext().UnresolvedTy;
+  }
   return TypeBuilder::Build(ast, val);
 }
 
@@ -2412,7 +2478,10 @@ PASTA_DEFINE_BASE_OPERATORS(Type, BitIntType)
 ::pasta::Type BitIntType::Desugar(void) const {
   auto &self = *const_cast<clang::BitIntType *>(u.BitIntType);
   decltype(auto) val = self.desugar();
-  assert(!val.isNull());
+  if (val.isNull()) {
+    assert(false);
+    val = ast->ci->getASTContext().UnresolvedTy;
+  }
   return TypeBuilder::Build(ast, val);
 }
 
@@ -2444,14 +2513,20 @@ PASTA_DEFINE_BASE_OPERATORS(Type, BlockPointerType)
 ::pasta::Type BlockPointerType::Desugar(void) const {
   auto &self = *const_cast<clang::BlockPointerType *>(u.BlockPointerType);
   decltype(auto) val = self.desugar();
-  assert(!val.isNull());
+  if (val.isNull()) {
+    assert(false);
+    val = ast->ci->getASTContext().UnresolvedTy;
+  }
   return TypeBuilder::Build(ast, val);
 }
 
 ::pasta::Type BlockPointerType::PointeeType(void) const {
   auto &self = *const_cast<clang::BlockPointerType *>(u.BlockPointerType);
   decltype(auto) val = self.getPointeeType();
-  assert(!val.isNull());
+  if (val.isNull()) {
+    assert(false);
+    val = ast->ci->getASTContext().UnresolvedTy;
+  }
   return TypeBuilder::Build(ast, val);
 }
 
@@ -2465,7 +2540,10 @@ PASTA_DEFINE_BASE_OPERATORS(Type, BuiltinType)
 ::pasta::Type BuiltinType::Desugar(void) const {
   auto &self = *const_cast<clang::BuiltinType *>(u.BuiltinType);
   decltype(auto) val = self.desugar();
-  assert(!val.isNull());
+  if (val.isNull()) {
+    assert(false);
+    val = ast->ci->getASTContext().UnresolvedTy;
+  }
   return TypeBuilder::Build(ast, val);
 }
 
@@ -2535,14 +2613,20 @@ PASTA_DEFINE_BASE_OPERATORS(Type, ComplexType)
 ::pasta::Type ComplexType::Desugar(void) const {
   auto &self = *const_cast<clang::ComplexType *>(u.ComplexType);
   decltype(auto) val = self.desugar();
-  assert(!val.isNull());
+  if (val.isNull()) {
+    assert(false);
+    val = ast->ci->getASTContext().UnresolvedTy;
+  }
   return TypeBuilder::Build(ast, val);
 }
 
 ::pasta::Type ComplexType::ElementType(void) const {
   auto &self = *const_cast<clang::ComplexType *>(u.ComplexType);
   decltype(auto) val = self.getElementType();
-  assert(!val.isNull());
+  if (val.isNull()) {
+    assert(false);
+    val = ast->ci->getASTContext().UnresolvedTy;
+  }
   return TypeBuilder::Build(ast, val);
 }
 
@@ -2557,7 +2641,10 @@ PASTA_DEFINE_BASE_OPERATORS(Type, ConstantArrayType)
 ::pasta::Type ConstantArrayType::Desugar(void) const {
   auto &self = *const_cast<clang::ConstantArrayType *>(u.ConstantArrayType);
   decltype(auto) val = self.desugar();
-  assert(!val.isNull());
+  if (val.isNull()) {
+    assert(false);
+    val = ast->ci->getASTContext().UnresolvedTy;
+  }
   return TypeBuilder::Build(ast, val);
 }
 
@@ -2595,14 +2682,20 @@ PASTA_DEFINE_BASE_OPERATORS(Type, DecayedType)
 ::pasta::Type DecayedType::ResolvedType(void) const {
   auto &self = *const_cast<clang::DecayedType *>(u.DecayedType);
   decltype(auto) val = self.getDecayedType();
-  assert(!val.isNull());
+  if (val.isNull()) {
+    assert(false);
+    val = ast->ci->getASTContext().UnresolvedTy;
+  }
   return TypeBuilder::Build(ast, val);
 }
 
 ::pasta::Type DecayedType::PointeeType(void) const {
   auto &self = *const_cast<clang::DecayedType *>(u.DecayedType);
   decltype(auto) val = self.getPointeeType();
-  assert(!val.isNull());
+  if (val.isNull()) {
+    assert(false);
+    val = ast->ci->getASTContext().UnresolvedTy;
+  }
   return TypeBuilder::Build(ast, val);
 }
 
@@ -2610,7 +2703,10 @@ PASTA_DEFINE_BASE_OPERATORS(Type, DecltypeType)
 ::pasta::Type DecltypeType::Desugar(void) const {
   auto &self = *const_cast<clang::DecltypeType *>(u.DecltypeType);
   decltype(auto) val = self.desugar();
-  assert(!val.isNull());
+  if (val.isNull()) {
+    assert(false);
+    val = ast->ci->getASTContext().UnresolvedTy;
+  }
   return TypeBuilder::Build(ast, val);
 }
 
@@ -2626,7 +2722,10 @@ PASTA_DEFINE_BASE_OPERATORS(Type, DecltypeType)
 ::pasta::Type DecltypeType::UnderlyingType(void) const {
   auto &self = *const_cast<clang::DecltypeType *>(u.DecltypeType);
   decltype(auto) val = self.getUnderlyingType();
-  assert(!val.isNull());
+  if (val.isNull()) {
+    assert(false);
+    val = ast->ci->getASTContext().UnresolvedTy;
+  }
   return TypeBuilder::Build(ast, val);
 }
 
@@ -2642,7 +2741,10 @@ PASTA_DEFINE_DERIVED_OPERATORS(DeducedType, DeducedTemplateSpecializationType)
 ::pasta::Type DeducedType::Desugar(void) const {
   auto &self = *const_cast<clang::DeducedType *>(u.DeducedType);
   decltype(auto) val = self.desugar();
-  assert(!val.isNull());
+  if (val.isNull()) {
+    assert(false);
+    val = ast->ci->getASTContext().UnresolvedTy;
+  }
   return TypeBuilder::Build(ast, val);
 }
 
@@ -2671,7 +2773,10 @@ PASTA_DEFINE_BASE_OPERATORS(Type, DependentAddressSpaceType)
 ::pasta::Type DependentAddressSpaceType::Desugar(void) const {
   auto &self = *const_cast<clang::DependentAddressSpaceType *>(u.DependentAddressSpaceType);
   decltype(auto) val = self.desugar();
-  assert(!val.isNull());
+  if (val.isNull()) {
+    assert(false);
+    val = ast->ci->getASTContext().UnresolvedTy;
+  }
   return TypeBuilder::Build(ast, val);
 }
 
@@ -2693,7 +2798,10 @@ PASTA_DEFINE_BASE_OPERATORS(Type, DependentAddressSpaceType)
 ::pasta::Type DependentAddressSpaceType::PointeeType(void) const {
   auto &self = *const_cast<clang::DependentAddressSpaceType *>(u.DependentAddressSpaceType);
   decltype(auto) val = self.getPointeeType();
-  assert(!val.isNull());
+  if (val.isNull()) {
+    assert(false);
+    val = ast->ci->getASTContext().UnresolvedTy;
+  }
   return TypeBuilder::Build(ast, val);
 }
 
@@ -2707,7 +2815,10 @@ PASTA_DEFINE_BASE_OPERATORS(Type, DependentBitIntType)
 ::pasta::Type DependentBitIntType::Desugar(void) const {
   auto &self = *const_cast<clang::DependentBitIntType *>(u.DependentBitIntType);
   decltype(auto) val = self.desugar();
-  assert(!val.isNull());
+  if (val.isNull()) {
+    assert(false);
+    val = ast->ci->getASTContext().UnresolvedTy;
+  }
   return TypeBuilder::Build(ast, val);
 }
 
@@ -2743,7 +2854,10 @@ PASTA_DEFINE_BASE_OPERATORS(TypeWithKeyword, DependentNameType)
 ::pasta::Type DependentNameType::Desugar(void) const {
   auto &self = *const_cast<clang::DependentNameType *>(u.DependentNameType);
   decltype(auto) val = self.desugar();
-  assert(!val.isNull());
+  if (val.isNull()) {
+    assert(false);
+    val = ast->ci->getASTContext().UnresolvedTy;
+  }
   return TypeBuilder::Build(ast, val);
 }
 
@@ -2760,7 +2874,10 @@ PASTA_DEFINE_BASE_OPERATORS(Type, DependentSizedArrayType)
 ::pasta::Type DependentSizedArrayType::Desugar(void) const {
   auto &self = *const_cast<clang::DependentSizedArrayType *>(u.DependentSizedArrayType);
   decltype(auto) val = self.desugar();
-  assert(!val.isNull());
+  if (val.isNull()) {
+    assert(false);
+    val = ast->ci->getASTContext().UnresolvedTy;
+  }
   return TypeBuilder::Build(ast, val);
 }
 
@@ -2803,7 +2920,10 @@ PASTA_DEFINE_BASE_OPERATORS(Type, DependentSizedExtVectorType)
 ::pasta::Type DependentSizedExtVectorType::Desugar(void) const {
   auto &self = *const_cast<clang::DependentSizedExtVectorType *>(u.DependentSizedExtVectorType);
   decltype(auto) val = self.desugar();
-  assert(!val.isNull());
+  if (val.isNull()) {
+    assert(false);
+    val = ast->ci->getASTContext().UnresolvedTy;
+  }
   return TypeBuilder::Build(ast, val);
 }
 
@@ -2816,7 +2936,10 @@ PASTA_DEFINE_BASE_OPERATORS(Type, DependentSizedExtVectorType)
 ::pasta::Type DependentSizedExtVectorType::ElementType(void) const {
   auto &self = *const_cast<clang::DependentSizedExtVectorType *>(u.DependentSizedExtVectorType);
   decltype(auto) val = self.getElementType();
-  assert(!val.isNull());
+  if (val.isNull()) {
+    assert(false);
+    val = ast->ci->getASTContext().UnresolvedTy;
+  }
   return TypeBuilder::Build(ast, val);
 }
 
@@ -2840,7 +2963,10 @@ PASTA_DEFINE_BASE_OPERATORS(TypeWithKeyword, DependentTemplateSpecializationType
 ::pasta::Type DependentTemplateSpecializationType::Desugar(void) const {
   auto &self = *const_cast<clang::DependentTemplateSpecializationType *>(u.DependentTemplateSpecializationType);
   decltype(auto) val = self.desugar();
-  assert(!val.isNull());
+  if (val.isNull()) {
+    assert(false);
+    val = ast->ci->getASTContext().UnresolvedTy;
+  }
   return TypeBuilder::Build(ast, val);
 }
 
@@ -2866,7 +2992,10 @@ PASTA_DEFINE_BASE_OPERATORS(Type, DependentVectorType)
 ::pasta::Type DependentVectorType::Desugar(void) const {
   auto &self = *const_cast<clang::DependentVectorType *>(u.DependentVectorType);
   decltype(auto) val = self.desugar();
-  assert(!val.isNull());
+  if (val.isNull()) {
+    assert(false);
+    val = ast->ci->getASTContext().UnresolvedTy;
+  }
   return TypeBuilder::Build(ast, val);
 }
 
@@ -2879,7 +3008,10 @@ PASTA_DEFINE_BASE_OPERATORS(Type, DependentVectorType)
 ::pasta::Type DependentVectorType::ElementType(void) const {
   auto &self = *const_cast<clang::DependentVectorType *>(u.DependentVectorType);
   decltype(auto) val = self.getElementType();
-  assert(!val.isNull());
+  if (val.isNull()) {
+    assert(false);
+    val = ast->ci->getASTContext().UnresolvedTy;
+  }
   return TypeBuilder::Build(ast, val);
 }
 
@@ -2909,14 +3041,20 @@ PASTA_DEFINE_BASE_OPERATORS(TypeWithKeyword, ElaboratedType)
 ::pasta::Type ElaboratedType::Desugar(void) const {
   auto &self = *const_cast<clang::ElaboratedType *>(u.ElaboratedType);
   decltype(auto) val = self.desugar();
-  assert(!val.isNull());
+  if (val.isNull()) {
+    assert(false);
+    val = ast->ci->getASTContext().UnresolvedTy;
+  }
   return TypeBuilder::Build(ast, val);
 }
 
 ::pasta::Type ElaboratedType::NamedType(void) const {
   auto &self = *const_cast<clang::ElaboratedType *>(u.ElaboratedType);
   decltype(auto) val = self.getNamedType();
-  assert(!val.isNull());
+  if (val.isNull()) {
+    assert(false);
+    val = ast->ci->getASTContext().UnresolvedTy;
+  }
   return TypeBuilder::Build(ast, val);
 }
 
@@ -2943,7 +3081,10 @@ PASTA_DEFINE_BASE_OPERATORS(VectorType, ExtVectorType)
 ::pasta::Type ExtVectorType::Desugar(void) const {
   auto &self = *const_cast<clang::ExtVectorType *>(u.ExtVectorType);
   decltype(auto) val = self.desugar();
-  assert(!val.isNull());
+  if (val.isNull()) {
+    assert(false);
+    val = ast->ci->getASTContext().UnresolvedTy;
+  }
   return TypeBuilder::Build(ast, val);
 }
 
@@ -2998,7 +3139,10 @@ uint32_t FunctionType::RegParmType(void) const {
 ::pasta::Type FunctionType::ReturnType(void) const {
   auto &self = *const_cast<clang::FunctionType *>(u.FunctionType);
   decltype(auto) val = self.getReturnType();
-  assert(!val.isNull());
+  if (val.isNull()) {
+    assert(false);
+    val = ast->ci->getASTContext().UnresolvedTy;
+  }
   return TypeBuilder::Build(ast, val);
 }
 
@@ -3025,7 +3169,10 @@ PASTA_DEFINE_BASE_OPERATORS(Type, IncompleteArrayType)
 ::pasta::Type IncompleteArrayType::Desugar(void) const {
   auto &self = *const_cast<clang::IncompleteArrayType *>(u.IncompleteArrayType);
   decltype(auto) val = self.desugar();
-  assert(!val.isNull());
+  if (val.isNull()) {
+    assert(false);
+    val = ast->ci->getASTContext().UnresolvedTy;
+  }
   return TypeBuilder::Build(ast, val);
 }
 
@@ -3039,7 +3186,10 @@ PASTA_DEFINE_BASE_OPERATORS(Type, InjectedClassNameType)
 ::pasta::Type InjectedClassNameType::Desugar(void) const {
   auto &self = *const_cast<clang::InjectedClassNameType *>(u.InjectedClassNameType);
   decltype(auto) val = self.desugar();
-  assert(!val.isNull());
+  if (val.isNull()) {
+    assert(false);
+    val = ast->ci->getASTContext().UnresolvedTy;
+  }
   return TypeBuilder::Build(ast, val);
 }
 
@@ -3055,7 +3205,10 @@ PASTA_DEFINE_BASE_OPERATORS(Type, InjectedClassNameType)
 ::pasta::Type InjectedClassNameType::InjectedSpecializationType(void) const {
   auto &self = *const_cast<clang::InjectedClassNameType *>(u.InjectedClassNameType);
   decltype(auto) val = self.getInjectedSpecializationType();
-  assert(!val.isNull());
+  if (val.isNull()) {
+    assert(false);
+    val = ast->ci->getASTContext().UnresolvedTy;
+  }
   return TypeBuilder::Build(ast, val);
 }
 
@@ -3079,7 +3232,10 @@ PASTA_DEFINE_BASE_OPERATORS(Type, MacroQualifiedType)
 ::pasta::Type MacroQualifiedType::Desugar(void) const {
   auto &self = *const_cast<clang::MacroQualifiedType *>(u.MacroQualifiedType);
   decltype(auto) val = self.desugar();
-  assert(!val.isNull());
+  if (val.isNull()) {
+    assert(false);
+    val = ast->ci->getASTContext().UnresolvedTy;
+  }
   return TypeBuilder::Build(ast, val);
 }
 
@@ -3087,14 +3243,20 @@ PASTA_DEFINE_BASE_OPERATORS(Type, MacroQualifiedType)
 ::pasta::Type MacroQualifiedType::ModifiedType(void) const {
   auto &self = *const_cast<clang::MacroQualifiedType *>(u.MacroQualifiedType);
   decltype(auto) val = self.getModifiedType();
-  assert(!val.isNull());
+  if (val.isNull()) {
+    assert(false);
+    val = ast->ci->getASTContext().UnresolvedTy;
+  }
   return TypeBuilder::Build(ast, val);
 }
 
 ::pasta::Type MacroQualifiedType::UnderlyingType(void) const {
   auto &self = *const_cast<clang::MacroQualifiedType *>(u.MacroQualifiedType);
   decltype(auto) val = self.getUnderlyingType();
-  assert(!val.isNull());
+  if (val.isNull()) {
+    assert(false);
+    val = ast->ci->getASTContext().UnresolvedTy;
+  }
   return TypeBuilder::Build(ast, val);
 }
 
@@ -3110,14 +3272,20 @@ PASTA_DEFINE_DERIVED_OPERATORS(MatrixType, DependentSizedMatrixType)
 ::pasta::Type MatrixType::Desugar(void) const {
   auto &self = *const_cast<clang::MatrixType *>(u.MatrixType);
   decltype(auto) val = self.desugar();
-  assert(!val.isNull());
+  if (val.isNull()) {
+    assert(false);
+    val = ast->ci->getASTContext().UnresolvedTy;
+  }
   return TypeBuilder::Build(ast, val);
 }
 
 ::pasta::Type MatrixType::ElementType(void) const {
   auto &self = *const_cast<clang::MatrixType *>(u.MatrixType);
   decltype(auto) val = self.getElementType();
-  assert(!val.isNull());
+  if (val.isNull()) {
+    assert(false);
+    val = ast->ci->getASTContext().UnresolvedTy;
+  }
   return TypeBuilder::Build(ast, val);
 }
 
@@ -3131,7 +3299,10 @@ PASTA_DEFINE_BASE_OPERATORS(Type, MemberPointerType)
 ::pasta::Type MemberPointerType::Desugar(void) const {
   auto &self = *const_cast<clang::MemberPointerType *>(u.MemberPointerType);
   decltype(auto) val = self.desugar();
-  assert(!val.isNull());
+  if (val.isNull()) {
+    assert(false);
+    val = ast->ci->getASTContext().UnresolvedTy;
+  }
   return TypeBuilder::Build(ast, val);
 }
 
@@ -3156,7 +3327,10 @@ PASTA_DEFINE_BASE_OPERATORS(Type, MemberPointerType)
 ::pasta::Type MemberPointerType::PointeeType(void) const {
   auto &self = *const_cast<clang::MemberPointerType *>(u.MemberPointerType);
   decltype(auto) val = self.getPointeeType();
-  assert(!val.isNull());
+  if (val.isNull()) {
+    assert(false);
+    val = ast->ci->getASTContext().UnresolvedTy;
+  }
   return TypeBuilder::Build(ast, val);
 }
 
@@ -3182,7 +3356,10 @@ PASTA_DEFINE_BASE_OPERATORS(Type, ObjCObjectPointerType)
 ::pasta::Type ObjCObjectPointerType::Desugar(void) const {
   auto &self = *const_cast<clang::ObjCObjectPointerType *>(u.ObjCObjectPointerType);
   decltype(auto) val = self.desugar();
-  assert(!val.isNull());
+  if (val.isNull()) {
+    assert(false);
+    val = ast->ci->getASTContext().UnresolvedTy;
+  }
   return TypeBuilder::Build(ast, val);
 }
 
@@ -3222,7 +3399,10 @@ uint32_t ObjCObjectPointerType::NumProtocols(void) const {
 ::pasta::Type ObjCObjectPointerType::PointeeType(void) const {
   auto &self = *const_cast<clang::ObjCObjectPointerType *>(u.ObjCObjectPointerType);
   decltype(auto) val = self.getPointeeType();
-  assert(!val.isNull());
+  if (val.isNull()) {
+    assert(false);
+    val = ast->ci->getASTContext().UnresolvedTy;
+  }
   return TypeBuilder::Build(ast, val);
 }
 
@@ -3230,7 +3410,10 @@ uint32_t ObjCObjectPointerType::NumProtocols(void) const {
 ::pasta::Type ObjCObjectPointerType::SuperClassType(void) const {
   auto &self = *const_cast<clang::ObjCObjectPointerType *>(u.ObjCObjectPointerType);
   decltype(auto) val = self.getSuperClassType();
-  assert(!val.isNull());
+  if (val.isNull()) {
+    assert(false);
+    val = ast->ci->getASTContext().UnresolvedTy;
+  }
   return TypeBuilder::Build(ast, val);
 }
 
@@ -3365,14 +3548,20 @@ PASTA_DEFINE_DERIVED_OPERATORS(ObjCObjectType, ObjCInterfaceType)
 ::pasta::Type ObjCObjectType::Desugar(void) const {
   auto &self = *const_cast<clang::ObjCObjectType *>(u.ObjCObjectType);
   decltype(auto) val = self.desugar();
-  assert(!val.isNull());
+  if (val.isNull()) {
+    assert(false);
+    val = ast->ci->getASTContext().UnresolvedTy;
+  }
   return TypeBuilder::Build(ast, val);
 }
 
 ::pasta::Type ObjCObjectType::BaseType(void) const {
   auto &self = *const_cast<clang::ObjCObjectType *>(u.ObjCObjectType);
   decltype(auto) val = self.getBaseType();
-  assert(!val.isNull());
+  if (val.isNull()) {
+    assert(false);
+    val = ast->ci->getASTContext().UnresolvedTy;
+  }
   return TypeBuilder::Build(ast, val);
 }
 
@@ -3509,7 +3698,10 @@ PASTA_DEFINE_BASE_OPERATORS(Type, ObjCTypeParamType)
 ::pasta::Type ObjCTypeParamType::Desugar(void) const {
   auto &self = *const_cast<clang::ObjCTypeParamType *>(u.ObjCTypeParamType);
   decltype(auto) val = self.desugar();
-  assert(!val.isNull());
+  if (val.isNull()) {
+    assert(false);
+    val = ast->ci->getASTContext().UnresolvedTy;
+  }
   return TypeBuilder::Build(ast, val);
 }
 
@@ -3532,7 +3724,10 @@ PASTA_DEFINE_BASE_OPERATORS(Type, PackExpansionType)
 ::pasta::Type PackExpansionType::Desugar(void) const {
   auto &self = *const_cast<clang::PackExpansionType *>(u.PackExpansionType);
   decltype(auto) val = self.desugar();
-  assert(!val.isNull());
+  if (val.isNull()) {
+    assert(false);
+    val = ast->ci->getASTContext().UnresolvedTy;
+  }
   return TypeBuilder::Build(ast, val);
 }
 
@@ -3549,7 +3744,10 @@ std::optional<unsigned> PackExpansionType::NumExpansions(void) const {
 ::pasta::Type PackExpansionType::Pattern(void) const {
   auto &self = *const_cast<clang::PackExpansionType *>(u.PackExpansionType);
   decltype(auto) val = self.getPattern();
-  assert(!val.isNull());
+  if (val.isNull()) {
+    assert(false);
+    val = ast->ci->getASTContext().UnresolvedTy;
+  }
   return TypeBuilder::Build(ast, val);
 }
 
@@ -3563,14 +3761,20 @@ PASTA_DEFINE_BASE_OPERATORS(Type, ParenType)
 ::pasta::Type ParenType::Desugar(void) const {
   auto &self = *const_cast<clang::ParenType *>(u.ParenType);
   decltype(auto) val = self.desugar();
-  assert(!val.isNull());
+  if (val.isNull()) {
+    assert(false);
+    val = ast->ci->getASTContext().UnresolvedTy;
+  }
   return TypeBuilder::Build(ast, val);
 }
 
 ::pasta::Type ParenType::InnerType(void) const {
   auto &self = *const_cast<clang::ParenType *>(u.ParenType);
   decltype(auto) val = self.getInnerType();
-  assert(!val.isNull());
+  if (val.isNull()) {
+    assert(false);
+    val = ast->ci->getASTContext().UnresolvedTy;
+  }
   return TypeBuilder::Build(ast, val);
 }
 
@@ -3584,14 +3788,20 @@ PASTA_DEFINE_BASE_OPERATORS(Type, PipeType)
 ::pasta::Type PipeType::Desugar(void) const {
   auto &self = *const_cast<clang::PipeType *>(u.PipeType);
   decltype(auto) val = self.desugar();
-  assert(!val.isNull());
+  if (val.isNull()) {
+    assert(false);
+    val = ast->ci->getASTContext().UnresolvedTy;
+  }
   return TypeBuilder::Build(ast, val);
 }
 
 ::pasta::Type PipeType::ElementType(void) const {
   auto &self = *const_cast<clang::PipeType *>(u.PipeType);
   decltype(auto) val = self.getElementType();
-  assert(!val.isNull());
+  if (val.isNull()) {
+    assert(false);
+    val = ast->ci->getASTContext().UnresolvedTy;
+  }
   return TypeBuilder::Build(ast, val);
 }
 
@@ -3611,14 +3821,20 @@ PASTA_DEFINE_BASE_OPERATORS(Type, PointerType)
 ::pasta::Type PointerType::Desugar(void) const {
   auto &self = *const_cast<clang::PointerType *>(u.PointerType);
   decltype(auto) val = self.desugar();
-  assert(!val.isNull());
+  if (val.isNull()) {
+    assert(false);
+    val = ast->ci->getASTContext().UnresolvedTy;
+  }
   return TypeBuilder::Build(ast, val);
 }
 
 ::pasta::Type PointerType::PointeeType(void) const {
   auto &self = *const_cast<clang::PointerType *>(u.PointerType);
   decltype(auto) val = self.getPointeeType();
-  assert(!val.isNull());
+  if (val.isNull()) {
+    assert(false);
+    val = ast->ci->getASTContext().UnresolvedTy;
+  }
   return TypeBuilder::Build(ast, val);
 }
 
@@ -3632,7 +3848,10 @@ PASTA_DEFINE_BASE_OPERATORS(Type, QualifiedType)
 ::pasta::Type QualifiedType::IgnoreParentheses(void) const {
   auto self = RawQualType();
   decltype(auto) val = self.IgnoreParens();
-  assert(!val.isNull());
+  if (val.isNull()) {
+    assert(false);
+    val = ast->ci->getASTContext().UnresolvedTy;
+  }
   return TypeBuilder::Build(ast, val);
 }
 
@@ -3646,7 +3865,10 @@ enum LangAS QualifiedType::AddressSpace(void) const {
 ::pasta::Type QualifiedType::AtomicUnqualifiedType(void) const {
   auto self = RawQualType();
   decltype(auto) val = self.getAtomicUnqualifiedType();
-  assert(!val.isNull());
+  if (val.isNull()) {
+    assert(false);
+    val = ast->ci->getASTContext().UnresolvedTy;
+  }
   return TypeBuilder::Build(ast, val);
 }
 
@@ -3660,7 +3882,10 @@ uint32_t QualifiedType::CVRQualifiers(void) const {
 ::pasta::Type QualifiedType::CanonicalType(void) const {
   auto self = RawQualType();
   decltype(auto) val = self.getCanonicalType();
-  assert(!val.isNull());
+  if (val.isNull()) {
+    assert(false);
+    val = ast->ci->getASTContext().UnresolvedTy;
+  }
   return TypeBuilder::Build(ast, val);
 }
 
@@ -3687,7 +3912,10 @@ uint32_t QualifiedType::LocalFastQualifiers(void) const {
 ::pasta::Type QualifiedType::LocalUnqualifiedType(void) const {
   auto self = RawQualType();
   decltype(auto) val = self.getLocalUnqualifiedType();
-  assert(!val.isNull());
+  if (val.isNull()) {
+    assert(false);
+    val = ast->ci->getASTContext().UnresolvedTy;
+  }
   return TypeBuilder::Build(ast, val);
 }
 
@@ -3701,14 +3929,20 @@ uint32_t QualifiedType::LocalFastQualifiers(void) const {
 ::pasta::Type QualifiedType::NonPackExpansionType(void) const {
   auto self = RawQualType();
   decltype(auto) val = self.getNonPackExpansionType();
-  assert(!val.isNull());
+  if (val.isNull()) {
+    assert(false);
+    val = ast->ci->getASTContext().UnresolvedTy;
+  }
   return TypeBuilder::Build(ast, val);
 }
 
 ::pasta::Type QualifiedType::NonReferenceType(void) const {
   auto self = RawQualType();
   decltype(auto) val = self.getNonReferenceType();
-  assert(!val.isNull());
+  if (val.isNull()) {
+    assert(false);
+    val = ast->ci->getASTContext().UnresolvedTy;
+  }
   return TypeBuilder::Build(ast, val);
 }
 
@@ -3971,7 +4205,10 @@ bool QualifiedType::MayBeNotDynamicClass(void) const {
 ::pasta::Type QualifiedType::WithConst(void) const {
   auto self = RawQualType();
   decltype(auto) val = self.withConst();
-  assert(!val.isNull());
+  if (val.isNull()) {
+    assert(false);
+    val = ast->ci->getASTContext().UnresolvedTy;
+  }
   return TypeBuilder::Build(ast, val);
 }
 
@@ -3980,21 +4217,30 @@ bool QualifiedType::MayBeNotDynamicClass(void) const {
 ::pasta::Type QualifiedType::WithRestrict(void) const {
   auto self = RawQualType();
   decltype(auto) val = self.withRestrict();
-  assert(!val.isNull());
+  if (val.isNull()) {
+    assert(false);
+    val = ast->ci->getASTContext().UnresolvedTy;
+  }
   return TypeBuilder::Build(ast, val);
 }
 
 ::pasta::Type QualifiedType::WithVolatile(void) const {
   auto self = RawQualType();
   decltype(auto) val = self.withVolatile();
-  assert(!val.isNull());
+  if (val.isNull()) {
+    assert(false);
+    val = ast->ci->getASTContext().UnresolvedTy;
+  }
   return TypeBuilder::Build(ast, val);
 }
 
 ::pasta::Type QualifiedType::WithoutLocalFastQualifiers(void) const {
   auto self = RawQualType();
   decltype(auto) val = self.withoutLocalFastQualifiers();
-  assert(!val.isNull());
+  if (val.isNull()) {
+    assert(false);
+    val = ast->ci->getASTContext().UnresolvedTy;
+  }
   return TypeBuilder::Build(ast, val);
 }
 
@@ -4004,14 +4250,20 @@ PASTA_DEFINE_DERIVED_OPERATORS(ReferenceType, RValueReferenceType)
 ::pasta::Type ReferenceType::PointeeType(void) const {
   auto &self = *const_cast<clang::ReferenceType *>(u.ReferenceType);
   decltype(auto) val = self.getPointeeType();
-  assert(!val.isNull());
+  if (val.isNull()) {
+    assert(false);
+    val = ast->ci->getASTContext().UnresolvedTy;
+  }
   return TypeBuilder::Build(ast, val);
 }
 
 ::pasta::Type ReferenceType::PointeeTypeAsWritten(void) const {
   auto &self = *const_cast<clang::ReferenceType *>(u.ReferenceType);
   decltype(auto) val = self.getPointeeTypeAsWritten();
-  assert(!val.isNull());
+  if (val.isNull()) {
+    assert(false);
+    val = ast->ci->getASTContext().UnresolvedTy;
+  }
   return TypeBuilder::Build(ast, val);
 }
 
@@ -4031,7 +4283,10 @@ PASTA_DEFINE_BASE_OPERATORS(Type, SubstTemplateTypeParmPackType)
 ::pasta::Type SubstTemplateTypeParmPackType::Desugar(void) const {
   auto &self = *const_cast<clang::SubstTemplateTypeParmPackType *>(u.SubstTemplateTypeParmPackType);
   decltype(auto) val = self.desugar();
-  assert(!val.isNull());
+  if (val.isNull()) {
+    assert(false);
+    val = ast->ci->getASTContext().UnresolvedTy;
+  }
   return TypeBuilder::Build(ast, val);
 }
 
@@ -4083,7 +4338,10 @@ PASTA_DEFINE_BASE_OPERATORS(Type, SubstTemplateTypeParmType)
 ::pasta::Type SubstTemplateTypeParmType::Desugar(void) const {
   auto &self = *const_cast<clang::SubstTemplateTypeParmType *>(u.SubstTemplateTypeParmType);
   decltype(auto) val = self.desugar();
-  assert(!val.isNull());
+  if (val.isNull()) {
+    assert(false);
+    val = ast->ci->getASTContext().UnresolvedTy;
+  }
   return TypeBuilder::Build(ast, val);
 }
 
@@ -4124,7 +4382,10 @@ std::optional<unsigned> SubstTemplateTypeParmType::PackIndex(void) const {
 ::pasta::Type SubstTemplateTypeParmType::ReplacementType(void) const {
   auto &self = *const_cast<clang::SubstTemplateTypeParmType *>(u.SubstTemplateTypeParmType);
   decltype(auto) val = self.getReplacementType();
-  assert(!val.isNull());
+  if (val.isNull()) {
+    assert(false);
+    val = ast->ci->getASTContext().UnresolvedTy;
+  }
   return TypeBuilder::Build(ast, val);
 }
 
@@ -4156,7 +4417,10 @@ PASTA_DEFINE_BASE_OPERATORS(Type, TemplateSpecializationType)
 ::pasta::Type TemplateSpecializationType::Desugar(void) const {
   auto &self = *const_cast<clang::TemplateSpecializationType *>(u.TemplateSpecializationType);
   decltype(auto) val = self.desugar();
-  assert(!val.isNull());
+  if (val.isNull()) {
+    assert(false);
+    val = ast->ci->getASTContext().UnresolvedTy;
+  }
   return TypeBuilder::Build(ast, val);
 }
 
@@ -4205,7 +4469,10 @@ PASTA_DEFINE_BASE_OPERATORS(Type, TemplateTypeParmType)
 ::pasta::Type TemplateTypeParmType::Desugar(void) const {
   auto &self = *const_cast<clang::TemplateTypeParmType *>(u.TemplateTypeParmType);
   decltype(auto) val = self.desugar();
-  assert(!val.isNull());
+  if (val.isNull()) {
+    assert(false);
+    val = ast->ci->getASTContext().UnresolvedTy;
+  }
   return TypeBuilder::Build(ast, val);
 }
 
@@ -4250,7 +4517,10 @@ PASTA_DEFINE_BASE_OPERATORS(Type, VariableArrayType)
 ::pasta::Type VariableArrayType::Desugar(void) const {
   auto &self = *const_cast<clang::VariableArrayType *>(u.VariableArrayType);
   decltype(auto) val = self.desugar();
-  assert(!val.isNull());
+  if (val.isNull()) {
+    assert(false);
+    val = ast->ci->getASTContext().UnresolvedTy;
+  }
   return TypeBuilder::Build(ast, val);
 }
 
@@ -4388,7 +4658,10 @@ PASTA_DEFINE_BASE_OPERATORS(Type, EnumType)
 ::pasta::Type EnumType::Desugar(void) const {
   auto &self = *const_cast<clang::EnumType *>(u.EnumType);
   decltype(auto) val = self.desugar();
-  assert(!val.isNull());
+  if (val.isNull()) {
+    assert(false);
+    val = ast->ci->getASTContext().UnresolvedTy;
+  }
   return TypeBuilder::Build(ast, val);
 }
 
@@ -4412,7 +4685,10 @@ PASTA_DEFINE_BASE_OPERATORS(Type, FunctionNoProtoType)
 ::pasta::Type FunctionNoProtoType::Desugar(void) const {
   auto &self = *const_cast<clang::FunctionNoProtoType *>(u.FunctionNoProtoType);
   decltype(auto) val = self.desugar();
-  assert(!val.isNull());
+  if (val.isNull()) {
+    assert(false);
+    val = ast->ci->getASTContext().UnresolvedTy;
+  }
   return TypeBuilder::Build(ast, val);
 }
 
@@ -4440,7 +4716,10 @@ std::optional<enum CanThrowResult> FunctionProtoType::CanThrow(void) const {
 ::pasta::Type FunctionProtoType::Desugar(void) const {
   auto &self = *const_cast<clang::FunctionProtoType *>(u.FunctionProtoType);
   decltype(auto) val = self.desugar();
-  assert(!val.isNull());
+  if (val.isNull()) {
+    assert(false);
+    val = ast->ci->getASTContext().UnresolvedTy;
+  }
   return TypeBuilder::Build(ast, val);
 }
 
@@ -4638,7 +4917,10 @@ PASTA_DEFINE_BASE_OPERATORS(Type, LValueReferenceType)
 ::pasta::Type LValueReferenceType::Desugar(void) const {
   auto &self = *const_cast<clang::LValueReferenceType *>(u.LValueReferenceType);
   decltype(auto) val = self.desugar();
-  assert(!val.isNull());
+  if (val.isNull()) {
+    assert(false);
+    val = ast->ci->getASTContext().UnresolvedTy;
+  }
   return TypeBuilder::Build(ast, val);
 }
 
@@ -4653,7 +4935,10 @@ PASTA_DEFINE_BASE_OPERATORS(Type, ObjCInterfaceType)
 ::pasta::Type ObjCInterfaceType::Desugar(void) const {
   auto &self = *const_cast<clang::ObjCInterfaceType *>(u.ObjCInterfaceType);
   decltype(auto) val = self.desugar();
-  assert(!val.isNull());
+  if (val.isNull()) {
+    assert(false);
+    val = ast->ci->getASTContext().UnresolvedTy;
+  }
   return TypeBuilder::Build(ast, val);
 }
 
@@ -4677,7 +4962,10 @@ PASTA_DEFINE_BASE_OPERATORS(Type, RValueReferenceType)
 ::pasta::Type RValueReferenceType::Desugar(void) const {
   auto &self = *const_cast<clang::RValueReferenceType *>(u.RValueReferenceType);
   decltype(auto) val = self.desugar();
-  assert(!val.isNull());
+  if (val.isNull()) {
+    assert(false);
+    val = ast->ci->getASTContext().UnresolvedTy;
+  }
   return TypeBuilder::Build(ast, val);
 }
 
@@ -4692,7 +4980,10 @@ PASTA_DEFINE_BASE_OPERATORS(Type, RecordType)
 ::pasta::Type RecordType::Desugar(void) const {
   auto &self = *const_cast<clang::RecordType *>(u.RecordType);
   decltype(auto) val = self.desugar();
-  assert(!val.isNull());
+  if (val.isNull()) {
+    assert(false);
+    val = ast->ci->getASTContext().UnresolvedTy;
+  }
   return TypeBuilder::Build(ast, val);
 }
 

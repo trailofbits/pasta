@@ -18,8 +18,9 @@
 #pragma GCC diagnostic pop
 
 #include "../AST/AST.h"
+#include "PatchedMacroTracker.h"
 
-#define PASTA_DEBUG_RUN 1
+#define PASTA_DEBUG_RUN 0
 
 #if PASTA_DEBUG_RUN
 # include <fcntl.h>
@@ -39,7 +40,7 @@ namespace pasta {
 //        this new buffer, and then we'll be able to associated back to original
 //        tokens.
 void PreprocessCode(ASTImpl &impl, clang::CompilerInstance &ci,
-                    clang::Preprocessor &pp) {
+                    clang::Preprocessor &pp, PatchedMacroTracker &pmt) {
   clang::SourceManager &source_manager = ci.getSourceManager();
   clang::LangOptions &lang_opts = ci.getLangOpts();
 
@@ -65,9 +66,12 @@ void PreprocessCode(ASTImpl &impl, clang::CompilerInstance &ci,
     // the code to be parsed, rather than the backup data area.
     if (tok_loc.isMacroID()) {
       impl.parsed_tokens.AppendMacroToken(tok);
+      pmt.FlushPopped();
     
     // It's a file token.    
     } else if (tok_loc.isFileID()) {
+      pmt.FlushPopped();
+
       tok_data.clear();
       (void) TryReadRawToken(source_manager, lang_opts, tok, &tok_data);
       SkipLeadingWhitespace(tok, tok_loc, tok_data);
@@ -83,7 +87,8 @@ void PreprocessCode(ASTImpl &impl, clang::CompilerInstance &ci,
 
 #if PASTA_DEBUG_RUN
   std::stringstream path_ss;
-  path_ss << "/tmp/source." << std::this_thread::get_id() << ".cpp";
+  path_ss << "/tmp/source."
+          << std::hash<std::thread::id>{}(std::this_thread::get_id()) << ".cpp";
   std::string path = path_ss.str();
 
   // NOTE(pag): If there's a compiler error that "shouldn't happen," then

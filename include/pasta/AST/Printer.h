@@ -331,6 +331,11 @@ class PrintingPolicy {
 
   virtual bool ShouldPrintSpecialization(
       const VarTemplateDecl &, const VarTemplateSpecializationDecl &) const;
+
+  // Should we print `auto` types, or the underlying types of them? If no type
+  // was deduced, or hasn't yet been deduced, then the normal printing, e.g.
+  // `auto`, is printed. The default return value is `false`.
+  virtual bool ShouldPrintDeducedTypes(void) const;
 };
 
 class ProxyPrintingPolicy : public PrintingPolicy {
@@ -401,6 +406,10 @@ class PrintedTokenRange {
   static PrintedTokenRange Create(
       const Decl &decl_, const PrintingPolicy &pp_=PrintingPolicy());
 
+
+  static PrintedTokenRange Create(const AST &ast_, const std::vector<Decl> &decls_,
+                                  const PrintingPolicy &pp_=PrintingPolicy());
+
   static PrintedTokenRange Create(
       const Stmt &stmt_, const PrintingPolicy &pp_=PrintingPolicy());
 
@@ -456,7 +465,7 @@ class PrintedTokenRange {
     return PrintedTokenIterator(impl, after_last);
   }
 
-  inline size_t size(void) const noexcept {
+  inline unsigned size(void) const noexcept {
     return Size();
   }
 
@@ -465,7 +474,7 @@ class PrintedTokenRange {
   }
 
   // Number of tokens in this range.
-  size_t Size(void) const noexcept;
+  unsigned Size(void) const noexcept;
 
   // Return the `index`th token in this range. If `index` is too big, then
   // return nothing.

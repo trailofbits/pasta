@@ -3371,13 +3371,24 @@ bool Expr::HasSideEffects(void) const {
   throw std::runtime_error("Expr::IgnoreParenthesisLValueCasts can return nullptr!");
 }
 
-::pasta::Expr Expr::IgnoreParenthesisNoopCasts(void) const {
+std::optional<::pasta::Expr> Expr::IgnoreParenthesisNoopCasts(void) const {
   auto &self = *(u.Expr);
+  if (auto cast_expr = pasta::CastExpr::From(*this)) {
+    auto &new_self = *(u.CastExpr);
+    if (auto sub_expr = new_self.getSubExpr()) {
+      auto type_ptr = sub_expr->getType().getTypePtr();
+      if (type_ptr && type_ptr->isDependentType()) {
+        return std::nullopt;
+      }
+    }
+  }
   decltype(auto) val = self.IgnoreParenNoopCasts(ast->ci->getASTContext());
+  if (!val) {
+    return std::nullopt;
+  }
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
-  throw std::runtime_error("Expr::IgnoreParenthesisNoopCasts can return nullptr!");
 }
 
 ::pasta::Expr Expr::IgnoreParentheses(void) const {
@@ -8449,7 +8460,10 @@ std::vector<::pasta::Stmt> ObjCEncodeExpr::Children(void) const {
 ::pasta::Type ObjCEncodeExpr::EncodedType(void) const {
   auto &self = *const_cast<clang::ObjCEncodeExpr *>(u.ObjCEncodeExpr);
   decltype(auto) val = self.getEncodedType();
-  assert(!val.isNull());
+  if (val.isNull()) {
+    assert(false);
+    val = ast->ci->getASTContext().UnresolvedTy;
+  }
   return TypeBuilder::Build(ast, val);
 }
 
@@ -8785,7 +8799,10 @@ std::vector<::pasta::Stmt> ObjCMessageExpr::Children(void) const {
 ::pasta::Type ObjCMessageExpr::ClassReceiver(void) const {
   auto &self = *const_cast<clang::ObjCMessageExpr *>(u.ObjCMessageExpr);
   decltype(auto) val = self.getClassReceiver();
-  assert(!val.isNull());
+  if (val.isNull()) {
+    assert(false);
+    val = ast->ci->getASTContext().UnresolvedTy;
+  }
   return TypeBuilder::Build(ast, val);
 }
 
@@ -8862,7 +8879,10 @@ enum ObjCMessageExprReceiverKind ObjCMessageExpr::ReceiverKind(void) const {
 ::pasta::Type ObjCMessageExpr::ReceiverType(void) const {
   auto &self = *const_cast<clang::ObjCMessageExpr *>(u.ObjCMessageExpr);
   decltype(auto) val = self.getReceiverType();
-  assert(!val.isNull());
+  if (val.isNull()) {
+    assert(false);
+    val = ast->ci->getASTContext().UnresolvedTy;
+  }
   return TypeBuilder::Build(ast, val);
 }
 
@@ -8889,7 +8909,10 @@ enum ObjCMessageExprReceiverKind ObjCMessageExpr::ReceiverKind(void) const {
 ::pasta::Type ObjCMessageExpr::SuperType(void) const {
   auto &self = *const_cast<clang::ObjCMessageExpr *>(u.ObjCMessageExpr);
   decltype(auto) val = self.getSuperType();
-  assert(!val.isNull());
+  if (val.isNull()) {
+    assert(false);
+    val = ast->ci->getASTContext().UnresolvedTy;
+  }
   return TypeBuilder::Build(ast, val);
 }
 
@@ -9031,7 +9054,10 @@ std::vector<::pasta::Stmt> ObjCPropertyRefExpr::Children(void) const {
 ::pasta::Type ObjCPropertyRefExpr::SuperReceiverType(void) const {
   auto &self = *const_cast<clang::ObjCPropertyRefExpr *>(u.ObjCPropertyRefExpr);
   decltype(auto) val = self.getSuperReceiverType();
-  assert(!val.isNull());
+  if (val.isNull()) {
+    assert(false);
+    val = ast->ci->getASTContext().UnresolvedTy;
+  }
   return TypeBuilder::Build(ast, val);
 }
 
@@ -11049,7 +11075,10 @@ enum UnaryExprOrTypeTrait UnaryExprOrTypeTraitExpr::KeywordKind(void) const {
 ::pasta::Type UnaryExprOrTypeTraitExpr::TypeOfArgument(void) const {
   auto &self = *const_cast<clang::UnaryExprOrTypeTraitExpr *>(u.UnaryExprOrTypeTraitExpr);
   decltype(auto) val = self.getTypeOfArgument();
-  assert(!val.isNull());
+  if (val.isNull()) {
+    assert(false);
+    val = ast->ci->getASTContext().UnresolvedTy;
+  }
   return TypeBuilder::Build(ast, val);
 }
 
@@ -11260,7 +11289,10 @@ std::vector<::pasta::Stmt> UnresolvedMemberExpr::Children(void) const {
 ::pasta::Type UnresolvedMemberExpr::BaseType(void) const {
   auto &self = *const_cast<clang::UnresolvedMemberExpr *>(u.UnresolvedMemberExpr);
   decltype(auto) val = self.getBaseType();
-  assert(!val.isNull());
+  if (val.isNull()) {
+    assert(false);
+    val = ast->ci->getASTContext().UnresolvedTy;
+  }
   return TypeBuilder::Build(ast, val);
 }
 
@@ -11697,7 +11729,10 @@ std::vector<::pasta::Stmt> ArrayTypeTraitExpr::Children(void) const {
 ::pasta::Type ArrayTypeTraitExpr::QueriedType(void) const {
   auto &self = *const_cast<clang::ArrayTypeTraitExpr *>(u.ArrayTypeTraitExpr);
   decltype(auto) val = self.getQueriedType();
-  assert(!val.isNull());
+  if (val.isNull()) {
+    assert(false);
+    val = ast->ci->getASTContext().UnresolvedTy;
+  }
   return TypeBuilder::Build(ast, val);
 }
 
@@ -11916,7 +11951,10 @@ std::optional<::pasta::Expr> AtomicExpr::Value2(void) const {
 ::pasta::Type AtomicExpr::ValueType(void) const {
   auto &self = *const_cast<clang::AtomicExpr *>(u.AtomicExpr);
   decltype(auto) val = self.getValueType();
-  assert(!val.isNull());
+  if (val.isNull()) {
+    assert(false);
+    val = ast->ci->getASTContext().UnresolvedTy;
+  }
   return TypeBuilder::Build(ast, val);
 }
 
@@ -12787,7 +12825,10 @@ std::optional<::pasta::Expr> CXXDependentScopeMemberExpr::Base(void) const {
 ::pasta::Type CXXDependentScopeMemberExpr::BaseType(void) const {
   auto &self = *const_cast<clang::CXXDependentScopeMemberExpr *>(u.CXXDependentScopeMemberExpr);
   decltype(auto) val = self.getBaseType();
-  assert(!val.isNull());
+  if (val.isNull()) {
+    assert(false);
+    val = ast->ci->getASTContext().UnresolvedTy;
+  }
   return TypeBuilder::Build(ast, val);
 }
 
@@ -13105,7 +13146,10 @@ bool CXXNewExpr::DoesUsualArrayDeleteWantSize(void) const {
 ::pasta::Type CXXNewExpr::AllocatedType(void) const {
   auto &self = *const_cast<clang::CXXNewExpr *>(u.CXXNewExpr);
   decltype(auto) val = self.getAllocatedType();
-  assert(!val.isNull());
+  if (val.isNull()) {
+    assert(false);
+    val = ast->ci->getASTContext().UnresolvedTy;
+  }
   return TypeBuilder::Build(ast, val);
 }
 
@@ -13455,10 +13499,15 @@ std::vector<::pasta::Stmt> CXXPseudoDestructorExpr::Children(void) const {
   return ast->TokenAt(val);
 }
 
-::pasta::Type CXXPseudoDestructorExpr::DestroyedType(void) const {
+std::optional<::pasta::Type> CXXPseudoDestructorExpr::DestroyedType(void) const {
   auto &self = *const_cast<clang::CXXPseudoDestructorExpr *>(u.CXXPseudoDestructorExpr);
+  if (self.getDestroyedType().isNull()) {
+    return std::nullopt;
+  }
   decltype(auto) val = self.getDestroyedType();
-  assert(!val.isNull());
+  if (val.isNull()) {
+    return std::nullopt;
+  }
   return TypeBuilder::Build(ast, val);
 }
 
@@ -13884,18 +13933,28 @@ std::optional<::pasta::Expr> CXXTypeidExpr::ExpressionOperand(void) const {
   return ast->TokenRangeFrom(val);
 }
 
-::pasta::Type CXXTypeidExpr::TypeOperand(void) const {
+std::optional<::pasta::Type> CXXTypeidExpr::TypeOperand(void) const {
   auto &self = *(u.CXXTypeidExpr);
+  if (!self.isTypeOperand()) {
+    return std::nullopt;
+  }
   decltype(auto) val = self.getTypeOperand(ast->ci->getASTContext());
-  assert(!val.isNull());
+  if (val.isNull()) {
+    return std::nullopt;
+  }
   return TypeBuilder::Build(ast, val);
 }
 
-::pasta::Type CXXTypeidExpr::TypeOperandSourceInfo(void) const {
+std::optional<::pasta::Type> CXXTypeidExpr::TypeOperandSourceInfo(void) const {
   auto &self = *const_cast<clang::CXXTypeidExpr *>(u.CXXTypeidExpr);
+  if (!self.isTypeOperand()) {
+    return std::nullopt;
+  }
   decltype(auto) val = self.getTypeOperandSourceInfo();
+  if (!val) {
+    return std::nullopt;
+  }
   return TypeBuilder::Build(ast, val->getType());
-  throw std::runtime_error("CXXTypeidExpr::TypeOperandSourceInfo can return nullptr!");
 }
 
 std::optional<bool> CXXTypeidExpr::IsMostDerived(void) const {
@@ -13987,7 +14046,10 @@ uint32_t CXXUnresolvedConstructExpr::NumArguments(void) const {
 ::pasta::Type CXXUnresolvedConstructExpr::TypeAsWritten(void) const {
   auto &self = *const_cast<clang::CXXUnresolvedConstructExpr *>(u.CXXUnresolvedConstructExpr);
   decltype(auto) val = self.getTypeAsWritten();
-  assert(!val.isNull());
+  if (val.isNull()) {
+    assert(false);
+    val = ast->ci->getASTContext().UnresolvedTy;
+  }
   return TypeBuilder::Build(ast, val);
 }
 
@@ -14059,10 +14121,15 @@ std::optional<::pasta::Expr> CXXUuidofExpr::ExpressionOperand(void) const {
   return ast->TokenRangeFrom(val);
 }
 
-::pasta::Type CXXUuidofExpr::TypeOperand(void) const {
+std::optional<::pasta::Type> CXXUuidofExpr::TypeOperand(void) const {
   auto &self = *(u.CXXUuidofExpr);
+  if (!self.isTypeOperand()) {
+    return std::nullopt;
+  }
   decltype(auto) val = self.getTypeOperand(ast->ci->getASTContext());
-  assert(!val.isNull());
+  if (val.isNull()) {
+    return std::nullopt;
+  }
   return TypeBuilder::Build(ast, val);
 }
 
@@ -14509,14 +14576,20 @@ PASTA_DEFINE_BASE_OPERATORS(ValueStmt, CompoundAssignOperator)
 ::pasta::Type CompoundAssignOperator::ComputationLHSType(void) const {
   auto &self = *const_cast<clang::CompoundAssignOperator *>(u.CompoundAssignOperator);
   decltype(auto) val = self.getComputationLHSType();
-  assert(!val.isNull());
+  if (val.isNull()) {
+    assert(false);
+    val = ast->ci->getASTContext().UnresolvedTy;
+  }
   return TypeBuilder::Build(ast, val);
 }
 
 ::pasta::Type CompoundAssignOperator::ComputationResultType(void) const {
   auto &self = *const_cast<clang::CompoundAssignOperator *>(u.CompoundAssignOperator);
   decltype(auto) val = self.getComputationResultType();
-  assert(!val.isNull());
+  if (val.isNull()) {
+    assert(false);
+    val = ast->ci->getASTContext().UnresolvedTy;
+  }
   return TypeBuilder::Build(ast, val);
 }
 
@@ -15429,7 +15502,10 @@ PASTA_DEFINE_DERIVED_OPERATORS(ExplicitCastExpr, ObjCBridgedCastExpr)
 ::pasta::Type ExplicitCastExpr::TypeAsWritten(void) const {
   auto &self = *const_cast<clang::ExplicitCastExpr *>(u.ExplicitCastExpr);
   decltype(auto) val = self.getTypeAsWritten();
-  assert(!val.isNull());
+  if (val.isNull()) {
+    assert(false);
+    val = ast->ci->getASTContext().UnresolvedTy;
+  }
   return TypeBuilder::Build(ast, val);
 }
 
@@ -16062,7 +16138,10 @@ std::optional<::pasta::CXXMethodDecl> CXXMemberCallExpr::MethodDeclaration(void)
 ::pasta::Type CXXMemberCallExpr::ObjectType(void) const {
   auto &self = *const_cast<clang::CXXMemberCallExpr *>(u.CXXMemberCallExpr);
   decltype(auto) val = self.getObjectType();
-  assert(!val.isNull());
+  if (val.isNull()) {
+    assert(false);
+    val = ast->ci->getASTContext().UnresolvedTy;
+  }
   return TypeBuilder::Build(ast, val);
 }
 

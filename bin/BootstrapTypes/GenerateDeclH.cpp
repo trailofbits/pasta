@@ -80,6 +80,7 @@ void GenerateDeclH(void) {
   DeclareCppMethods(os, decl_context, gClassIDs[decl_context]);
 
   os << " private:\n"
+     << "  friend class AST;\n"
      << "  friend class Decl;\n"
      << "  friend class DeclVisitor;\n"
      << "  friend class UsingDirectiveDecl;\n"
@@ -95,6 +96,10 @@ void GenerateDeclH(void) {
      << "      : ast(std::move(ast_)) {\n"
      << "    assert(ast.get() != nullptr);\n"
      << "    u.DeclContext = context_;\n"
+     << "  }\n"
+     << " public:\n"
+     << "  inline bool operator==(const DeclContext &that) const noexcept {\n"
+     << "    return u.opaque == that.u.opaque;\n"
      << "  }\n"
      << "};\n\n";
 
@@ -122,7 +127,7 @@ void GenerateDeclH(void) {
     // Make sure all of the `::From` methods inherited from the parent class
     // are private, so that this class "overrides" them with more derived
     // versions.
-    if (name_ref.endswith("Decl") && name_ref != "Decl") {
+    if (name_ref.ends_with("Decl") && name_ref != "Decl") {
       os
           << " private:\n";
       for (const auto &parent_class : gBaseClasses[name]) {
@@ -136,7 +141,7 @@ void GenerateDeclH(void) {
         << "  PASTA_DECLARE_DEFAULT_CONSTRUCTORS(" << name << ")\n";
 
     // Constructors from derived class -> base class.
-    if (name_ref.endswith("Decl")) {
+    if (name_ref.ends_with("Decl")) {
 
       if (derived_from_decl_context.count(name)) {
         os << "  PASTA_DECLARE_BASE_OPERATORS(DeclContext, "
@@ -205,7 +210,8 @@ void GenerateDeclH(void) {
     // We need to manually inject our own `Body` method.
     } else if (name == "FunctionDecl") {
       os
-          << "  std::optional<::pasta::Stmt> Body(void) const noexcept;\n";
+          << "  std::optional<::pasta::Stmt> Body(void) const noexcept;\n"
+          << "  std::vector<::pasta::TemplateArgument> TemplateArguments(void) const noexcept;\n";
     
     // Manually inject a bit offset.
     } else if (name == "FieldDecl") {
@@ -236,7 +242,7 @@ void GenerateDeclH(void) {
 
     // Requiring that all derivations have the same size as the base class
     // will let us do fun sketchy things.
-    if (name != "Decl" && name_ref.endswith("Decl")) {
+    if (name != "Decl" && name_ref.ends_with("Decl")) {
       os << "static_assert(sizeof(Decl) == sizeof(" << name << "));\n\n";
     }
   }

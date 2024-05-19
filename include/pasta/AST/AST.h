@@ -32,9 +32,11 @@ class Attr;
 class CompileJob;
 class Compiler;
 class Decl;
+class DeclContext;
 class Macro;
 class PrintedTokenRange;
 class Stmt;
+class TemplateArgument;
 class Token;
 class TokenContext;
 class Type;
@@ -47,6 +49,9 @@ class AST {
   static AST From(const Token &token);
 
   // Return the AST containing a declaration.
+  static AST From(const DeclContext &decl);
+
+  // Return the AST containing a declaration.
   static AST From(const Decl &decl);
 
   // Return the AST containing a Stmt.
@@ -57,6 +62,9 @@ class AST {
 
   // Return the AST containing a Type.
   static AST From(const Type &type);
+
+  // Return the AST containing a template argument.
+  static AST From(const TemplateArgument &arg);
 
   ~AST(void);
   AST(const AST &);
@@ -94,6 +102,7 @@ class AST {
   Token Adopt(const clang::SourceLocation &loc) const;
   Attr Adopt(const clang::Attr *attr) const;
   Decl Adopt(const clang::Decl *decl) const;
+  Decl AdoptWithoutRemap(const clang::Decl *decl) const;
   Stmt Adopt(const clang::Stmt *stmt) const;
   Type Adopt(const clang::Type *type, uint32_t qual = 0u) const;
 #endif

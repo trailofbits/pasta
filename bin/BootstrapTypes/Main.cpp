@@ -97,22 +97,22 @@ int main(void) {
   //gBaseClasses["DeclContext"].insert("DeclBase");
 
   for (auto class_name : kAllClassNames) {
-    if (class_name.endswith("Decl")) {
+    if (class_name.ends_with("Decl")) {
       gDeclNames.push_back(class_name.str());
 
-    } else if (class_name.endswith("Stmt") ||
-               class_name.endswith("Expr") ||
-               class_name.endswith("Operator") ||
-               class_name.endswith("Directive") ||
-               class_name.endswith("Literal") ||
+    } else if (class_name.ends_with("Stmt") ||
+               class_name.ends_with("Expr") ||
+               class_name.ends_with("Operator") ||
+               class_name.ends_with("Directive") ||
+               class_name.ends_with("Literal") ||
                class_name == "SwitchCase" ||
                class_name == "ExprWithCleanups" ||
                class_name == "OMPCanonicalLoop") {
       gStmtNames.push_back(class_name.str());
 
-    } else if (class_name.endswith("Type") && class_name != "QualType") {
+    } else if (class_name.ends_with("Type") && class_name != "QualType") {
       gTypeNames.push_back(class_name.str());
-    } else if (class_name.endswith("Attr")) {
+    } else if (class_name.ends_with("Attr")) {
       gAttrNames.push_back(class_name.str());
     }
   }

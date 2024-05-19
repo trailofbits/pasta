@@ -174,6 +174,8 @@ class ASTImpl : public std::enable_shared_from_this<ASTImpl> {
   // of macro expansions.
   BoundingTokens DeclBounds(clang::Decl *decl);
 
+  DerivedTokenIndex MatchingIndex(DerivedTokenIndex offset);
+
   // Return a token range for the bounds of a declaration.
   TokenRange DeclTokenRange(const clang::Decl *decl);
   TokenRange DeclTokenRange(const clang::Decl *decl,

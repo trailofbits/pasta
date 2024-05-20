@@ -113,6 +113,11 @@ static const TokenKind kLeadingKeywords[] = {
   TokenKind::kKeyword__Real,
   TokenKind::kKeywordBoolean,
   TokenKind::kKeywordVoid,
+  TokenKind::kKeyword_Nonnull,
+  TokenKind::kKeyword_Nullable,
+  TokenKind::kKeyword_NullableResult,
+  TokenKind::kKeyword_NullUnspecified,
+  TokenKind::kKeyword__Null,
 };
 
 // The decl bounds finder exists to find the beginning and ending of

@@ -38,7 +38,8 @@ static bool IsSizedType(clang::QualType self) {
 
   clang::NamedDecl *nd = nullptr;
   auto tp = self.getTypePtr();
-  if (tp->isIncompleteType(&nd) || tp->isDependentType()) {
+  if (tp->isIncompleteType(&nd) || tp->isDependentType() ||
+      tp->isUndeducedType() || tp->isUndeducedAutoType()) {
     return false;
   }
 

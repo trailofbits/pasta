@@ -343,6 +343,18 @@ CXXBaseSpecifier::LexicalAccessSpecifier(void) const noexcept {
   return TypeBuilder::Build(ast, tsi->getType()).UnqualifiedType();
 }
 
+// Returns the base class, if known. It might not be known if the base type
+// is dependent / not deduced.
+std::optional<::pasta::CXXRecordDecl>
+CXXBaseSpecifier::BaseClass(void) const noexcept {
+  auto tsi = spec->getTypeSourceInfo();
+  auto decl = tsi->getType()->getAsCXXRecordDecl();
+  if (!decl) {
+    return std::nullopt;
+  }
+  return DeclBuilder::Create<class ::pasta::CXXRecordDecl>(ast, decl);
+}
+
 // Return the kind of the stored template argument.
 TemplateArgumentKind TemplateArgument::Kind(void) const noexcept {
   return static_cast<TemplateArgumentKind>(arg->getKind());

@@ -102,12 +102,11 @@ class CXXBaseSpecifier {
   // Token of the the base type name. Doesn't include the qualifiers.
   ::pasta::Token BaseTypeToken(void) const noexcept;
 
+  // For a pack expansion, determine the location of the ellipsis.
+  std::optional<Token> EllipsisToken(void) const noexcept;
+
   // Is this a virtual base (using virtual inheritance)?
   bool IsVirtual(void) const noexcept;
-
-  // Kind of the base type. This is either `TagTypeKind::kStruct` or
-  // `TagTypeKind::kClass`.
-  TagTypeKind BaseKind(void) const noexcept;
 
   // Is this specifier a pack expansion?
   bool IsPackExpansion(void) const noexcept;
@@ -116,8 +115,9 @@ class CXXBaseSpecifier {
   // inherited in the derived class with a `using` declaration.
   bool ConstructorsAreInherited(void) const noexcept;
 
-  // For a pack expansion, determine the location of the ellipsis.
-  std::optional<Token> EllipsisToken(void) const noexcept;
+  // Kind of the base type. This is either `TagTypeKind::kStruct` or
+  // `TagTypeKind::kClass`.
+  TagTypeKind BaseKind(void) const noexcept;
 
   // Returns the access specifier for this base specifier.
   //
@@ -140,6 +140,10 @@ class CXXBaseSpecifier {
   // NOTE(pag): This might not be a struct/class type, but could be a typedef
   //            to a struct/class type.
   ::pasta::Type BaseType(void) const noexcept;
+
+  // Returns the base class, if known. It might not be known if the base type
+  // is dependent / not deduced.
+  std::optional<::pasta::CXXRecordDecl> BaseClass(void) const noexcept;
 #endif  // PASTA_IN_BOOTSTRAP
 };
 
@@ -327,7 +331,7 @@ class CXXCtorInitializer {
   std::optional<::pasta::FieldDecl> Member(void) const noexcept;
   std::optional<::pasta::FieldDecl> AnyMember(void) const noexcept;
   std::optional<::pasta::IndirectFieldDecl> IndirectMember(void) const noexcept;
-  std::optional<::pasta::Stmt> Initializer() const noexcept;
+  std::optional<::pasta::Stmt> Initializer(void) const noexcept;
 
   ::pasta::Token EllipsisToken(void) const noexcept;
   ::pasta::Token MemberToken(void) const noexcept;

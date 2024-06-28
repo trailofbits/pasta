@@ -1516,7 +1516,7 @@ class Expr : public ValueStmt {
   std::optional<llvm::APSInt> EvaluateKnownConstInt(void) const;
   std::optional<llvm::APSInt> EvaluateKnownConstIntCheckOverflow(void) const;
   // EvaluateWithSubstitution: (bool)
-  bool HasSideEffects(void) const;
+  std::optional<bool> HasSideEffects(void) const;
   ::pasta::Expr IgnoreCasts(void) const;
   ::pasta::Expr IgnoreConversionOperatorSingleStep(void) const;
   ::pasta::Expr IgnoreImplicitCasts(void) const;

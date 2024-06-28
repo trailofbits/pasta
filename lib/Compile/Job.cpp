@@ -283,6 +283,21 @@ static void RenderPrefixed(const llvm::opt::Arg *arg,
   }
 }
 
+static bool IsAcceptableLang(const std::string &lang) {
+  return lang == "c" ||
+         lang == "c-header" ||
+         lang == "cpp-output" ||
+         lang == "c-header-cpp-output" ||
+         lang == "c++" ||
+         lang == "c++-header" ||
+         lang == "c++-cpp-output" ||
+         lang == "c++-header-cpp-output" ||
+         lang == "c++-header-unit-cpp-output" ||
+         lang == "c++-header-unit-header" ||
+         lang == "c++-system-header" ||
+         lang == "c++-user-header";
+}
+
 // Adjust the compiler command (found in `args`), creating a new one and
 // returning it. The new one should have all include paths fully realized. The
 // new compiler command is a "driver compiler command." Thus, if a `-cc1` or
@@ -584,6 +599,9 @@ CreateAdjustedCompilerCommand(FileSystemView &fs, const Compiler &compiler,
   } else {
     for (const auto &[lang, inputs] : inputs_to_use) {
       if (!lang.empty()) {
+        if (!IsAcceptableLang(lang)) {
+          continue;
+        }
         new_args.emplace_back("-Xclang");
         new_args.emplace_back("-x");
         new_args.emplace_back("-Xclang");
@@ -821,6 +839,7 @@ Compiler::CreateJobsForCommand(const CompileCommand &command) const {
     job_isysroot = fs.ParsePath(isysroot_opt->getValue());
   }
 
+
   std::vector<CompileJob> jobs;
 
   const auto target_triple =
@@ -882,7 +901,24 @@ Compiler::CreateJobsForCommand(const CompileCommand &command) const {
       return err.str();
     }
 
-    auto main_file_str = frontend_opts.Inputs[0].getFile().str();
+    const clang::FrontendInputFile &first_input_file = frontend_opts.Inputs[0];
+    switch (auto lang = first_input_file.getKind().getLanguage()) {
+      case clang::Language::Unknown:
+      case clang::Language::C:
+      case clang::Language::CXX:
+      case clang::Language::ObjC:
+      case clang::Language::ObjCXX:
+      case clang::Language::OpenCL:
+      case clang::Language::OpenCLCXX:
+      case clang::Language::CUDA:
+        break;
+      default:
+        err << "Cannot parse main input file language '"
+            << clang::languageToString(lang).str() << "'";
+        return err.str();
+    }
+
+    auto main_file_str = first_input_file.getFile().str();
     auto main_file_path = fs.ParsePath(main_file_str);
     auto main_file_stat = fs.Stat(main_file_path);
     if (!main_file_stat.Succeeded()) {
@@ -921,7 +957,10 @@ Compiler::CreateJobsForCommand(const CompileCommand &command) const {
           a.ends_with_insensitive(".gcno") || a.ends_with_insensitive(".pch") ||
           a.ends_with_insensitive(".s") || a.ends_with_insensitive(".asm") ||
           a.ends_with_insensitive(".mm") || a.ends_with_insensitive(".d") ||
-          a.ends_with_insensitive(".sdk")) {
+          a.ends_with_insensitive(".sdk") || a.ends_with_insensitive(".i") ||
+          a.ends_with_insensitive(".ii") || a.ends_with_insensitive(".iih") ||
+          a.ends_with_insensitive(".bc") || a.ends_with_insensitive(".ll") ||
+          a.ends_with_insensitive(".ir")) {
 
         if (auto maybe_info = fs.Stat(arg); maybe_info.Succeeded()) {
           new_argv.emplace_back(

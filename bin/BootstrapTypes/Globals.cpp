@@ -1998,6 +1998,12 @@ std::map<std::pair<std::string, std::string>, std::string> kConditionalNullptr{
    "  if (self.getDestroyedType().isNull()) {\n"
    "    return std::nullopt;\n"
    "  }\n"},
+  {{"Expr", "HasSideEffects"},
+   "  if (auto sel = clang::dyn_cast<clang::GenericSelectionExpr>(&self)) {\n"
+   "    if (sel->isResultDependent()) {\n"
+   "      return std::nullopt;\n"
+   "    }\n"
+   "  }\n"},
 };
 
 std::unordered_map<std::string, uint32_t> gClassIDs;

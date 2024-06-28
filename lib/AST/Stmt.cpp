@@ -3284,8 +3284,13 @@ std::optional<llvm::APSInt> Expr::EvaluateKnownConstIntCheckOverflow(void) const
 }
 
 // 4: Expr::EvaluateWithSubstitution
-bool Expr::HasSideEffects(void) const {
+std::optional<bool> Expr::HasSideEffects(void) const {
   auto &self = *(u.Expr);
+  if (auto sel = clang::dyn_cast<clang::GenericSelectionExpr>(&self)) {
+    if (sel->isResultDependent()) {
+      return std::nullopt;
+    }
+  }
   decltype(auto) val = self.HasSideEffects(ast->ci->getASTContext());
   return val;
 }

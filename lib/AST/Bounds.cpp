@@ -1376,11 +1376,25 @@ class DeclBoundsFinder : public clang::DeclVisitor<DeclBoundsFinder>,
     // The ellipsis can be on its own after a comma, or directly after
     // the variable, e.g. `a, ...` vs. `a...`.
 
-    if (auto ellipsis_tok = params_end; ellipsis_tok.Previous()) {
+    if (auto ellipsis_tok = params_end;
+        ellipsis_tok.Previous() &&
+        ellipsis_tok.Kind() != TokenKind::kRParenthesis) {
+
       ellipsis_tok = FindPrev(ellipsis_tok, TokenKind::kEllipsis, params_begin);
       if (ellipsis_tok > params_begin) {
         proto.ellipsis = ellipsis_tok.Offset();
         has_ellipsis = true;
+
+        // Double check that we haven't found a variadic function pointer
+        // argument.
+        if (params_end.Kind() == TokenKind::kRParenthesis) {
+          auto next_tok = NextToken(ellipsis_tok);
+          if (next_tok.Kind() == TokenKind::kRParenthesis &&
+              next_tok < params_end) {
+            proto.ellipsis = 0u;
+            has_ellipsis = false;
+          }
+        }
       }
     }
 
@@ -1418,7 +1432,7 @@ class DeclBoundsFinder : public clang::DeclVisitor<DeclBoundsFinder>,
         // the variable, e.g. `a, ...` vs. `a...`.
         if (has_ellipsis) {
           auto ellipsis_tok = FindNext(
-              begin_tok, TokenKind::kEllipsis, invalid);
+              begin_tok, TokenKind::kEllipsis, params_end);
           if (ellipsis_tok < params_end) {
             end_tok = ellipsis_tok;
           } else {

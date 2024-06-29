@@ -144,6 +144,11 @@ static bool OmitOption(unsigned id) {
     case clang::driver::options::OPT__SLASH_W2:
     case clang::driver::options::OPT__SLASH_W3:
     case clang::driver::options::OPT__SLASH_W4:
+
+    // Affect what types of jobs to generate.
+    case clang::driver::options::OPT_E:
+    case clang::driver::options::OPT_Eonly:
+    case clang::driver::options::OPT__SLASH_EP:
       return true;
     default:
       return false;
@@ -283,20 +288,20 @@ static void RenderPrefixed(const llvm::opt::Arg *arg,
   }
 }
 
-static bool IsAcceptableLang(const std::string &lang) {
-  return lang == "c" ||
-         lang == "c-header" ||
-         lang == "cpp-output" ||
-         lang == "c-header-cpp-output" ||
-         lang == "c++" ||
-         lang == "c++-header" ||
-         lang == "c++-cpp-output" ||
-         lang == "c++-header-cpp-output" ||
-         lang == "c++-header-unit-cpp-output" ||
-         lang == "c++-header-unit-header" ||
-         lang == "c++-system-header" ||
-         lang == "c++-user-header";
-}
+static const std::unordered_map<std::string, std::string> kLangTranslations{
+  {"c", "c"},
+  {"c-header", "c"},
+  {"cpp-output", "c"},
+  {"c-header-cpp-output", "c"},
+  {"c++", "c++"},
+  {"c++-header", "c++"},
+  {"c++-cpp-output", "c++"},
+  {"c++-header-cpp-output", "c++"},
+  {"c++-header-unit-cpp-output", "c++"},
+  {"c++-header-unit-header", "c++"},
+  {"c++-system-header", "c++"},
+  {"c++-user-header", "c++"},
+};
 
 // Adjust the compiler command (found in `args`), creating a new one and
 // returning it. The new one should have all include paths fully realized. The
@@ -599,13 +604,14 @@ CreateAdjustedCompilerCommand(FileSystemView &fs, const Compiler &compiler,
   } else {
     for (const auto &[lang, inputs] : inputs_to_use) {
       if (!lang.empty()) {
-        if (!IsAcceptableLang(lang)) {
+        auto it = kLangTranslations.find(lang);
+        if (it == kLangTranslations.end()) {
           continue;
         }
         new_args.emplace_back("-Xclang");
         new_args.emplace_back("-x");
         new_args.emplace_back("-Xclang");
-        new_args.push_back(lang);
+        new_args.push_back(it->second);
       }
       for (const auto &input : inputs) {
         new_args.emplace_back(input.generic_string());
@@ -847,6 +853,8 @@ Compiler::CreateJobsForCommand(const CompileCommand &command) const {
 
   std::string last_job_args_str;
 
+  std::vector<std::stringstream> job_errs;
+
   for (llvm::opt::ArgStringList job_args : cc1_jobs) {
     diagnostics_engine->Reset();
     diagnostics_engine->setErrorLimit(1);
@@ -878,30 +886,47 @@ Compiler::CreateJobsForCommand(const CompileCommand &command) const {
 
     if (!invocation_is_valid) {
       if (diag->error.empty()) {
-        err << "Unable to build compilation jobs for cc1 command: "
+        job_errs.emplace_back()
+            << "Unable to build compilation jobs for cc1 command: "
             << job_args_to_string();
-        return err.str();
+        continue;
       }
 
-      err << "Unable to build compilation jobs for cc1 command due to error: "
+      job_errs.emplace_back()
+          << "Unable to build compilation jobs for cc1 command due to error: "
           << diag->error;
-      return err.str();
+      continue;
     }
 
     if (!diag->error.empty()) {
-      err << "Built compiler invocation for cc1 command but got diagnostic: "
+      job_errs.emplace_back()
+          << "Built compiler invocation for cc1 command but got diagnostic: "
           << diag->error;
-      return err.str();
+      continue;
     }
 
     const auto &frontend_opts = invocation.getFrontendOpts();
     if (frontend_opts.Inputs.empty()) {
-      err << "Empty input file list for cc1 command: "
+      job_errs.emplace_back()
+          << "Empty input file list for cc1 command: "
           << job_args_to_string();
-      return err.str();
+      continue;
     }
 
     const clang::FrontendInputFile &first_input_file = frontend_opts.Inputs[0];
+    auto main_file_str = first_input_file.getFile().str();
+    auto main_file_path = fs.ParsePath(main_file_str);
+    auto main_file_stat = fs.Stat(main_file_path);
+    if (!main_file_stat.Succeeded()) {
+      job_errs.emplace_back()
+          << "Main input file '" << main_file_path.generic_string()
+          << "' (found as '" << main_file_str
+          << "' in working directory '" << working_dir_str
+          << "') does not exist or cannot be opened: "
+          << main_file_stat.TakeError().message();
+      continue;
+    }
+
     switch (auto lang = first_input_file.getKind().getLanguage()) {
       case clang::Language::Unknown:
       case clang::Language::C:
@@ -913,31 +938,22 @@ Compiler::CreateJobsForCommand(const CompileCommand &command) const {
       case clang::Language::CUDA:
         break;
       default:
-        err << "Cannot parse main input file language '"
-            << clang::languageToString(lang).str() << "'";
-        return err.str();
-    }
-
-    auto main_file_str = first_input_file.getFile().str();
-    auto main_file_path = fs.ParsePath(main_file_str);
-    auto main_file_stat = fs.Stat(main_file_path);
-    if (!main_file_stat.Succeeded()) {
-      err << "Main input file '" << main_file_path.generic_string()
-          << "' (found as '" << main_file_str
-          << "' in working directory '" << working_dir_str
-          << "') does not exist or cannot be opened: "
-          << main_file_stat.TakeError().message();
-      return err.str();
+        job_errs.emplace_back()
+            << "Cannot parse main input file '"
+            << main_file_path.generic_string()
+            << "' language '" << clang::languageToString(lang).str() << "'";
+        continue;
     }
 
     auto main_file = impl->file_manager.OpenFile(main_file_stat.TakeValue());
     if (!main_file.Succeeded()) {
-      err << "Main input file '" << main_file_path.generic_string()
+      job_errs.emplace_back()
+          << "Main input file '" << main_file_path.generic_string()
           << "' (found as '" << main_file_str
           << "' in working directory '" << working_dir_str
           << "') does not exist or cannot be opened: "
           << main_file.TakeError().message();
-      return err.str();
+      continue;
     }
 
     std::vector<std::string> new_argv;
@@ -995,6 +1011,10 @@ Compiler::CreateJobsForCommand(const CompileCommand &command) const {
         main_file.TakeValue(),
         target_triple, frontend_opts.AuxTriple));
     jobs.emplace_back(std::move(job));
+  }
+
+  if (jobs.empty() && !job_errs.empty()) {
+    return job_errs.front().str();
   }
 
   return jobs;

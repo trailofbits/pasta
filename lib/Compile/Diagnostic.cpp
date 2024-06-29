@@ -11,8 +11,11 @@
 #pragma clang diagnostic ignored "-Wsign-conversion"
 #pragma clang diagnostic ignored "-Wfloat-conversion"
 #pragma clang diagnostic ignored "-Wshorten-64-to-32"
+#include <clang/Basic/Diagnostic.h>
 #include <clang/Basic/DiagnosticIDs.h>
+#include <clang/Basic/DiagnosticLex.h>
 #include <clang/Basic/DiagnosticSema.h>
+#include <clang/Basic/DiagnosticOptions.h>
 #include <clang/Basic/FileManager.h>
 #include <clang/Basic/SourceManager.h>
 #include <clang/Driver/DriverDiagnostic.h>
@@ -48,6 +51,7 @@ void SaveFirstErrorDiagConsumer::HandleDiagnostic(
       clang::diag::err_drv_unsupported_option_argument,
       clang::diag::err_drv_output_argument_with_multiple_files,
       clang::diag::err_drv_no_cuda_libdevice,
+      clang::diag::err_pp_file_not_found_angled_include_not_fatal,
   };
 
   clang::diag::kind id = info.getID();

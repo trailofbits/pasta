@@ -149,6 +149,13 @@ static bool OmitOption(unsigned id) {
     case clang::driver::options::OPT_E:
     case clang::driver::options::OPT_Eonly:
     case clang::driver::options::OPT__SLASH_EP:
+
+    // Affect how we produce jobs.
+    case clang::driver::options::OPT_save_temps_EQ:
+    case clang::driver::options::OPT_save_temps:
+
+    // Record command lines.
+    case clang::driver::options::OPT_gen_cdb_fragment_path:
       return true;
     default:
       return false;
@@ -622,6 +629,16 @@ CreateAdjustedCompilerCommand(FileSystemView &fs, const Compiler &compiler,
   return ArgumentVector(new_args);
 }
 
+static std::string JobArgsToString(const llvm::opt::ArgStringList &job_args) {
+  std::stringstream ss;
+  auto sep = "";
+  for (auto arg : job_args) {
+    ss << sep << arg;
+    sep = " ";
+  }
+  return ss.str();
+}
+
 }  // namespace
 
 llvm::opt::InputArgList CompileJobImpl::ParseDriverArguments(
@@ -833,6 +850,9 @@ Compiler::CreateJobsForCommand(const CompileCommand &command) const {
     if (!strcmp(job_args[0], "-cc1")) {
       cc1_jobs.push_back(job_args);
 
+    // TODO(pag): Eventually support pre-processing of assembly code.
+    } else if (!strcmp(job_args[0], "-cc1as")) {
+
     // Probably a linking job, assembly job, or preprocessing only job.
     } else {
 
@@ -844,7 +864,6 @@ Compiler::CreateJobsForCommand(const CompileCommand &command) const {
   if (auto isysroot_opt = cargs.getLastArg(clang::driver::options::OPT_isysroot)) {
     job_isysroot = fs.ParsePath(isysroot_opt->getValue());
   }
-
 
   std::vector<CompileJob> jobs;
 
@@ -860,16 +879,6 @@ Compiler::CreateJobsForCommand(const CompileCommand &command) const {
     diagnostics_engine->setErrorLimit(1);
     diagnostics_engine->setIgnoreAllWarnings(true);
     diagnostics_engine->setWarningsAsErrors(false);
-
-    auto job_args_to_string = [&job_args](void) {
-      std::stringstream ss;
-      auto sep = "";
-      for (auto arg : job_args) {
-        ss << sep << arg;
-        sep = " ";
-      }
-      return ss.str();
-    };
 
     // NOTE(pag): `CreateFromArgs` below requires that we not pass in a
     //            `-cc1` command.
@@ -888,7 +897,7 @@ Compiler::CreateJobsForCommand(const CompileCommand &command) const {
       if (diag->error.empty()) {
         job_errs.emplace_back()
             << "Unable to build compilation jobs for cc1 command: "
-            << job_args_to_string();
+            << JobArgsToString(job_args);
         continue;
       }
 
@@ -909,7 +918,7 @@ Compiler::CreateJobsForCommand(const CompileCommand &command) const {
     if (frontend_opts.Inputs.empty()) {
       job_errs.emplace_back()
           << "Empty input file list for cc1 command: "
-          << job_args_to_string();
+          << JobArgsToString(job_args);
       continue;
     }
 

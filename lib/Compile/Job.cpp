@@ -146,6 +146,8 @@ static bool OmitOption(unsigned id) {
     case clang::driver::options::OPT__SLASH_W2:
     case clang::driver::options::OPT__SLASH_W3:
     case clang::driver::options::OPT__SLASH_W4:
+    case clang::driver::options::OPT_ferror_limit:
+    case clang::driver::options::OPT_ferror_limit_EQ:
 
     // Affect what types of jobs to generate.
     case clang::driver::options::OPT_E:
@@ -370,8 +372,7 @@ CreateAdjustedCompilerCommand(FileSystemView &fs, const Compiler &compiler,
 
     auto is_cc1_opt =
         opt.hasVisibilityFlag(
-            clang::driver::options::ClangVisibility::CC1Option) ||
-        opt.hasFlag(clang::driver::options::ClangFlags::TargetSpecific);
+            clang::driver::options::ClangVisibility::CC1Option);
 
     auto is_cc1as_opt = opt.hasVisibilityFlag(
         clang::driver::options::ClangVisibility::CC1AsOption);
@@ -395,6 +396,10 @@ CreateAdjustedCompilerCommand(FileSystemView &fs, const Compiler &compiler,
     // An assembler `-cc1as` linker argument.
     } else if (is_cc1as_opt) {
       prefix = "-Xassembler";
+    }
+
+    if (opt.hasFlag(clang::driver::options::ClangFlags::NoXarchOption)) {
+      prefix = nullptr;
     }
 
     if (IsIncludeOption(id) && arg->getNumValues()) {

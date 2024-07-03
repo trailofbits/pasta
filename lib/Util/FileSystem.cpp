@@ -160,7 +160,9 @@ Result<std::string, std::error_code> NativeFileSystem::ReadFile(
 
   f.close();
 
-  SanitizeString(ret);
+  if (!IsHeaderMap(ret)) {
+    SanitizeString(ret);
+  }
   return ret;
 }
 

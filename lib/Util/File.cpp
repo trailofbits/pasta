@@ -12,6 +12,7 @@
 #pragma clang diagnostic ignored "-Wsign-conversion"
 #pragma clang diagnostic ignored "-Wshorten-64-to-32"
 #pragma clang diagnostic ignored "-Wfloat-conversion"
+#include <clang/Lex/HeaderMapTypes.h>
 #include <llvm/Support/JSON.h>
 #pragma clang diagnostic pop
 
@@ -46,6 +47,26 @@ static inline void RemoveCarriageReturns(std::string &value) {
   value.erase(it, value.end());
 }
 
+static bool IsPowerOfTwo(uint32_t x) {
+    return (x & (x - 1u)) == 0u;
+}
+
+static bool IsHeaderMapHeader(const clang::HMapHeader &header,
+                              const std::string &data) {
+  if (header.Reserved != 0u) {
+    return false;
+  }
+
+  if (!IsPowerOfTwo(header.NumBuckets)) {
+    return false;
+  }
+
+  auto needed_size = sizeof(clang::HMapHeader) +
+                     sizeof(clang::HMapBucket) * header.NumBuckets;
+
+  return data.size() >= needed_size;
+}
+
 } // namespace
 
 // Check if string has Byte-offset marker
@@ -67,6 +88,39 @@ void SanitizeString(std::string &data) {
   }
   RemoveBOM(data);
   RemoveCarriageReturns(data);
+}
+
+// Check if this looks like a headermap file. If so, don't convert to UTF-8.
+bool IsHeaderMap(const std::string &data) {
+  if (data.size() <= sizeof(clang::HMapHeader)) {
+    return false;
+  }
+
+  clang::HMapHeader header = {};
+  memcpy(&header, data.data(), sizeof(header));
+
+  // Sniff it to see if it's a headermap by checking the magic number and
+  // version.
+  if (header.Magic == clang::HMAP_HeaderMagicNumber &&
+      header.Version == clang::HMAP_HeaderVersion) {
+    return IsHeaderMapHeader(header, data);
+  }
+
+  header.Magic = __builtin_bswap32(header.Magic);
+  header.Version = __builtin_bswap16(header.Version);
+
+  if (header.Magic == clang::HMAP_HeaderMagicNumber &&
+      header.Version == clang::HMAP_HeaderVersion) {
+
+    header.Reserved = __builtin_bswap16(header.Reserved);
+    header.StringsOffset = __builtin_bswap32(header.StringsOffset);
+    header.NumEntries = __builtin_bswap32(header.NumEntries);
+    header.NumBuckets = __builtin_bswap32(header.NumBuckets);
+    header.MaxValueLength = __builtin_bswap32(header.MaxValueLength);
+    return IsHeaderMapHeader(header, data);
+  }
+
+  return false;
 }
 
 FileImpl::FileImpl(const std::shared_ptr<FileManagerImpl> &owner_, Stat stat_)
@@ -113,25 +167,25 @@ Result<std::string_view, std::error_code> File::Data(void) const noexcept {
 
   auto fm = impl->owner.lock();
   auto maybe_file = fm->file_system->ReadFile(impl->stat);
-  if (maybe_file.Succeeded()) {
-    maybe_file.TakeValue().swap(impl->data);
+  if (!maybe_file.Succeeded()) {
+    impl->data_ec = maybe_file.TakeError();
+    return impl->data_ec;
+  }
+  maybe_file.TakeValue().swap(impl->data);
 
+  if (!IsHeaderMap(impl->data)) {
     SanitizeString(impl->data);
 
     // NOTE(pag): We use this extra trailing NUL to help us with location
     //            offsets for EOF tokens.
     impl->data.push_back('\0');
-
-    // NOTE(pag): We use the data hash to help us maintain semi-determinstic
-    //            `__COUNTER__` values across files.
-    impl->data_hash = llvm::xxHash64(impl->data);
-
-    return std::string_view(impl->data.data(), impl->data.size() - 1u);
-
-  } else {
-    impl->data_ec = maybe_file.TakeError();
-    return impl->data_ec;
   }
+
+  // NOTE(pag): We use the data hash to help us maintain semi-determinstic
+  //            `__COUNTER__` values across files.
+  impl->data_hash = llvm::xxHash64(impl->data);
+
+  return std::string_view(impl->data.data(), impl->data.size() - 1u);
 }
 
 // Return a hash of the data.

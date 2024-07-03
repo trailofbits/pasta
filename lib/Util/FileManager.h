@@ -27,6 +27,9 @@ bool HasBOM(const char *value, size_t size);
 // Sanitize a string for PASTA's use.
 void SanitizeString(std::string &data);
 
+// Check if this looks like a headermap file. If so, don't convert to UTF-8.
+bool IsHeaderMap(const std::string &data);
+
 static_assert(
     static_cast<unsigned>(clang::tok::TokenKind::NUM_TOKENS) <= (1u << 9u));
 

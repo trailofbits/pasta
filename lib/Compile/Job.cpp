@@ -129,6 +129,8 @@ static bool OmitOption(unsigned id) {
     case clang::driver::options::OPT_fxray_always_instrument:
     case clang::driver::options::OPT_fxray_never_instrument:
     case clang::driver::options::OPT_fxray_attr_list:
+    case clang::driver::options::OPT_split_dwarf_output:
+    case clang::driver::options::OPT_main_file_name:
 
     // Output.
     case clang::driver::options::OPT_dependency_dot:
@@ -153,6 +155,17 @@ static bool OmitOption(unsigned id) {
     // Affect how we produce jobs.
     case clang::driver::options::OPT_save_temps_EQ:
     case clang::driver::options::OPT_save_temps:
+
+    // Other.
+    case clang::driver::options::OPT_disable_free:
+    case clang::driver::options::OPT_clear_ast_before_backend:
+    case clang::driver::options::OPT_fsplit_lto_unit:
+    case clang::driver::options::OPT_flto_unit:
+    case clang::driver::options::OPT_flto_EQ:
+    case clang::driver::options::OPT_mrelocation_model:
+    case clang::driver::options::OPT_pic_level:
+    case clang::driver::options::OPT_mframe_pointer_EQ:
+    case clang::driver::options::OPT_stack_protector:
 
     // Record command lines.
     case clang::driver::options::OPT_gen_cdb_fragment_path:
@@ -355,11 +368,16 @@ CreateAdjustedCompilerCommand(FileSystemView &fs, const Compiler &compiler,
     const auto id = opt.getID();
     const char *prefix = nullptr;
 
-    auto is_cc1_opt = opt.hasFlag(clang::driver::options::CC1Option);
-    auto is_cc1as_opt = opt.hasFlag(clang::driver::options::CC1AsOption);
+    auto is_cc1_opt =
+        opt.hasVisibilityFlag(
+            clang::driver::options::ClangVisibility::CC1Option) ||
+        opt.hasFlag(clang::driver::options::ClangFlags::TargetSpecific);
+
+    auto is_cc1as_opt = opt.hasVisibilityFlag(
+        clang::driver::options::ClangVisibility::CC1AsOption);
 
     // A linker input argument.
-    if (opt.hasFlag(clang::driver::options::LinkerInput)) {
+    if (opt.hasFlag(clang::driver::options::ClangFlags::LinkerInput)) {
       prefix = "-Xlinker";      
 
     // Applies to either `-cc1` or `-cc1as`; choose one.
@@ -743,24 +761,12 @@ Compiler::CreateJobsForCommand(const CompileCommand &command) const {
   // function will do a proper job at re-introducing them.
   const ArgumentVector &orig_arg_vec = command.Arguments();
   const std::vector<const char *> &orig_args = orig_arg_vec.Arguments();
-  auto may_need_skip = false;
   for (const char *arg : orig_args) {
-
-    // We've observed in Bear-recorded compile commands from the Linux kernel
-    // that `-main-file-name` will sometimes be followed by another option, not
-    // a file path.
-    if (may_need_skip && arg[0] == '-' && 1u < strlen(arg) &&
-        !all_args.empty()) {
-      all_args.pop_back();
-    }
-
     if (strcmp("-Xclang", arg) &&
         strcmp("-Xlinker", arg) &&
         strcmp("-Xassembler", arg)) {
       all_args.push_back(arg);
     }
-
-    may_need_skip = !strcmp("-main-file-name", arg);
   }
 
   // TODO(pag): Is there a way to set CL mode?
@@ -985,7 +991,7 @@ Compiler::CreateJobsForCommand(const CompileCommand &command) const {
           a.ends_with_insensitive(".sdk") || a.ends_with_insensitive(".i") ||
           a.ends_with_insensitive(".ii") || a.ends_with_insensitive(".iih") ||
           a.ends_with_insensitive(".bc") || a.ends_with_insensitive(".ll") ||
-          a.ends_with_insensitive(".ir")) {
+          a.ends_with_insensitive(".ir") || a.ends_with_insensitive(".hmap")) {
 
         if (auto maybe_info = fs.Stat(arg); maybe_info.Succeeded()) {
           new_argv.emplace_back(

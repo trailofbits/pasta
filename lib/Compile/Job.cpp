@@ -131,6 +131,7 @@ static bool OmitOption(unsigned id) {
     case clang::driver::options::OPT_fxray_attr_list:
     case clang::driver::options::OPT_split_dwarf_output:
     case clang::driver::options::OPT_main_file_name:
+    case clang::driver::options::OPT__serialize_diags:
 
     // Output.
     case clang::driver::options::OPT_dependency_dot:

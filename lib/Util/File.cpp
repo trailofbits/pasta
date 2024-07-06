@@ -175,11 +175,13 @@ Result<std::string_view, std::error_code> File::Data(void) const noexcept {
 
   if (!IsHeaderMap(impl->data)) {
     SanitizeString(impl->data);
-
-    // NOTE(pag): We use this extra trailing NUL to help us with location
-    //            offsets for EOF tokens.
-    impl->data.push_back('\0');
   }
+
+  // NOTE(pag): We use this extra trailing NUL to help us with location
+  //            offsets for EOF tokens.
+  //
+  // NOTE(pag): Header map buffers also need to be NUL-terminated.
+  impl->data.push_back('\0');
 
   // NOTE(pag): We use the data hash to help us maintain semi-determinstic
   //            `__COUNTER__` values across files.

@@ -4430,12 +4430,7 @@ std::optional<::pasta::Expr> FieldDecl::BitWidth(void) const {
   }
 }
 
-uint32_t FieldDecl::BitWidthValue(void) const {
-  auto &self = *(u.FieldDecl);
-  decltype(auto) val = self.getBitWidthValue(ast->ci->getASTContext());
-  return val;
-}
-
+// 1: FieldDecl::
 ::pasta::FieldDecl FieldDecl::CanonicalDeclaration(void) const {
   auto &self = *const_cast<clang::FieldDecl *>(u.FieldDecl);
   decltype(auto) val = self.getCanonicalDecl();

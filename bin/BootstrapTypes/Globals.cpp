@@ -52,6 +52,8 @@ const std::unordered_map<std::string, std::string> kCxxMethodRenames{
   {"UnqualifiedType", ""},
   {"PackExpansionPattern", ""},
 
+  {"BitWidthValue", ""},  // Already have `FieldDecl::BitWidth`.
+
   // These are all getters, normally with `get` prefix.
   {"TypeClass", "Kind"},
   {"TypeClassName", "KindName"},

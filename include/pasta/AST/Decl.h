@@ -1725,7 +1725,6 @@ class FieldDecl : public DeclaratorDecl {
   PASTA_DECLARE_DERIVED_OPERATORS(FieldDecl, ObjCAtDefsFieldDecl)
   PASTA_DECLARE_DERIVED_OPERATORS(FieldDecl, ObjCIvarDecl)
   std::optional<::pasta::Expr> BitWidth(void) const;
-  uint32_t BitWidthValue(void) const;
   ::pasta::FieldDecl CanonicalDeclaration(void) const;
   std::optional<::pasta::VariableArrayType> CapturedVLAType(void) const;
   uint32_t FieldIndex(void) const;

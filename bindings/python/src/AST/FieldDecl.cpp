@@ -20,7 +20,6 @@ namespace nb = nanobind;
 void RegisterFieldDecl(nb::module_ &m) {
   nb::class_<FieldDecl, DeclaratorDecl>(m, "FieldDecl")
     .def_prop_ro("bit_width", &FieldDecl::BitWidth)
-    .def_prop_ro("bit_width_value", &FieldDecl::BitWidthValue)
     .def_prop_ro("canonical_declaration", &FieldDecl::CanonicalDeclaration)
     .def_prop_ro("captured_vla_type", &FieldDecl::CapturedVLAType)
     .def_prop_ro("field_index", &FieldDecl::FieldIndex)

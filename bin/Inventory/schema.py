@@ -501,6 +501,15 @@ class StdSpanSchema(SequenceLikeSchema):
     return "std::span<{}>".format(self.element_type.cxx_name)
 
 
+class ConstStdSpanSchema(SequenceLikeSchema):
+  """Corresponds to a `std::span<T>`."""
+
+  @property
+  def cxx_value_name(self):
+    return "std::span<const {}>".format(self.element_type.cxx_name)
+
+
+
 class StdVectorSchema(SequenceLikeSchema):
   """Corresponds to a `std::vector<T>`."""
 

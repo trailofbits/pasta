@@ -321,7 +321,7 @@ class SchemaLifter:
       "std::function": self._lift_unsupported,
       "std::__optional_destruct_base::": self._lift_unsupported,
       "std::aligned_storage::type": self._lift_unsupported,
-      "std::span": self._make_1_parameter_lifter(StdSpanSchema),
+      "std::span": self._lift_std_span,
       "gap::generator": self._make_1_parameter_lifter(GapGeneratorSchema),
       "llvm::hash_code": self._lift_unsupported,
       "llvm::PointerUnion": self._lift_unsupported,  # TODO(pag): Adapt to variant.
@@ -954,6 +954,17 @@ class SchemaLifter:
     if isinstance(arg, (UnknownSchema, PointerLikeSchema, CStringSchema)):
       return self.unknown_schema
     return StdUniquePtrSchema(arg)
+
+  def _lift_std_span(self, tag: TagDecl) -> Schema:
+    arg = self._lift_nth_template_argument(tag, 0)
+    if isinstance(arg, (UnknownSchema, PointerLikeSchema, CStringSchema)):
+      return self.unknown_schema
+    tp = tag.type_for_declaration
+    tp_str = " ".join(str(tok) for tok in PrintedTokenRange.create(tp))
+    if "span<const" in tp_str.replace(" ", ""):
+      return ConstStdSpanSchema(arg)
+    else:
+      return StdSpanSchema(arg)
 
   def _lift_tag_type(self, tp: TagType) -> Schema:
     """Lift a `TagType` into a `Schema`. This tries to

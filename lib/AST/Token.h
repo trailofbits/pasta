@@ -280,8 +280,9 @@ class ParsedTokenStorage {
   BitPackedLocation CreateInitialMacroLocation(clang::SourceLocation loc);
   BitPackedLocation CreateMacroLocation(DerivedTokenIndex offset);
 
-  bool AddLeadingWhitespaceAndComments(BitPackedLocation floc);
-  void InventLeadingWhitespace(const clang::Token &tok);
+  bool AddLeadingWhitespaceAndComments(
+      BitPackedLocation floc, bool is_in_pragma);
+  void InventLeadingWhitespace(const clang::Token &tok, bool is_in_pragma);
 
  private:
   // Initialize this storage as an "invalid" storage.

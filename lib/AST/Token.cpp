@@ -1260,51 +1260,58 @@ void ParsedTokenStorage::AppendSplitTokens(
   for (auto i = 0u; i < num_splits; ++i) {
     kind.emplace_back(TokenKind::kUnknown);
     role.emplace_back(TokenRole::kInvalid);
-    is_in_pragma_directive.emplace_back(false);
+    is_in_pragma_directive.emplace_back(is_in_pragma);
     location.emplace_back(kInvalidBitPackedLocation);
     FinishToken();
   }
 }
 
-void ParsedTokenStorage::InventLeadingWhitespace(const clang::Token &tok) {
+void ParsedTokenStorage::InventLeadingWhitespace(const clang::Token &tok,
+                                                 bool is_in_pragma) {
   auto tk = tok.getKind();
-  if (!data.empty() && !IsSpace(data.back())) {
-    auto space = '\0';
-
-
-    if (tok.hasLeadingSpace() || tok.hasLeadingEmptyMacro()) {
-      space = ' ';
-    } else if (tok.isAtStartOfLine()) {
-      space = '\n';
-    } else if (clang::tok::isAnyIdentifier(tk) ||
-               clang::tok::getKeywordSpelling(tk)) {
-      space = ' ';
-
-    // NOTE(pag): If the prior token is a macro location, then we need to inject
-    //            some whitespace. The following situation from musl libc
-    //            motivates this:
-    //
-    //                    #define D(x) C((x+16))
-    //
-    //                    ... D(0xe) ...
-    //
-    //            This expands to `0xe+16`, which when re-lexed from our final
-    //            preprocessed file, is treated as an individual token. However,
-    //            in the normal stream of tokens, the `0xe` will be lexed as
-    //            a number and put into its own 
-    } else if (IsMacroLocation(location.back())) {
-      space = ' ';
-    }
-
-    if (space) {
-      data.push_back(space);
-      data_offset.back() += 1u;
-    }
+  if (data.empty() || IsSpace(data.back())) {
+    return;
   }
+
+  auto space = '\0';
+  if (tok.hasLeadingSpace() || tok.hasLeadingEmptyMacro()) {
+    space = ' ';
+  } else if (tok.isAtStartOfLine()) {
+    space = '\n';
+  } else if (clang::tok::isAnyIdentifier(tk) ||
+             clang::tok::getKeywordSpelling(tk)) {
+    space = ' ';
+
+  // NOTE(pag): If the prior token is a macro location, then we need to inject
+  //            some whitespace. The following situation from musl libc
+  //            motivates this:
+  //
+  //                    #define D(x) C((x+16))
+  //
+  //                    ... D(0xe) ...
+  //
+  //            This expands to `0xe+16`, which when re-lexed from our final
+  //            preprocessed file, is treated as an individual token. However,
+  //            in the normal stream of tokens, the `0xe` will be lexed as
+  //            a number and put into its own token.
+  } else if (IsMacroLocation(location.back())) {
+    space = ' ';
+  }
+
+  if (!space) {
+    return;
+  }
+
+  data.push_back(space);
+  kind.emplace_back(TokenKind::kUnknown);
+  role.emplace_back(TokenRole::kInvalid);
+  is_in_pragma_directive.emplace_back(is_in_pragma);
+  location.emplace_back(kInvalidBitPackedLocation);
+  FinishToken();
 }
 
 bool ParsedTokenStorage::AddLeadingWhitespaceAndComments(
-    BitPackedLocation floc) {
+    BitPackedLocation floc, bool is_in_pragma) {
 
   assert(this == &(ast->parsed_tokens));
 
@@ -1390,11 +1397,6 @@ bool ParsedTokenStorage::AddLeadingWhitespaceAndComments(
     }
   }
 
-  auto is_in_pragma = false;
-  if (this == &(ast->macro_tokens) && !is_in_pragma_directive.empty()) {
-    is_in_pragma = is_in_pragma_directive.back();
-  }
-
   // Inject in the whitespace and comments.
   for (; i < file_pair->second; ++i) {
     auto missing_floc =
@@ -1452,8 +1454,8 @@ void ParsedTokenStorage::AppendFileToken(
   TryAddPendingMarker();
 
   auto floc = CreateFileLocation(tok.getLocation());
-  if (!AddLeadingWhitespaceAndComments(floc)) {
-    InventLeadingWhitespace(tok);
+  if (!AddLeadingWhitespaceAndComments(floc, false)) {
+    InventLeadingWhitespace(tok, false);
   }
 
   auto kind_ = static_cast<TokenKind>(tok.getKind());
@@ -1468,6 +1470,7 @@ void ParsedTokenStorage::AppendFileToken(
   role.emplace_back(TokenRole::kFileToken);
   is_in_pragma_directive.emplace_back(false);
   location.emplace_back(floc);
+
   FinishToken();
 }
 
@@ -1482,13 +1485,13 @@ void ParsedTokenStorage::AppendMacroToken(const clang::Token &tok) {
   assert(static_cast<TokenKind>(tok.getKind()) == macro_tokens.kind.back());
 #endif
 
-  InventLeadingWhitespace(tok);
+  auto is_in_pragma = macro_tokens.is_in_pragma_directive.back();
+  InventLeadingWhitespace(tok, is_in_pragma);
 
   auto macro_token_offset = static_cast<DerivedTokenIndex>(
       macro_tokens.role.size() - 1u);
   auto mloc = CreateMacroLocation(macro_token_offset);
   auto kind_ = macro_tokens.Kind(macro_token_offset);
-  auto is_in_pragma = macro_tokens.is_in_pragma_directive.back();
 
   AppendSplitTokens(mloc, kind_, is_in_pragma);
 
@@ -1503,7 +1506,12 @@ void ParsedTokenStorage::AppendMacroToken(const clang::Token &tok) {
   location.emplace_back(mloc);
 
   auto tok_data = macro_tokens.Data(macro_token_offset);
+
+  assert(0u < tok_data.size());
+  assert(!IsSpace(tok_data.front()));
+
   data.insert(data.end(), tok_data.begin(), tok_data.end());
+
   FinishToken();
 }
 
@@ -1571,7 +1579,7 @@ void ParsedTokenStorage::AppendMarkerToken(
     assert(last_expansion_begin_offset.has_value());
 
   } else if (role_ == TokenRole::kEndOfFileMarker) {
-    (void) AddLeadingWhitespaceAndComments(floc);
+    (void) AddLeadingWhitespaceAndComments(floc, false);
   }
 
   data.push_back('\n');
@@ -1701,6 +1709,7 @@ DerivedTokenIndex MacroTokenStorage::AppendMacroToken(
     DerivedTokenIndex macro_token_offset_) {
 
   auto loc = tok.getLocation();
+  bool is_in_pragma = 0 != pragma_depth;
 
   assert(last_expansion_begin_offset.has_value());
   auto offset = static_cast<DerivedTokenIndex>(kind.size());
@@ -1708,7 +1717,7 @@ DerivedTokenIndex MacroTokenStorage::AppendMacroToken(
     auto &parsed_tokens = ast->parsed_tokens;
     if (loc.isFileID()) {
       (void) parsed_tokens.AddLeadingWhitespaceAndComments(
-          CreateFileLocation(loc));
+          CreateFileLocation(loc), is_in_pragma);
     }
     parsed_tokens.last_expansion_begin_offset = static_cast<unsigned>(
         parsed_tokens.role.size());
@@ -1721,10 +1730,13 @@ DerivedTokenIndex MacroTokenStorage::AppendMacroToken(
     kind_ = clang::tok::identifier;
   }
 
+  assert(0u < tok_data.size());
+  assert(!IsSpace(tok_data.front()));
+
   data.insert(data.end(), tok_data.begin(), tok_data.end());
   kind.emplace_back(static_cast<TokenKind>(kind_));
   role.emplace_back(role_);
-  is_in_pragma_directive.emplace_back(0 != pragma_depth);
+  is_in_pragma_directive.emplace_back(is_in_pragma);
   macro_token_offset.emplace_back(macro_token_offset_);
   next_is_begin_expansion = false;
   location.emplace_back(CreateInitialMacroLocation(loc));

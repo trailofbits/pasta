@@ -118,6 +118,8 @@ PASTA_FOR_EACH_MACRO_IMPL(PASTA_IGNORE,
     .def_prop_ro("num_explicit_parameters", &DefineMacroDirective::NumExplicitParameters)
     .def_prop_ro("is_variadic", &DefineMacroDirective::IsVariadic)
     .def_prop_ro("is_function_like", &DefineMacroDirective::IsFunctionLike)
+    .def_prop_ro("is_builtin", &DefineMacroDirective::IsBuiltin)
+    .def_prop_ro("is_command_linw", &DefineMacroDirective::IsCommandLine)
     .def_prop_ro("parameters", &DefineMacroDirective::Parameters);
 
   nb::class_<MacroArgument, Macro>(m, "MacroArgument")

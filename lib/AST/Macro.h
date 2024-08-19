@@ -136,6 +136,9 @@ class MacroDirectiveImpl final : public MacroNodeImpl {
   // missing tokens when we come accross an EOD.
   bool collected_missing_tokens_on_eod{false};
 
+  // Is this macro defined on the command-line?
+  bool is_command_line{false};
+
   // Return the offset of the marker token.
   DerivedTokenIndex marker_token_offset{~0u};
 };

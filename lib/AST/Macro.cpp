@@ -22,6 +22,7 @@
 #include <clang/Frontend/CompilerInstance.h>
 #include <clang/Lex/Lexer.h>
 #include <clang/Lex/MacroInfo.h>
+#include <clang/Lex/Preprocessor.h>
 #include <clang/Lex/Token.h>
 #pragma GCC diagnostic pop
 
@@ -895,6 +896,36 @@ bool DefineMacroDirective::IsFunctionLike(void) const noexcept {
   }
   assert(false);
   return 0u;
+}
+
+// Is this a builtin macro? Builtin macros are defined in the compiler macro
+// preamble.
+bool DefineMacroDirective::IsBuiltin(void) const noexcept {
+  Node node = *reinterpret_cast<const Node *>(impl);
+  MacroNodeImpl *node_impl = std::get<MacroNodeImpl *>(node);
+  MacroDirectiveImpl *dir_impl = dynamic_cast<MacroDirectiveImpl *>(node_impl);
+  if (!dir_impl->defined_macro) {
+    assert(false);
+    return false;
+  }
+
+  if (dir_impl->is_command_line) {
+    return false;
+  }
+
+  const auto &ci = *ast->ci.get();
+  const auto &sm = ci.getSourceManager();
+  auto file_id = ast->orig_source_pp->getPredefinesFileID();
+  auto def_loc = dir_impl->defined_macro->getDefinitionLoc();
+  return file_id == sm.getDecomposedLoc(def_loc).first;
+}
+
+// Is this defined at the command-line?
+bool DefineMacroDirective::IsCommandLine(void) const noexcept {
+    Node node = *reinterpret_cast<const Node *>(impl);
+  MacroNodeImpl *node_impl = std::get<MacroNodeImpl *>(node);
+  MacroDirectiveImpl *dir_impl = dynamic_cast<MacroDirectiveImpl *>(node_impl);
+  return dir_impl->is_command_line;
 }
 
 // Does this definition accept a variable number of arguments?

@@ -1052,6 +1052,7 @@ void PatchedMacroTracker::DoBeginDirective(
   ast->marker_offset_to_macro.emplace(
       ast->parsed_tokens.last_expansion_begin_offset.value(), directive);
 
+  directive->is_command_line = in_command_line;
   directive->parsed_begin_index 
       = ast->parsed_tokens.last_expansion_begin_offset.value();
 }
@@ -2815,6 +2816,22 @@ void PatchedMacroTracker::InclusionDirective(
 void PatchedMacroTracker::FileChanged(
     clang::SourceLocation loc, clang::PPCallbacks::FileChangeReason reason,
     clang::SrcMgr::CharacteristicKind file_type, clang::FileID file_id) {
+
+  // Clang has a really annoying way of managing command-line defined macros.
+  // Instead of associated a specific `FileID` with them, it shoves them in
+  // as an implicit include into the predefines file ID using file change
+  // directives.
+  if (reason == clang::PPCallbacks::EnterFile) {
+    if (auto user_loc = sm.getPresumedLoc(loc); user_loc.isValid()) {
+      if (user_loc.getFilename() == llvm::StringRef("<command line>")) {
+        assert(!in_command_line);
+        in_command_line = true;
+      }
+    }
+
+  } else if (reason == clang::PPCallbacks::ExitFile && in_command_line) {
+    in_command_line = false;
+  }
 
   // Save off the Clang's current state of the `__COUNTER__` macro back to
   // be associated with the last `__COUNTER__` value associated with that

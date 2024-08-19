@@ -381,6 +381,13 @@ class DefineMacroDirective final : public MacroDirective {
   // arguments when used.
   bool IsFunctionLike(void) const noexcept;
 
+  // Is this a builtin macro? Builtin macros are defined in the compiler macro
+  // preamble.
+  bool IsBuiltin(void) const noexcept;
+
+  // Is this defined at the command-line?
+  bool IsCommandLine(void) const noexcept;
+
   // Parameters of this macro definition.
   MacroRange Parameters(void) const noexcept;
 };

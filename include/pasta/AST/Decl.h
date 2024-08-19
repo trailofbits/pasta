@@ -2996,7 +2996,7 @@ class CXXRecordDecl : public RecordDecl {
   std::optional<::pasta::FunctionTemplateDecl> DependentLambdaCallOperator(void) const;
   std::optional<::pasta::ClassTemplateDecl> DescribedClassTemplate(void) const;
   std::optional<::pasta::CXXDestructorDecl> Destructor(void) const;
-  uint32_t DeviceLambdaManglingNumber(void) const;
+  std::optional<uint32_t> DeviceLambdaManglingNumber(void) const;
   std::optional<::pasta::TemplateParameterList> GenericLambdaTemplateParameterList(void) const;
   std::optional<::pasta::CXXRecordDecl> InstantiatedFromMemberClass(void) const;
   std::optional<::pasta::CXXMethodDecl> LambdaCallOperator(void) const;
@@ -3004,7 +3004,7 @@ class CXXRecordDecl : public RecordDecl {
   std::optional<::pasta::Decl> LambdaContextDeclaration(void) const;
   uint32_t LambdaDependencyKind(void) const;
   std::optional<std::vector<::pasta::NamedDecl>> LambdaExplicitTemplateParameters(void) const;
-  uint32_t LambdaIndexInContext(void) const;
+  std::optional<uint32_t> LambdaIndexInContext(void) const;
   std::optional<uint32_t> LambdaManglingNumber(void) const;
   // LambdaNumbering: (clang::CXXRecordDecl::LambdaNumbering)
   std::optional<::pasta::CXXMethodDecl> LambdaStaticInvoker(void) const;

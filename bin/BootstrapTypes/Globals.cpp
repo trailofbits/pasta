@@ -1712,6 +1712,14 @@ std::map<std::pair<std::string, std::string>, std::string> kConditionalNullptr{
   {{"CXXRecordDecl", "NeedsOverloadResolutionForDestructor"}, SELF_IS_DEFINITION},
   {{"CXXRecordDecl", "NeedsOverloadResolutionForMoveAssignment"}, SELF_IS_DEFINITION},
   {{"CXXRecordDecl", "NeedsOverloadResolutionForMoveConstructor"}, SELF_IS_DEFINITION},
+  {{"CXXRecordDecl", "DeviceLambdaManglingNumber"},
+   "  if (!self.isLambda()) {\n"
+   "    return std::nullopt;\n"
+   "  }\n"},
+  {{"CXXRecordDecl", "LambdaIndexInContext"},
+   "  if (!self.isLambda()) {\n"
+   "    return std::nullopt;\n"
+   "  }\n"},
 
   {{"NamedDecl", "ObjCFStringFormattingFamily"},
    "  if (!self.getIdentifier()) {\n"

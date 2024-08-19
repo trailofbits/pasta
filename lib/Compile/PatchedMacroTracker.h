@@ -80,6 +80,7 @@ class PatchedMacroTracker : public clang::PPCallbacks {
   std::vector<std::string> tok_data_vec;
   size_t next_tok_data{0};
 
+  bool in_command_line{false};
 
   std::vector<MacroNodeImpl *> popped_nodes;
 

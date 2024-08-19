@@ -8754,8 +8754,11 @@ std::optional<::pasta::CXXDestructorDecl> CXXRecordDecl::Destructor(void) const 
   }
 }
 
-uint32_t CXXRecordDecl::DeviceLambdaManglingNumber(void) const {
+std::optional<uint32_t> CXXRecordDecl::DeviceLambdaManglingNumber(void) const {
   auto &self = *const_cast<clang::CXXRecordDecl *>(u.CXXRecordDecl);
+  if (!self.isLambda()) {
+    return std::nullopt;
+  }
   decltype(auto) val = self.getDeviceLambdaManglingNumber();
   return val;
 }
@@ -8841,8 +8844,11 @@ std::optional<std::vector<::pasta::NamedDecl>> CXXRecordDecl::LambdaExplicitTemp
   return ret;
 }
 
-uint32_t CXXRecordDecl::LambdaIndexInContext(void) const {
+std::optional<uint32_t> CXXRecordDecl::LambdaIndexInContext(void) const {
   auto &self = *const_cast<clang::CXXRecordDecl *>(u.CXXRecordDecl);
+  if (!self.isLambda()) {
+    return std::nullopt;
+  }
   decltype(auto) val = self.getLambdaIndexInContext();
   return val;
 }

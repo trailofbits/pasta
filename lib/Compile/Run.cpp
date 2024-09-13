@@ -142,11 +142,7 @@ Result<AST, std::string> CompileJob::Run(void) const {
   const ArgumentVector &argv = Arguments();
   llvm::ArrayRef<const char *> argv_arr(argv.Argv(), argv.Size());
 
-#ifdef PASTA_LLVM_18
   clang::LangOptions &lang_opts = invocation.getLangOpts();
-#else
-  clang::LangOptions &lang_opts = *invocation.getLangOpts();
-#endif
 
   // NOTE(pag): Don't default enable `HasLegalHalfType`, as some local variables
   //            might be named `half`. 
@@ -322,7 +318,7 @@ Result<AST, std::string> CompileJob::Run(void) const {
   // converting them into annotation attributes.
   lang_opts.UnknownAttrAnnotate = true;
 
-  // This is a path that makes attributed types store their attributes.
+  // This is a patch that makes attributed types store their attributes.
   lang_opts.AttrTypesHaveAttrs = true;
 
   // Don't try to produce recovery expressions or types.
@@ -332,8 +328,6 @@ Result<AST, std::string> CompileJob::Run(void) const {
   // Affects `PPCallbacks`, and also does additional parsing of things in
   // Objective-C mode, e.g. parsing module imports.
   lang_opts.DebuggerSupport = true;
-
-  // TODO(pag): Should pragmas be ignored?
 
   // Enable C++-style comments, even in C code. If we don't do this, then we
   // can observe two tokens for something like `// foo` in C code, one is a

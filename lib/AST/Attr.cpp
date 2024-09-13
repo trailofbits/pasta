@@ -8703,8 +8703,11 @@ AlignedAttr::AlignedAttr(
 PASTA_DEFINE_BASE_OPERATORS(Attr, AlignedAttr)
 PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, AlignedAttr)
 // 1: AlignedAttr::Clone
-uint32_t AlignedAttr::Alignment(void) const {
+std::optional<uint32_t> AlignedAttr::Alignment(void) const {
   auto &self = *(u.AlignedAttr);
+  if (!self.isAlignmentExpr()) {
+    return std::nullopt;
+  }
   decltype(auto) val = self.getAlignment(ast->ci->getASTContext());
   return val;
 }

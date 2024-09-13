@@ -5446,7 +5446,7 @@ class AlignedAttr : public InheritableAttr {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(AlignedAttr)
   PASTA_DECLARE_BASE_OPERATORS(Attr, AlignedAttr)
   PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, AlignedAttr)
-  uint32_t Alignment(void) const;
+  std::optional<uint32_t> Alignment(void) const;
   std::optional<::pasta::Expr> AlignmentExpression(void) const;
   std::optional<::pasta::Type> AlignmentType(void) const;
   std::optional<unsigned> CachedAlignmentValue(void) const;

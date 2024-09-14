@@ -1277,7 +1277,7 @@ std::map<std::pair<std::string, std::string>, std::string> kConditionalNullptr{
    "    return std::nullopt;\n"
    "  }\n"},
   {{"AlignedAttr", "Alignment"},
-   "  if (!self.isAlignmentExpr()) {\n"
+   "  if (self.isAlignmentDependent()) {\n"
    "    return std::nullopt;\n"
    "  }\n"},
   {{"CXXPseudoDestructorExpr", "ScopeType"},

@@ -8705,7 +8705,7 @@ PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, AlignedAttr)
 // 1: AlignedAttr::Clone
 std::optional<uint32_t> AlignedAttr::Alignment(void) const {
   auto &self = *(u.AlignedAttr);
-  if (!self.isAlignmentExpr()) {
+  if (self.isAlignmentDependent()) {
     return std::nullopt;
   }
   decltype(auto) val = self.getAlignment(ast->ci->getASTContext());

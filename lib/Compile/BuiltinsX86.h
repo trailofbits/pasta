@@ -1,3 +1,9 @@
+/*
+ * Copyright (c) 2023, Trail of Bits, Inc.
+ *
+ * This source code is licensed in accordance with the terms specified in
+ * the LICENSE file found in the root directory of this source tree.
+ */
 //===--- BuiltinsX86.def - X86 Builtin function database --------*- C++ -*-===//
 //
 //                     The LLVM Compiler Infrastructure

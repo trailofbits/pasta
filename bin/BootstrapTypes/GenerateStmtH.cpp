@@ -1,5 +1,8 @@
 /*
- * Copyright (c) 2021 Trail of Bits, Inc.
+ * Copyright (c) 2021, Trail of Bits, Inc.
+ *
+ * This source code is licensed in accordance with the terms specified in
+ * the LICENSE file found in the root directory of this source tree.
  */
 
 #include <fstream>
@@ -18,7 +21,10 @@ void GenerateStmtH(void) {
   std::ofstream os(kASTStmtHeader);
   os
       << "/*\n"
-      << " * Copyright (c) 2022 Trail of Bits, Inc.\n"
+      << " * Copyright (c) 2022, Trail of Bits, Inc.\n"
+      << " *\n"
+      << " * This source code is licensed in accordance with the terms specified in\n"
+      << " * the LICENSE file found in the root directory of this source tree.\n"
       << " */\n\n"
       << "// This file is auto-generated.\n\n"
       << "#pragma once\n\n"

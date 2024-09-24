@@ -1,3 +1,9 @@
+/*
+ * Copyright (c) 2021, Trail of Bits, Inc.
+ *
+ * This source code is licensed in accordance with the terms specified in
+ * the LICENSE file found in the root directory of this source tree.
+ */
 //===--- DeclPrinter.cpp - Printing implementation for Decl ASTs ----------===//
 //
 // Part of the LLVM Project, under the Apache License v2.0 with LLVM Exceptions.

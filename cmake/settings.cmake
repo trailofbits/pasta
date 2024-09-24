@@ -1,3 +1,9 @@
+#
+# Copyright (c) 2020, Trail of Bits, Inc.
+# 
+# This source code is licensed in accordance with the terms specified in
+# the LICENSE file found in the root directory of this source tree.
+#
 
 # This is only executed once; use a macro (and not a function) so that
 # everything defined here does not end up in a separate namespace

@@ -1,7 +1,10 @@
 #!/usr/bin/env python3
 
 #
-# Copyright (c) 2023 Trail of Bits, Inc.
+# Copyright (c) 2023, Trail of Bits, Inc.
+# 
+# This source code is licensed in accordance with the terms specified in
+# the LICENSE file found in the root directory of this source tree.
 #
 
 from pypasta import *

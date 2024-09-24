@@ -1,5 +1,8 @@
 /*
- * Copyright (c) 2021 Trail of Bits, Inc.
+ * Copyright (c) 2021, Trail of Bits, Inc.
+ *
+ * This source code is licensed in accordance with the terms specified in
+ * the LICENSE file found in the root directory of this source tree.
  */
 
 #include <fstream>
@@ -22,7 +25,10 @@ void GenerateDeclCpp(std::ostream &py_cmake, std::ostream &py_ast) {
 
   os
       << "/*\n"
-      << " * Copyright (c) 2022 Trail of Bits, Inc.\n"
+      << " * Copyright (c) 2022, Trail of Bits, Inc.\n"
+      << " *\n"
+      << " * This source code is licensed in accordance with the terms specified in\n"
+      << " * the LICENSE file found in the root directory of this source tree.\n"
       << " */\n\n"
       << "// This file is auto-generated.\n\n"
       << "#define PASTA_IN_DECL_CPP\n"
@@ -209,7 +215,10 @@ void GenerateDeclCpp(std::ostream &py_cmake, std::ostream &py_ast) {
   
     std::ofstream decl_context_os(std::string(kPythonBindingsPath) + "/DeclContext.cpp");
     decl_context_os << R"(/*
- * Copyright (c) 2023 Trail of Bits, Inc.
+ * Copyright (c) 2023, Trail of Bits, Inc.
+ *
+ * This source code is licensed in accordance with the terms specified in
+ * the LICENSE file found in the root directory of this source tree.
  */
 
 // This file is auto-generated.

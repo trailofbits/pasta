@@ -1,3 +1,9 @@
+/*
+ * Copyright (c) 2023, Trail of Bits, Inc.
+ *
+ * This source code is licensed in accordance with the terms specified in
+ * the LICENSE file found in the root directory of this source tree.
+ */
 
 // From: https://android.googlesource.com/platform//prebuilts/clang/host/linux-x86/+/b669748458572622ed716407611633c5415da25c/clang-r416183d/include/clang/Basic/arm_neon.inc
 

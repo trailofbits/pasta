@@ -1,4 +1,10 @@
 /*
+ * Copyright (c) 2021, Trail of Bits, Inc.
+ *
+ * This source code is licensed in accordance with the terms specified in
+ * the LICENSE file found in the root directory of this source tree.
+ */
+/*
  * Adapted from https://stackoverflow.com/a/53365539
  */
 

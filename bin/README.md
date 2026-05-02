@@ -4,13 +4,7 @@ PASTA's wrapper API is regenerated from Clang headers in two stages. This docume
 
 ## TL;DR
 
-From a configured build directory:
-
-```sh
-ninja && ./bootstrap-macros && ninja && ./bootstrap-types && ninja
-```
-
-You need a build configured with both bootstrap flags enabled:
+Configure the build with both bootstrap flags enabled (this disables installs — see `cmake/options.cmake:20` — bootstrap builds are developer-only):
 
 ```sh
 cmake -GNinja \
@@ -20,7 +14,23 @@ cmake -GNinja \
   ../pasta
 ```
 
-Note: enabling either bootstrap flag disables installs (see `cmake/options.cmake:20`). Bootstrap builds are developer-only.
+Then run the bootstrap script:
+
+```sh
+../pasta/scripts/bootstrap                # from your build directory
+../pasta/scripts/bootstrap --check        # also verify regenerated files match the checked-in copies
+../pasta/scripts/bootstrap --build-dir <path> [--clean] [--check]
+```
+
+Or run the loop manually using **explicit binary paths** (the binaries land at their CMake source-mirror locations, not in the build root):
+
+```sh
+ninja
+./bin/BootstrapMacros/bootstrap-macros
+ninja
+./bin/BootstrapTypes/bootstrap-types
+ninja
+```
 
 ## Stages
 

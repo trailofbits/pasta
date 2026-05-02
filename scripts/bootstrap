@@ -1,0 +1,137 @@
+#!/usr/bin/env bash
+#
+# Copyright (c) 2026, Trail of Bits, Inc.
+#
+# This source code is licensed in accordance with the terms specified in
+# the LICENSE file found in the root directory of this source tree.
+#
+# Run the two-stage PASTA bootstrap with scoped ninja invocations.
+#
+# Usage:
+#   scripts/bootstrap [--build-dir <path>] [--clean] [--check]
+#
+#   --build-dir <path>  Configured pasta build directory (default: $PWD).
+#                       Must have CMakeCache.txt with both
+#                       PASTA_BOOTSTRAP_MACROS=ON and PASTA_BOOTSTRAP_TYPES=ON.
+#   --clean             Run `ninja -t clean` before bootstrapping.
+#   --check             After bootstrapping, diff the regenerated files
+#                       against a snapshot taken before the run. Exits
+#                       non-zero if any byte changed. Use this to verify
+#                       bootstrap-determinism (refactor steps must pass it).
+
+set -euo pipefail
+
+build_dir="$PWD"
+clean=0
+check=0
+
+die() { echo "bootstrap: $*" >&2; exit 1; }
+
+while (($#)); do
+  case "$1" in
+    --build-dir)  build_dir="${2:?--build-dir requires a path}"; shift 2 ;;
+    --clean)      clean=1; shift ;;
+    --check)      check=1; shift ;;
+    -h|--help)    sed -n '/^# Usage:/,/^$/ s/^# \{0,1\}//p' "$0"; exit 0 ;;
+    *)            die "unknown argument: $1 (try --help)" ;;
+  esac
+done
+
+# Resolve repo root from this script's location: <repo>/scripts/bootstrap.
+script_path="$(cd "$(dirname "$0")" && pwd)/$(basename "$0")"
+repo_root="$(cd "$(dirname "$script_path")/.." && pwd)"
+
+# Sanity-check the build dir.
+[[ -f "$build_dir/CMakeCache.txt" ]] \
+  || die "no CMakeCache.txt in $build_dir; pass --build-dir or cd to the build tree"
+grep -q '^PASTA_BOOTSTRAP_MACROS:.*=ON$'  "$build_dir/CMakeCache.txt" \
+  || die "configure with -DPASTA_BOOTSTRAP_MACROS=ON"
+grep -q '^PASTA_BOOTSTRAP_TYPES:.*=ON$'   "$build_dir/CMakeCache.txt" \
+  || die "configure with -DPASTA_BOOTSTRAP_TYPES=ON"
+command -v ninja >/dev/null || die "ninja not on PATH"
+
+stage1_bin="$build_dir/bin/BootstrapMacros/bootstrap-macros"
+stage2_bin="$build_dir/bin/BootstrapTypes/bootstrap-types"
+
+# Generated artifacts that the bootstrap regenerates. Used by --check.
+artifact_paths=(
+  "include/pasta/AST/Forward.h"
+  "include/pasta/AST/Decl.h"
+  "include/pasta/AST/Stmt.h"
+  "include/pasta/AST/Type.h"
+  "include/pasta/AST/Attr.h"
+  "lib/AST/Decl.cpp"
+  "lib/AST/Stmt.cpp"
+  "lib/AST/Type.cpp"
+  "lib/AST/Attr.cpp"
+  "bin/BootstrapTypes/Generated.h"
+  "bindings/python/src/AST/Enums.cpp"
+  "bindings/python/src/AST/AST.cpp"
+  "bindings/python/src/AST/CMakeLists.txt"
+)
+
+baseline=""
+if [[ "$check" == 1 ]]; then
+  baseline="$(mktemp -d -t pasta-bootstrap-baseline.XXXXXX)"
+  trap 'rm -rf "$baseline"' EXIT
+  for p in "${artifact_paths[@]}"; do
+    src="$repo_root/$p"
+    [[ -e "$src" ]] || continue
+    mkdir -p "$baseline/$(dirname "$p")"
+    cp -p "$src" "$baseline/$p"
+  done
+  # The python AST per-class binding files are generated too; snapshot them all.
+  py_dir="$repo_root/bindings/python/src/AST"
+  if [[ -d "$py_dir" ]]; then
+    mkdir -p "$baseline/bindings/python/src/AST.full"
+    cp -pR "$py_dir/." "$baseline/bindings/python/src/AST.full/"
+  fi
+fi
+
+if [[ "$clean" == 1 ]]; then
+  echo ">>> ninja -t clean"
+  ninja -C "$build_dir" -t clean
+fi
+
+echo ">>> stage 1: build bootstrap-macros"
+ninja -C "$build_dir" bootstrap-macros
+
+echo ">>> stage 1: run $stage1_bin"
+"$stage1_bin"
+
+echo ">>> stage 2: build bootstrap-types"
+ninja -C "$build_dir" bootstrap-types
+
+echo ">>> stage 2: run $stage2_bin"
+"$stage2_bin"
+
+echo ">>> stage 3: build the rest of pasta against the regenerated wrappers"
+ninja -C "$build_dir"
+
+if [[ "$check" == 1 ]]; then
+  echo ">>> --check: diff regenerated artifacts against pre-run snapshot"
+  divergences=0
+  for p in "${artifact_paths[@]}"; do
+    src="$repo_root/$p"
+    base="$baseline/$p"
+    [[ -e "$src" || -e "$base" ]] || continue
+    if ! diff -u "$base" "$src" >/dev/null 2>&1; then
+      echo "CHANGED: $p"
+      diff -u "$base" "$src" || true
+      divergences=$((divergences + 1))
+    fi
+  done
+  py_dir="$repo_root/bindings/python/src/AST"
+  if [[ -d "$py_dir" && -d "$baseline/bindings/python/src/AST.full" ]]; then
+    if ! diff -rq "$baseline/bindings/python/src/AST.full" "$py_dir" >/dev/null 2>&1; then
+      echo "CHANGED: bindings/python/src/AST/ (per-class binding files)"
+      diff -rq "$baseline/bindings/python/src/AST.full" "$py_dir" || true
+      divergences=$((divergences + 1))
+    fi
+  fi
+  if (( divergences > 0 )); then
+    echo ">>> --check FAILED ($divergences divergence(s))" >&2
+    exit 1
+  fi
+  echo ">>> --check passed: bootstrap is deterministic on this tree"
+fi

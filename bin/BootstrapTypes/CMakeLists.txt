@@ -7,6 +7,7 @@
 
 add_executable(bootstrap-types
     "Generated.h"
+    "MethodMetadata.h"
     "DefineDefaultMacros.h"
     "UndefineDefaultMacros.h"
     "Main.cpp"

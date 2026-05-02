@@ -105,6 +105,30 @@ PASTA_END_CLASS_NAMED_ENUM(cls, enum_name)
 
 Used for enums declared inside a Clang class (e.g. `AArch64SVEPcsAttr::Spelling`). Multiple `PASTA_BEGIN_CLASS_NAMED_ENUM` blocks may appear within a single `PASTA_BEGIN_CLASS_ENUMS` (e.g. `ARMInterruptAttr` declares both `InterruptType` and `Spelling`).
 
+## Sibling artifact: `MethodMetadata.h`
+
+Stage 1 (`bootstrap-macros`) emits a sibling X-macro file `bin/BootstrapTypes/MethodMetadata.h` parallel to `Generated.h`. It carries one entry per method already covered by `PASTA_INSTANCE_METHOD_*` / `PASTA_OVERRIDE_METHOD_*` and is consumed by the metadata-curation tooling (the planned `/pasta:curate-metadata` skill — Steps 13–15 of plan `snug-floating-finch`).
+
+```c
+PASTA_METHOD_METADATA(
+    cls,                        // matches Generated.h's owning class
+    meth_id,                    // matches Generated.h's per-class method id
+    meth,                       // matches Generated.h's method name
+    (return_type),              // canonical return type, parenthesized
+    is_inline,                  // 0 or 1
+    has_deprecated,             // 1 if [[deprecated]] / [[unavailable]]
+    has_hidden_visibility,      // 1 if hidden-visibility attribute
+    body_classification,        // SAFE | UNCONDITIONAL_ASSERT | CONDITIONAL_ASSERT | UNKNOWN
+    "crash_predicate",          // for CONDITIONAL_ASSERT: guard expr text; "" otherwise
+    "doxygen_text")             // raw doxygen comment, escaped as a C string literal
+```
+
+The `(meth_id, meth)` tuple is the join key into `Generated.h`. Consumers walk `Generated.h` and `MethodMetadata.h` in lockstep.
+
+In the current LLVM 18 bootstrap, `body_classification` is always `UNKNOWN` and `crash_predicate` is always `""` — these fields are reserved for the body classifier (10b in plan). The other fields are populated.
+
+`MethodMetadata.h` follows the same default-macros pattern: a top-of-file `#include "DefineDefaultMacros.h"` (which provides a no-op default for `PASTA_METHOD_METADATA`) and a bottom `#include "UndefineDefaultMacros.h"`.
+
 ## Free named enums (file-level)
 
 After the class blocks:

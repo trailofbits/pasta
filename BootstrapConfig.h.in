@@ -20,6 +20,8 @@ static const char *kInstallIncludePath = "@CMAKE_INSTALL_PREFIX@/include";
 
 static const char *kClangMacroHeader = "@PASTA_BIN_BOOTSTRAP_TYPES_GENERATED_H_PATH@";
 
+static const char *kClangMethodMetadataHeader = "@PASTA_BIN_BOOTSTRAP_TYPES_METHOD_METADATA_H_PATH@";
+
 static const char *kASTForwardHeader = "@PASTA_INCLUDE_AST_FORWARD_H_PATH@";
 
 static const char *kASTDeclHeader = "@PASTA_INCLUDE_AST_DECL_H_PATH@";

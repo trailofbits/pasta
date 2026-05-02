@@ -180,3 +180,14 @@
 #ifndef PASTA_END_CLASS_NAMED_ENUM
 # define PASTA_END_CLASS_NAMED_ENUM(class_name, name)
 #endif
+
+// Per-method metadata emitted into MethodMetadata.h. Parallel to
+// PASTA_INSTANCE_METHOD_* / PASTA_OVERRIDE_METHOD_* in Generated.h: same
+// (class, meth_id, meth) triple as the matching method declaration. Defaults
+// to a no-op so consumers can include MethodMetadata.h alongside Generated.h
+// without redefining anything they don't care about.
+#ifndef PASTA_METHOD_METADATA
+# define PASTA_METHOD_METADATA(class_name, meth_id, method_name, return_type, \
+                               is_inline, has_deprecated, has_hidden_visibility, \
+                               body_classification, crash_predicate, doxygen_text)
+#endif

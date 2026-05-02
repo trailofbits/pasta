@@ -6,112 +6,65 @@
  */
 
 #include <ostream>
+#include <sstream>
 #include <string>
+#include <vector>
 
 #include "Globals.h"
 #include "Util.h"
 
-// Adds mappings that translate between pointers to clang Decl types and PASTA
-// Decl types.
-void MapDeclRetTypes(void) {
-  for (const auto &name : gDeclNames) {
-    std::stringstream ss;
-    ss << "(clang::" << name << " *)";
-    gRetTypeMap.emplace(ss.str(), "::pasta::" + name);
+namespace {
 
-    std::stringstream rvs;
-    rvs
-        << "  if (val) {\n"
-        << "    return DeclBuilder::Create<::pasta::" << name << ">(ast, val);\n"
-        << "  }\n";
-    gRetTypeToValMap[ss.str()] = rvs.str();
+struct CategoryRetType {
+  const std::vector<std::string> *names;
+  const char *builder_class;
+  // Today's MapTypeRetTypes / MapAttrRetTypes write a separate (textually
+  // identical) snippet for the const-pointer variant; MapDeclRetTypes /
+  // MapStmtRetTypes reuse the same snippet. We preserve that distinction here
+  // to keep gRetTypeToValMap byte-identical to pre-refactor output.
+  bool separate_const_variant;
+};
 
-    std::stringstream ss2;
-    ss2 << "(const clang::" << name << " *)";
+const CategoryRetType kCategoryRetTypes[] = {
+  {&gDeclNames, "DeclBuilder", false},
+  {&gStmtNames, "StmtBuilder", false},
+  {&gTypeNames, "TypeBuilder", true},
+  {&gAttrNames, "AttrBuilder", true},
+};
 
-    gRetTypeMap.emplace(ss2.str(), "::pasta::" + name);
-    gRetTypeToValMap[ss2.str()] = rvs.str();
-  }
+std::string BuilderSnippet(const char *builder_class, const std::string &name) {
+  std::stringstream ss;
+  ss << "  if (val) {\n"
+     << "    return " << builder_class << "::Create<::pasta::" << name
+     << ">(ast, val);\n"
+     << "  }\n";
+  return ss.str();
 }
 
-// Adds mappings that translate between pointers to clang Stmt types and PASTA
-// Stmt types.
-void MapStmtRetTypes(void) {
-  for (const auto &name : gStmtNames) {
-    std::stringstream ss;
-    ss << "(clang::" << name << " *)";
-    gRetTypeMap.emplace(ss.str(), "::pasta::" + name);
+}  // namespace
 
-    std::stringstream rvs;
-    rvs
-        << "  if (val) {\n"
-        << "    return StmtBuilder::Create<::pasta::" << name << ">(ast, val);\n"
-        << "  }\n";
-    gRetTypeToValMap[ss.str()] = rvs.str();
+// Adds mappings that translate between pointers to clang AST types and PASTA
+// wrapper types, for every wrapper category.
+void MapAllRetTypes(void) {
+  for (const auto &cat : kCategoryRetTypes) {
+    for (const auto &name : *cat.names) {
+      std::stringstream key;
+      key << "(clang::" << name << " *)";
+      auto rvs = BuilderSnippet(cat.builder_class, name);
+      gRetTypeMap.emplace(key.str(), "::pasta::" + name);
+      gRetTypeToValMap[key.str()] = rvs;
 
-    std::stringstream ss2;
-    ss2 << "(const clang::" << name << " *)";
-
-    gRetTypeMap.emplace(ss2.str(), "::pasta::" + name);
-    gRetTypeToValMap[ss2.str()] = rvs.str();
-  }
-}
-
-// Adds mappings that translate between pointers to clang Type types and PASTA
-// Type types.
-void MapTypeRetTypes(void) {
-  for (const auto &name : gTypeNames) {
-    std::stringstream ss;
-    ss << "(clang::" << name << " *)";
-    gRetTypeMap.emplace(ss.str(), "::pasta::" + name);
-
-    std::stringstream rvs;
-    rvs
-        << "  if (val) {\n"
-        << "    return TypeBuilder::Create<::pasta::" << name << ">(ast, val);\n"
-        << "  }\n";
-    gRetTypeToValMap[ss.str()] = rvs.str();
-
-    std::stringstream ss2;
-    ss2 << "(const clang::" << name << " *)";
-
-    gRetTypeMap.emplace(ss2.str(), "::pasta::" + name);
-
-    std::stringstream crvs;
-    crvs
-        << "  if (val) {\n"
-        << "    return TypeBuilder::Create<::pasta::" << name << ">(ast, val);\n"
-        << "  }\n";
-    gRetTypeToValMap[ss2.str()] = crvs.str();
-  }
-}
-
-
-// Adds mappings that translate between pointers to clang Type types and PASTA
-// Type types.
-void MapAttrRetTypes(void) {
-  for (const auto &name : gAttrNames) {
-    std::stringstream ss;
-    ss << "(clang::" << name << " *)";
-    gRetTypeMap.emplace(ss.str(), "::pasta::" + name);
-
-    std::stringstream rvs;
-    rvs
-        << "  if (val) {\n"
-        << "    return AttrBuilder::Create<::pasta::" << name << ">(ast, val);\n"
-        << "  }\n";
-    gRetTypeToValMap[ss.str()] = rvs.str();
-
-    std::stringstream ss2;
-    ss2 << "(const clang::" << name << " *)";
-
-    gRetTypeMap.emplace(ss2.str(), "::pasta::" + name);
-
-    std::stringstream crvs;
-    crvs
-        << "  if (val) {\n"
-        << "    return AttrBuilder::Create<::pasta::" << name << ">(ast, val);\n"
-        << "  }\n";
-    gRetTypeToValMap[ss2.str()] = crvs.str();
+      std::stringstream const_key;
+      const_key << "(const clang::" << name << " *)";
+      gRetTypeMap.emplace(const_key.str(), "::pasta::" + name);
+      // For Decl/Stmt the original code reused `rvs` for the const variant;
+      // for Type/Attr it built a fresh stringstream that produced a textually
+      // identical snippet. Preserve that behaviour explicitly so any future
+      // semantic change is visible.
+      gRetTypeToValMap[const_key.str()] =
+          cat.separate_const_variant
+              ? BuilderSnippet(cat.builder_class, name)
+              : rvs;
+    }
   }
 }

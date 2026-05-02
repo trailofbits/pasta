@@ -36,52 +36,49 @@
 #include "Globals.h"
 #include "Util.h"
 
-//// Adds mappings that translate between clang enumeration types and PASTA
-//// enumeration types.
-//void MapEnumRetTypes(void);
+// Adds mappings between clang AST pointer types and PASTA wrapper types for
+// every category (defined in MapRetTypes.cpp).
+void MapAllRetTypes(void);
 
-// Adds mappings that translate between pointers to clang Decl types and PASTA
-// Decl types.
-void MapDeclRetTypes(void);
-
-// Adds mappings that translate between pointers to clang Stmt types and PASTA
-// Stmt types.
-void MapStmtRetTypes(void);
-
-// Adds mappings that translate between pointers to clang Type types and PASTA
-// Type types.
-void MapTypeRetTypes(void);
-
-// Adds mappings that translate between pointers to clang Type types and PASTA
-// Type types.
-void MapAttrRetTypes(void);
-
-// Generate `include/pasta/AST/Forward.h`.
+// Generate `include/pasta/AST/Forward.h` (and the Python `Enums.cpp`).
 void GenerateForwardH(std::ostream& os_py);
 
-// Generate `include/pasta/AST/Decl.h`.
+// Per-category H/Cpp generators.
 void GenerateDeclH(void);
-
-// Generate `lib/AST/Decl.cpp`.
 void GenerateDeclCpp(std::ostream& py_cmake, std::ostream &py_ast);
-
-// Generate `include/pasta/AST/Stmt.h`.
 void GenerateStmtH(void);
-
-// Generate `lib/AST/Stmt.cpp`.
 void GenerateStmtCpp(std::ostream& py_cmake, std::ostream &py_ast);
-
-// Generate `include/pasta/AST/Type.h`.
 void GenerateTypeH(void);
-
-// Generate `lib/pasta/AST/Type.cpp`.
 void GenerateTypeCpp(std::ostream& py_cmake, std::ostream &py_ast);
-
-// Generate `include/pasta/AST/Attr.h`.
 void GenerateAttrH(void);
-
-// Generate `include/pasta/AST/Attr.cpp`.
 void GenerateAttrCpp(std::ostream& py_cmake, std::ostream &py_ast);
+
+namespace {
+
+struct CategoryDispatch {
+  const char *name;
+  std::vector<std::string> *names;
+  std::vector<std::string> *topo_names;
+  void (*generate_h)();
+  void (*generate_cpp)(std::ostream &py_cmake, std::ostream &py_ast);
+};
+
+// Canonical category order: matches today's prepass order (topo_sort,
+// transitive_rels, ret-type mapping). Codegen runs these in a different
+// order — see `kCodegenOrder` below.
+const CategoryDispatch kCategories[] = {
+  {"Decl", &gDeclNames, &gTopologicallyOrderedDecls, &GenerateDeclH, &GenerateDeclCpp},
+  {"Stmt", &gStmtNames, &gTopologicallyOrderedStmts, &GenerateStmtH, &GenerateStmtCpp},
+  {"Type", &gTypeNames, &gTopologicallyOrderedTypes, &GenerateTypeH, &GenerateTypeCpp},
+  {"Attr", &gAttrNames, &gTopologicallyOrderedAttrs, &GenerateAttrH, &GenerateAttrCpp},
+};
+
+// Codegen runs Attr first (its emission populates gIterators with attribute-
+// related entries that the other generators may consult), then Decl/Stmt/Type.
+// Indices into `kCategories`.
+const std::size_t kCodegenOrder[] = {3, 0, 1, 2};
+
+}  // namespace
 
 static void InitClassIDs(void) {
 #define PASTA_BEGIN_CLANG_WRAPPER(cls, id) \
@@ -159,10 +156,9 @@ int main(void) {
   };
 
   // Topologically order the classes by the parent/child relations.
-  topo_sort(gDeclNames, gTopologicallyOrderedDecls);
-  topo_sort(gStmtNames, gTopologicallyOrderedStmts);
-  topo_sort(gTypeNames, gTopologicallyOrderedTypes);
-  topo_sort(gAttrNames, gTopologicallyOrderedAttrs);
+  for (const auto &cat : kCategories) {
+    topo_sort(*cat.names, *cat.topo_names);
+  }
 
   auto transitive_rels = [] (const std::vector<std::string> &names) {
 
@@ -193,16 +189,11 @@ int main(void) {
     }
   };
 
-  transitive_rels(gTopologicallyOrderedDecls);
-  transitive_rels(gTopologicallyOrderedStmts);
-  transitive_rels(gTopologicallyOrderedTypes);
-  transitive_rels(gTopologicallyOrderedAttrs);
+  for (const auto &cat : kCategories) {
+    transitive_rels(*cat.topo_names);
+  }
 
-//  MapEnumRetTypes();
-  MapDeclRetTypes();
-  MapStmtRetTypes();
-  MapTypeRetTypes();
-  MapAttrRetTypes();
+  MapAllRetTypes();
 
   std::string python_bindings_path = kPythonBindingsPath;
 
@@ -210,11 +201,11 @@ int main(void) {
   std::ofstream enums_os_py(python_bindings_path + "/Enums.cpp");
   GenerateForwardH(enums_os_py);
 
-  // Generate headers first; they fill up `gIterators`.
-  GenerateAttrH();
-  GenerateDeclH();
-  GenerateStmtH();
-  GenerateTypeH();
+  // Generate headers first; they fill up `gIterators`. Iteration order
+  // matches the historical Attr-first sequence.
+  for (auto idx : kCodegenOrder) {
+    kCategories[idx].generate_h();
+  }
 
   std::ofstream py_cmake(python_bindings_path + "/CMakeLists.txt");
   std::ofstream py_ast(python_bindings_path + "/AST.cpp");
@@ -244,10 +235,9 @@ void RegisterEnums(nb::module_ &m);
   RegisterEnums(m);
 )";
 
-  GenerateAttrCpp(py_cmake, py_ast);
-  GenerateDeclCpp(py_cmake, py_ast);
-  GenerateStmtCpp(py_cmake, py_ast);
-  GenerateTypeCpp(py_cmake, py_ast);
+  for (auto idx : kCodegenOrder) {
+    kCategories[idx].generate_cpp(py_cmake, py_ast);
+  }
 
   py_cmake << "    PARENT_SCOPE)\n";
 

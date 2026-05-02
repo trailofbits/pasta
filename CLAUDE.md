@@ -4,9 +4,9 @@ PASTA is a C++ library that wraps Clang's AST behind a stable, RAII-managed API.
 
 ## Where the LLVM version is pinned
 
-- `vendor/llvm-project/CMakeLists.txt:26` — submodule branch (currently `pasta-llvmorg-18.1.4`).
+- `vendor/llvm-project/CMakeLists.txt:26` — submodule branch.
 - `.github/workflows/build.yml:32` — CI matrix (`llvm_version: [18]`).
-- `vendor/llvm-project/src` — git submodule pointer (the actual SHA).
+- `vendor/llvm-project/src` — git submodule pointer.
 
 Both files plus the submodule must move together when bumping LLVM.
 

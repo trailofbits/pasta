@@ -112,24 +112,32 @@ std::string Capitalize(llvm::StringRef name) {
   return name.substr(0, 1).upper() + name.substr(1).str();
 }
 
-static const llvm::StringRef kDec = "Dec";
-static const llvm::StringRef kLoc = "Loc";
-static const llvm::StringRef kSourceRange = "SourceRange";
+static bool MatchesAnyPattern(llvm::StringRef name,
+                              const std::unordered_set<std::string> *exact,
+                              const std::vector<std::string> &ends_with,
+                              const std::vector<std::string> &starts_with) {
+  if (exact && exact->count(name.str())) {
+    return true;
+  }
+  for (const auto &suffix : ends_with) {
+    if (name.ends_with(suffix)) {
+      return true;
+    }
+  }
+  for (const auto &prefix : starts_with) {
+    if (name.starts_with(prefix)) {
+      return true;
+    }
+  }
+  return false;
+}
 
 static std::string CxxNameImpl(llvm::StringRef name) {
 
-  // Disable these.
-  if (name == "asOpaquePtr" ||
-      name.ends_with("_back") ||
-      name.ends_with("_front") ||
-      name.ends_with("_begin") ||
-      name.ends_with("_end") ||
-      name.ends_with("_rbegin") ||
-      name.ends_with("_rend") ||
-      name.starts_with("begin") ||
-      name.starts_with("end") ||
-      name.starts_with("rbegin") ||
-      name.starts_with("rend")) {
+  // Disable these (pre-strip).
+  if (MatchesAnyPattern(name, &kPreStripDisableExact,
+                        kPreStripDisableEndsWith,
+                        kPreStripDisableStartsWith)) {
     return "";
 
   } else if (name.starts_with("get") && !name.starts_with("gets")) {
@@ -141,28 +149,31 @@ static std::string CxxNameImpl(llvm::StringRef name) {
   } else if (name.starts_with("is")) {
     return "Is" + CxxNameImpl(name.substr(2));
 
-  // Begin/end iterators.
-  } else if (name.ends_with("_begin") || name.ends_with("_end") ||
-             name.ends_with("_size") || name.ends_with("_empty") ||
-             name.ends_with("_rbegin") || name.ends_with("_rend") ||
-             name.starts_with("begin_") || name.starts_with("end_") ||
-             name.starts_with("rbegin_") || name.starts_with("rend_")) {
+  // Begin/end iterators (post-strip).
+  } else if (MatchesAnyPattern(name, nullptr,
+                               kPostStripDisableEndsWith,
+                               kPostStripDisableStartsWith)) {
     return "";
 
   // Setters, ignore them.
   } else if (name.starts_with("set") && !name.starts_with("sets")) {
     return "";
+  }
 
-  } else if (name.ends_with(kDec)) {
-    return CxxNameImpl(name.substr(0, name.size() - kDec.size()).str()) + "Decrement";
+  // Suffix transforms: rename the prefix recursively and append the
+  // replacement.
+  for (const auto &t : kSuffixTransforms) {
+    if (!name.ends_with(t.suffix)) {
+      continue;
+    }
+    if (t.require_non_empty_prefix && t.suffix.size() >= name.size()) {
+      continue;
+    }
+    return CxxNameImpl(name.substr(0, name.size() - t.suffix.size()).str())
+           + t.replacement;
+  }
 
-  } else if (name.ends_with(kLoc)) {
-    return CxxNameImpl(name.substr(0, name.size() - kLoc.size()).str()) + "Token";
-
-  } else if (name.ends_with(kSourceRange) && kSourceRange.size() < name.size()) {
-    return CxxNameImpl(name.substr(0, name.size() - kSourceRange.size()).str()) + "Tokens";
-
-  } else if (auto name_it = kCxxMethodRenames.find(name.str());
+  if (auto name_it = kCxxMethodRenames.find(name.str());
              name_it != kCxxMethodRenames.end()) {
     return name_it->second;
 
@@ -230,28 +241,16 @@ static std::string CxxNameImpl(llvm::StringRef name) {
 }
 
 std::string CxxName(llvm::StringRef name_) {
-  if (name_ == "C2x_noreturn") {
-    return "C2xnoreturn";
-  } else if (name_ == "C2x_Noreturn") {
-    return "C2xNoreturn";
+  if (auto pre = kPreRenameOverrides.find(name_.str());
+      pre != kPreRenameOverrides.end()) {
+    return pre->second;
   }
 
   auto name = CxxNameImpl(name_);
 
-  if (name == "LParen") {
-    return "LParenToken";
-  } else if (name == "RParen") {
-    return "RParenToken";
-  } else if (name == "LBracket") {
-    return "LBracketToken";
-  } else if (name == "RBracket") {
-    return "RBracketToken";
-  } else if (name == "LBrace") {
-    return "LBraceToken";
-  } else if (name == "RBrace") {
-    return "RBraceToken";
-  } else if (name == "ChildrenExpression") {
-    return "Children";
+  if (auto post = kPostRenameOverrides.find(name);
+      post != kPostRenameOverrides.end()) {
+    return post->second;
   }
   return name;
 }

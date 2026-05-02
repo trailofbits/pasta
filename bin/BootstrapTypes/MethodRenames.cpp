@@ -122,3 +122,57 @@ const std::unordered_map<std::string, std::string> kCxxMethodRenames{
   {"LeftLoc", "LBracketToken"},
   {"DerefType", "DereferencedType"},
 };
+
+const std::unordered_map<std::string, std::string> kPreRenameOverrides{
+  {"C2x_noreturn", "C2xnoreturn"},
+  {"C2x_Noreturn", "C2xNoreturn"},
+};
+
+const std::unordered_set<std::string> kPreStripDisableExact{
+  "asOpaquePtr",
+};
+const std::vector<std::string> kPreStripDisableEndsWith{
+  "_back",
+  "_front",
+  "_begin",
+  "_end",
+  "_rbegin",
+  "_rend",
+};
+const std::vector<std::string> kPreStripDisableStartsWith{
+  "begin",
+  "end",
+  "rbegin",
+  "rend",
+};
+
+const std::vector<std::string> kPostStripDisableEndsWith{
+  "_begin",
+  "_end",
+  "_size",
+  "_empty",
+  "_rbegin",
+  "_rend",
+};
+const std::vector<std::string> kPostStripDisableStartsWith{
+  "begin_",
+  "end_",
+  "rbegin_",
+  "rend_",
+};
+
+const std::vector<SuffixTransform> kSuffixTransforms{
+  {"Dec", "Decrement", false},
+  {"Loc", "Token", false},
+  {"SourceRange", "Tokens", true},
+};
+
+const std::unordered_map<std::string, std::string> kPostRenameOverrides{
+  {"LParen", "LParenToken"},
+  {"RParen", "RParenToken"},
+  {"LBracket", "LBracketToken"},
+  {"RBracket", "RBracketToken"},
+  {"LBrace", "LBraceToken"},
+  {"RBrace", "RBraceToken"},
+  {"ChildrenExpression", "Children"},
+};

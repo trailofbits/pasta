@@ -75,6 +75,37 @@ extern std::unordered_map<std::string, std::vector<IteratorSpec>> gIterators;
 
 extern const std::unordered_map<std::string, std::string> kCxxMethodRenames;
 
+// Exact-name overrides applied before `CxxNameImpl` runs.
+extern const std::unordered_map<std::string, std::string> kPreRenameOverrides;
+
+// Names that `CxxNameImpl` disables before stripping `get`/`has`/`is`
+// prefixes. Match is `==`, `ends_with`, or `starts_with` depending on the
+// table.
+extern const std::unordered_set<std::string> kPreStripDisableExact;
+extern const std::vector<std::string> kPreStripDisableEndsWith;
+extern const std::vector<std::string> kPreStripDisableStartsWith;
+
+// Additional disables checked AFTER the `get`/`has`/`is` prefix-strip
+// recursion. These can yield different outputs than the pre-strip table for
+// names like `getFoo_size` whose disable pattern only appears once the prefix
+// is stripped.
+extern const std::vector<std::string> kPostStripDisableEndsWith;
+extern const std::vector<std::string> kPostStripDisableStartsWith;
+
+// Suffix transforms: when the name ends with `suffix`, the wrapper name is
+// (recursively renamed prefix) + `replacement`. `require_non_empty_prefix`
+// matches the historical guard preserving e.g. `SourceRange` itself from
+// transforming.
+struct SuffixTransform {
+  std::string suffix;
+  std::string replacement;
+  bool require_non_empty_prefix;
+};
+extern const std::vector<SuffixTransform> kSuffixTransforms;
+
+// Exact-name overrides applied to `CxxNameImpl`'s output (post-rename).
+extern const std::unordered_map<std::string, std::string> kPostRenameOverrides;
+
 // Maps return types from the macros file to their replacements in the
 // output code.
 extern std::unordered_map<std::string, std::string> gRetTypeMap;

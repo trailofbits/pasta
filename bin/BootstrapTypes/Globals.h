@@ -44,6 +44,19 @@ extern const std::vector<ClassExtends> kExtends;
 // `bin/BootstrapMacros/MacroGenerator.cpp` into the inheritance graph.
 extern const std::vector<ClassExtends> kAdditionalExtends;
 
+enum class Category { None, Decl, Stmt, Type, Attr };
+
+// Names from `kAllClassNames` that intentionally don't belong to any wrapper
+// category (e.g. helper classes referenced only by manual overrides). Resolving
+// to `Category::None` is fatal unless the name is in this set.
+extern const std::set<std::string> kCategorizationOptOut;
+
+// Walks the inheritance graph (`gBaseClasses`) up from `name` and returns the
+// first root category reached. Returns `Category::None` if no root is reached.
+// Must be called after `gBaseClasses` has been populated from `kExtends` +
+// `kAdditionalExtends`.
+Category ResolveCategory(const std::string &name);
+
 extern std::vector<std::string> gDeclNames;
 extern std::vector<std::string> gStmtNames;
 extern std::vector<std::string> gTypeNames;

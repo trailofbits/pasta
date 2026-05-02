@@ -99,38 +99,39 @@ int main(void) {
   //gBaseClasses["Decl"].insert("DeclBase");
   //gBaseClasses["DeclContext"].insert("DeclBase");
 
-  for (auto class_name : kAllClassNames) {
-    if (class_name.ends_with("Decl")) {
-      gDeclNames.push_back(class_name.str());
-
-    } else if (class_name.ends_with("Stmt") ||
-               class_name.ends_with("Expr") ||
-               class_name.ends_with("Operator") ||
-               class_name.ends_with("Directive") ||
-               class_name.ends_with("Literal") ||
-               class_name == "SwitchCase" ||
-               class_name == "ExprWithCleanups" ||
-               class_name == "OMPCanonicalLoop") {
-      gStmtNames.push_back(class_name.str());
-
-    } else if (class_name.ends_with("Type") && class_name != "QualType") {
-      gTypeNames.push_back(class_name.str());
-    } else if (class_name.ends_with("Attr")) {
-      gAttrNames.push_back(class_name.str());
-    }
-  }
-
-  gTypeNames.push_back("TypeWithKeyword");
-
-  // Build up an adjacency list of parent/child relations from the extends
-  // edges emitted into `Generated.h` and from the manual edges that wire in
-  // synthesized intermediate template classes.
+  // Build the inheritance graph first so that categorization can walk it. The
+  // graph is the union of edges emitted into `Generated.h` (kExtends) and the
+  // manual edges that wire in synthesized intermediate template classes
+  // (kAdditionalExtends).
   for (const auto *edges : {&kExtends, &kAdditionalExtends}) {
     for (const auto &[name, base_name] : *edges) {
       gBaseClasses[name].insert(base_name);
       gDerivedClasses[base_name].insert(name);
     }
   }
+
+  // Categorize each wrappable class by walking its base chain to a known root.
+  // Classes that resolve to `None` and aren't in the opt-out set abort the
+  // bootstrap rather than silently dropping out of the wrapper API.
+  for (auto class_name : kAllClassNames) {
+    auto str = class_name.str();
+    switch (ResolveCategory(str)) {
+      case Category::Decl: gDeclNames.push_back(std::move(str)); break;
+      case Category::Stmt: gStmtNames.push_back(std::move(str)); break;
+      case Category::Type: gTypeNames.push_back(std::move(str)); break;
+      case Category::Attr: gAttrNames.push_back(std::move(str)); break;
+      case Category::None:
+        if (!kCategorizationOptOut.count(str)) {
+          std::cerr << "BootstrapTypes: no category for class '" << str
+                    << "'; add an entry to kAdditionalExtends in Globals.cpp "
+                       "or kCategorizationOptOut if it should be skipped.\n";
+          std::abort();
+        }
+        break;
+    }
+  }
+
+  gTypeNames.push_back("TypeWithKeyword");
 
   auto topo_sort = [&seen](const std::vector<std::string> &names,
                            std::vector<std::string> &ordered_names) {

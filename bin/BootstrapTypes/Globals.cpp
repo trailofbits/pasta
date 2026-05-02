@@ -39,6 +39,47 @@ const std::vector<ClassExtends> kAdditionalExtends{
   {"OMPRequiresDecl", "OMPDeclarativeDirectiveDecl"},
 };
 
+// Names that the automatic base-chain categorization must skip:
+//
+// - `ExceptionSpecification` is referenced by manual override files
+//   (`lib/AST/TypeManual.cpp`) but isn't itself a wrapped Clang AST node, so
+//   it shouldn't land in any of the four category vectors.
+// - `TypeWithKeyword` is a real Clang base class (so the base chain would
+//   place it in the Type category), but its position in `gTypeNames` is
+//   controlled by an explicit push in `Main.cpp` to preserve the topological
+//   ordering of `gTopologicallyOrderedTypes`. Auto-categorizing it would
+//   insert it mid-list and reshuffle the generated `Type.h`/`Type.cpp`.
+const std::set<std::string> kCategorizationOptOut{
+  "ExceptionSpecification",
+  "TypeWithKeyword",
+};
+
+Category ResolveCategory(const std::string &name) {
+  if (kCategorizationOptOut.count(name)) {
+    return Category::None;
+  }
+  std::vector<std::string> stack{name};
+  std::set<std::string> visited;
+  while (!stack.empty()) {
+    auto cur = std::move(stack.back());
+    stack.pop_back();
+    if (!visited.insert(cur).second) {
+      continue;
+    }
+    if (cur == "Decl") return Category::Decl;
+    if (cur == "Stmt") return Category::Stmt;
+    if (cur == "Type") return Category::Type;
+    if (cur == "Attr") return Category::Attr;
+    auto it = gBaseClasses.find(cur);
+    if (it != gBaseClasses.end()) {
+      for (const auto &base : it->second) {
+        stack.push_back(base);
+      }
+    }
+  }
+  return Category::None;
+}
+
 std::vector<std::string> gDeclNames;
 std::vector<std::string> gStmtNames;
 std::vector<std::string> gTypeNames;

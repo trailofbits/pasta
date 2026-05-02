@@ -26,6 +26,10 @@ add_executable(bootstrap-types
     "Globals.cpp"
     "Globals.h"
     "MapRetTypes.cpp"
+    "MethodRenames.cpp"
+    "RetTypeMaps.cpp"
+    "EnumPrefixes.cpp"
+    "NullableReturns.cpp"
     "Util.cpp"
     "Util.h"
 )

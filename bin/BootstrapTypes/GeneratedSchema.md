@@ -69,7 +69,7 @@ PASTA_OVERRIDE_METHOD_0(cls, id, meth_id, meth, (rt))
 - `(rt)` and `(pN)` are parenthesized so their inner type strings can contain commas (`(std::optional<clang::NullabilityKind>)`, `(llvm::ArrayRef<const clang::Attr *>)`).
 - `PASTA_OVERRIDE_METHOD_0` marks methods that override a virtual in a base; only the zero-arity form is emitted.
 
-Distribution today (LLVM 18.1.4):
+Distribution with LLVM 18.1.4:
 
 | Macro | Count |
 |---|---:|

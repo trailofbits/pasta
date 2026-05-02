@@ -26,6 +26,19 @@ const std::vector<ClassExtends> kExtends{
 #include "Generated.h"
 };
 
+// `OMPDeclarativeDirectiveDecl` and `OMPDeclarativeDirectiveValueDecl` are
+// intermediate template classes synthesized in
+// `bin/BootstrapMacros/MacroGenerator.cpp`; their parent/child edges aren't
+// emitted into `Generated.h` and have to be patched in here.
+const std::vector<ClassExtends> kAdditionalExtends{
+  {"OMPDeclarativeDirectiveDecl", "Decl"},
+  {"OMPDeclarativeDirectiveValueDecl", "ValueDecl"},
+  {"OMPThreadPrivateDecl", "OMPDeclarativeDirectiveDecl"},
+  {"OMPAllocateDecl", "OMPDeclarativeDirectiveDecl"},
+  {"OMPDeclareMapperDecl", "OMPDeclarativeDirectiveValueDecl"},
+  {"OMPRequiresDecl", "OMPDeclarativeDirectiveDecl"},
+};
+
 std::vector<std::string> gDeclNames;
 std::vector<std::string> gStmtNames;
 std::vector<std::string> gTypeNames;

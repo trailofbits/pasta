@@ -39,6 +39,11 @@ struct ClassExtends {
 extern const std::vector<llvm::StringRef> kAllClassNames;
 extern const std::vector<ClassExtends> kExtends;
 
+// Additional (derived, base) edges contributed manually rather than via
+// `Generated.h`. Used to wire intermediate template classes defined in
+// `bin/BootstrapMacros/MacroGenerator.cpp` into the inheritance graph.
+extern const std::vector<ClassExtends> kAdditionalExtends;
+
 extern std::vector<std::string> gDeclNames;
 extern std::vector<std::string> gStmtNames;
 extern std::vector<std::string> gTypeNames;

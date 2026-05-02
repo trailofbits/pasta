@@ -122,32 +122,15 @@ int main(void) {
 
   gTypeNames.push_back("TypeWithKeyword");
 
-  // Build up an adjacency list of parent/child relations.
-  for (const auto &[name, base_name] : kExtends) {
-    gBaseClasses[name].insert(base_name);
-    gDerivedClasses[base_name].insert(name);
+  // Build up an adjacency list of parent/child relations from the extends
+  // edges emitted into `Generated.h` and from the manual edges that wire in
+  // synthesized intermediate template classes.
+  for (const auto *edges : {&kExtends, &kAdditionalExtends}) {
+    for (const auto &[name, base_name] : *edges) {
+      gBaseClasses[name].insert(base_name);
+      gDerivedClasses[base_name].insert(name);
+    }
   }
-
-  // Fixups. `OMPDeclarativeDirectiveDecl` and `OMPDeclarativeDirectiveValueDecl`
-  // are classes defined in `bin/BootstrapMapcros/MacroGenerator.cpp` that
-  // extend the intermediate templates, so that we can link everything together.
-  gBaseClasses["OMPDeclarativeDirectiveDecl"].insert("Decl");
-  gDerivedClasses["Decl"].insert("OMPDeclarativeDirectiveDecl");
-
-  gBaseClasses["OMPDeclarativeDirectiveValueDecl"].insert("ValueDecl");
-  gDerivedClasses["ValueDecl"].insert("OMPDeclarativeDirectiveValueDecl");
-
-  gBaseClasses["OMPThreadPrivateDecl"].insert("OMPDeclarativeDirectiveDecl");
-  gDerivedClasses["OMPDeclarativeDirectiveDecl"].insert("OMPThreadPrivateDecl");
-
-  gBaseClasses["OMPAllocateDecl"].insert("OMPDeclarativeDirectiveDecl");
-  gDerivedClasses["OMPDeclarativeDirectiveDecl"].insert("OMPAllocateDecl");
-
-  gBaseClasses["OMPDeclareMapperDecl"].insert("OMPDeclarativeDirectiveValueDecl");
-  gDerivedClasses["OMPDeclarativeDirectiveValueDecl"].insert("OMPDeclareMapperDecl");
-
-  gBaseClasses["OMPRequiresDecl"].insert("OMPDeclarativeDirectiveDecl");
-  gDerivedClasses["OMPDeclarativeDirectiveDecl"].insert("OMPRequiresDecl");
 
   auto topo_sort = [&seen](const std::vector<std::string> &names,
                            std::vector<std::string> &ordered_names) {

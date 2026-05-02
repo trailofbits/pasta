@@ -43,14 +43,28 @@ void MapAllRetTypes(void);
 // Generate `include/pasta/AST/Forward.h` (and the Python `Enums.cpp`).
 void GenerateForwardH(std::ostream& os_py);
 
-// Per-category H/Cpp generators.
+// Generate `include/pasta/AST/Decl.h`.
 void GenerateDeclH(void);
+
+// Generate `lib/AST/Decl.cpp`.
 void GenerateDeclCpp(std::ostream& py_cmake, std::ostream &py_ast);
+
+// Generate `include/pasta/AST/Stmt.h`.
 void GenerateStmtH(void);
+
+// Generate `lib/AST/Stmt.cpp`.
 void GenerateStmtCpp(std::ostream& py_cmake, std::ostream &py_ast);
+
+// Generate `include/pasta/AST/Type.h`.
 void GenerateTypeH(void);
+
+// Generate `lib/AST/Type.cpp`.
 void GenerateTypeCpp(std::ostream& py_cmake, std::ostream &py_ast);
+
+// Generate `include/pasta/AST/Attr.h`.
 void GenerateAttrH(void);
+
+// Generate `lib/AST/Attr.cpp`.
 void GenerateAttrCpp(std::ostream& py_cmake, std::ostream &py_ast);
 
 namespace {

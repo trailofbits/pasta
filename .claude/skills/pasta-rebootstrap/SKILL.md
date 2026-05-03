@@ -12,11 +12,31 @@ You drive the PASTA bootstrap pipeline (`scripts/bootstrap` from the pasta repo)
 
 Parse from the user prompt (no arg-parser needed; just look for these tokens):
 
-- `--build-dir <path>` (or "build dir at <path>") → use this configured pasta build directory. Default: try `$PWD/pasta-build`, then `$PWD/build`, then `$PWD`. The build directory must have `CMakeCache.txt` with both `PASTA_BOOTSTRAP_MACROS=ON` and `PASTA_BOOTSTRAP_TYPES=ON`.
-- `--no-check` → just regenerate wrappers; don't enforce byte-equivalence.
-- `--baseline <git-ref>` → compare the regenerated tree against `<git-ref>` instead of against pre-run snapshot. Default snapshot mode: pre-run state (what `scripts/bootstrap --check` does).
+- `--build-dir <path>` (or "build dir at <path>") → use this configured pasta build directory. **Required** if `$PWD` is not itself a configured pasta build directory.
+- `--no-check` → just regenerate wrappers; don't enforce byte-equivalence against the pre-run snapshot.
 
 If the user says "no diffs" or "fast", treat as `--no-check`.
+
+## Preflight (hard-fail before running)
+
+Refuse to proceed unless ALL of these hold. On failure, print the specific check that failed and exit — do NOT invoke `scripts/bootstrap`.
+
+1. **Build directory exists.** `<build-dir>` must be a directory. If the user didn't pass `--build-dir`, default to `$PWD` and check the same way.
+   - Failure message: `pasta-rebootstrap: build directory <path> not found. Pass --build-dir <path> or run from a configured pasta build directory.`
+
+2. **Build directory is configured.** `<build-dir>/CMakeCache.txt` must exist.
+   - Failure message: `pasta-rebootstrap: <path>/CMakeCache.txt not found — directory is not a CMake build tree. Run cmake to configure first.`
+
+3. **Bootstrap flags are ON.** Both `PASTA_BOOTSTRAP_MACROS:BOOL=ON` and `PASTA_BOOTSTRAP_TYPES:BOOL=ON` must appear in `CMakeCache.txt`. Use `grep` to check.
+   - Failure message: `pasta-rebootstrap: build directory was not configured with bootstrap flags. Re-run cmake with -DPASTA_BOOTSTRAP_MACROS=ON -DPASTA_BOOTSTRAP_TYPES=ON.`
+
+4. **LLVM install path is reachable.** Read `<build-dir>/BootstrapConfig.h` and extract `kInstallIncludePath`. Verify the path exists AND contains `clang/AST/RecursiveASTVisitor.h` (the canonical header `bootstrap-macros` needs at runtime).
+   - Failure message: `pasta-rebootstrap: clang headers not found at <kInstallIncludePath>. Install vendored LLVM to that prefix or reconfigure with -DCMAKE_INSTALL_PREFIX=<path-with-clang-headers>.`
+
+5. **`scripts/bootstrap` exists in the repo.** Walk up from `<build-dir>` looking for `<repo>/scripts/bootstrap`. Abort if not found within 3 levels up.
+   - Failure message: `pasta-rebootstrap: scripts/bootstrap not found. Are you sure <build-dir> is a pasta build tree?`
+
+All five checks pass → proceed to the workflow.
 
 ## Workflow
 
@@ -35,11 +55,11 @@ If the user says "no diffs" or "fast", treat as `--no-check`.
 5. **If `--check` succeeded with no diffs**, report:
    > **PASS** — bootstrap is deterministic. No regenerated files diverged.
 
-6. **If `--check` reported divergences** (or `--baseline` was used and there are diffs), produce the **structured report** below.
+6. **If `--check` reported divergences**, produce the **structured report** below.
 
 ## Structured report
 
-Use `git diff [<baseline>] -- <generated-paths>` against:
+Use `git diff -- <generated-paths>` (the diff is between the working tree after regen and the pre-run snapshot that `scripts/bootstrap --check` captured) against:
 
 - `include/pasta/AST/{Forward,Decl,Stmt,Type,Attr}.h`
 - `lib/AST/{Decl,Stmt,Type,Attr}.cpp`
@@ -120,7 +140,7 @@ Log: /tmp/pasta-rebootstrap-1714680000.log
 
 Example divergence:
 ```
-⚠️  DIVERGED — bootstrap regenerated files differ from baseline.
+⚠️  DIVERGED — regenerated files differ from the pre-run snapshot.
 
 Wrapper class additions: 2
   + class CodeAlignAttr  (Attr.h)

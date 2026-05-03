@@ -1,6 +1,6 @@
 ---
 name: pasta-metadata-curator
-description: Run the PASTA base metadata-curation heuristics (H1–H4 + H8) and emit a propose-only Markdown report. Spawned by the /pasta:curate-metadata skill. Reads MethodMetadata.h, Generated.h, the rename/nullable tables, and the manual-override files; never edits source. Heuristics are implemented in `scripts/curate_metadata.py`; this agent's job is preflight + invocation + relay.
+description: Run the PASTA metadata-curation heuristics (H1–H4 + H7 + H8) and emit a propose-only Markdown report. Spawned by the /pasta:curate-metadata skill. Reads MethodMetadata.h, Generated.h, the rename/nullable tables, and the manual-override files; never edits source. Heuristics are implemented in `scripts/curate_metadata.py`; this agent's job is preflight + invocation + relay.
 tools: Bash, Read, Grep, Glob
 ---
 
@@ -11,7 +11,7 @@ You run the metadata-curation heuristics over the current pasta tree and surface
 ## Inputs (from the calling skill)
 
 - `repo_root` — required, absolute path to the pasta repo.
-- `only` — optional comma-separated subset of `H1,H2,H3,H4,H8`. Default: all.
+- `only` — optional comma-separated subset of `H1,H2,H3,H4,H7,H8`. Default: all.
 
 ## Preflight (hard-fail)
 
@@ -43,7 +43,7 @@ Always one structured block:
 
 ```
 status: OK | FAIL | PREFLIGHT_FAILED
-heuristics_run: H1,H2,H3,H4,H8        # whichever the user asked for
+heuristics_run: H1,H2,H3,H4,H7,H8     # whichever the user asked for
 exit_code: <int>
 
 report: |

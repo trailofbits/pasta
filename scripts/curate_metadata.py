@@ -365,18 +365,28 @@ def rename_key_for(name: str) -> str:
 # NullableReturns parser (just enough for filtering)
 # ---------------------------------------------------------------------------
 
-def parse_nullable_pairs(path: Path) -> set[tuple[str, str]]:
+@dataclass
+class NullableTables:
+    can_return_nullptr: set[tuple[str, str]] = field(default_factory=set)
+    conditional_nullptr: set[tuple[str, str]] = field(default_factory=set)
+
+    @property
+    def all_pairs(self) -> set[tuple[str, str]]:
+        return self.can_return_nullptr | self.conditional_nullptr
+
+
+def parse_nullable_tables(path: Path) -> NullableTables:
     text = path.read_text()
-    pairs: set[tuple[str, str]] = set()
+    out = NullableTables()
     can_block = re.search(r"kCanReturnNullptr\{(.*?)\n\};", text, re.DOTALL)
     if can_block:
         for cls, meth in re.findall(r'\{"([^"]+)",\s*"([^"]+)"\}', can_block.group(1)):
-            pairs.add((cls, meth))
+            out.can_return_nullptr.add((cls, meth))
     cond_block = re.search(r"kConditionalNullptr\{(.*?)\n\};", text, re.DOTALL)
     if cond_block:
         for cls, meth in re.findall(r'\{\{"([^"]+)",\s*"([^"]+)"\}', cond_block.group(1)):
-            pairs.add((cls, meth))
-    return pairs
+            out.conditional_nullptr.add((cls, meth))
+    return out
 
 
 # ---------------------------------------------------------------------------
@@ -566,6 +576,168 @@ def heuristic_h4(metas: list[MethodMeta], tables: RenameTables,
 
 
 # ---------------------------------------------------------------------------
+# H7 — assert-prone detection
+# ---------------------------------------------------------------------------
+
+@dataclass
+class AssertFinding:
+    cls: str
+    method: str               # original Clang name
+    pasta_name: str           # post-CxxName name
+    rename_key: str           # blacklist key (UNCONDITIONAL only)
+    return_type: str
+    classification: str       # UNCONDITIONAL_ASSERT or CONDITIONAL_ASSERT
+    predicate: str            # raw text from MethodMetadata.h (CONDITIONAL only)
+    already_can_return: bool  # in kCanReturnNullptr (CONDITIONAL only)
+
+
+# Single-identifier predicates can be templated mechanically into a guard.
+RE_IDENT_PREDICATE = re.compile(r"^([!~]?\s*)([A-Za-z_]\w*)\s*\(\s*\)\s*$")
+
+
+def _format_conditional_template(predicate: str) -> str:
+    """Best-effort C++ guard text for kConditionalNullptr.
+
+    For trivial predicates like `isFoo ( )` or `! isFoo ( )` we generate the
+    exact `if (...) return std::nullopt;` block. For compound predicates we
+    emit a TODO so the reviewer fills it in by hand — predicate extraction
+    is intentionally conservative; do not silently invent guard logic.
+    """
+    p = predicate.strip()
+    m = RE_IDENT_PREDICATE.match(p)
+    if m:
+        negate, name = m.group(1).replace(" ", ""), m.group(2)
+        # Original predicate is the precondition that must hold to call safely.
+        # Wrapper returns nullopt when it FAILS — so invert.
+        if negate == "!":
+            cond = f"self.{name}()"        # original "!foo()" → guard "foo()"
+        else:
+            cond = f"!self.{name}()"       # original "foo()" → guard "!foo()"
+        return (
+            f"  if ({cond}) {{\n"
+            f"    return std::nullopt;\n"
+            f"  }}\n"
+        )
+    return (
+        f"  // TODO(curator): compound predicate — write guard by hand.\n"
+        f"  // Asserts: {p}\n"
+    )
+
+
+def heuristic_h7(metas: list[MethodMeta], tables: RenameTables, cxx,
+                 nullable: NullableTables) -> list[AssertFinding]:
+    out: list[AssertFinding] = []
+    for m in metas:
+        if m.body_classification not in ("UNCONDITIONAL_ASSERT", "CONDITIONAL_ASSERT"):
+            continue
+        pasta_name = cxx(m.name)
+        if not pasta_name:
+            # Already filtered out by the rename pipeline; nothing to wrap.
+            continue
+        key = rename_key_for(m.name)
+        if _is_already_blacklisted(m.name, key, tables, cxx):
+            continue
+        joined = (m.cls, pasta_name)
+        if m.body_classification == "CONDITIONAL_ASSERT" and joined in nullable.conditional_nullptr:
+            # Already curated with a hand-written guard — trust it.
+            continue
+        out.append(AssertFinding(
+            cls=m.cls,
+            method=m.name,
+            pasta_name=pasta_name,
+            rename_key=key,
+            return_type=m.return_type,
+            classification=m.body_classification,
+            predicate=m.crash_predicate,
+            already_can_return=joined in nullable.can_return_nullptr,
+        ))
+    return out
+
+
+def _render_h7(findings: list[AssertFinding]) -> str:
+    if not findings:
+        return ""
+    uncond = [f for f in findings if f.classification == "UNCONDITIONAL_ASSERT"]
+    cond = [f for f in findings if f.classification == "CONDITIONAL_ASSERT"]
+    cond_simple = [f for f in cond
+                   if RE_IDENT_PREDICATE.match(f.predicate.strip())]
+    cond_compound = [f for f in cond if f not in cond_simple]
+
+    lines: list[str] = [
+        f"## H7 — assert-prone detection: {len(findings)} finding(s)\n",
+        f"- UNCONDITIONAL_ASSERT (propose blacklist): **{len(uncond)}**",
+        f"- CONDITIONAL_ASSERT, simple predicate (mechanical guard): **{len(cond_simple)}**",
+        f"- CONDITIONAL_ASSERT, compound predicate (hand-translate): **{len(cond_compound)}**\n",
+        "*Why:* methods reachable here will crash if their precondition fails. "
+        "PASTA's wrappers currently return non-optional, so the assert fires "
+        "in production. **Triage simple findings first; compound predicates need "
+        "hand-translation against the Clang source.**\n",
+    ]
+
+    if uncond:
+        lines.append(f"### UNCONDITIONAL_ASSERT — propose blacklist in `MethodRenames.cpp`: {len(uncond)}\n")
+        by_cls: dict[str, list[AssertFinding]] = {}
+        for f in uncond:
+            by_cls.setdefault(f.cls, []).append(f)
+        for cls in sorted(by_cls):
+            lines.append(f"#### {cls}\n")
+            for f in by_cls[cls]:
+                lines.append(f'- `{{"{f.rename_key}", ""}},  // {f.cls}::{f.method}`')
+                lines.append("  *Why:* H7 — body's first reachable statement is an unconditional crash call")
+                lines.append(f"  *Detail:* return type: {f.return_type}")
+            lines.append("")
+
+    if cond_simple:
+        lines.append(f"### CONDITIONAL_ASSERT, simple — propose `kConditionalNullptr` (`NullableReturns.cpp`): {len(cond_simple)}\n")
+        by_cls = {}
+        for f in cond_simple:
+            by_cls.setdefault(f.cls, []).append(f)
+        for cls in sorted(by_cls):
+            lines.append(f"#### {cls}\n")
+            for f in by_cls[cls]:
+                guard = _format_conditional_template(f.predicate).rstrip()
+                lines.append("- ```c++")
+                lines.append(f'  {{{{"{f.cls}", "{f.pasta_name}"}},')
+                lines.append(f'   "{_escape_for_c_string(guard)}"}},  // {f.cls}::{f.method}')
+                lines.append("  ```")
+                lines.append(f"  *Why:* H7 — asserts `{f.predicate.strip()}`")
+                if f.already_can_return:
+                    lines.append("  *Note:* currently in `kCanReturnNullptr` — `kConditionalNullptr` supersedes with a stricter guard.")
+                lines.append(f"  *Detail:* return type: {f.return_type}")
+            lines.append("")
+
+    if cond_compound:
+        lines.append(f"### CONDITIONAL_ASSERT, compound — review each in `NullableReturns.cpp`: {len(cond_compound)}\n")
+        lines.append(
+            "Predicate extraction couldn't reduce these to a single-call guard. "
+            "Read the body in Clang and write the guard by hand. Listed compactly "
+            "to avoid burying the simple findings above.\n"
+        )
+        by_cls = {}
+        for f in cond_compound:
+            by_cls.setdefault(f.cls, []).append(f)
+        for cls in sorted(by_cls):
+            lines.append(f"- **{cls}**")
+            for f in by_cls[cls]:
+                tag = " (also in `kCanReturnNullptr`)" if f.already_can_return else ""
+                lines.append(
+                    f"  - `{f.cls}::{f.method}` → `{f.pasta_name}` "
+                    f"`{f.return_type}` — asserts `{f.predicate.strip()}`{tag}"
+                )
+            lines.append("")
+
+    return "\n".join(lines) + "\n"
+
+
+def _escape_for_c_string(s: str) -> str:
+    # Mirror EscapeForCStringLiteral in MacroGenerator.cpp: escape backslashes,
+    # quotes, and newlines so the proposed entry is a valid C++ string literal.
+    return (s.replace("\\", "\\\\")
+              .replace('"', '\\"')
+              .replace("\n", "\\n"))
+
+
+# ---------------------------------------------------------------------------
 # H8 — dead-entry audit (port of /tmp/audit_step7b.py)
 # ---------------------------------------------------------------------------
 
@@ -702,7 +874,7 @@ def _render_h8(dead: dict[str, list], passes: int) -> str:
 # Driver
 # ---------------------------------------------------------------------------
 
-ALL_HEURISTICS = ("H1", "H2", "H3", "H4", "H8")
+ALL_HEURISTICS = ("H1", "H2", "H3", "H4", "H7", "H8")
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -736,17 +908,18 @@ def main(argv: list[str] | None = None) -> int:
 
     tables = parse_rename_tables(mr_path)
     cxx = make_cxx_name(tables)
-    nullable_pairs = parse_nullable_pairs(nr_path) if nr_path.exists() else set()
+    nullable = parse_nullable_tables(nr_path) if nr_path.exists() else NullableTables()
     manual = parse_manual_methods(repo / p for p in REL_MANUAL_FILES)
 
     print(f"# /pasta:curate-metadata report\n")
     print(f"- Repo: `{repo}`")
     print(f"- MethodMetadata entries: {len(metas)}")
     print(f"- Manual override pairs: {len(manual)}")
-    print(f"- kCanReturnNullptr ∪ kConditionalNullptr pairs: {len(nullable_pairs)}")
+    print(f"- kCanReturnNullptr pairs: {len(nullable.can_return_nullptr)}")
+    print(f"- kConditionalNullptr pairs: {len(nullable.conditional_nullptr)}")
     print(f"- Heuristics run: {', '.join(sorted(selected))}\n")
     print("> **Propose-only.** Review each finding before editing "
-          "`bin/BootstrapTypes/MethodRenames.cpp`.\n")
+          "`bin/BootstrapTypes/{MethodRenames,NullableReturns}.cpp`.\n")
 
     section_outputs: list[str] = []
     if "H1" in selected:
@@ -761,6 +934,8 @@ def main(argv: list[str] | None = None) -> int:
     if "H4" in selected:
         section_outputs.append(_render_findings("H4 — manual-override overlap",
                                                  heuristic_h4(metas, tables, cxx, manual)))
+    if "H7" in selected:
+        section_outputs.append(_render_h7(heuristic_h7(metas, tables, cxx, nullable)))
     if "H8" in selected:
         gen_methods = parse_generated(gen_path)
         dead, passes = heuristic_h8(gen_methods, tables)

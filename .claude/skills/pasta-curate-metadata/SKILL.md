@@ -1,6 +1,6 @@
 ---
 name: pasta-curate-metadata
-description: Run the PASTA base metadata-curation heuristics (H1–H4 + H8) and emit a propose-only diff against `bin/BootstrapTypes/MethodRenames.cpp`. Use when the user says "curate pasta metadata", "audit metadata tables", "find blacklist candidates", "audit dead rename entries", or after a re-bootstrap that surfaced new Clang methods. Read-only — never applies its own proposals.
+description: Run the PASTA metadata-curation heuristics (H1–H4 + H7 + H8) and emit a propose-only diff against `bin/BootstrapTypes/{MethodRenames,NullableReturns}.cpp`. Use when the user says "curate pasta metadata", "audit metadata tables", "find blacklist candidates", "find assert-prone methods", "audit dead rename entries", or after a re-bootstrap that surfaced new Clang methods. Read-only — never applies its own proposals.
 allowed-tools: Agent, Read
 ---
 
@@ -13,7 +13,7 @@ You are a thin orchestrator. You spawn one agent (`pasta-metadata-curator`) whic
 Parse from the user prompt:
 
 - `--repo-root <path>` — optional. Default: `$PWD` if it looks like the pasta repo (has `bin/BootstrapTypes/`); otherwise ask the user.
-- `--only <list>` — optional comma-separated subset of `H1,H2,H3,H4,H8`. Default: all five.
+- `--only <list>` — optional comma-separated subset of `H1,H2,H3,H4,H7,H8`. Default: all six.
 
 ## Workflow
 

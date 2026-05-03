@@ -576,6 +576,268 @@ def heuristic_h4(metas: list[MethodMeta], tables: RenameTables,
 
 
 # ---------------------------------------------------------------------------
+# H5 — within-class redundancy (advisory)
+# ---------------------------------------------------------------------------
+
+# A return type that yields a Clang AST node (or other rich object) — i.e.
+# something the wrapper exposes as the high-fidelity form.
+def _is_rich_rt(rt: str) -> bool:
+    rt = rt.strip()
+    return rt.endswith("*") or rt.endswith("&")
+
+
+# A return type that's a built-in scalar — int family, bool, char, float.
+# Excludes templated types (ArrayRef, optional) and pointers/refs.
+RE_PRIMITIVE_RT = re.compile(
+    r"^\s*(?:const\s+)?(?:unsigned\s+|signed\s+)?"
+    r"(?:bool|char|short|int|long(?:\s+long)?|float|double|"
+    r"size_t|ssize_t|ptrdiff_t|"
+    r"(?:u?int(?:8|16|32|64)_t)|"
+    r"unsigned|signed)"
+    r"(?:\s+(?:long|int|char))*"
+    r"\s*$"
+)
+
+
+def _is_scalar_rt(rt: str) -> bool:
+    rt = rt.strip()
+    if "<" in rt or rt.endswith("*") or rt.endswith("&"):
+        return False
+    return bool(RE_PRIMITIVE_RT.match(rt))
+
+
+# Suffix patterns that mark a "primitive sibling" of a richer accessor.
+# Conservative — adding more suffixes risks false positives.
+H5_PRIMITIVE_SUFFIXES = ("Value", "Bits", "AsInt", "AsBool", "AsUnsigned")
+
+
+@dataclass
+class RedundancyFinding:
+    cls: str
+    primitive_method: str       # original Clang name of the primitive sibling
+    primitive_pasta: str        # post-CxxName name
+    primitive_rt: str
+    primitive_key: str          # rename-table key to blacklist
+    rich_pasta: str             # post-CxxName name of the richer sibling
+    rich_rt: str
+    suffix: str
+    already_blacklisted: bool
+
+
+def heuristic_h5(metas: list[MethodMeta], tables: RenameTables, cxx) -> list[RedundancyFinding]:
+    # Pair-detection runs on the post-get/has/is-strip key (not the post-
+    # CxxName name) so already-blacklisted siblings still surface as
+    # validation hits. CxxName="" entries would otherwise be invisible.
+    by_class: dict[str, list[tuple[str, str, str]]] = {}
+    for m in metas:
+        key = rename_key_for(m.name)
+        by_class.setdefault(m.cls, []).append((m.name, key, m.return_type))
+
+    out: list[RedundancyFinding] = []
+    for cls, methods in by_class.items():
+        rich_index = {key: rt for _, key, rt in methods if _is_rich_rt(rt)}
+        if not rich_index:
+            continue
+        for clang_name, key, rt in methods:
+            if not _is_scalar_rt(rt):
+                continue
+            for suffix in H5_PRIMITIVE_SUFFIXES:
+                if not key.endswith(suffix):
+                    continue
+                base = key[: -len(suffix)]
+                if not base or base not in rich_index:
+                    continue
+                already = _is_already_blacklisted(clang_name, key, tables, cxx)
+                out.append(RedundancyFinding(
+                    cls=cls,
+                    primitive_method=clang_name,
+                    primitive_pasta=key,
+                    primitive_rt=rt,
+                    primitive_key=key,
+                    rich_pasta=base,
+                    rich_rt=rich_index[base],
+                    suffix=suffix,
+                    already_blacklisted=already,
+                ))
+                break
+    return out
+
+
+def _render_h5(findings: list[RedundancyFinding]) -> str:
+    if not findings:
+        return ""
+    new_proposals = [f for f in findings if not f.already_blacklisted]
+    validations = [f for f in findings if f.already_blacklisted]
+    lines: list[str] = [
+        f"## H5 — within-class redundancy (Advisory): {len(findings)} finding(s) "
+        f"({len(new_proposals)} new / {len(validations)} validation hit(s))\n",
+        "*Why:* a primitive-typed method that shadows a richer sibling on the "
+        "same class is usually a Sema-internal convenience — surface the rich "
+        "form instead. **Advisory**: pattern is heuristic; review each.\n",
+    ]
+    for label, group in (("New proposals", new_proposals),
+                         ("Validation hits (already blacklisted)", validations)):
+        if not group:
+            continue
+        lines.append(f"### {label}: {len(group)}\n")
+        by_cls: dict[str, list[RedundancyFinding]] = {}
+        for f in group:
+            by_cls.setdefault(f.cls, []).append(f)
+        for cls in sorted(by_cls):
+            lines.append(f"#### {cls}\n")
+            for f in by_cls[cls]:
+                marker = "✓" if f.already_blacklisted else "→"
+                lines.append(
+                    f'- {marker} `{{"{f.primitive_key}", ""}},  '
+                    f'// {f.cls}::{f.primitive_method}`'
+                )
+                lines.append(
+                    f"  *Why:* H5 — primitive `{f.primitive_pasta}` "
+                    f"({f.primitive_rt}) shadows rich `{f.rich_pasta}` "
+                    f"({f.rich_rt})"
+                )
+            lines.append("")
+    return "\n".join(lines) + "\n"
+
+
+# ---------------------------------------------------------------------------
+# H6 — intra-LLVM cross-reference (advisory, ripgrep-based)
+# ---------------------------------------------------------------------------
+
+# Method names too generic to cross-reference reliably. Hits in external
+# code are ambiguous (could be unrelated overloads on unrelated classes),
+# so we skip these to preserve advisory precision.
+H6_COMMON_NAMES = frozenset({
+    "clone", "getKind", "getName", "getType", "getLoc", "getLocation",
+    "getBeginLoc", "getEndLoc", "getSourceRange", "getValue", "getDecl",
+    "getStmt", "getExpr", "isImplicit", "getSpelling", "size", "empty",
+    "begin", "end", "front", "back", "data", "print", "dump", "Profile",
+    "isBitwiseOp", "isRelationalOp", "isLogicalOp", "isAssignmentOp",
+})
+
+# Subdirectories under vendor/llvm-project/src whose source counts as
+# "external to clang/lib/**". A method name appearing in any of them is
+# considered exposed and not a candidate for blacklist.
+H6_EXTERNAL_DIRS_REL = (
+    "clang/include",
+    "clang/tools",
+    "clang/examples",
+    "clang/utils",
+    "clang/unittests",
+    "clang-tools-extra",
+)
+
+
+@dataclass
+class CrossRefFinding:
+    cls: str
+    method: str             # original Clang name
+    rename_key: str
+    return_type: str
+
+
+def _h6_load_external_callers(repo: Path) -> set[str] | None:
+    """Return the set of method names called outside `clang/lib/**`, or
+    None if the LLVM submodule isn't checked out."""
+    base = repo / "vendor" / "llvm-project" / "src"
+    if not base.exists():
+        return None
+    targets = [str(base / d) for d in H6_EXTERNAL_DIRS_REL if (base / d).exists()]
+    if not targets:
+        return None
+    import subprocess
+    # Extract any `<word>(` token. -o prints only the match, --no-filename
+    # suppresses filenames, --no-line-number suppresses line numbers.
+    # (Avoid the short -h flag — ripgrep treats that as `--help`.)
+    cmd = ["rg", "-o", "--no-filename", "--no-line-number",
+           r"\b\w+\s*\("] + targets
+    try:
+        proc = subprocess.run(cmd, capture_output=True, text=True, timeout=120)
+    except (subprocess.TimeoutExpired, FileNotFoundError):
+        return None
+    if proc.returncode not in (0, 1):
+        return None
+    callers: set[str] = set()
+    for tok in proc.stdout.splitlines():
+        # Strip trailing whitespace + paren.
+        tok = tok.strip()
+        if tok.endswith("("):
+            tok = tok[:-1].rstrip()
+        if tok and tok.isidentifier():
+            callers.add(tok)
+    return callers
+
+
+def heuristic_h6(metas: list[MethodMeta], tables: RenameTables, cxx,
+                 repo: Path) -> tuple[list[CrossRefFinding], str | None]:
+    """Return (findings, error_or_none). On submodule-missing or rg-missing
+    we return ([], "<reason>") so the renderer can show a helpful skip
+    message rather than silently dropping the heuristic."""
+    callers = _h6_load_external_callers(repo)
+    if callers is None:
+        return [], (
+            "skipped: vendor/llvm-project/src not checked out, or `rg` "
+            "(ripgrep) is not on PATH. Run `git submodule update --init "
+            "vendor/llvm-project/src` and install ripgrep."
+        )
+    out: list[CrossRefFinding] = []
+    seen: set[tuple[str, str]] = set()
+    for m in metas:
+        if m.name in H6_COMMON_NAMES:
+            continue
+        if m.name in callers:
+            continue
+        pasta = cxx(m.name)
+        if not pasta:
+            continue
+        key = rename_key_for(m.name)
+        if _is_already_blacklisted(m.name, key, tables, cxx):
+            continue
+        # Same Clang method may appear once per class wrapping it; dedupe
+        # on (class, method) so the report doesn't double-list.
+        join_key = (m.cls, m.name)
+        if join_key in seen:
+            continue
+        seen.add(join_key)
+        out.append(CrossRefFinding(
+            cls=m.cls, method=m.name, rename_key=key,
+            return_type=m.return_type,
+        ))
+    return out, None
+
+
+def _render_h6(findings: list[CrossRefFinding], skip_reason: str | None) -> str:
+    if skip_reason is not None:
+        return (
+            "## H6 — intra-LLVM cross-reference (Advisory)\n\n"
+            f"⚠️  {skip_reason}\n"
+        )
+    if not findings:
+        return ""
+    lines: list[str] = [
+        f"## H6 — intra-LLVM cross-reference (Advisory): {len(findings)} finding(s)\n",
+        "*Why:* method name does not appear in `clang/include/`, "
+        "`clang/tools/`, `clang/examples/`, `clang/utils/`, `clang/unittests/`, "
+        "or `clang-tools-extra/`. Likely internal-only API. **Advisory**: "
+        "lightweight ripgrep is overload-blind — a hit on a same-named method "
+        "of an unrelated class will mark a real internal API as exposed. "
+        "Review before applying.\n",
+    ]
+    by_cls: dict[str, list[CrossRefFinding]] = {}
+    for f in findings:
+        by_cls.setdefault(f.cls, []).append(f)
+    for cls in sorted(by_cls):
+        lines.append(f"- **{cls}**")
+        for f in by_cls[cls]:
+            lines.append(
+                f"  - `{f.cls}::{f.method}` → `{{\"{f.rename_key}\", \"\"}}` "
+                f"(rt: `{f.return_type}`)"
+            )
+        lines.append("")
+    return "\n".join(lines) + "\n"
+
+
+# ---------------------------------------------------------------------------
 # H7 — assert-prone detection
 # ---------------------------------------------------------------------------
 
@@ -874,7 +1136,7 @@ def _render_h8(dead: dict[str, list], passes: int) -> str:
 # Driver
 # ---------------------------------------------------------------------------
 
-ALL_HEURISTICS = ("H1", "H2", "H3", "H4", "H7", "H8")
+ALL_HEURISTICS = ("H1", "H2", "H3", "H4", "H5", "H6", "H7", "H8")
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -883,6 +1145,11 @@ def main(argv: list[str] | None = None) -> int:
                     help=f"Pasta repo root (default: {DEFAULT_REPO_ROOT})")
     ap.add_argument("--only", default=",".join(ALL_HEURISTICS),
                     help=f"Comma-separated subset of {ALL_HEURISTICS}")
+    ap.add_argument("--advisory", action="store_true",
+                    help="Include H6 (intra-LLVM cross-reference). Off by "
+                         "default because H6's lightweight ripgrep is "
+                         "overload-blind and produces 200+ low-precision "
+                         "advisories on a clean corpus.")
     args = ap.parse_args(argv)
 
     repo = args.repo_root.resolve()
@@ -934,6 +1201,23 @@ def main(argv: list[str] | None = None) -> int:
     if "H4" in selected:
         section_outputs.append(_render_findings("H4 — manual-override overlap",
                                                  heuristic_h4(metas, tables, cxx, manual)))
+    if "H5" in selected:
+        section_outputs.append(_render_h5(heuristic_h5(metas, tables, cxx)))
+    if "H6" in selected:
+        if args.advisory or set(args.only.split(",")) == {"H6"}:
+            # Run H6 when --advisory is set OR when the user explicitly asked
+            # for *only* H6 (so `--only H6` works without also requiring the
+            # opt-in flag).
+            h6_findings, h6_skip = heuristic_h6(metas, tables, cxx, repo)
+            section_outputs.append(_render_h6(h6_findings, h6_skip))
+        else:
+            section_outputs.append(
+                "## H6 — intra-LLVM cross-reference (Advisory)\n\n"
+                "ℹ️  Skipped (opt-in). Re-run with `--advisory` to include "
+                "the cross-reference scan. H6's ripgrep is overload-blind and "
+                "produces 200+ advisories on the current corpus; review only "
+                "when you have time to triage.\n"
+            )
     if "H7" in selected:
         section_outputs.append(_render_h7(heuristic_h7(metas, tables, cxx, nullable)))
     if "H8" in selected:

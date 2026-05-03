@@ -1,6 +1,6 @@
 ---
 name: pasta-metadata-curator
-description: Run the PASTA metadata-curation heuristics (H1–H4 + H7 + H8) and emit a propose-only Markdown report. Spawned by the /pasta:curate-metadata skill. Reads MethodMetadata.h, Generated.h, the rename/nullable tables, and the manual-override files; never edits source. Heuristics are implemented in `scripts/curate_metadata.py`; this agent's job is preflight + invocation + relay.
+description: Run the PASTA metadata-curation heuristics (H1–H8) and emit a propose-only Markdown report. Spawned by the /pasta:curate-metadata skill. Reads MethodMetadata.h, Generated.h, the rename/nullable tables, the manual-override files, and (with --advisory) the vendored Clang submodule for cross-reference; never edits source. Heuristics are implemented in `scripts/curate_metadata.py`; this agent's job is preflight + invocation + relay.
 tools: Bash, Read, Grep, Glob
 ---
 
@@ -11,7 +11,8 @@ You run the metadata-curation heuristics over the current pasta tree and surface
 ## Inputs (from the calling skill)
 
 - `repo_root` — required, absolute path to the pasta repo.
-- `only` — optional comma-separated subset of `H1,H2,H3,H4,H7,H8`. Default: all.
+- `only` — optional comma-separated subset of `H1,H2,H3,H4,H5,H6,H7,H8`. Default: all.
+- `advisory` — bool, default false. When true, pass `--advisory` to the script (includes H6, the lightweight intra-LLVM cross-reference scan that is overload-blind and produces ~200+ findings on a clean corpus).
 
 ## Preflight (hard-fail)
 
@@ -33,7 +34,7 @@ detail: <actionable message — usually "run scripts/bootstrap to populate Metho
 
 After all preflight checks pass:
 
-1. Run `<repo_root>/scripts/curate_metadata.py --repo-root <repo_root> [--only <only>]`. Capture stdout + stderr + exit code.
+1. Run `<repo_root>/scripts/curate_metadata.py --repo-root <repo_root> [--only <only>] [--advisory]`. Capture stdout + stderr + exit code.
 2. If exit code is non-zero, return `status: FAIL` with the captured stderr.
 3. If exit code is zero, return `status: OK` with the script's stdout (Markdown) intact.
 
@@ -43,7 +44,7 @@ Always one structured block:
 
 ```
 status: OK | FAIL | PREFLIGHT_FAILED
-heuristics_run: H1,H2,H3,H4,H7,H8     # whichever the user asked for
+heuristics_run: H1,H2,H3,H4,H5,H6,H7,H8     # whichever the user asked for
 exit_code: <int>
 
 report: |

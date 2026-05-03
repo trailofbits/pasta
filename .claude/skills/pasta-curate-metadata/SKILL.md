@@ -1,6 +1,6 @@
 ---
 name: pasta-curate-metadata
-description: Run the PASTA metadata-curation heuristics (H1–H4 + H7 + H8) and emit a propose-only diff against `bin/BootstrapTypes/{MethodRenames,NullableReturns}.cpp`. Use when the user says "curate pasta metadata", "audit metadata tables", "find blacklist candidates", "find assert-prone methods", "audit dead rename entries", or after a re-bootstrap that surfaced new Clang methods. Read-only — never applies its own proposals.
+description: Run the PASTA metadata-curation heuristics (H1–H8, full B2a heuristic set) and emit a propose-only diff against `bin/BootstrapTypes/{MethodRenames,NullableReturns}.cpp`. Use when the user says "curate pasta metadata", "audit metadata tables", "find blacklist candidates", "find assert-prone methods", "find redundant accessors", "find internal-only methods", "audit dead rename entries", or after a re-bootstrap that surfaced new Clang methods. Read-only — never applies its own proposals.
 allowed-tools: Agent, Read
 ---
 
@@ -13,7 +13,8 @@ You are a thin orchestrator. You spawn one agent (`pasta-metadata-curator`) whic
 Parse from the user prompt:
 
 - `--repo-root <path>` — optional. Default: `$PWD` if it looks like the pasta repo (has `bin/BootstrapTypes/`); otherwise ask the user.
-- `--only <list>` — optional comma-separated subset of `H1,H2,H3,H4,H7,H8`. Default: all six.
+- `--only <list>` — optional comma-separated subset of `H1,H2,H3,H4,H5,H6,H7,H8`. Default: all eight (with H6 implicitly skipped unless `--advisory` is also given).
+- `--advisory` — optional. Includes H6 (intra-LLVM cross-reference). H6 is opt-in because its lightweight ripgrep scan is overload-blind and produces ~200+ findings on a clean corpus; the user reviews only when they want the broad sweep.
 
 ## Workflow
 
@@ -22,6 +23,7 @@ Parse from the user prompt:
 Pass:
 - `repo_root` — absolute path.
 - `only` — heuristic filter if the user gave one, otherwise omit.
+- `advisory` — true if the user passed `--advisory` (or asked for H6 explicitly via `--only H6`); otherwise omit.
 
 Wait for the agent to return one of:
 - `PREFLIGHT_FAILED` → print the failure message verbatim and stop. Common case: MethodMetadata.h is still the placeholder, in which case advise the user to run `/pasta:rebootstrap` first.

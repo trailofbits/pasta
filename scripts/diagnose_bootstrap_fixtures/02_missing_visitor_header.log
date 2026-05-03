@@ -1,0 +1,7 @@
+>>> stage 1: run bootstrap-macros
+bootstrap-macros: parsing AST...
+input.cpp:1:10: fatal error: 'clang/AST/RecursiveASTVisitor.h' file not found
+   1 | #include "clang/AST/RecursiveASTVisitor.h"
+     |          ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+1 error generated.
+bootstrap-macros: failed to parse Clang headers

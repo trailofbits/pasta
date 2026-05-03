@@ -1,0 +1,9 @@
+>>> stage 2: build bootstrap-types
+[27/47] Building CXX object lib/AST/CMakeFiles/pasta_compiler.dir/Decl.cpp.o
+FAILED: lib/AST/CMakeFiles/pasta_compiler.dir/Decl.cpp.o
+clang++ -std=c++20 -c lib/AST/Decl.cpp
+lib/AST/Decl.cpp:14823:18: error: use of undeclared identifier 'getInstantiatedFromMemberClass'
+        return self.getInstantiatedFromMemberClass();
+                    ^
+1 error generated.
+ninja: build stopped: subcommand failed.

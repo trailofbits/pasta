@@ -1,0 +1,11 @@
+>>> stage 2: build bootstrap-types
+[12/47] Building CXX object bin/BootstrapTypes/CMakeFiles/bootstrap-types.dir/Globals.cpp.o
+[13/47] Building CXX object bin/BootstrapTypes/CMakeFiles/bootstrap-types.dir/Util.cpp.o
+[14/47] Building CXX object bin/BootstrapTypes/CMakeFiles/bootstrap-types.dir/GenerateDeclCpp.cpp.o
+FAILED: bin/BootstrapTypes/CMakeFiles/bootstrap-types.dir/GenerateDeclCpp.cpp.o
+clang++ -std=c++20 -I/opt/homebrew/opt/llvm@18/include -c bin/BootstrapTypes/GenerateDeclCpp.cpp
+bin/BootstrapTypes/GenerateDeclCpp.cpp:842:34: error: no member named 'RemappedDecl' in 'clang::Decl'
+        EmitWrapperBody(decl->RemappedDecl());
+                              ^~~~~~~~~~~~
+1 error generated.
+ninja: build stopped: subcommand failed.

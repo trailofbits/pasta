@@ -1,0 +1,10 @@
+>>> stage 1: run bootstrap-macros
+In file included from <built-in>:1:
+In file included from /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/__config:13:
+/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/__type_traits/integral_constant.h:42:39: error: '_Tp' does not refer to a value
+   42 |   _LIBCPP_INLINE_VISIBILITY constexpr operator value_type() const _NOEXCEPT { return value; }
+      |                                       ^
+/Users/akshayk/Documents/workspace/mx-workspace/mx-env/include/c++/v1/__type_traits/integral_constant.h:30:14: note: declared here
+   30 | template<class _Tp, _Tp __v>
+      |              ^
+1 error generated.

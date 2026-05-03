@@ -33,6 +33,7 @@
 #include <clang/AST/StmtOpenMP.h>
 #include <clang/AST/Type.h>
 #include <clang/Basic/TokenKinds.h>
+#include <clang/Lex/Lexer.h>
 #include <llvm/Support/raw_ostream.h>
 #pragma GCC diagnostic pop
 
@@ -117,6 +118,213 @@ static bool IsSigned(clang::QualType qtype) {
     }
   }
   return false;
+}
+
+// Names of functions whose call constitutes a "crash" (program-aborting
+// failure). Detected anywhere in the AST below the inspection point. Covers
+// direct calls (`llvm_unreachable`, `abort`, `__builtin_trap`) AND the
+// post-expansion targets of common macros (`assert(...)` expands to
+// `__assert_fail` on glibc, `__assert_rtn` on macOS).
+const std::unordered_set<std::string> kCrashCallNames = {
+  "abort",
+  "__assert_fail",
+  "__assert_rtn",
+  "__assert",
+  "_assert",
+  "__builtin_trap",
+  "__builtin_unreachable",
+  "llvm_unreachable_internal",
+  "report_fatal_error",
+};
+
+// Strip implicit casts, parens, ExprWithCleanups, FullExpr wrappers so the
+// underlying CallExpr / IfStmt / ConditionalOperator shape is exposed.
+static const clang::Stmt *Unwrap(const clang::Stmt *s) {
+  while (s) {
+    if (auto *e = clang::dyn_cast<clang::Expr>(s)) {
+      auto *next = e->IgnoreParenImpCasts();
+      if (next == e) {
+        return s;
+      }
+      s = next;
+    } else {
+      return s;
+    }
+  }
+  return s;
+}
+
+// True if `s` (after unwrapping) reaches a crash call somewhere in its
+// expression tree. Conservative: only walks one level of compound, recurses
+// into ConditionalOperator branches, ParenExpr, ImplicitCastExpr, and direct
+// CallExpr children.
+static bool ReachesCrashCall(const clang::Stmt *s) {
+  if (!s) return false;
+  s = Unwrap(s);
+
+  if (auto *call = clang::dyn_cast<clang::CallExpr>(s)) {
+    if (auto *callee = call->getDirectCallee()) {
+      if (kCrashCallNames.count(callee->getNameAsString())) {
+        return true;
+      }
+    }
+  }
+
+  // For a single-statement compound, recurse on the contained statement.
+  if (auto *compound = clang::dyn_cast<clang::CompoundStmt>(s)) {
+    if (compound->size() == 1) {
+      return ReachesCrashCall(*compound->body_begin());
+    }
+    return false;
+  }
+
+  // For a ConditionalOperator (typical assert() macro expansion shape), a
+  // crash in either branch is enough.
+  if (auto *cop = clang::dyn_cast<clang::ConditionalOperator>(s)) {
+    return ReachesCrashCall(cop->getTrueExpr()) ||
+           ReachesCrashCall(cop->getFalseExpr());
+  }
+
+  // For BinaryOperator (e.g. comma operator inside assert expansion), check
+  // both sides.
+  if (auto *bo = clang::dyn_cast<clang::BinaryOperator>(s)) {
+    return ReachesCrashCall(bo->getLHS()) || ReachesCrashCall(bo->getRHS());
+  }
+
+  return false;
+}
+
+// Capture the textual form of an expression as written in source, with
+// whitespace and any embedded comments preserved. Returns empty if the range
+// can't be lexed (e.g., template-dependent or macro-only).
+static std::string GetSourceText(const clang::Expr *expr,
+                                 const clang::ASTContext *ctx) {
+  if (!expr) return std::string{};
+  const auto &sm = ctx->getSourceManager();
+  auto range = clang::CharSourceRange::getTokenRange(expr->getSourceRange());
+  auto text = clang::Lexer::getSourceText(range, sm, ctx->getLangOpts());
+  if (text.empty()) return std::string{};
+  // Trim trailing whitespace.
+  while (!text.empty() && std::isspace(static_cast<unsigned char>(text.back()))) {
+    text = text.drop_back();
+  }
+  return text.str();
+}
+
+// Given the condition expression of a guarded crash (either an `if`-condition
+// or a ConditionalOperator's cond), produce the safe-call predicate text:
+// the boolean expression under which the wrapper should NOT return
+// `std::nullopt`.
+//
+// `crash_on_true` is true if the crash fires when the condition is truthy
+// (e.g., `if (cond) abort();` or `cond ? crash : safe`). In that case the
+// safe-call predicate is the negation of cond. `crash_on_true=false` is the
+// inverse case.
+//
+// Two simplifications applied:
+//   - `__builtin_expect(X, 0)` (the assert-macro's branch hint) is unwrapped.
+//   - A leading `!` toggles `crash_on_true` and exposes the positive form,
+//     so we get `isAlignmentExpr()` rather than `!(!(isAlignmentExpr()))`.
+static std::string ExtractSafePredicate(const clang::Expr *cond,
+                                        bool crash_on_true,
+                                        const clang::ASTContext *ctx) {
+  if (!cond) return std::string{};
+  cond = cond->IgnoreParenImpCasts();
+
+  if (auto *call = clang::dyn_cast<clang::CallExpr>(cond)) {
+    if (auto *callee = call->getDirectCallee()) {
+      if (callee->getNameAsString() == "__builtin_expect" &&
+          call->getNumArgs() >= 1) {
+        cond = call->getArg(0)->IgnoreParenImpCasts();
+      }
+    }
+  }
+
+  bool need_negate = crash_on_true;
+  if (auto *uo = clang::dyn_cast<clang::UnaryOperator>(cond)) {
+    if (uo->getOpcode() == clang::UO_LNot) {
+      cond = uo->getSubExpr()->IgnoreParenImpCasts();
+      need_negate = !need_negate;
+    }
+  }
+
+  auto text = GetSourceText(cond, ctx);
+  if (text.empty()) return std::string{};
+  return need_negate ? "!(" + text + ")" : text;
+}
+
+// Classify a method body for assert-prone behaviour. Inputs: the method's
+// body Stmt (may be null for out-of-line methods). Outputs:
+//   "UNKNOWN"               — no body available
+//   "SAFE"                  — no crash on any obvious path
+//   "UNCONDITIONAL_ASSERT"  — body's first statement is a crash
+//   "CONDITIONAL_ASSERT"    — first statement is `if (cond) { crash; }`,
+//                              with `predicate_out` set to the safe-call guard
+struct BodyClassification {
+  std::string kind;       // one of the strings above
+  std::string predicate;  // populated only for CONDITIONAL_ASSERT
+};
+
+static BodyClassification ClassifyBody(const clang::CXXMethodDecl *method,
+                                       const clang::ASTContext *ctx) {
+  auto *body = method->getBody();
+  if (!body) {
+    return {"UNKNOWN", ""};
+  }
+  auto *compound = clang::dyn_cast<clang::CompoundStmt>(body);
+  if (!compound || compound->body_empty()) {
+    return {"SAFE", ""};
+  }
+
+  const clang::Stmt *first = *compound->body_begin();
+  const clang::Stmt *unwrapped = Unwrap(first);
+
+  // Pattern 1: first statement IS a crash call (or unwraps to one).
+  if (ReachesCrashCall(unwrapped)) {
+    // If the first statement IS a crash, the body unconditionally crashes
+    // before reaching anything else.
+    if (auto *call = clang::dyn_cast<clang::CallExpr>(unwrapped)) {
+      if (auto *callee = call->getDirectCallee()) {
+        if (kCrashCallNames.count(callee->getNameAsString())) {
+          return {"UNCONDITIONAL_ASSERT", ""};
+        }
+      }
+    }
+    // ConditionalOperator (assert-macro expansion). Distinguish: if the
+    // condition's failure path is what crashes, it's a guarded assert.
+    if (auto *cop = clang::dyn_cast<clang::ConditionalOperator>(unwrapped)) {
+      bool t_crashes = ReachesCrashCall(cop->getTrueExpr());
+      bool f_crashes = ReachesCrashCall(cop->getFalseExpr());
+      if (t_crashes && !f_crashes) {
+        auto pred = ExtractSafePredicate(cop->getCond(), true, ctx);
+        if (!pred.empty()) return {"CONDITIONAL_ASSERT", pred};
+      } else if (!t_crashes && f_crashes) {
+        auto pred = ExtractSafePredicate(cop->getCond(), false, ctx);
+        if (!pred.empty()) return {"CONDITIONAL_ASSERT", pred};
+      } else if (t_crashes && f_crashes) {
+        return {"UNCONDITIONAL_ASSERT", ""};
+      }
+    }
+  }
+
+  // Pattern 2: `if (cond) { crash; }` followed by normal code.
+  if (auto *if_stmt = clang::dyn_cast<clang::IfStmt>(first)) {
+    bool then_crashes = ReachesCrashCall(if_stmt->getThen());
+    bool else_crashes =
+        if_stmt->getElse() ? ReachesCrashCall(if_stmt->getElse()) : false;
+
+    if (then_crashes && !else_crashes) {
+      auto pred = ExtractSafePredicate(if_stmt->getCond(), true, ctx);
+      if (!pred.empty()) return {"CONDITIONAL_ASSERT", pred};
+    } else if (!then_crashes && else_crashes) {
+      auto pred = ExtractSafePredicate(if_stmt->getCond(), false, ctx);
+      if (!pred.empty()) return {"CONDITIONAL_ASSERT", pred};
+    } else if (then_crashes && else_crashes) {
+      return {"UNCONDITIONAL_ASSERT", ""};
+    }
+  }
+
+  return {"SAFE", ""};
 }
 
 }  // namespace
@@ -387,8 +595,10 @@ MacroGenerator::~MacroGenerator(void) {
         os << ")\n";
 
         // Sibling metadata: 10a captures return type, inline-ness, deprecated/
-        // hidden-visibility attributes, and doxygen text. Body classification
-        // is left as UNKNOWN until 10b lands.
+        // hidden-visibility attributes, and doxygen text. 10b adds the body
+        // classification (SAFE / UNCONDITIONAL_ASSERT / CONDITIONAL_ASSERT /
+        // UNKNOWN). For UNKNOWN methods (no body in headers) the metadata is
+        // unchanged from 10a.
         const bool is_inline = method->isInlined();
         const bool has_deprecated =
             method->hasAttr<clang::DeprecatedAttr>() ||
@@ -397,6 +607,9 @@ MacroGenerator::~MacroGenerator(void) {
             method->getVisibility() == clang::HiddenVisibility;
         const std::string doxygen_escaped =
             EscapeForCStringLiteral(DoxygenFor(context, method));
+        const auto body_class = ClassifyBody(method, context);
+        const std::string predicate_escaped =
+            EscapeForCStringLiteral(body_class.predicate);
 
         mm_os << "  PASTA_METHOD_METADATA("
               << decl_name << ", " << method_id << ", " << method_name
@@ -404,8 +617,8 @@ MacroGenerator::~MacroGenerator(void) {
               << ", " << (is_inline ? '1' : '0')
               << ", " << (has_deprecated ? '1' : '0')
               << ", " << (has_hidden_visibility ? '1' : '0')
-              << ", UNKNOWN"
-              << ", \"\""
+              << ", " << body_class.kind
+              << ", \"" << predicate_escaped << "\""
               << ", \"" << doxygen_escaped << "\")\n";
 
         ++method_id;

@@ -39,19 +39,28 @@ const std::vector<ClassExtends> kAdditionalExtends{
   {"OMPRequiresDecl", "OMPDeclarativeDirectiveDecl"},
 };
 
-// Names that the automatic base-chain categorization must skip:
+// Names that the automatic base-chain categorization must skip. Today these
+// fall into three groups:
 //
-// - `ExceptionSpecification` is referenced by manual override files
-//   (`lib/AST/TypeManual.cpp`) but isn't itself a wrapped Clang AST node, so
-//   it shouldn't land in any of the four category vectors.
-// - `TypeWithKeyword` is a real Clang base class (so the base chain would
-//   place it in the Type category), but its position in `gTypeNames` is
-//   controlled by an explicit push in `Main.cpp` to preserve the topological
-//   ordering of `gTopologicallyOrderedTypes`. Auto-categorizing it would
-//   insert it mid-list and reshuffle the generated `Type.h`/`Type.cpp`.
+// - PASTA-only helper types referenced by manual override files but not
+//   wrapped as a Clang AST node (`ExceptionSpecification`).
+// - Clang AST classes with no public base in `kExtends` (their base is
+//   skipped because it's non-public or non-AST), so the base-chain walk has
+//   nowhere to go; they're exposed by PASTA in dedicated places (`Common`,
+//   `DeclContext`, `FunctionTemplateSpecializationInfo`, `TemplateArgument`,
+//   `TypeSourceInfo`).
+// - Classes whose category is correct but whose position in the per-category
+//   vector is controlled elsewhere; auto-categorizing would reshuffle the
+//   topo-ordered output and break bootstrap-determinism (`TypeWithKeyword`,
+//   pushed explicitly by `Main.cpp` after categorization).
 const std::set<std::string> kCategorizationOptOut{
   "ExceptionSpecification",
   "TypeWithKeyword",
+  "Common",
+  "DeclContext",
+  "FunctionTemplateSpecializationInfo",
+  "TemplateArgument",
+  "TypeSourceInfo",
 };
 
 Category ResolveCategory(const std::string &name) {

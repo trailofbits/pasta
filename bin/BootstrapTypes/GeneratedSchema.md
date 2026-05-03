@@ -125,7 +125,12 @@ PASTA_METHOD_METADATA(
 
 The `(meth_id, meth)` tuple is the join key into `Generated.h`. Consumers walk `Generated.h` and `MethodMetadata.h` in lockstep.
 
-In the current LLVM 18 bootstrap, `body_classification` is always `UNKNOWN` and `crash_predicate` is always `""` — these fields are reserved for the body classifier (10b in plan). The other fields are populated.
+`body_classification` takes one of:
+
+- `SAFE` — body present, no crash-equivalent calls reachable on any obvious path.
+- `UNCONDITIONAL_ASSERT` — body's first reachable statement is a crash call (`assert`, `llvm_unreachable`, `report_fatal_error`, `__builtin_trap`, `__builtin_unreachable`, `abort`, or assert-macro post-expansion targets like `__assert_fail` / `__assert_rtn`). The wrapper should disable this method.
+- `CONDITIONAL_ASSERT` — body crashes only when a guard predicate fails. `crash_predicate` is set to the textual condition under which it is **safe** to call (i.e., the wrapper should `return std::nullopt` when this predicate is false).
+- `UNKNOWN` — no body available. Most non-trivial Clang methods are out-of-line (defined in `.cpp`, declared in headers); their bodies aren't visible to `bootstrap-macros`. Step 14 (`/pasta:curate-metadata` H7) treats `UNKNOWN` as "no signal" and falls back to other heuristics.
 
 `MethodMetadata.h` follows the same default-macros pattern: a top-of-file `#include "DefineDefaultMacros.h"` (which provides a no-op default for `PASTA_METHOD_METADATA`) and a bottom `#include "UndefineDefaultMacros.h"`.
 
